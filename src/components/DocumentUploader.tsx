@@ -1,9 +1,10 @@
+
 import React, { useState, useRef, DragEvent } from 'react';
 import { uploadFile, requestComplianceCheck } from '@/utils/apiService';
 import { validateFile, formatFileSize } from '@/utils/fileUtils';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { FilePdf2, FileText, FileUp, File, Loader2 } from 'lucide-react';
+import { FileText, FileUp, File, Loader2 } from 'lucide-react';
 
 interface DocumentUploaderProps {
   onReportGenerated: (reportId: string) => void;
