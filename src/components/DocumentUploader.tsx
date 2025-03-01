@@ -1,10 +1,9 @@
-
 import React, { useState, useRef, DragEvent } from 'react';
 import { uploadFile, requestComplianceCheck } from '@/utils/apiService';
 import { validateFile, formatFileSize } from '@/utils/fileUtils';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { FilePdf, FileText, FileUp, File, Loader2 } from 'lucide-react';
+import { FilePdf2, FileText, FileUp, File, Loader2 } from 'lucide-react';
 
 interface DocumentUploaderProps {
   onReportGenerated: (reportId: string) => void;
@@ -76,7 +75,6 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
         toast.success('Document uploaded successfully');
         setIsProcessing(true);
         
-        // Process the document for compliance
         const complianceResponse = await requestComplianceCheck(
           response.data.id,
           file.name
@@ -106,7 +104,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
     
     const type = file.type;
     if (type === 'application/pdf') {
-      return <FilePdf className="w-12 h-12 text-red-500" />;
+      return <File className="w-12 h-12 text-red-500" />;
     } else if (type.includes('word')) {
       return <FileText className="w-12 h-12 text-blue-500" />;
     } else if (type === 'text/plain') {

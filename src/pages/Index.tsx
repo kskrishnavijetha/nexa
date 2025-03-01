@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
 import ContactForm from '@/components/ContactForm';
 import DocumentUploader from '@/components/DocumentUploader';
 import ComplianceReport from '@/components/ComplianceReport';
+import { Button } from '@/components/ui/button';
 import { ComplianceReport as ComplianceReportType } from '@/utils/apiService';
 
 const Index = () => {
@@ -77,7 +77,6 @@ const Index = () => {
     setReport(null);
   };
 
-  // Render functions for different views
   const renderLanding = () => (
     <>
       <Hero onGetStarted={handleGetStarted} />
