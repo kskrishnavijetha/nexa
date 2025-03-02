@@ -30,9 +30,10 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8">
         <div className="text-center">
-          <h1 className="text-4xl font-bold mb-4">AI-Powered Compliance Checker</h1>
+          <p className="text-sm font-medium text-primary mb-2">Trusted by 1000+ companies</p>
+          <h1 className="text-4xl font-bold mb-4">AI-Powered Compliance Monitoring</h1>
           <p className="text-xl text-muted-foreground mb-8">
-            Automatically analyze your documents for GDPR, HIPAA, and SOC2 compliance
+            Automate your compliance monitoring with AI. Stay compliant with GDPR, HIPAA, SOC 2, and PCI-DSS regulations effortlessly.
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
