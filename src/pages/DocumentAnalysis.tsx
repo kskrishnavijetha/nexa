@@ -3,34 +3,48 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DocumentUploader from '@/components/DocumentUploader';
 import { Button } from '@/components/ui/button';
-import { ComplianceReport } from '@/utils/apiService';
+import { ComplianceReport, generateReportPDF } from '@/utils/apiService';
 import { ArrowLeft, Download, FileText } from 'lucide-react';
+import { toast } from 'sonner';
 
 const DocumentAnalysis = () => {
   const [report, setReport] = useState<ComplianceReport | null>(null);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const navigate = useNavigate();
 
   const handleReportGenerated = (reportData: ComplianceReport) => {
     setReport(reportData);
   };
 
-  const handleDownloadReport = () => {
+  const handleDownloadReport = async () => {
     if (!report) return;
     
-    // Create a downloadable report
-    const reportContent = JSON.stringify(report, null, 2);
-    const blob = new Blob([reportContent], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `compliance-report-${report.documentId}.json`;
-    document.body.appendChild(a);
-    a.click();
-    
-    // Clean up
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
+    try {
+      setIsGeneratingPDF(true);
+      
+      // Generate PDF report
+      const response = await generateReportPDF(report);
+      
+      if (response.error) {
+        toast.error(response.error);
+        return;
+      }
+      
+      if (response.data) {
+        // Create a simulated download link
+        const link = document.createElement('a');
+        link.href = `/report-downloads/${response.data}`;
+        link.download = response.data;
+        link.click();
+        
+        toast.success('PDF report downloaded successfully');
+      }
+    } catch (error) {
+      console.error('PDF generation error:', error);
+      toast.error('Failed to generate PDF report');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
   };
 
   return (
@@ -65,8 +79,17 @@ const DocumentAnalysis = () => {
                   variant="outline" 
                   className="flex items-center" 
                   onClick={handleDownloadReport}
+                  disabled={isGeneratingPDF}
                 >
-                  <Download className="mr-2 h-4 w-4" /> Download Report
+                  {isGeneratingPDF ? (
+                    <>
+                      <span className="animate-spin mr-2">⏳</span> Generating PDF...
+                    </>
+                  ) : (
+                    <>
+                      <Download className="mr-2 h-4 w-4" /> Download PDF Report
+                    </>
+                  )}
                 </Button>
               </div>
               
@@ -93,6 +116,19 @@ const DocumentAnalysis = () => {
                 <h3 className="text-lg font-semibold mb-3">Summary</h3>
                 <p className="text-slate-700">{report.summary}</p>
               </div>
+              
+              {report.suggestions && report.suggestions.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-3">Improvement Suggestions</h3>
+                  <ul className="space-y-2">
+                    {report.suggestions.map((suggestion, index) => (
+                      <li key={index} className="bg-blue-50 p-3 rounded border-l-4 border-blue-500">
+                        {suggestion}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               
               <div>
                 <h3 className="text-lg font-semibold mb-3">Compliance Issues</h3>

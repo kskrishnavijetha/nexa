@@ -1,3 +1,4 @@
+
 /**
  * Service for making API calls
  */
@@ -226,7 +227,7 @@ export const requestComplianceCheck = async (
 export const generateReportPDF = async (report: ComplianceReport): Promise<ApiResponse<string>> => {
   try {
     // Simulate API latency
-    await new Promise(resolve => setTimeout(resolve, 800));
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
     // In a real application, this would generate a PDF on the server
     // For now, we'll just return a success message with a mock URL
