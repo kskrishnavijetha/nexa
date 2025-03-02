@@ -20,7 +20,7 @@ const Index = () => {
   const handleGetStarted = () => {
     // Handle the get started action
     console.log("Get started clicked");
-    // You might want to navigate to a specific page or open a modal here
+    navigate('/document-analysis');
   };
 
   return (
@@ -38,7 +38,8 @@ const Index = () => {
               size="lg" 
               className="px-8"
               onClick={() => {
-                // Navigate to upload page or open upload modal
+                // Navigate to document analysis page
+                navigate('/document-analysis');
                 console.log("Upload clicked");
               }}
             >

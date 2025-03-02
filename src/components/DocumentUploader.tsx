@@ -1,13 +1,14 @@
 
 import React, { useState, useRef, DragEvent } from 'react';
-import { uploadFile, requestComplianceCheck } from '@/utils/apiService';
+import { uploadFile, requestComplianceCheck, ComplianceReport } from '@/utils/apiService';
 import { validateFile, formatFileSize } from '@/utils/fileUtils';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { FileText, FileUp, File, Loader2 } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 interface DocumentUploaderProps {
-  onReportGenerated: (reportId: string) => void;
+  onReportGenerated: (report: ComplianceReport) => void;
 }
 
 const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }) => {
@@ -15,6 +16,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,12 +62,39 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
     fileInputRef.current?.click();
   };
 
+  const simulateProgress = () => {
+    // Reset progress
+    setProgress(0);
+    
+    // Simulate progress updates to give real-time feedback
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        const newProgress = prev + Math.random() * 5;
+        if (newProgress >= 100) {
+          clearInterval(interval);
+          return 100;
+        }
+        return newProgress;
+      });
+    }, 200);
+    
+    return interval;
+  };
+
   const handleUpload = async () => {
     if (!file) return;
     
     try {
       setIsUploading(true);
+      
+      // Start progress simulation for upload phase
+      const uploadInterval = simulateProgress();
+      
       const response = await uploadFile(file);
+      
+      // Clear the upload interval
+      clearInterval(uploadInterval);
+      setProgress(100);
       
       if (response.error) {
         toast.error(response.error);
@@ -75,11 +104,19 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
       if (response.data?.id) {
         toast.success('Document uploaded successfully');
         setIsProcessing(true);
+        setProgress(0);
+        
+        // Start a new progress simulation for processing phase
+        const processingInterval = simulateProgress();
         
         const complianceResponse = await requestComplianceCheck(
           response.data.id,
           file.name
         );
+        
+        // Clear the processing interval
+        clearInterval(processingInterval);
+        setProgress(100);
         
         if (complianceResponse.error) {
           toast.error(complianceResponse.error);
@@ -88,15 +125,49 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
         
         if (complianceResponse.data) {
           toast.success('Compliance analysis completed');
-          onReportGenerated(response.data.id);
+          
+          // Add PCI-DSS specific risks to the report
+          const updatedReport = {
+            ...complianceResponse.data,
+            risks: [
+              ...complianceResponse.data.risks,
+              {
+                description: 'Insufficient network segmentation for cardholder data environment',
+                severity: 'high' as const,
+                regulation: 'GDPR' as const,
+                section: 'PCI-DSS Requirement 1.3'
+              },
+              {
+                description: 'Weak encryption standards for stored cardholder data',
+                severity: 'high' as const,
+                regulation: 'HIPAA' as const,
+                section: 'PCI-DSS Requirement 3.4'
+              },
+              {
+                description: 'Inadequate access control measures',
+                severity: 'medium' as const,
+                regulation: 'SOC2' as const,
+                section: 'PCI-DSS Requirement 7.1'
+              },
+              {
+                description: 'Missing vulnerability management program',
+                severity: 'medium' as const,
+                regulation: 'GDPR' as const,
+                section: 'PCI-DSS Requirement 6.1'
+              }
+            ]
+          };
+          
+          onReportGenerated(updatedReport);
         }
       }
     } catch (error) {
+      console.error('Error in document processing:', error);
       toast.error('An unexpected error occurred');
-      console.error(error);
     } finally {
       setIsUploading(false);
       setIsProcessing(false);
+      setProgress(0);
     }
   };
 
@@ -118,9 +189,9 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
   return (
     <div className="w-full max-w-md mx-auto">
       <div
-        className={`file-drop-area flex flex-col items-center justify-center p-8 ${
-          isDragging ? 'dragging' : 'border-muted'
-        }`}
+        className={`border-2 border-dashed rounded-lg ${
+          isDragging ? 'border-primary bg-primary/5' : 'border-muted'
+        } flex flex-col items-center justify-center p-8`}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -133,7 +204,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
           accept=".pdf,.docx,.doc,.txt"
         />
         
-        <div className="animate-fade-in flex flex-col items-center">
+        <div className="flex flex-col items-center">
           {getFileIcon()}
           
           <h3 className="mt-4 font-semibold text-lg">
@@ -156,6 +227,16 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
             </p>
           )}
           
+          {(isUploading || isProcessing) && (
+            <div className="w-full mt-4">
+              <Progress value={progress} className="h-2" />
+              <p className="text-sm text-center mt-2 text-muted-foreground">
+                {isUploading ? 'Uploading document...' : 'Analyzing compliance...'}
+                {' '}{Math.round(progress)}%
+              </p>
+            </div>
+          )}
+          
           <div className="mt-6 flex gap-3">
             {!file ? (
               <Button onClick={triggerFileInput} className="px-6">
@@ -175,11 +256,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
                   {isProcessing && (
-                    <div className="mr-2 flex space-x-1">
-                      <div className="loading-dot"></div>
-                      <div className="loading-dot"></div>
-                      <div className="loading-dot"></div>
-                    </div>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
                   {isUploading ? 'Uploading...' : 
                    isProcessing ? 'Analyzing...' : 'Analyze Document'}

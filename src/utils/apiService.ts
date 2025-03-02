@@ -1,4 +1,3 @@
-
 /**
  * Service for making API calls
  */
@@ -18,8 +17,8 @@ export const uploadFile = async (file: File): Promise<ApiResponse<{ id: string }
     const formData = new FormData();
     formData.append('file', file);
     
-    // Simulate API latency
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Simulate API latency (shorter for better UX)
+    await new Promise(resolve => setTimeout(resolve, 800));
     
     // Mock successful response (would be a real API call in production)
     return {
@@ -60,9 +59,11 @@ export interface ComplianceReport {
   gdprScore: number;
   hipaaScore: number;
   soc2Score: number;
+  pciDssScore?: number;
   risks: RiskItem[];
   summary: string;
   timestamp: string;
+  suggestions?: string[];
 }
 
 /**
@@ -74,49 +75,135 @@ export const requestComplianceCheck = async (
 ): Promise<ApiResponse<ComplianceReport>> => {
   try {
     // Simulate API latency
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Mock compliance report (would be a real API call in production)
+    // Generate random scores but keep them somewhat consistent
+    const gdprScore = Math.floor(Math.random() * 40) + 60;
+    const hipaaScore = Math.floor(Math.random() * 40) + 60;
+    const soc2Score = Math.floor(Math.random() * 40) + 60;
+    const pciDssScore = Math.floor(Math.random() * 40) + 60;
+    
+    // Calculate overall score as an average
+    const overallScore = Math.floor((gdprScore + hipaaScore + soc2Score + pciDssScore) / 4);
+    
+    // Define risks based on scores
+    const risks: RiskItem[] = [];
+    
+    // Add GDPR risks if score is below threshold
+    if (gdprScore < 90) {
+      risks.push({
+        description: 'Personal data storage duration not specified',
+        severity: 'medium',
+        regulation: 'GDPR',
+        section: 'Article 5'
+      });
+    }
+    
+    if (gdprScore < 75) {
+      risks.push({
+        description: 'No clear process for data subject access requests',
+        severity: 'high',
+        regulation: 'GDPR',
+        section: 'Article 15'
+      });
+    }
+    
+    // Add HIPAA risks if score is below threshold
+    if (hipaaScore < 85) {
+      risks.push({
+        description: 'Insufficient details on physical safeguards',
+        severity: 'medium',
+        regulation: 'HIPAA',
+        section: '164.310'
+      });
+    }
+    
+    if (hipaaScore < 70) {
+      risks.push({
+        description: 'Missing data encryption requirements',
+        severity: 'high',
+        regulation: 'HIPAA',
+        section: '164.312(a)(2)(iv)'
+      });
+    }
+    
+    // Add SOC2 risks if score is below threshold
+    if (soc2Score < 80) {
+      risks.push({
+        description: 'Access control policy needs enhancement',
+        severity: 'low',
+        regulation: 'SOC2',
+        section: 'CC6.1'
+      });
+    }
+    
+    // Add PCI-DSS related risks
+    if (pciDssScore < 85) {
+      risks.push({
+        description: 'Insufficient network segmentation for cardholder data environment',
+        severity: 'high',
+        regulation: 'GDPR',
+        section: 'PCI-DSS Requirement 1.3'
+      });
+    }
+    
+    if (pciDssScore < 75) {
+      risks.push({
+        description: 'Weak encryption standards for stored cardholder data',
+        severity: 'high',
+        regulation: 'HIPAA',
+        section: 'PCI-DSS Requirement 3.4'
+      });
+    }
+    
+    if (pciDssScore < 90) {
+      risks.push({
+        description: 'Inadequate access control measures',
+        severity: 'medium',
+        regulation: 'SOC2',
+        section: 'PCI-DSS Requirement 7.1'
+      });
+    }
+    
+    // Generate suggestions based on risks
+    const suggestions = [
+      'Implement a data retention policy that clearly specifies storage durations for all personal data',
+      'Establish a formal process for handling data subject access requests with defined timelines',
+      'Enhance physical safeguards documentation to include detailed security measures',
+      'Implement strong encryption for all sensitive data using industry-standard algorithms',
+      'Update access control policies to follow the principle of least privilege',
+      'Implement network segmentation to isolate cardholder data environment',
+      'Conduct regular vulnerability scanning and penetration testing',
+      'Document and implement a formal incident response plan'
+    ];
+    
+    // Create a relevant summary based on scores and risks
+    let summary = '';
+    
+    if (overallScore > 85) {
+      summary = 'This document demonstrates a strong compliance posture overall, with only minor issues to address.';
+    } else if (overallScore > 70) {
+      summary = 'This document has several compliance areas that need improvement. The most critical issues relate to ' + 
+        (gdprScore < 75 ? 'GDPR data subject rights' : '') + 
+        (hipaaScore < 70 ? (gdprScore < 75 ? ' and ' : '') + 'HIPAA data encryption requirements' : '') +
+        (pciDssScore < 75 ? (gdprScore < 75 || hipaaScore < 70 ? ' and ' : '') + 'PCI-DSS cardholder data protection' : '') + 
+        '.';
+    } else {
+      summary = 'This document has significant compliance gaps that require immediate attention across multiple regulatory frameworks.';
+    }
+    
+    // Mock compliance report with real-time values
     const mockReport: ComplianceReport = {
       documentId,
       documentName,
-      overallScore: Math.floor(Math.random() * 40) + 60, // Random score between 60-100
-      gdprScore: Math.floor(Math.random() * 40) + 60,
-      hipaaScore: Math.floor(Math.random() * 40) + 60,
-      soc2Score: Math.floor(Math.random() * 40) + 60,
-      risks: [
-        {
-          description: 'Personal data storage duration not specified',
-          severity: 'medium',
-          regulation: 'GDPR',
-          section: 'Article 5'
-        },
-        {
-          description: 'No clear process for data subject access requests',
-          severity: 'high',
-          regulation: 'GDPR',
-          section: 'Article 15'
-        },
-        {
-          description: 'Insufficient details on physical safeguards',
-          severity: 'medium',
-          regulation: 'HIPAA',
-          section: '164.310'
-        },
-        {
-          description: 'Access control policy needs enhancement',
-          severity: 'low',
-          regulation: 'SOC2',
-          section: 'CC6.1'
-        },
-        {
-          description: 'Missing data encryption requirements',
-          severity: 'high',
-          regulation: 'HIPAA',
-          section: '164.312(a)(2)(iv)'
-        }
-      ],
-      summary: 'This document has several compliance areas that need improvement. The most critical issues relate to GDPR data subject rights and HIPAA data encryption requirements.',
+      overallScore,
+      gdprScore,
+      hipaaScore,
+      soc2Score,
+      pciDssScore,
+      risks,
+      summary,
+      suggestions,
       timestamp: new Date().toISOString()
     };
     
@@ -139,7 +226,7 @@ export const requestComplianceCheck = async (
 export const generateReportPDF = async (report: ComplianceReport): Promise<ApiResponse<string>> => {
   try {
     // Simulate API latency
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 800));
     
     // In a real application, this would generate a PDF on the server
     // For now, we'll just return a success message with a mock URL
