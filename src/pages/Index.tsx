@@ -16,6 +16,12 @@ const Index = () => {
     }
   }, []);
 
+  const handleGetStarted = () => {
+    // Handle the get started action
+    console.log("Get started clicked");
+    // You might want to navigate to a specific page or open a modal here
+  };
+
   if (currentPage === 'payment') {
     return <Payment />;
   }
@@ -53,7 +59,7 @@ const Index = () => {
           </div>
         </div>
         
-        <Hero />
+        <Hero onGetStarted={handleGetStarted} />
         <Features />
         <ContactForm />
       </div>
