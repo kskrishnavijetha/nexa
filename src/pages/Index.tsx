@@ -4,10 +4,11 @@ import Hero from '@/components/Hero';
 import Features from '@/components/Features';
 import ContactForm from '@/components/ContactForm';
 import { Button } from '@/components/ui/button';
-import Payment from './Payment';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
   const [currentPage, setCurrentPage] = useState('home');
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check if URL contains payment
@@ -21,10 +22,6 @@ const Index = () => {
     console.log("Get started clicked");
     // You might want to navigate to a specific page or open a modal here
   };
-
-  if (currentPage === 'payment') {
-    return <Payment />;
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -51,8 +48,7 @@ const Index = () => {
               variant="outline" 
               size="lg"
               onClick={() => {
-                window.location.href = "/payment";
-                setCurrentPage('payment');
+                navigate('/payment');
               }}
             >
               Pricing Plans
