@@ -2,6 +2,7 @@
 import React from 'react';
 import PaymentForm from '@/components/PaymentForm';
 import { useNavigate } from 'react-router-dom';
+import { Check } from 'lucide-react';
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -14,97 +15,85 @@ const Payment = () => {
     }, 2000);
   };
 
+  // Feature lists for each tier
+  const basicFeatures = [
+    "10 compliance scans per month",
+    "Basic GDPR, HIPAA, and SOC2 compliance checks",
+    "Downloadable PDF reports",
+    "Email support"
+  ];
+  
+  const proFeatures = [
+    "50 compliance scans per month",
+    "Advanced compliance analysis for all regulations",
+    "Detailed risk analysis with severity ratings",
+    "AI-powered recommendations",
+    "Priority email support"
+  ];
+  
+  const enterpriseFeatures = [
+    "Unlimited compliance scans",
+    "Comprehensive compliance analysis for all regulations",
+    "Custom compliance templates",
+    "Advanced AI-powered suggestions",
+    "Dedicated account manager",
+    "24/7 priority support"
+  ];
+
   return (
     <div className="container mx-auto py-12">
-      <div className="max-w-3xl mx-auto">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-3xl font-bold text-center mb-10">Choose Your Subscription Plan</h1>
         <div className="flex flex-col md:flex-row gap-8">
           <div className="flex-1">
             <PaymentForm onSuccess={handlePaymentSuccess} />
           </div>
           <div className="flex-1 bg-muted/30 p-6 rounded-lg">
             <h3 className="text-lg font-medium mb-4">What you get</h3>
-            <ul className="space-y-2">
-              <li className="flex items-start gap-2">
-                <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                  <svg
-                    className="h-3 w-3 text-primary"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-                <span className="text-sm">
-                  Comprehensive GDPR, HIPAA, and SOC2 compliance analysis
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                  <svg
-                    className="h-3 w-3 text-primary"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-                <span className="text-sm">
-                  Downloadable PDF reports for your records
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                  <svg
-                    className="h-3 w-3 text-primary"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-                <span className="text-sm">
-                  Detailed risk analysis with severity ratings
-                </span>
-              </li>
-              <li className="flex items-start gap-2">
-                <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                  <svg
-                    className="h-3 w-3 text-primary"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M5 13l4 4L19 7"
-                    />
-                  </svg>
-                </div>
-                <span className="text-sm">
-                  AI-powered suggestions for addressing compliance issues
-                </span>
-              </li>
-            </ul>
+            
+            <div className="space-y-6">
+              <div>
+                <h4 className="font-medium text-primary mb-2">Basic Plan - $29/month</h4>
+                <ul className="space-y-2">
+                  {basicFeatures.map((feature, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <div className="rounded-full bg-primary/10 p-1 mt-0.5">
+                        <Check className="h-3 w-3 text-primary" />
+                      </div>
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-medium text-primary mb-2">Pro Plan - $99/month</h4>
+                <ul className="space-y-2">
+                  {proFeatures.map((feature, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <div className="rounded-full bg-primary/10 p-1 mt-0.5">
+                        <Check className="h-3 w-3 text-primary" />
+                      </div>
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div>
+                <h4 className="font-medium text-primary mb-2">Enterprise Plan - $299/month</h4>
+                <ul className="space-y-2">
+                  {enterpriseFeatures.map((feature, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <div className="rounded-full bg-primary/10 p-1 mt-0.5">
+                        <Check className="h-3 w-3 text-primary" />
+                      </div>
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>
