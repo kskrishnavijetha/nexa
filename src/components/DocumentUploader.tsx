@@ -1,10 +1,18 @@
+
 import React, { useState, useRef, DragEvent } from 'react';
-import { uploadFile, requestComplianceCheck, ComplianceReport } from '@/utils/apiService';
+import { uploadFile, requestComplianceCheck, ComplianceReport, Industry, INDUSTRY_REGULATIONS } from '@/utils/apiService';
 import { validateFile, formatFileSize } from '@/utils/fileUtils';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { FileText, FileUp, File, Loader2 } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DocumentUploaderProps {
   onReportGenerated: (report: ComplianceReport) => void;
@@ -12,6 +20,7 @@ interface DocumentUploaderProps {
 
 const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }) => {
   const [file, setFile] = useState<File | null>(null);
+  const [industry, setIndustry] = useState<Industry | undefined>(undefined);
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -81,7 +90,15 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
   };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!file) {
+      toast.error('Please select a file to upload');
+      return;
+    }
+    
+    if (!industry) {
+      toast.error('Please select an industry');
+      return;
+    }
     
     try {
       setIsUploading(true);
@@ -110,7 +127,8 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
         
         const complianceResponse = await requestComplianceCheck(
           response.data.id,
-          file.name
+          file.name,
+          industry
         );
         
         // Clear the processing interval
@@ -124,40 +142,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
         
         if (complianceResponse.data) {
           toast.success('Compliance analysis completed');
-          
-          // Add PCI-DSS specific risks to the report
-          const updatedReport = {
-            ...complianceResponse.data,
-            risks: [
-              ...complianceResponse.data.risks,
-              {
-                description: 'Insufficient network segmentation for cardholder data environment',
-                severity: 'high' as const,
-                regulation: 'GDPR' as const,
-                section: 'PCI-DSS Requirement 1.3'
-              },
-              {
-                description: 'Weak encryption standards for stored cardholder data',
-                severity: 'high' as const,
-                regulation: 'HIPAA' as const,
-                section: 'PCI-DSS Requirement 3.4'
-              },
-              {
-                description: 'Inadequate access control measures',
-                severity: 'medium' as const,
-                regulation: 'SOC2' as const,
-                section: 'PCI-DSS Requirement 7.1'
-              },
-              {
-                description: 'Missing vulnerability management program',
-                severity: 'medium' as const,
-                regulation: 'GDPR' as const,
-                section: 'PCI-DSS Requirement 6.1'
-              }
-            ]
-          };
-          
-          onReportGenerated(updatedReport);
+          onReportGenerated(complianceResponse.data);
         }
       }
     } catch (error) {
@@ -226,6 +211,22 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
             </p>
           )}
           
+          <div className="w-full mt-4">
+            <label className="text-sm font-medium mb-1 block">Select Industry</label>
+            <Select value={industry} onValueChange={(value) => setIndustry(value as Industry)}>
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Select an industry" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.keys(INDUSTRY_REGULATIONS).map((ind) => (
+                  <SelectItem key={ind} value={ind}>
+                    {ind}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          
           {(isUploading || isProcessing) && (
             <div className="w-full mt-4">
               <Progress value={progress} className="h-2" />
@@ -248,7 +249,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
                 </Button>
                 <Button 
                   onClick={handleUpload} 
-                  disabled={isUploading || isProcessing}
+                  disabled={isUploading || isProcessing || !industry}
                   className="px-6"
                 >
                   {isUploading && (

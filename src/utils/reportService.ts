@@ -33,51 +33,94 @@ export const generateReportPDF = async (report: ComplianceReport): Promise<ApiRe
     doc.text(`Document: ${report.documentName}`, 20, 35);
     doc.text(`Generated: ${new Date(report.timestamp).toLocaleString()}`, 20, 42);
     
+    // Add industry if available
+    if (report.industry) {
+      doc.text(`Industry: ${report.industry}`, 20, 49);
+      
+      // List applicable regulations if available
+      if (report.regulations && report.regulations.length > 0) {
+        doc.text(`Applicable Regulations: ${report.regulations.join(', ')}`, 20, 56);
+      }
+    }
+    
+    // Adjust Y position based on whether industry info was added
+    let yPos = report.industry ? 70 : 55;
+    
     // Add scores section
     doc.setFontSize(14);
     doc.setTextColor(0, 51, 102);
-    doc.text('COMPLIANCE SCORES', 20, 55);
+    doc.text('COMPLIANCE SCORES', 20, yPos);
     
     // Set normal font for content
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     
     // Add scores
-    doc.text(`Overall Compliance: ${report.overallScore}%`, 25, 65);
-    doc.text(`GDPR Compliance: ${report.gdprScore}%`, 25, 72);
-    doc.text(`HIPAA Compliance: ${report.hipaaScore}%`, 25, 79);
-    doc.text(`SOC 2 Compliance: ${report.soc2Score}%`, 25, 86);
+    yPos += 10;
+    doc.text(`Overall Compliance: ${report.overallScore}%`, 25, yPos);
+    yPos += 7;
+    
+    // Add standard scores
+    doc.text(`GDPR Compliance: ${report.gdprScore}%`, 25, yPos);
+    yPos += 7;
+    doc.text(`HIPAA Compliance: ${report.hipaaScore}%`, 25, yPos);
+    yPos += 7;
+    doc.text(`SOC 2 Compliance: ${report.soc2Score}%`, 25, yPos);
+    yPos += 7;
+    
     if (report.pciDssScore) {
-      doc.text(`PCI-DSS Compliance: ${report.pciDssScore}%`, 25, 93);
+      doc.text(`PCI-DSS Compliance: ${report.pciDssScore}%`, 25, yPos);
+      yPos += 7;
+    }
+    
+    // Add industry-specific scores if available
+    if (report.industryScores && Object.keys(report.industryScores).length > 0) {
+      yPos += 3;
+      doc.text('Industry-Specific Compliance:', 25, yPos);
+      yPos += 7;
+      
+      for (const [regulation, score] of Object.entries(report.industryScores)) {
+        doc.text(`${regulation}: ${score}%`, 30, yPos);
+        yPos += 7;
+        
+        // If we're near the end of the page, create a new page
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 20;
+        }
+      }
     }
     
     // Add summary section
+    yPos += 5;
     doc.setFontSize(14);
     doc.setTextColor(0, 51, 102);
-    doc.text('SUMMARY', 20, 105);
+    doc.text('SUMMARY', 20, yPos);
     
     // Set normal font for content
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     
     // Add wrapped summary text
+    yPos += 10;
     const summaryLines = doc.splitTextToSize(report.summary, 170);
-    doc.text(summaryLines, 20, 115);
+    doc.text(summaryLines, 20, yPos);
     
     // Calculate Y position after summary
-    let yPos = 115 + (summaryLines.length * 7);
+    yPos += (summaryLines.length * 7);
     
     // Add suggestions section
     if (report.suggestions && report.suggestions.length > 0) {
+      yPos += 10;
       doc.setFontSize(14);
       doc.setTextColor(0, 51, 102);
-      doc.text('IMPROVEMENT SUGGESTIONS', 20, yPos + 10);
+      doc.text('IMPROVEMENT SUGGESTIONS', 20, yPos);
       
       // Set normal font for content
       doc.setFontSize(10);
       doc.setTextColor(0, 0, 0);
       
-      yPos += 20;
+      yPos += 10;
       
       // Add each suggestion
       for (const suggestion of report.suggestions) {
@@ -97,15 +140,16 @@ export const generateReportPDF = async (report: ComplianceReport): Promise<ApiRe
     }
     
     // Add compliance issues section
+    yPos += 10;
     doc.setFontSize(14);
     doc.setTextColor(0, 51, 102);
-    doc.text('COMPLIANCE ISSUES', 20, yPos + 10);
+    doc.text('COMPLIANCE ISSUES', 20, yPos);
     
     // Set normal font for content
     doc.setFontSize(10);
     doc.setTextColor(0, 0, 0);
     
-    yPos += 20;
+    yPos += 10;
     
     // Add each risk
     for (const risk of report.risks) {

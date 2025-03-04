@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DocumentUploader from '@/components/DocumentUploader';
@@ -68,7 +69,7 @@ const DocumentAnalysis = () => {
         <div className="text-center mb-12">
           <h1 className="text-3xl font-bold">Document Analysis</h1>
           <p className="text-muted-foreground mt-2">
-            Upload a document to analyze compliance with GDPR, HIPAA, SOC 2, and PCI-DSS regulations
+            Upload a document to analyze compliance with various industry regulations
           </p>
         </div>
         
@@ -100,6 +101,19 @@ const DocumentAnalysis = () => {
                 </Button>
               </div>
               
+              {report.industry && (
+                <div className="mb-4">
+                  <div className="bg-slate-100 p-3 rounded">
+                    <h3 className="font-medium text-slate-700">Industry: {report.industry}</h3>
+                    {report.regulations && report.regulations.length > 0 && (
+                      <p className="text-sm text-slate-600 mt-1">
+                        Applicable Regulations: {report.regulations.join(', ')}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
+              
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div className="bg-slate-50 p-4 rounded">
                   <p className="text-sm text-muted-foreground">Overall Score</p>
@@ -118,6 +132,21 @@ const DocumentAnalysis = () => {
                   <p className="text-2xl font-bold text-slate-900">{report.soc2Score}%</p>
                 </div>
               </div>
+              
+              {/* Display industry-specific scores if available */}
+              {report.industryScores && Object.keys(report.industryScores).length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-3">Industry-Specific Scores</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {Object.entries(report.industryScores).map(([regulation, score]) => (
+                      <div key={regulation} className="bg-blue-50 p-3 rounded border-l-4 border-blue-500">
+                        <p className="text-sm text-muted-foreground">{regulation}</p>
+                        <p className="text-xl font-bold text-slate-900">{score}%</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-3">Summary</h3>
