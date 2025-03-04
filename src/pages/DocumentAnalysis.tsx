@@ -31,11 +31,19 @@ const DocumentAnalysis = () => {
       }
       
       if (response.data) {
-        // Create a simulated download link
+        // Create a blob URL for the PDF
+        const blobUrl = URL.createObjectURL(response.data);
+        
+        // Create a download link and trigger the download
         const link = document.createElement('a');
-        link.href = `/report-downloads/${response.data}`;
-        link.download = response.data;
+        link.href = blobUrl;
+        link.download = `compliance-report-${report.documentId}.pdf`;
+        document.body.appendChild(link);
         link.click();
+        
+        // Clean up
+        document.body.removeChild(link);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
         
         toast.success('PDF report downloaded successfully');
       }

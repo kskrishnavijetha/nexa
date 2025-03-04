@@ -1,4 +1,3 @@
-
 /**
  * Service for making API calls
  */
@@ -222,18 +221,54 @@ export const requestComplianceCheck = async (
 };
 
 /**
- * Generate a downloadable compliance report
+ * Generate a downloadable compliance report PDF
+ * Instead of returning a file path, this now returns the PDF content as a Blob
  */
-export const generateReportPDF = async (report: ComplianceReport): Promise<ApiResponse<string>> => {
+export const generateReportPDF = async (report: ComplianceReport): Promise<ApiResponse<Blob>> => {
   try {
     // Simulate API latency
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // In a real application, this would generate a PDF on the server
-    // For now, we'll just return a success message with a mock URL
+    // In a real application, this would generate a proper PDF with formatting
+    // For our demo, we'll create a simple text-based PDF simulation
+    
+    // Create the report content as a string
+    const reportContent = `
+COMPLIANCE ANALYSIS REPORT
+==========================
+Document: ${report.documentName}
+Generated: ${new Date(report.timestamp).toLocaleString()}
+
+COMPLIANCE SCORES
+----------------
+Overall Compliance: ${report.overallScore}%
+GDPR Compliance: ${report.gdprScore}%
+HIPAA Compliance: ${report.hipaaScore}%
+SOC 2 Compliance: ${report.soc2Score}%
+PCI-DSS Compliance: ${report.pciDssScore}%
+
+SUMMARY
+-------
+${report.summary}
+
+IMPROVEMENT SUGGESTIONS
+----------------------
+${report.suggestions?.join('\n\n') || 'No suggestions provided.'}
+
+COMPLIANCE ISSUES
+---------------
+${report.risks.map(risk => 
+  `[${risk.severity.toUpperCase()}] ${risk.description}
+   Regulation: ${risk.regulation} ${risk.section ? `- ${risk.section}` : ''}`
+).join('\n\n')}
+`;
+
+    // Create a Blob from the content
+    // In a real application, you would use a PDF generation library
+    const blob = new Blob([reportContent], { type: 'application/pdf' });
     
     return {
-      data: `compliance-report-${report.documentId}.pdf`,
+      data: blob,
       status: 200
     };
   } catch (error) {
