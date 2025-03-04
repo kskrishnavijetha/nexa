@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DocumentUploader from '@/components/DocumentUploader';
 import { Button } from '@/components/ui/button';
-import { ComplianceReport, generateReportPDF } from '@/utils/apiService';
+import { ComplianceReport, generateReportPDF } from '../utils/apiService';
 import { ArrowLeft, Download, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, DragEvent } from 'react';
 import { uploadFile, requestComplianceCheck, ComplianceReport } from '@/utils/apiService';
 import { validateFile, formatFileSize } from '@/utils/fileUtils';
