@@ -6,6 +6,9 @@ import { Button } from '@/components/ui/button';
 import { ComplianceReport, generateReportPDF } from '../utils/apiService';
 import { ArrowLeft, Download, FileText } from 'lucide-react';
 import { toast } from 'sonner';
+import ComplianceCharts from '@/components/ComplianceCharts';
+import RiskAnalysis from '@/components/RiskAnalysis';
+import AuditTrail from '@/components/AuditTrail';
 
 const DocumentAnalysis = () => {
   const [report, setReport] = useState<ComplianceReport | null>(null);
@@ -133,20 +136,11 @@ const DocumentAnalysis = () => {
                 </div>
               </div>
               
-              {/* Display industry-specific scores if available */}
-              {report.industryScores && Object.keys(report.industryScores).length > 0 && (
-                <div className="mb-6">
-                  <h3 className="text-lg font-semibold mb-3">Industry-Specific Scores</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {Object.entries(report.industryScores).map(([regulation, score]) => (
-                      <div key={regulation} className="bg-blue-50 p-3 rounded border-l-4 border-blue-500">
-                        <p className="text-sm text-muted-foreground">{regulation}</p>
-                        <p className="text-xl font-bold text-slate-900">{score}%</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Interactive Charts */}
+              <ComplianceCharts report={report} />
+              
+              {/* Risk Analysis */}
+              <RiskAnalysis risks={report.risks} />
               
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-3">Summary</h3>
@@ -166,36 +160,8 @@ const DocumentAnalysis = () => {
                 </div>
               )}
               
-              <div>
-                <h3 className="text-lg font-semibold mb-3">Compliance Issues</h3>
-                <div className="space-y-3">
-                  {report.risks.map((risk, index) => (
-                    <div 
-                      key={index} 
-                      className={`p-4 rounded border-l-4 ${
-                        risk.severity === 'high' ? 'border-red-500 bg-red-50' : 
-                        risk.severity === 'medium' ? 'border-amber-500 bg-amber-50' : 
-                        'border-blue-500 bg-blue-50'
-                      }`}
-                    >
-                      <div className="flex justify-between">
-                        <h4 className="font-medium">{risk.description}</h4>
-                        <span className={`text-xs px-2 py-1 rounded-full ${
-                          risk.severity === 'high' ? 'bg-red-100 text-red-800' : 
-                          risk.severity === 'medium' ? 'bg-amber-100 text-amber-800' : 
-                          'bg-blue-100 text-blue-800'
-                        }`}>
-                          {risk.severity.toUpperCase()}
-                        </span>
-                      </div>
-                      <p className="text-sm mt-1">
-                        <span className="font-medium">{risk.regulation}</span>
-                        {risk.section && ` - ${risk.section}`}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              {/* Audit Trail */}
+              <AuditTrail documentName={report.documentName} />
             </div>
             
             <div className="mt-8 text-center">
