@@ -46,10 +46,10 @@ Monitoring  </h1>
               Pricing Plans
             </Button>
             <Button variant="secondary" size="lg" className="flex items-center gap-2" onClick={() => {
-            navigate('/dashboard');
+            navigate('/user');
           }}>
               <Activity className="h-4 w-4" />
-              View Dashboard
+              View User Area
             </Button>
           </div>
         </div>
