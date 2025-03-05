@@ -71,7 +71,7 @@ const ComplianceCharts: React.FC<ComplianceChartsProps> = ({ report }) => {
                 <YAxis domain={[0, 100]} />
                 <Tooltip formatter={(value) => [`${value}%`, 'Score']} />
                 <Legend />
-                <Bar dataKey="score" nameKey="name" />
+                <Bar dataKey="score" fill={(data) => data.fill} />
               </BarChart>
             </ResponsiveContainer>
           </div>
