@@ -15,7 +15,7 @@ const Hero: React.FC<HeroProps> = ({
       
       <div className="container px-4 py-20 md:py-32 max-w-6xl mx-auto">
         <div className="text-center max-w-3xl mx-auto animate-fade-up">
-          <div className="mb-6 inline-flex items-center px-3 py-1 rounded-full text-primary-foreground/80 text-sm font-medium bg-blue-500">
+          <div className="mb-6 inline-flex items-center px-3 py-1 text-primary-foreground/80 text-sm font-medium rounded-none bg-blue-900">
             <ShieldCheck className="w-4 h-4 mr-2" />
             AI-Powered Compliance Made Simple
           </div>
@@ -31,7 +31,7 @@ const Hero: React.FC<HeroProps> = ({
           </p>
           
           <div className="flex flex-col sm:flex-row justify-center gap-4 mb-10">
-            <Button size="lg" onClick={onGetStarted} className="text-base px-8 h-12 text-blue-500">
+            <Button size="lg" onClick={onGetStarted} className="text-base px-8 h-12 text-blue-500 bg-blue-300 hover:bg-blue-200">
               Analyze Your Document
               <FileCog className="ml-2 h-5 w-5" />
             </Button>
