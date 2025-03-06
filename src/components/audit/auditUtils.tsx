@@ -15,14 +15,7 @@ export const generateMockAuditTrail = (documentName: string): AuditEvent[] => {
       user: 'Compliance Officer',
       icon: <FileText className="h-4 w-4 text-blue-500" />,
       status: 'completed',
-      comments: [
-        {
-          id: 'c1',
-          user: 'Compliance Officer',
-          text: 'Initial document uploaded for review',
-          timestamp: new Date(now.getTime() - 3590000).toISOString()
-        }
-      ]
+      comments: []
     },
     {
       id: '2',
@@ -41,14 +34,7 @@ export const generateMockAuditTrail = (documentName: string): AuditEvent[] => {
       user: 'System',
       icon: <Check className="h-4 w-4 text-green-500" />,
       status: 'completed',
-      comments: [
-        {
-          id: 'c2',
-          user: 'Legal Advisor',
-          text: 'Found several potential GDPR compliance issues that need to be addressed',
-          timestamp: new Date(now.getTime() - 3380000).toISOString()
-        }
-      ]
+      comments: []
     },
     {
       id: '4',
@@ -67,20 +53,7 @@ export const generateMockAuditTrail = (documentName: string): AuditEvent[] => {
       user: 'Compliance Officer',
       icon: <Users className="h-4 w-4 text-orange-500" />,
       status: 'in-progress',
-      comments: [
-        {
-          id: 'c3',
-          user: 'Compliance Officer',
-          text: 'Assigned remediation tasks to the development team',
-          timestamp: new Date(now.getTime() - 2390000).toISOString()
-        },
-        {
-          id: 'c4',
-          user: 'Developer',
-          text: 'Working on fixing identified issues, will update when complete',
-          timestamp: new Date(now.getTime() - 1800000).toISOString()
-        }
-      ]
+      comments: []
     },
     {
       id: '6',
