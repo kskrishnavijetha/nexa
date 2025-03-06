@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock, Eye, Check, Users, UserCheck } from 'lucide-react';
@@ -20,9 +19,10 @@ const AuditTrail: React.FC<AuditTrailProps> = ({ documentName }) => {
   // Initialize auditEvents
   useEffect(() => {
     setAuditEvents(generateMockAuditTrail(documentName));
+    setLastActivity(new Date());
   }, [documentName]);
 
-  // Real-time updates simulation
+  // Real-time updates simulation - enhanced for more frequent updates
   useEffect(() => {
     // Create a function that will add a new event occasionally
     const addRealTimeEvent = () => {
@@ -37,14 +37,18 @@ const AuditTrail: React.FC<AuditTrailProps> = ({ documentName }) => {
         'Document reviewed',
         'Changes suggested',
         'Compliance check performed',
-        'Remediation task updated'
+        'Remediation task updated',
+        'Security scan completed',
+        'Audit log exported'
       ];
       
       const users = [
         'System', 
         'Compliance Officer', 
         'Legal Advisor', 
-        'Developer'
+        'Developer',
+        'Security Analyst',
+        'Data Protection Officer'
       ];
 
       const newEvent: AuditEventType = {
@@ -55,25 +59,50 @@ const AuditTrail: React.FC<AuditTrailProps> = ({ documentName }) => {
         user: users[Math.floor(Math.random() * users.length)],
         icon: icons[Math.floor(Math.random() * icons.length)],
         status: Math.random() > 0.5 ? 'completed' : 'in-progress',
+        comments: []
       };
 
       setAuditEvents(prev => [newEvent, ...prev]);
       toast.info(`New activity: ${newEvent.action} by ${newEvent.user}`);
     };
 
-    // Set up interval for real-time updates - only if there was activity in the last 5 minutes
+    // Set up interval for real-time updates - more frequent updates (5-15 seconds)
     const timeSinceLastActivity = new Date().getTime() - lastActivity.getTime();
-    if (timeSinceLastActivity < 5 * 60 * 1000) {
+    
+    // Keep updates flowing for 30 minutes after last activity
+    if (timeSinceLastActivity < 30 * 60 * 1000) {
       const timer = setTimeout(() => {
-        // 20% chance to add a real-time event every 15-45 seconds
-        if (Math.random() < 0.2) {
+        // 30% chance to add a real-time event every 5-15 seconds
+        if (Math.random() < 0.3) {
           addRealTimeEvent();
         }
-      }, 15000 + Math.random() * 30000);
+      }, 5000 + Math.random() * 10000);
       
       return () => clearTimeout(timer);
     }
   }, [auditEvents, documentName, lastActivity]);
+
+  // Trigger an immediate real-time event when the component mounts
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const now = new Date();
+      const newEvent: AuditEventType = {
+        id: `initial-${Date.now()}`,
+        action: 'Real-time monitoring started',
+        documentName,
+        timestamp: now.toISOString(),
+        user: 'System',
+        icon: <Clock className="h-4 w-4 text-blue-500" />,
+        status: 'completed',
+        comments: []
+      };
+
+      setAuditEvents(prev => [newEvent, ...prev]);
+      toast.info('Real-time audit trail activated');
+    }, 2000); // Show after 2 seconds
+
+    return () => clearTimeout(timer);
+  }, [documentName]);
 
   const handleAddComment = (eventId: string) => {
     if (!newComment[eventId] || newComment[eventId].trim() === '') {
@@ -170,7 +199,7 @@ const AuditTrail: React.FC<AuditTrailProps> = ({ documentName }) => {
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5 text-gray-500" />
           Smart Audit Trail & Collaboration
-          <span className="ml-2 text-xs font-normal bg-green-100 text-green-800 px-2 py-1 rounded-full">Live</span>
+          <span className="ml-2 text-xs font-normal bg-green-100 text-green-800 px-2 py-1 rounded-full animate-pulse">Live</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
