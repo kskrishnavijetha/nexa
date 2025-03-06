@@ -1,4 +1,5 @@
 
+import React from 'react';
 import { FileText, Eye, Check, Download, Users } from 'lucide-react';
 import { AuditEvent } from './types';
 
