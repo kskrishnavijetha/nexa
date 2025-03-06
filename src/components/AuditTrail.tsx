@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Clock, Check, Eye, Download, FileText, MessageSquare, UserCheck, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -120,9 +120,68 @@ interface AuditTrailProps {
 }
 
 const AuditTrail: React.FC<AuditTrailProps> = ({ documentName }) => {
-  const [auditEvents, setAuditEvents] = useState(generateMockAuditTrail(documentName));
+  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
   const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
+  const [lastActivity, setLastActivity] = useState<Date>(new Date());
+
+  // Initialize auditEvents
+  useEffect(() => {
+    setAuditEvents(generateMockAuditTrail(documentName));
+  }, [documentName]);
+
+  // Real-time updates simulation
+  useEffect(() => {
+    // Create a function that will add a new event occasionally
+    const addRealTimeEvent = () => {
+      const now = new Date();
+      const icons = [
+        <Eye className="h-4 w-4 text-gray-500" key="eye" />,
+        <Check className="h-4 w-4 text-green-500" key="check" />,
+        <Users className="h-4 w-4 text-orange-500" key="users" />
+      ];
+      
+      const actions = [
+        'Document reviewed',
+        'Changes suggested',
+        'Compliance check performed',
+        'Remediation task updated'
+      ];
+      
+      const users = [
+        'System', 
+        'Compliance Officer', 
+        'Legal Advisor', 
+        'Developer'
+      ];
+
+      const newEvent: AuditEvent = {
+        id: `auto-${Date.now()}`,
+        action: actions[Math.floor(Math.random() * actions.length)],
+        documentName,
+        timestamp: now.toISOString(),
+        user: users[Math.floor(Math.random() * users.length)],
+        icon: icons[Math.floor(Math.random() * icons.length)],
+        status: Math.random() > 0.5 ? 'completed' : 'in-progress',
+      };
+
+      setAuditEvents(prev => [newEvent, ...prev]);
+      toast.info(`New activity: ${newEvent.action} by ${newEvent.user}`);
+    };
+
+    // Set up interval for real-time updates - only if there was activity in the last 5 minutes
+    const timeSinceLastActivity = new Date().getTime() - lastActivity.getTime();
+    if (timeSinceLastActivity < 5 * 60 * 1000) {
+      const timer = setTimeout(() => {
+        // 20% chance to add a real-time event every 15-45 seconds
+        if (Math.random() < 0.2) {
+          addRealTimeEvent();
+        }
+      }, 15000 + Math.random() * 30000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [auditEvents, documentName, lastActivity]);
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -159,7 +218,32 @@ const AuditTrail: React.FC<AuditTrailProps> = ({ documentName }) => {
 
     setAuditEvents(updatedEvents);
     setNewComment({ ...newComment, [eventId]: '' });
+    setLastActivity(new Date()); // Update last activity timestamp
     toast.success('Comment added successfully');
+    
+    // Add a system response after a short delay
+    setTimeout(() => {
+      if (Math.random() > 0.5) {
+        const systemResponse: Comment = {
+          id: `c${Date.now()}`,
+          user: 'System',
+          text: 'This comment has been recorded in the audit log and notified to relevant stakeholders.',
+          timestamp: new Date().toISOString()
+        };
+        
+        setAuditEvents(current => current.map(event => {
+          if (event.id === eventId) {
+            return {
+              ...event,
+              comments: event.comments ? [...event.comments, systemResponse] : [systemResponse]
+            };
+          }
+          return event;
+        }));
+        
+        toast.info('System notification added to the audit trail');
+      }
+    }, 3000);
   };
 
   const updateTaskStatus = (eventId: string, status: 'pending' | 'in-progress' | 'completed') => {
@@ -171,7 +255,22 @@ const AuditTrail: React.FC<AuditTrailProps> = ({ documentName }) => {
     });
 
     setAuditEvents(updatedEvents);
+    setLastActivity(new Date()); // Update last activity timestamp
     toast.success(`Task status updated to ${status}`);
+    
+    // Add a new audit event for the status change
+    const now = new Date();
+    const statusChangeEvent: AuditEvent = {
+      id: `status-${Date.now()}`,
+      action: `Task status changed to ${status}`,
+      documentName,
+      timestamp: now.toISOString(),
+      user: 'Current User',
+      icon: <UserCheck className="h-4 w-4 text-blue-500" />,
+      status: 'completed',
+    };
+    
+    setAuditEvents(prev => [statusChangeEvent, ...prev]);
   };
 
   const getStatusBadge = (status?: string) => {
@@ -192,6 +291,7 @@ const AuditTrail: React.FC<AuditTrailProps> = ({ documentName }) => {
 
   const toggleEventExpansion = (eventId: string) => {
     setExpandedEvent(expandedEvent === eventId ? null : eventId);
+    setLastActivity(new Date()); // Update last activity timestamp when user interacts
   };
 
   return (
@@ -200,6 +300,7 @@ const AuditTrail: React.FC<AuditTrailProps> = ({ documentName }) => {
         <CardTitle className="flex items-center gap-2">
           <Clock className="h-5 w-5 text-gray-500" />
           Smart Audit Trail & Collaboration
+          <span className="ml-2 text-xs font-normal bg-green-100 text-green-800 px-2 py-1 rounded-full">Live</span>
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -211,7 +312,7 @@ const AuditTrail: React.FC<AuditTrailProps> = ({ documentName }) => {
                 <div className="absolute left-0 p-1 bg-white rounded-full border border-gray-200">
                   {event.icon}
                 </div>
-                <div className="bg-gray-50 p-3 rounded border border-gray-100">
+                <div className={`bg-gray-50 p-3 rounded border border-gray-100 ${event.id.startsWith('auto-') || event.id.startsWith('status-') ? 'animate-pulse-once' : ''}`}>
                   <div className="flex justify-between items-start">
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
