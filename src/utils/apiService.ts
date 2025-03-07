@@ -7,3 +7,4 @@ export * from './riskService';
 export * from './suggestionService';
 export * from './summaryService';
 export * from './scoreService';
+export * from './simulationService';

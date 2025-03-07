@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import ComplianceCharts from '@/components/ComplianceCharts';
 import RiskAnalysis from '@/components/RiskAnalysis';
 import AuditTrail from '@/components/AuditTrail';
+import Simulation from '@/components/simulation/Simulation';
 
 const DocumentAnalysis = () => {
   const [report, setReport] = useState<ComplianceReport | null>(null);
@@ -141,6 +142,11 @@ const DocumentAnalysis = () => {
               
               {/* Risk Analysis */}
               <RiskAnalysis risks={report.risks} />
+              
+              {/* Scenario Simulation */}
+              <div className="mb-6">
+                <Simulation report={report} />
+              </div>
               
               <div className="mb-6">
                 <h3 className="text-lg font-semibold mb-3">Summary</h3>

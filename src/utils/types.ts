@@ -71,3 +71,71 @@ export interface ComplianceReport {
   suggestions?: string[];
 }
 
+/**
+ * Regulation change types
+ */
+export type RegulationChangeType = 'stricter' | 'updated' | 'new' | 'relaxed';
+
+/**
+ * Impact level for regulation changes
+ */
+export type ImpactLevel = 'high' | 'medium' | 'low';
+
+/**
+ * Structure for a regulation change
+ */
+export interface RegulationChange {
+  regulation: string;
+  changeType: RegulationChangeType;
+  impactLevel: ImpactLevel;
+}
+
+/**
+ * Simulation scenario for predictive analysis
+ */
+export interface SimulationScenario {
+  id: string;
+  name: string;
+  description: string;
+  regulationChanges: RegulationChange[];
+}
+
+/**
+ * Risk trend prediction
+ */
+export interface RiskTrend {
+  riskId: string;
+  description: string;
+  regulation: string;
+  currentSeverity: RiskSeverity;
+  predictedChange: 'increase' | 'decrease' | 'stable';
+  impact: ImpactLevel;
+}
+
+/**
+ * Score comparison structure
+ */
+export interface ScoreComparison {
+  gdpr: number;
+  hipaa: number;
+  soc2: number;
+  pciDss: number;
+  overall: number;
+}
+
+/**
+ * Predictive analysis result
+ */
+export interface PredictiveAnalysis {
+  scenarioId: string;
+  scenarioName: string;
+  scenarioDescription: string;
+  regulationChanges: RegulationChange[];
+  originalScores: ScoreComparison;
+  predictedScores: ScoreComparison;
+  scoreDifferences: ScoreComparison;
+  predictedRisks: RiskItem[];
+  riskTrends: RiskTrend[];
+  recommendations: string[];
+  timestamp: string;
+}
