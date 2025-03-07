@@ -120,7 +120,9 @@ const SimulationResults: React.FC<SimulationResultsProps> = ({ analysis, onReset
                   <Tooltip 
                     formatter={(value, name) => {
                       if (name === 'difference') {
-                        return [`${value > 0 ? '+' : ''}${value}%`, 'Change'];
+                        // Fix: Convert ValueType to string/number before comparison
+                        const numValue = typeof value === 'number' ? value : parseFloat(String(value));
+                        return [`${numValue >= 0 ? '+' : ''}${value}%`, 'Change'];
                       }
                       return [`${value}%`, name === 'current' ? 'Current' : 'Predicted'];
                     }}
