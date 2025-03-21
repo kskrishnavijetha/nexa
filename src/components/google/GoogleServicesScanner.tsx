@@ -21,15 +21,16 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { 
-  connectGoogleDrive, 
-  connectGmail, 
-  connectGoogleDocs, 
-  scanGoogleServices, 
+  connectGoogleService, 
   disconnectGoogleService, 
-  GoogleService 
+  scanGoogleService,
+  GoogleServiceConnection
 } from '@/utils/googleServices';
 import { SupportedLanguage } from '@/utils/language';
 import { toast } from 'sonner';
+
+// Define type for Google service
+type GoogleService = 'drive' | 'gmail' | 'docs';
 
 interface GoogleServicesScannerProps {
   industry?: Industry;
@@ -61,7 +62,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   const handleConnectDrive = async () => {
     setIsConnectingDrive(true);
     try {
-      const result = await connectGoogleDrive();
+      const result = await connectGoogleService('drive-1');
       if (result.data && result.data.connected) {
         setConnectedServices(prev => [...prev, 'drive']);
         toast.success('Google Drive connected successfully');
@@ -77,7 +78,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   const handleConnectGmail = async () => {
     setIsConnectingGmail(true);
     try {
-      const result = await connectGmail();
+      const result = await connectGoogleService('gmail-1');
       if (result.data && result.data.connected) {
         setConnectedServices(prev => [...prev, 'gmail']);
         toast.success('Gmail connected successfully');
@@ -93,7 +94,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   const handleConnectDocs = async () => {
     setIsConnectingDocs(true);
     try {
-      const result = await connectGoogleDocs();
+      const result = await connectGoogleService('docs-1');
       if (result.data && result.data.connected) {
         setConnectedServices(prev => [...prev, 'docs']);
         toast.success('Google Docs connected successfully');
@@ -108,7 +109,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   
   const handleDisconnect = async (service: GoogleService) => {
     try {
-      await disconnectGoogleService(service);
+      await disconnectGoogleService(service === 'drive' ? 'drive-1' : service === 'gmail' ? 'gmail-1' : 'docs-1');
       setConnectedServices(prev => prev.filter(s => s !== service));
       toast.success(`${service} disconnected successfully`);
     } catch (error) {
@@ -132,11 +133,29 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     setScanResults(null);
     
     try {
-      const result = await scanGoogleServices(connectedServices, industry, region, language, file);
-      if (result.data) {
-        setScanResults(result.data);
-        toast.success('Scan completed successfully');
-      }
+      // Scan each connected service
+      const results = await Promise.all(
+        connectedServices.map(service => {
+          const serviceId = service === 'drive' ? 'drive-1' : service === 'gmail' ? 'gmail-1' : 'docs-1';
+          return scanGoogleService(serviceId, industry, language, region);
+        })
+      );
+      
+      // Combine results
+      const combinedResults = {
+        violations: results.flatMap(result => 
+          result.data?.reports.map(report => ({
+            title: report.title,
+            description: report.description,
+            severity: report.severity,
+            service: result.data?.serviceType || 'unknown',
+            location: report.documentName
+          })) || []
+        )
+      };
+      
+      setScanResults(combinedResults);
+      toast.success('Scan completed successfully');
     } catch (error) {
       console.error('Error scanning:', error);
       toast.error('Failed to complete scan');
