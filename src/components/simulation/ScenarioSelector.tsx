@@ -2,7 +2,7 @@
 import React from 'react';
 import { SimulationScenario } from '@/utils/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, AlertTriangle, Radar, GitCompare } from 'lucide-react';
+import { Shield, AlertTriangle, Radar, GitCompare, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface ScenarioSelectorProps {
@@ -41,9 +41,14 @@ const ScenarioSelector: React.FC<ScenarioSelectorProps> = ({
             onClick={() => !isLoading && onSelectScenario(scenario.id)}
           >
             <CardHeader className="pb-2">
-              <div className="flex items-center">
-                {getScenarioIcon(scenario.id)}
-                <CardTitle className="text-base ml-2">{scenario.name}</CardTitle>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  {getScenarioIcon(scenario.id)}
+                  <CardTitle className="text-base ml-2">{scenario.name}</CardTitle>
+                </div>
+                {selectedScenarioId === scenario.id && (
+                  <CheckCircle2 className="h-5 w-5 text-green-500" />
+                )}
               </div>
             </CardHeader>
             <CardContent>

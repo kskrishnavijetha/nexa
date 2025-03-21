@@ -5,7 +5,7 @@ import { generateSimulationScenarios, runPredictiveAnalysis } from '@/utils/simu
 import ScenarioSelector from './ScenarioSelector';
 import SimulationResults from './SimulationResults';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Radar, AlertTriangle, Info } from 'lucide-react';
+import { Radar, AlertTriangle, Info, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -19,6 +19,7 @@ const Simulation: React.FC<SimulationProps> = ({ report }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<PredictiveAnalysis | null>(null);
   const [simulationDepth, setSimulationDepth] = useState<string>("medium");
+  const [showConfiguration, setShowConfiguration] = useState(false);
   
   // Get scenarios based on industry
   const scenarios = generateSimulationScenarios(report.industry);
@@ -27,8 +28,8 @@ const Simulation: React.FC<SimulationProps> = ({ report }) => {
     if (isLoading) return;
     
     if (selectedScenarioId === scenarioId && !analysisResult) {
-      // Run simulation if same scenario is clicked twice and no result yet
-      runSimulation(scenarioId);
+      // Show configuration when same scenario is clicked twice
+      setShowConfiguration(true);
     } else {
       // Just select the scenario
       setSelectedScenarioId(scenarioId);
@@ -61,8 +62,11 @@ const Simulation: React.FC<SimulationProps> = ({ report }) => {
   
   const resetSimulation = () => {
     setAnalysisResult(null);
-    setSelectedScenarioId(undefined);
-    setSimulationDepth("medium");
+    setShowConfiguration(false);
+  };
+
+  const backToScenarioSelection = () => {
+    setShowConfiguration(false);
   };
   
   // Get the selected scenario details
@@ -92,8 +96,19 @@ const Simulation: React.FC<SimulationProps> = ({ report }) => {
               selectedScenarioId={selectedScenarioId}
             />
             
-            {selectedScenarioId && selectedScenario && (
+            {selectedScenarioId && selectedScenario && showConfiguration && (
               <div className="mt-6 bg-slate-50 p-4 rounded-lg">
+                <div className="mb-4">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={backToScenarioSelection}
+                    className="mb-2"
+                  >
+                    <ArrowLeft className="h-4 w-4 mr-1" /> Back to Scenarios
+                  </Button>
+                </div>
+                
                 <h3 className="text-md font-semibold mb-2">Simulation Configuration</h3>
                 
                 <div className="bg-amber-50 border border-amber-200 rounded-md p-3 mb-4">
@@ -160,10 +175,21 @@ const Simulation: React.FC<SimulationProps> = ({ report }) => {
             )}
           </>
         ) : (
-          <SimulationResults 
-            analysis={analysisResult}
-            onReset={resetSimulation}
-          />
+          <>
+            <div className="mb-4">
+              <Button 
+                variant="outline" 
+                onClick={resetSimulation}
+                className="flex items-center"
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" /> Back to Scenarios
+              </Button>
+            </div>
+            <SimulationResults 
+              analysis={analysisResult}
+              onReset={resetSimulation}
+            />
+          </>
         )}
       </CardContent>
     </Card>
