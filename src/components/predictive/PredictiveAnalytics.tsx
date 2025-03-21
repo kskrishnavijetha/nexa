@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ComplianceReport } from '@/utils/types';
-import { analyzePastReports, PredictiveAnalyticsResult } from '@/utils/predictiveService';
+import { analyzePastReports, PredictiveAnalyticsResult } from '@/utils/predictive';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import RiskPredictions from './RiskPredictions';
 import ComplianceInsights from './ComplianceInsights';
