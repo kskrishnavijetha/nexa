@@ -17,6 +17,8 @@ import {
   FileText, 
   Loader2, 
   Mail, 
+  MessageSquare,
+  ShareIcon,
   XCircle 
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -28,9 +30,10 @@ import {
 } from '@/utils/googleServices';
 import { SupportedLanguage } from '@/utils/language';
 import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-// Define type for Google service
-type GoogleService = 'drive' | 'gmail' | 'docs';
+// Define type for cloud service
+type GoogleService = 'drive' | 'gmail' | 'docs' | 'sharepoint' | 'outlook' | 'teams';
 
 // Define the structure for scan violations
 interface ScanViolation {
@@ -62,7 +65,11 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   const [isConnectingDrive, setIsConnectingDrive] = useState(false);
   const [isConnectingGmail, setIsConnectingGmail] = useState(false);
   const [isConnectingDocs, setIsConnectingDocs] = useState(false);
+  const [isConnectingSharePoint, setIsConnectingSharePoint] = useState(false);
+  const [isConnectingOutlook, setIsConnectingOutlook] = useState(false);
+  const [isConnectingTeams, setIsConnectingTeams] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
+  const [activeTab, setActiveTab] = useState<'google' | 'microsoft'>('google');
   
   const [connectedServices, setConnectedServices] = useState<GoogleService[]>([]);
   const [scanResults, setScanResults] = useState<ScanResults | null>(null);
@@ -70,6 +77,9 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   const isDriveConnected = connectedServices.includes('drive');
   const isGmailConnected = connectedServices.includes('gmail');
   const isDocsConnected = connectedServices.includes('docs');
+  const isSharePointConnected = connectedServices.includes('sharepoint');
+  const isOutlookConnected = connectedServices.includes('outlook');
+  const isTeamsConnected = connectedServices.includes('teams');
   
   const anyServiceConnected = connectedServices.length > 0;
   
@@ -121,9 +131,64 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     }
   };
   
+  const handleConnectSharePoint = async () => {
+    setIsConnectingSharePoint(true);
+    try {
+      const result = await connectGoogleService('sharepoint-1');
+      if (result.data && result.data.connected) {
+        setConnectedServices(prev => [...prev, 'sharepoint']);
+        toast.success('SharePoint connected successfully');
+      }
+    } catch (error) {
+      console.error('Error connecting SharePoint:', error);
+      toast.error('Failed to connect SharePoint');
+    } finally {
+      setIsConnectingSharePoint(false);
+    }
+  };
+  
+  const handleConnectOutlook = async () => {
+    setIsConnectingOutlook(true);
+    try {
+      const result = await connectGoogleService('outlook-1');
+      if (result.data && result.data.connected) {
+        setConnectedServices(prev => [...prev, 'outlook']);
+        toast.success('Outlook connected successfully');
+      }
+    } catch (error) {
+      console.error('Error connecting Outlook:', error);
+      toast.error('Failed to connect Outlook');
+    } finally {
+      setIsConnectingOutlook(false);
+    }
+  };
+  
+  const handleConnectTeams = async () => {
+    setIsConnectingTeams(true);
+    try {
+      const result = await connectGoogleService('teams-1');
+      if (result.data && result.data.connected) {
+        setConnectedServices(prev => [...prev, 'teams']);
+        toast.success('Teams connected successfully');
+      }
+    } catch (error) {
+      console.error('Error connecting Teams:', error);
+      toast.error('Failed to connect Teams');
+    } finally {
+      setIsConnectingTeams(false);
+    }
+  };
+  
   const handleDisconnect = async (service: GoogleService) => {
     try {
-      await disconnectGoogleService(service === 'drive' ? 'drive-1' : service === 'gmail' ? 'gmail-1' : 'docs-1');
+      const serviceId = 
+        service === 'drive' ? 'drive-1' : 
+        service === 'gmail' ? 'gmail-1' : 
+        service === 'docs' ? 'docs-1' :
+        service === 'sharepoint' ? 'sharepoint-1' :
+        service === 'outlook' ? 'outlook-1' : 'teams-1';
+        
+      await disconnectGoogleService(serviceId);
       setConnectedServices(prev => prev.filter(s => s !== service));
       toast.success(`${service} disconnected successfully`);
     } catch (error) {
@@ -139,7 +204,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     }
     
     if (connectedServices.length === 0) {
-      toast.error('Please connect at least one Google service before scanning');
+      toast.error('Please connect at least one service before scanning');
       return;
     }
     
@@ -150,7 +215,13 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
       // Scan each connected service
       const results = await Promise.all(
         connectedServices.map(service => {
-          const serviceId = service === 'drive' ? 'drive-1' : service === 'gmail' ? 'gmail-1' : 'docs-1';
+          const serviceId = 
+            service === 'drive' ? 'drive-1' : 
+            service === 'gmail' ? 'gmail-1' : 
+            service === 'docs' ? 'docs-1' :
+            service === 'sharepoint' ? 'sharepoint-1' :
+            service === 'outlook' ? 'outlook-1' : 'teams-1';
+            
           return scanGoogleService(serviceId, industry, language, region);
         })
       );
@@ -189,121 +260,242 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Google Services Integration</CardTitle>
+          <CardTitle>Cloud Services Integration</CardTitle>
           <CardDescription>
-            Connect your Google services to scan for compliance issues
+            Connect your cloud services to scan for compliance issues
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-3">
-            <Card className="border-gray-200">
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-base flex items-center">
-                    <Cloud className="h-4 w-4 mr-2 text-blue-500" />
-                    Google Drive
-                  </CardTitle>
-                  <Badge variant={isDriveConnected ? "default" : "outline"} className={isDriveConnected ? "bg-green-500" : ""}>
-                    {isDriveConnected ? 'Connected' : 'Not Connected'}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Scan your Drive files for sensitive data and compliance issues
-                </p>
-                <Button 
-                  variant={isDriveConnected ? "outline" : "default"} 
-                  className="w-full"
-                  onClick={isDriveConnected ? () => handleDisconnect('drive') : handleConnectDrive}
-                  disabled={isConnectingDrive || isScanning}
-                >
-                  {isConnectingDrive ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Connecting...
-                    </>
-                  ) : isDriveConnected ? (
-                    'Disconnect'
-                  ) : (
-                    'Connect'
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'google' | 'microsoft')}>
+            <TabsList className="mb-4">
+              <TabsTrigger value="google">Google Services</TabsTrigger>
+              <TabsTrigger value="microsoft">Microsoft Services</TabsTrigger>
+            </TabsList>
             
-            <Card className="border-gray-200">
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-base flex items-center">
-                    <Mail className="h-4 w-4 mr-2 text-red-500" />
-                    Gmail
-                  </CardTitle>
-                  <Badge variant={isGmailConnected ? "default" : "outline"} className={isGmailConnected ? "bg-green-500" : ""}>
-                    {isGmailConnected ? 'Connected' : 'Not Connected'}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Analyze email content for potential compliance violations
-                </p>
-                <Button 
-                  variant={isGmailConnected ? "outline" : "default"} 
-                  className="w-full"
-                  onClick={isGmailConnected ? () => handleDisconnect('gmail') : handleConnectGmail}
-                  disabled={isConnectingGmail || isScanning}
-                >
-                  {isConnectingGmail ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Connecting...
-                    </>
-                  ) : isGmailConnected ? (
-                    'Disconnect'
-                  ) : (
-                    'Connect'
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
+            <TabsContent value="google">
+              <div className="grid gap-4 md:grid-cols-3">
+                <Card className="border-gray-200">
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-base flex items-center">
+                        <Cloud className="h-4 w-4 mr-2 text-blue-500" />
+                        Google Drive
+                      </CardTitle>
+                      <Badge variant={isDriveConnected ? "default" : "outline"} className={isDriveConnected ? "bg-green-500" : ""}>
+                        {isDriveConnected ? 'Connected' : 'Not Connected'}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Scan your Drive files for sensitive data and compliance issues
+                    </p>
+                    <Button 
+                      variant={isDriveConnected ? "outline" : "default"} 
+                      className="w-full"
+                      onClick={isDriveConnected ? () => handleDisconnect('drive') : handleConnectDrive}
+                      disabled={isConnectingDrive || isScanning}
+                    >
+                      {isConnectingDrive ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Connecting...
+                        </>
+                      ) : isDriveConnected ? (
+                        'Disconnect'
+                      ) : (
+                        'Connect'
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-gray-200">
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-base flex items-center">
+                        <Mail className="h-4 w-4 mr-2 text-red-500" />
+                        Gmail
+                      </CardTitle>
+                      <Badge variant={isGmailConnected ? "default" : "outline"} className={isGmailConnected ? "bg-green-500" : ""}>
+                        {isGmailConnected ? 'Connected' : 'Not Connected'}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Analyze email content for potential compliance violations
+                    </p>
+                    <Button 
+                      variant={isGmailConnected ? "outline" : "default"} 
+                      className="w-full"
+                      onClick={isGmailConnected ? () => handleDisconnect('gmail') : handleConnectGmail}
+                      disabled={isConnectingGmail || isScanning}
+                    >
+                      {isConnectingGmail ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Connecting...
+                        </>
+                      ) : isGmailConnected ? (
+                        'Disconnect'
+                      ) : (
+                        'Connect'
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-gray-200">
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-base flex items-center">
+                        <FileText className="h-4 w-4 mr-2 text-green-500" />
+                        Google Docs
+                      </CardTitle>
+                      <Badge variant={isDocsConnected ? "default" : "outline"} className={isDocsConnected ? "bg-green-500" : ""}>
+                        {isDocsConnected ? 'Connected' : 'Not Connected'}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Check documents for regulatory compliance and PII
+                    </p>
+                    <Button 
+                      variant={isDocsConnected ? "outline" : "default"} 
+                      className="w-full"
+                      onClick={isDocsConnected ? () => handleDisconnect('docs') : handleConnectDocs}
+                      disabled={isConnectingDocs || isScanning}
+                    >
+                      {isConnectingDocs ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Connecting...
+                        </>
+                      ) : isDocsConnected ? (
+                        'Disconnect'
+                      ) : (
+                        'Connect'
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
             
-            <Card className="border-gray-200">
-              <CardHeader className="pb-2">
-                <div className="flex justify-between items-center">
-                  <CardTitle className="text-base flex items-center">
-                    <FileText className="h-4 w-4 mr-2 text-green-500" />
-                    Google Docs
-                  </CardTitle>
-                  <Badge variant={isDocsConnected ? "default" : "outline"} className={isDocsConnected ? "bg-green-500" : ""}>
-                    {isDocsConnected ? 'Connected' : 'Not Connected'}
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Check documents for regulatory compliance and PII
-                </p>
-                <Button 
-                  variant={isDocsConnected ? "outline" : "default"} 
-                  className="w-full"
-                  onClick={isDocsConnected ? () => handleDisconnect('docs') : handleConnectDocs}
-                  disabled={isConnectingDocs || isScanning}
-                >
-                  {isConnectingDocs ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Connecting...
-                    </>
-                  ) : isDocsConnected ? (
-                    'Disconnect'
-                  ) : (
-                    'Connect'
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+            <TabsContent value="microsoft">
+              <div className="grid gap-4 md:grid-cols-3">
+                <Card className="border-gray-200">
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-base flex items-center">
+                        <ShareIcon className="h-4 w-4 mr-2 text-blue-600" />
+                        SharePoint
+                      </CardTitle>
+                      <Badge variant={isSharePointConnected ? "default" : "outline"} className={isSharePointConnected ? "bg-green-500" : ""}>
+                        {isSharePointConnected ? 'Connected' : 'Not Connected'}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Scan SharePoint sites and documents for compliance issues
+                    </p>
+                    <Button 
+                      variant={isSharePointConnected ? "outline" : "default"} 
+                      className="w-full"
+                      onClick={isSharePointConnected ? () => handleDisconnect('sharepoint') : handleConnectSharePoint}
+                      disabled={isConnectingSharePoint || isScanning}
+                    >
+                      {isConnectingSharePoint ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Connecting...
+                        </>
+                      ) : isSharePointConnected ? (
+                        'Disconnect'
+                      ) : (
+                        'Connect'
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-gray-200">
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-base flex items-center">
+                        <Mail className="h-4 w-4 mr-2 text-blue-700" />
+                        Outlook
+                      </CardTitle>
+                      <Badge variant={isOutlookConnected ? "default" : "outline"} className={isOutlookConnected ? "bg-green-500" : ""}>
+                        {isOutlookConnected ? 'Connected' : 'Not Connected'}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Analyze Outlook emails for sensitive information and compliance violations
+                    </p>
+                    <Button 
+                      variant={isOutlookConnected ? "outline" : "default"} 
+                      className="w-full"
+                      onClick={isOutlookConnected ? () => handleDisconnect('outlook') : handleConnectOutlook}
+                      disabled={isConnectingOutlook || isScanning}
+                    >
+                      {isConnectingOutlook ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Connecting...
+                        </>
+                      ) : isOutlookConnected ? (
+                        'Disconnect'
+                      ) : (
+                        'Connect'
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+                
+                <Card className="border-gray-200">
+                  <CardHeader className="pb-2">
+                    <div className="flex justify-between items-center">
+                      <CardTitle className="text-base flex items-center">
+                        <MessageSquare className="h-4 w-4 mr-2 text-purple-600" />
+                        Teams
+                      </CardTitle>
+                      <Badge variant={isTeamsConnected ? "default" : "outline"} className={isTeamsConnected ? "bg-green-500" : ""}>
+                        {isTeamsConnected ? 'Connected' : 'Not Connected'}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      Scan Teams messages and channels for PII and regulatory compliance
+                    </p>
+                    <Button 
+                      variant={isTeamsConnected ? "outline" : "default"} 
+                      className="w-full"
+                      onClick={isTeamsConnected ? () => handleDisconnect('teams') : handleConnectTeams}
+                      disabled={isConnectingTeams || isScanning}
+                    >
+                      {isConnectingTeams ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Connecting...
+                        </>
+                      ) : isTeamsConnected ? (
+                        'Disconnect'
+                      ) : (
+                        'Connect'
+                      )}
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+          </Tabs>
           
           <div className="flex justify-center mt-4">
             <Button 

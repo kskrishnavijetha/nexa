@@ -2,8 +2,8 @@
 import React from 'react';
 import GoogleServicesPage from '@/components/GoogleServicesPage';
 
-const GoogleServices: React.FC = () => {
+const CloudServices: React.FC = () => {
   return <GoogleServicesPage />;
 };
 
-export default GoogleServices;
+export default CloudServices;

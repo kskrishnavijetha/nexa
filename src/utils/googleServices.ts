@@ -1,49 +1,74 @@
-
 import { SupportedLanguage } from './language';
 import { ApiResponse, ComplianceReport, Industry, Region } from './types';
 import { requestComplianceCheck } from './complianceService';
 
-// Types for Google services integration
+// Types for cloud services integration
 export interface GoogleServiceConnection {
   id: string;
-  type: 'gmail' | 'drive' | 'docs';
+  type: 'gmail' | 'drive' | 'docs' | 'sharepoint' | 'outlook' | 'teams';
   name: string;
   connected: boolean;
   lastScanned?: string;
   itemCount?: number;
+  provider: 'google' | 'microsoft';
 }
 
 export interface GoogleServiceScanResult {
-  serviceType: 'gmail' | 'drive' | 'docs';
+  serviceType: 'gmail' | 'drive' | 'docs' | 'sharepoint' | 'outlook' | 'teams';
   itemsScanned: number;
   violationsFound: number;
   scanDate: string;
   reports: ComplianceReport[];
 }
 
-// Mock data for Google service connections
+// Mock data for service connections
 export const mockGoogleConnections: GoogleServiceConnection[] = [
   {
     id: 'gmail-1',
     type: 'gmail',
     name: 'Gmail',
     connected: false,
+    provider: 'google'
   },
   {
     id: 'drive-1',
     type: 'drive',
     name: 'Google Drive',
     connected: false,
+    provider: 'google'
   },
   {
     id: 'docs-1',
     type: 'docs',
     name: 'Google Docs',
     connected: false,
+    provider: 'google'
   },
+  // Add Microsoft services
+  {
+    id: 'sharepoint-1',
+    type: 'sharepoint',
+    name: 'SharePoint',
+    connected: false,
+    provider: 'microsoft'
+  },
+  {
+    id: 'outlook-1',
+    type: 'outlook',
+    name: 'Outlook',
+    connected: false,
+    provider: 'microsoft'
+  },
+  {
+    id: 'teams-1',
+    type: 'teams',
+    name: 'Teams',
+    connected: false,
+    provider: 'microsoft'
+  }
 ];
 
-// Connect to a Google service
+// Connect to a cloud service
 export const connectGoogleService = async (
   serviceId: string,
   authToken?: string
@@ -87,7 +112,7 @@ export const connectGoogleService = async (
   }
 };
 
-// Disconnect from a Google service
+// Disconnect from a cloud service
 export const disconnectGoogleService = async (
   serviceId: string
 ): Promise<ApiResponse<GoogleServiceConnection>> => {
@@ -130,7 +155,7 @@ export const disconnectGoogleService = async (
   }
 };
 
-// Scan Google service for compliance issues
+// Scan cloud service for compliance issues
 export const scanGoogleService = async (
   serviceId: string,
   industry?: Industry,
@@ -173,6 +198,12 @@ export const scanGoogleService = async (
       if (service.type === 'gmail') {
         docName = `Email: Important ${service.type.charAt(0).toUpperCase() + service.type.slice(1)} Communication ${i + 1}`;
       } else if (service.type === 'drive') {
+        docName = `File: ${['Confidential', 'Internal', 'Client', 'Project'][i % 4]} Document ${i + 1}.pdf`;
+      } else if (service.type === 'sharepoint') {
+        docName = `File: ${['Confidential', 'Internal', 'Client', 'Project'][i % 4]} Document ${i + 1}.pdf`;
+      } else if (service.type === 'outlook') {
+        docName = `File: ${['Confidential', 'Internal', 'Client', 'Project'][i % 4]} Document ${i + 1}.pdf`;
+      } else if (service.type === 'teams') {
         docName = `File: ${['Confidential', 'Internal', 'Client', 'Project'][i % 4]} Document ${i + 1}.pdf`;
       } else {
         docName = `Google Doc: ${['Report', 'Agreement', 'Contract', 'Plan'][i % 4]} ${i + 1}`;
@@ -224,7 +255,7 @@ export const scanGoogleService = async (
   }
 };
 
-// Get all Google service connections
+// Get all cloud service connections
 export const getGoogleConnections = async (): Promise<ApiResponse<GoogleServiceConnection[]>> => {
   try {
     // Simulate API latency

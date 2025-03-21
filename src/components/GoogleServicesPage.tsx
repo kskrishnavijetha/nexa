@@ -35,7 +35,7 @@ const GoogleServicesPage: React.FC = () => {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-8">Google Services Compliance</h1>
+      <h1 className="text-3xl font-bold mb-8">Cloud Services Compliance</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <GoogleScannerConfig
@@ -77,7 +77,7 @@ const GoogleServicesPage: React.FC = () => {
         </TabsContent>
         
         <TabsContent value="history" className="mt-6">
-          <AuditTrail documentName="Google Services Scanner" />
+          <AuditTrail documentName="Cloud Services Scanner" />
         </TabsContent>
         
         <TabsContent value="settings" className="mt-6">
