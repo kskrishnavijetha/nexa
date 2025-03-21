@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ComplianceReport } from '@/utils/types';
@@ -8,8 +9,9 @@ import ComplianceInsights from './ComplianceInsights';
 import RecommendedActions from './RecommendedActions';
 import TrendAnalysis from './TrendAnalysis';
 import RegulatoryUpdatesFeed from './RegulatoryUpdatesFeed';
-import { Brain, Lightbulb, BarChart3, TrendingUp, Loader2, AlertTriangle } from 'lucide-react';
+import { Brain, Lightbulb, BarChart3, TrendingUp, Loader2, AlertTriangle, History } from 'lucide-react';
 import { toast } from 'sonner';
+import PreviousAnalytics from './PreviousAnalytics';
 
 interface PredictiveAnalyticsProps {
   report: ComplianceReport;
@@ -21,14 +23,31 @@ const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
   historicalReports = []
 }) => {
   const [analyticsResult, setAnalyticsResult] = useState<PredictiveAnalyticsResult | null>(null);
+  const [previousResults, setPreviousResults] = useState<PredictiveAnalyticsResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadPredictiveAnalytics = async () => {
       setIsLoading(true);
       try {
+        // Generate current analysis
         const result = await analyzePastReports(report, historicalReports);
         setAnalyticsResult(result);
+        
+        // Generate previous analyses if we have historical reports
+        if (historicalReports.length > 0) {
+          const previousAnalyses = await Promise.all(
+            historicalReports.slice(0, 3).map(async (histReport) => {
+              // Get previous reports for this historical report (excluding itself)
+              const olderReports = historicalReports.filter(
+                r => new Date(r.timestamp) < new Date(histReport.timestamp)
+              );
+              return analyzePastReports(histReport, olderReports);
+            })
+          );
+          setPreviousResults(previousAnalyses);
+        }
+        
         toast.success('Predictive analysis completed');
       } catch (error) {
         console.error('Error in predictive analysis:', error);
@@ -90,7 +109,7 @@ const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="insights">
-          <TabsList className="mb-4 w-full grid grid-cols-5">
+          <TabsList className="mb-4 w-full grid grid-cols-6">
             <TabsTrigger value="insights" className="flex items-center">
               <Lightbulb className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Insights</span>
@@ -116,6 +135,11 @@ const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
               <span className="hidden sm:inline">Regulatory Updates</span>
               <span className="sm:hidden">Updates</span>
             </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center">
+              <History className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Previous Analysis</span>
+              <span className="sm:hidden">History</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="insights">
@@ -136,6 +160,14 @@ const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
           
           <TabsContent value="updates">
             <RegulatoryUpdatesFeed industry={report.industry} />
+          </TabsContent>
+          
+          <TabsContent value="history">
+            <PreviousAnalytics 
+              currentResult={analyticsResult} 
+              previousResults={previousResults}
+              historicalReports={historicalReports}
+            />
           </TabsContent>
         </Tabs>
 
