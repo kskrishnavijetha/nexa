@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2 } from 'lucide-react';
+import { Loader2, FileCheck } from 'lucide-react';
 
 interface UploadActionsProps {
   file: File | null;
@@ -25,12 +25,16 @@ const UploadActions: React.FC<UploadActionsProps> = ({
       onClick={onUpload} 
       disabled={isUploading || isProcessing || !industry}
       className="px-6"
+      variant={isUploading || isProcessing ? "secondary" : "default"}
     >
       {isUploading && (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
       )}
       {isProcessing && (
         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      )}
+      {!isUploading && !isProcessing && (
+        <FileCheck className="mr-2 h-4 w-4" />
       )}
       {isUploading ? 'Uploading...' : 
         isProcessing ? 'Analyzing...' : 'Analyze Document'}

@@ -17,7 +17,11 @@ const UploadProgress: React.FC<UploadProgressProps> = ({
 
   return (
     <div className="w-full mt-4">
-      <Progress value={progress} className="h-2" />
+      <Progress 
+        value={progress} 
+        className="h-2" 
+        indicatorClassName={isProcessing ? "bg-blue-500" : "bg-green-500"} 
+      />
       <p className="text-sm text-center mt-2 text-muted-foreground">
         {isUploading ? 'Uploading document...' : 'Analyzing compliance...'}
         {' '}{Math.round(progress)}%

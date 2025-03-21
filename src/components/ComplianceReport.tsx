@@ -11,6 +11,7 @@ import {
 import ScheduleScanner from './ScheduleScanner';
 import ReportHeader from './report/ReportHeader';
 import ComplianceDetailsTab from './report/ComplianceDetailsTab';
+import PredictiveAnalytics from './predictive/PredictiveAnalytics';
 
 interface ComplianceReportProps {
   report: ComplianceReportType;
@@ -24,10 +25,14 @@ const ComplianceReport: React.FC<ComplianceReportProps> = ({ report, onClose }) 
       
       <Tabs defaultValue="report" className="w-full">
         <div className="px-6 pt-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="report">
               <FileText className="w-4 h-4 mr-2" />
               Report Details
+            </TabsTrigger>
+            <TabsTrigger value="predictive">
+              <FileText className="w-4 h-4 mr-2" />
+              AI Predictions
             </TabsTrigger>
             <TabsTrigger value="schedule">
               <Calendar className="w-4 h-4 mr-2" />
@@ -38,6 +43,10 @@ const ComplianceReport: React.FC<ComplianceReportProps> = ({ report, onClose }) 
         
         <TabsContent value="report">
           <ComplianceDetailsTab report={report} onClose={onClose} />
+        </TabsContent>
+        
+        <TabsContent value="predictive" className="p-6 pt-4">
+          <PredictiveAnalytics report={report} />
         </TabsContent>
         
         <TabsContent value="schedule" className="p-6 pt-4">
