@@ -1,5 +1,5 @@
 
-import { ApiResponse, ComplianceReport, Industry, INDUSTRY_REGULATIONS } from './types';
+import { ApiResponse, ComplianceReport, Industry, INDUSTRY_REGULATIONS, Region, REGION_REGULATIONS } from './types';
 import { generateRisks } from './riskService';
 import { generateSuggestions } from './suggestionService';
 import { generateSummary } from './summaryService';
@@ -13,7 +13,8 @@ export const requestComplianceCheck = async (
   documentId: string,
   documentName: string,
   industry?: Industry,
-  language?: SupportedLanguage
+  language?: SupportedLanguage,
+  region?: Region
 ): Promise<ApiResponse<ComplianceReport>> => {
   try {
     // Simulate API latency
@@ -25,30 +26,44 @@ export const requestComplianceCheck = async (
     // Get applicable regulations based on industry
     const regulations = industry ? INDUSTRY_REGULATIONS[industry] : [];
     
+    // Get regional regulations if a region is specified
+    const regionalRegulations = region ? REGION_REGULATIONS[region] : {};
+    
     // Generate scores
     const { gdprScore, hipaaScore, soc2Score, pciDssScore, overallScore, industryScores } = generateScores(regulations);
     
-    // Define risks based on scores and regulations
-    const risks = generateRisks(gdprScore, hipaaScore, soc2Score, pciDssScore, regulations);
+    // Generate region-specific scores
+    const regionScores: Record<string, number> = {};
+    if (region) {
+      Object.keys(regionalRegulations).forEach(regKey => {
+        regionScores[regKey] = Math.floor(Math.random() * 30) + 70; // Random score between 70-100
+      });
+    }
     
-    // Generate suggestions based on risks and regulations
-    const suggestions = generateSuggestions(regulations);
+    // Define risks based on scores, regulations and regional regulations
+    const risks = generateRisks(gdprScore, hipaaScore, soc2Score, pciDssScore, regulations, region);
     
-    // Create a relevant summary based on scores and industry
-    const summary = generateSummary(overallScore, gdprScore, hipaaScore, pciDssScore, industry, userLanguage);
+    // Generate suggestions based on risks, regulations, and regional regulations
+    const suggestions = generateSuggestions(regulations, region);
+    
+    // Create a relevant summary based on scores, industry, and region
+    const summary = generateSummary(overallScore, gdprScore, hipaaScore, pciDssScore, industry, userLanguage, region);
     
     // Mock compliance report with real-time values
     const mockReport: ComplianceReport = {
       documentId,
       documentName,
       industry,
+      region,
       overallScore,
       gdprScore,
       hipaaScore,
       soc2Score,
       pciDssScore,
       industryScores,
+      regionScores,
       regulations,
+      regionalRegulations: region ? REGION_REGULATIONS[region] : undefined,
       risks,
       summary,
       suggestions,

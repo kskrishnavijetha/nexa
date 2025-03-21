@@ -1,3 +1,4 @@
+
 export interface ApiResponse<T> {
   data?: T;
   error?: string;
@@ -23,6 +24,18 @@ export type Industry =
   | 'E-commerce & Payments';
 
 /**
+ * Geographic regions for regulatory compliance
+ */
+export type Region = 
+  | 'North America'
+  | 'European Union'
+  | 'Asia Pacific'
+  | 'United Kingdom'
+  | 'Latin America'
+  | 'Middle East'
+  | 'Africa';
+
+/**
  * Mapping of industries to their regulations
  */
 export const INDUSTRY_REGULATIONS: Record<Industry, string[]> = {
@@ -39,6 +52,58 @@ export const INDUSTRY_REGULATIONS: Record<Industry, string[]> = {
   'Life Sciences': ['FDA', 'GxP', 'ICH', 'GDPR', '21 CFR Part 11'],
   'SaaS & Tech': ['SOC 2', 'GDPR', 'CCPA', 'ISO/IEC 27001', 'ISO 27018'],
   'E-commerce & Payments': ['PCI-DSS', 'GDPR', 'CCPA', 'APPI', 'ePrivacy Directive']
+};
+
+/**
+ * Mapping of regions to their specific regulations
+ */
+export const REGION_REGULATIONS: Record<Region, Record<string, string>> = {
+  'North America': {
+    'CCPA': 'California Consumer Privacy Act',
+    'HIPAA': 'Health Insurance Portability and Accountability Act',
+    'GLBA': 'Gramm-Leach-Bliley Act',
+    'CPRA': 'California Privacy Rights Act',
+    'PIPEDA': 'Personal Information Protection and Electronic Documents Act'
+  },
+  'European Union': {
+    'GDPR': 'General Data Protection Regulation',
+    'ePrivacy': 'ePrivacy Directive',
+    'NIS2': 'Network and Information Security Directive',
+    'DORA': 'Digital Operational Resilience Act',
+    'PSD2': 'Payment Services Directive 2'
+  },
+  'Asia Pacific': {
+    'PDPA': 'Personal Data Protection Act (Singapore)',
+    'APPI': 'Act on Protection of Personal Information (Japan)',
+    'PIPL': 'Personal Information Protection Law (China)',
+    'Privacy Act': 'Privacy Act 1988 (Australia)',
+    'PDPB': 'Personal Data Protection Bill (India)'
+  },
+  'United Kingdom': {
+    'UK GDPR': 'UK General Data Protection Regulation',
+    'DPA': 'Data Protection Act 2018',
+    'PECR': 'Privacy and Electronic Communications Regulations',
+    'FCA': 'Financial Conduct Authority Regulations',
+    'NIS': 'Network and Information Systems Regulations'
+  },
+  'Latin America': {
+    'LGPD': 'Lei Geral de Proteção de Dados (Brazil)',
+    'PDPL': 'Personal Data Protection Law (Argentina)',
+    'LFPDPPP': 'Federal Law on Protection of Personal Data (Mexico)',
+    'CPL': 'Consumer Protection Law'
+  },
+  'Middle East': {
+    'PDPL': 'Personal Data Protection Law (Bahrain)',
+    'DPL': 'Data Protection Law (DIFC)',
+    'PDPL-SA': 'Personal Data Protection Law (Saudi Arabia)',
+    'QADPL': 'Qatar Data Protection Law'
+  },
+  'Africa': {
+    'POPIA': 'Protection of Personal Information Act (South Africa)',
+    'NDPR': 'Nigeria Data Protection Regulation',
+    'PDPA-Kenya': 'Data Protection Act (Kenya)',
+    'PDPA-Egypt': 'Data Protection Law (Egypt)'
+  }
 };
 
 /**
@@ -63,13 +128,16 @@ export interface ComplianceReport {
   documentId: string;
   documentName: string;
   industry?: Industry;
+  region?: Region;
   overallScore: number;
   gdprScore: number;
   hipaaScore: number;
   soc2Score: number;
   pciDssScore?: number;
   industryScores?: Record<string, number>;
+  regionScores?: Record<string, number>;
   regulations?: string[];
+  regionalRegulations?: Record<string, string>;
   risks: RiskItem[];
   summary: string;
   timestamp: string;

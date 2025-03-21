@@ -1,5 +1,4 @@
-
-import { RiskItem } from './types';
+import { RiskItem, Region, REGION_REGULATIONS } from './types';
 
 // Industry-specific risk templates
 const INDUSTRY_RISKS: Record<string, RiskItem[]> = {
@@ -101,6 +100,108 @@ const INDUSTRY_RISKS: Record<string, RiskItem[]> = {
   ]
 };
 
+// Region-specific risk templates
+const REGION_RISKS: Record<Region, RiskItem[]> = {
+  'North America': [
+    {
+      description: 'Missing privacy notice required by CCPA',
+      severity: 'high',
+      regulation: 'CCPA',
+      section: '1798.100'
+    },
+    {
+      description: 'No documented data subject request process',
+      severity: 'medium',
+      regulation: 'CCPA',
+      section: '1798.130'
+    }
+  ],
+  'European Union': [
+    {
+      description: 'Inadequate data processing agreements with processors',
+      severity: 'high',
+      regulation: 'GDPR',
+      section: 'Article 28'
+    },
+    {
+      description: 'Missing Data Protection Impact Assessment',
+      severity: 'medium',
+      regulation: 'GDPR',
+      section: 'Article 35'
+    }
+  ],
+  'Asia Pacific': [
+    {
+      description: 'No designated data protection officer',
+      severity: 'medium',
+      regulation: 'PDPA',
+      section: 'Section 11'
+    },
+    {
+      description: 'Inadequate cross-border transfer safeguards',
+      severity: 'high',
+      regulation: 'PIPL',
+      section: 'Article 38'
+    }
+  ],
+  'United Kingdom': [
+    {
+      description: 'Missing legitimate interest assessment',
+      severity: 'medium',
+      regulation: 'UK GDPR',
+      section: 'Article 6(1)(f)'
+    },
+    {
+      description: 'Inadequate cookie consent mechanism',
+      severity: 'high',
+      regulation: 'PECR',
+      section: 'Regulation 6'
+    }
+  ],
+  'Latin America': [
+    {
+      description: 'Missing data subject rights procedure',
+      severity: 'high',
+      regulation: 'LGPD',
+      section: 'Article 18'
+    },
+    {
+      description: 'No documented legal basis for processing',
+      severity: 'medium',
+      regulation: 'LGPD',
+      section: 'Article 7'
+    }
+  ],
+  'Middle East': [
+    {
+      description: 'Inadequate consent mechanisms for personal data',
+      severity: 'medium',
+      regulation: 'PDPL',
+      section: 'Article 4'
+    },
+    {
+      description: 'No data breach notification procedure',
+      severity: 'high',
+      regulation: 'DPL',
+      section: 'Section 41'
+    }
+  ],
+  'Africa': [
+    {
+      description: 'Missing documentation for data processing activities',
+      severity: 'medium',
+      regulation: 'POPIA',
+      section: 'Section 17'
+    },
+    {
+      description: 'Inadequate security safeguards',
+      severity: 'high',
+      regulation: 'POPIA',
+      section: 'Section 19'
+    }
+  ]
+};
+
 /**
  * Generate compliance risks based on scores and relevant regulations
  */
@@ -109,7 +210,8 @@ export function generateRisks(
   hipaaScore: number, 
   soc2Score: number, 
   pciDssScore: number, 
-  regulations: string[] = []
+  regulations: string[] = [],
+  region?: Region
 ): RiskItem[] {
   const risks: RiskItem[] = [];
   
@@ -177,6 +279,32 @@ export function generateRisks(
       severity: 'high',
       regulation: 'PCI-DSS',
       section: 'Requirement 3.4'
+    });
+  }
+  
+  // Add region-specific risks if applicable
+  if (region) {
+    // Add a subset of region-specific risks
+    const regionRisks = REGION_RISKS[region];
+    const randomRiskCount = Math.min(3, Math.floor(Math.random() * regionRisks.length) + 1);
+    
+    // Shuffle array to get random risks
+    const shuffled = [...regionRisks].sort(() => 0.5 - Math.random());
+    
+    // Take the first n items
+    risks.push(...shuffled.slice(0, randomRiskCount));
+    
+    // Add additional risks based on regional regulations
+    const regionalRegulations = REGION_REGULATIONS[region];
+    Object.keys(regionalRegulations).forEach(regKey => {
+      // Only add if not already covered and with 40% probability
+      if (!risks.some(r => r.regulation === regKey) && Math.random() < 0.4) {
+        risks.push({
+          description: `Potential compliance gap with ${regionalRegulations[regKey]}`,
+          severity: Math.random() < 0.3 ? 'high' : 'medium',
+          regulation: regKey
+        });
+      }
     });
   }
   

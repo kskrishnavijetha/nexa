@@ -1,9 +1,10 @@
 
-import React from 'react';
-import { ComplianceReport } from '@/utils/apiService';
+import React, { useState } from 'react';
+import { ComplianceReport, Industry, Region } from '@/utils/apiService';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 import FileDropzone from './FileDropzone';
 import IndustrySelector from './IndustrySelector';
+import RegionSelector from './RegionSelector';
 import UploadProgress from './UploadProgress';
 import UploadActions from './UploadActions';
 
@@ -24,6 +25,8 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
     progress,
     handleUpload
   } = useDocumentUpload(onReportGenerated);
+  
+  const [region, setRegion] = useState<Region | undefined>();
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -40,6 +43,11 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
           setIndustry={setIndustry}
         />
         
+        <RegionSelector
+          region={region}
+          setRegion={setRegion}
+        />
+        
         <UploadProgress
           isUploading={isUploading}
           isProcessing={isProcessing}
@@ -50,9 +58,10 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
           <UploadActions
             file={file}
             industry={industry}
+            region={region}
             isUploading={isUploading}
             isProcessing={isProcessing}
-            onUpload={handleUpload}
+            onUpload={() => handleUpload(region)}
           />
         </div>
       </div>

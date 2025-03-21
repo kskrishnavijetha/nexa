@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import DocumentUploader from '@/components/document-uploader/DocumentUploader';
 import { Button } from '@/components/ui/button';
 import { ComplianceReport, generateReportPDF } from '../utils/apiService';
-import { ArrowLeft, Download, FileText } from 'lucide-react';
+import { ArrowLeft, Download, FileText, Globe } from 'lucide-react';
 import { toast } from 'sonner';
 import ComplianceCharts from '@/components/ComplianceCharts';
 import RiskAnalysis from '@/components/RiskAnalysis';
@@ -105,8 +105,8 @@ const DocumentAnalysis = () => {
                 </Button>
               </div>
               
-              {report.industry && (
-                <div className="mb-4">
+              <div className="mb-4 grid gap-4 grid-cols-1 sm:grid-cols-2">
+                {report.industry && (
                   <div className="bg-slate-100 p-3 rounded">
                     <h3 className="font-medium text-slate-700">Industry: {report.industry}</h3>
                     {report.regulations && report.regulations.length > 0 && (
@@ -115,8 +115,24 @@ const DocumentAnalysis = () => {
                       </p>
                     )}
                   </div>
-                </div>
-              )}
+                )}
+                
+                {report.region && (
+                  <div className="bg-blue-50 p-3 rounded">
+                    <h3 className="font-medium text-blue-700 flex items-center">
+                      <Globe className="h-4 w-4 mr-1" />
+                      Region: {report.region}
+                    </h3>
+                    {report.regionalRegulations && Object.keys(report.regionalRegulations).length > 0 && (
+                      <p className="text-sm text-blue-600 mt-1">
+                        Regional Frameworks: {Object.entries(report.regionalRegulations)
+                          .map(([key, value]) => `${key} (${value})`)
+                          .join(', ')}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
               
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
                 <div className="bg-slate-50 p-4 rounded">
@@ -136,6 +152,21 @@ const DocumentAnalysis = () => {
                   <p className="text-2xl font-bold text-slate-900">{report.soc2Score}%</p>
                 </div>
               </div>
+              
+              {/* Region-specific scores */}
+              {report.regionScores && Object.keys(report.regionScores).length > 0 && (
+                <div className="mb-6">
+                  <h3 className="text-lg font-semibold mb-3">Regional Compliance Scores</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {Object.entries(report.regionScores).map(([regulation, score]) => (
+                      <div key={regulation} className="bg-blue-50 p-4 rounded">
+                        <p className="text-sm text-blue-700">{regulation}</p>
+                        <p className="text-2xl font-bold text-blue-900">{score}%</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
               
               {/* Interactive Charts */}
               <ComplianceCharts report={report} />
