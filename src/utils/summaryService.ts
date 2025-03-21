@@ -1,5 +1,6 @@
 
 import { Industry } from './types';
+import { SupportedLanguage, translate, getIndustryTranslation } from './languageService';
 
 /**
  * Generate a summary based on compliance scores and industry
@@ -9,16 +10,18 @@ export function generateSummary(
   gdprScore: number, 
   hipaaScore: number, 
   pciDssScore: number,
-  industry?: Industry
+  industry?: Industry,
+  language: SupportedLanguage = 'en'
 ): string {
   // Industry-specific prefix
   let industryPrefix = '';
   if (industry) {
-    industryPrefix = `Based on our analysis of your document for ${industry} industry compliance, `;
+    const translatedIndustry = getIndustryTranslation(industry, language);
+    industryPrefix = `${translate('based_on_analysis', language)} ${translatedIndustry} ${translate('industry_compliance', language)} `;
   }
 
   if (overallScore > 85) {
-    return `${industryPrefix}this document demonstrates a strong compliance posture overall, with only minor issues to address.`;
+    return `${industryPrefix}${translate('strong_compliance', language)}`;
   } else if (overallScore > 70) {
     let issueAreas = '';
     
@@ -54,8 +57,8 @@ export function generateSummary(
       issueAreas = `${lowScores.join(', ')}, and ${lastItem}`;
     }
     
-    return `${industryPrefix}this document has several compliance areas that need improvement. The most critical issues relate to ${issueAreas}.`;
+    return `${industryPrefix}${translate('needs_improvement', language)} ${issueAreas}.`;
   } else {
-    return `${industryPrefix}this document has significant compliance gaps that require immediate attention across multiple regulatory frameworks.`;
+    return `${industryPrefix}${translate('significant_gaps', language)}`;
   }
 }

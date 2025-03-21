@@ -1,12 +1,14 @@
 
 import React from 'react';
 import { ComplianceReport as ComplianceReportType } from '@/utils/apiService';
+import { SupportedLanguage, translate } from '@/utils/languageService';
 
 interface ReportHeaderProps {
   report: ComplianceReportType;
+  language?: SupportedLanguage;
 }
 
-const ReportHeader: React.FC<ReportHeaderProps> = ({ report }) => {
+const ReportHeader: React.FC<ReportHeaderProps> = ({ report, language = 'en' }) => {
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-500';
     if (score >= 70) return 'text-amber-500';
@@ -19,7 +21,7 @@ const ReportHeader: React.FC<ReportHeaderProps> = ({ report }) => {
         <div>
           <h2 className="text-2xl font-semibold">{report.documentName}</h2>
           <p className="text-muted-foreground">
-            Analyzed on {new Date(report.timestamp).toLocaleString()}
+            {translate('generated', language)}: {new Date(report.timestamp).toLocaleString(language)}
           </p>
         </div>
         <div className="text-center">
@@ -28,7 +30,7 @@ const ReportHeader: React.FC<ReportHeaderProps> = ({ report }) => {
               {report.overallScore}%
             </span>
           </div>
-          <p className="text-sm text-muted-foreground">Overall Score</p>
+          <p className="text-sm text-muted-foreground">{translate('overall_compliance', language)}</p>
         </div>
       </div>
     </div>

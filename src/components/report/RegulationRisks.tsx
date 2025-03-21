@@ -2,20 +2,43 @@
 import React from 'react';
 import { AlertCircle, AlertTriangle, CheckCircle2, ShieldCheck } from 'lucide-react';
 import { ComplianceReport as ComplianceReportType, RiskSeverity } from '@/utils/apiService';
+import { SupportedLanguage, translate } from '@/utils/languageService';
 
 interface RegulationRisksProps {
   report: ComplianceReportType;
   regulation: 'GDPR' | 'HIPAA' | 'SOC2';
   title: string;
   colorClass: string;
+  language?: SupportedLanguage;
 }
 
 const RegulationRisks: React.FC<RegulationRisksProps> = ({ 
   report, 
   regulation, 
   title,
-  colorClass
+  colorClass,
+  language = 'en'
 }) => {
+  const getSeverityLabel = (severity: RiskSeverity): string => {
+    switch (severity) {
+      case 'high':
+        return language === 'en' ? 'High' : 
+               language === 'es' ? 'Alto' :
+               language === 'fr' ? 'Élevé' :
+               language === 'de' ? 'Hoch' : '高';
+      case 'medium':
+        return language === 'en' ? 'Medium' : 
+               language === 'es' ? 'Medio' :
+               language === 'fr' ? 'Moyen' :
+               language === 'de' ? 'Mittel' : '中';
+      case 'low':
+        return language === 'en' ? 'Low' : 
+               language === 'es' ? 'Bajo' :
+               language === 'fr' ? 'Faible' :
+               language === 'de' ? 'Niedrig' : '低';
+    }
+  };
+
   const getSeverityBadge = (severity: RiskSeverity) => {
     const baseClasses = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
     
@@ -24,23 +47,43 @@ const RegulationRisks: React.FC<RegulationRisksProps> = ({
         return (
           <span className={`${baseClasses} bg-red-100 text-red-800`}>
             <AlertCircle className="w-3 h-3 mr-1" />
-            High
+            {getSeverityLabel(severity)}
           </span>
         );
       case 'medium':
         return (
           <span className={`${baseClasses} bg-amber-100 text-amber-800`}>
             <AlertTriangle className="w-3 h-3 mr-1" />
-            Medium
+            {getSeverityLabel(severity)}
           </span>
         );
       case 'low':
         return (
           <span className={`${baseClasses} bg-green-100 text-green-800`}>
             <CheckCircle2 className="w-3 h-3 mr-1" />
-            Low
+            {getSeverityLabel(severity)}
           </span>
         );
+    }
+  };
+
+  const getNoIssuesText = (): string => {
+    switch (language) {
+      case 'es': return 'No se encontraron problemas';
+      case 'fr': return 'Aucun problème trouvé';
+      case 'de': return 'Keine Probleme gefunden';
+      case 'zh': return '未发现问题';
+      default: return 'No issues found';
+    }
+  };
+
+  const getReferenceText = (): string => {
+    switch (language) {
+      case 'es': return 'Referencia';
+      case 'fr': return 'Référence';
+      case 'de': return 'Referenz';
+      case 'zh': return '参考';
+      default: return 'Reference';
     }
   };
 
@@ -50,7 +93,7 @@ const RegulationRisks: React.FC<RegulationRisksProps> = ({
     if (filteredRisks.length === 0) {
       return (
         <div className="p-4 text-center text-muted-foreground">
-          No issues found
+          {getNoIssuesText()}
         </div>
       );
     }
@@ -68,7 +111,7 @@ const RegulationRisks: React.FC<RegulationRisksProps> = ({
             </div>
             {risk.section && (
               <p className="text-xs text-muted-foreground mt-1">
-                Reference: {risk.section}
+                {getReferenceText()}: {risk.section}
               </p>
             )}
           </div>

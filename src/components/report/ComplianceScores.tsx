@@ -1,12 +1,14 @@
 
 import React from 'react';
 import { ComplianceReport as ComplianceReportType } from '@/utils/apiService';
+import { SupportedLanguage, translate } from '@/utils/languageService';
 
 interface ComplianceScoresProps {
   report: ComplianceReportType;
+  language?: SupportedLanguage;
 }
 
-const ComplianceScores: React.FC<ComplianceScoresProps> = ({ report }) => {
+const ComplianceScores: React.FC<ComplianceScoresProps> = ({ report, language = 'en' }) => {
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-500';
     if (score >= 70) return 'text-amber-500';
@@ -19,19 +21,19 @@ const ComplianceScores: React.FC<ComplianceScoresProps> = ({ report }) => {
         <div className={`text-2xl font-bold mb-1 ${getScoreColor(report.gdprScore)}`}>
           {report.gdprScore}%
         </div>
-        <p className="text-sm">GDPR</p>
+        <p className="text-sm">{translate('gdpr_compliance', language).replace(' Compliance', '')}</p>
       </div>
       <div className="rounded-lg border p-4 text-center">
         <div className={`text-2xl font-bold mb-1 ${getScoreColor(report.hipaaScore)}`}>
           {report.hipaaScore}%
         </div>
-        <p className="text-sm">HIPAA</p>
+        <p className="text-sm">{translate('hipaa_compliance', language).replace(' Compliance', '')}</p>
       </div>
       <div className="rounded-lg border p-4 text-center">
         <div className={`text-2xl font-bold mb-1 ${getScoreColor(report.soc2Score)}`}>
           {report.soc2Score}%
         </div>
-        <p className="text-sm">SOC 2</p>
+        <p className="text-sm">{translate('soc2_compliance', language).replace(' Compliance', '')}</p>
       </div>
     </div>
   );

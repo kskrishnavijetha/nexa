@@ -1,61 +1,100 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, Send } from 'lucide-react';
 import { toast } from 'sonner';
-import { ComplianceReport as ComplianceReportType, generateReportPDF } from '@/utils/apiService';
+import { ComplianceReport } from '@/utils/apiService';
+import { generateReportPDF } from '@/utils/reportService';
+import { SupportedLanguage } from '@/utils/languageService';
 
 interface ReportActionsProps {
-  report: ComplianceReportType;
-  onClose: () => void;
+  report: ComplianceReport;
+  language?: SupportedLanguage;
 }
 
-const ReportActions: React.FC<ReportActionsProps> = ({ report, onClose }) => {
-  const [isGeneratingPdf, setIsGeneratingPdf] = useState(false);
+const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }) => {
+  const [isDownloading, setIsDownloading] = React.useState(false);
+  const [isSending, setIsSending] = React.useState(false);
 
-  const handleGeneratePDF = async () => {
-    setIsGeneratingPdf(true);
-    try {
-      const response = await generateReportPDF(report);
-      if (response.error) {
-        toast.error(response.error);
-      } else {
-        toast.success('Report downloaded successfully');
-        // In a real app, this would trigger the download
-      }
-    } catch (error) {
-      toast.error('Failed to generate report');
-    } finally {
-      setIsGeneratingPdf(false);
+  const getDownloadButtonLabel = (): string => {
+    switch (language) {
+      case 'es': return 'Descargar Informe PDF';
+      case 'fr': return 'Télécharger le Rapport PDF';
+      case 'de': return 'PDF-Bericht Herunterladen';
+      case 'zh': return '下载PDF报告';
+      default: return 'Download PDF Report';
     }
   };
 
+  const getSendButtonLabel = (): string => {
+    switch (language) {
+      case 'es': return 'Enviar Informe por Correo';
+      case 'fr': return 'Envoyer le Rapport par Email';
+      case 'de': return 'Bericht per E-Mail Senden';
+      case 'zh': return '通过电子邮件发送报告';
+      default: return 'Email Report';
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    setIsDownloading(true);
+    try {
+      const response = await generateReportPDF(report, language);
+      
+      if (response.error) {
+        toast.error(response.error);
+        return;
+      }
+      
+      // Create a download link
+      const url = URL.createObjectURL(response.data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${report.documentName.replace(/\s+/g, '-').toLowerCase()}-compliance-report.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up
+      URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      
+      toast.success('Report downloaded successfully');
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      toast.error('Failed to download the report. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+  
+  const handleSendEmail = () => {
+    setIsSending(true);
+    // Simulate email sending
+    setTimeout(() => {
+      toast.success('Report has been sent to your email');
+      setIsSending(false);
+    }, 2000);
+  };
+
   return (
-    <div className="flex mb-6 gap-4">
-      <Button 
-        onClick={handleGeneratePDF} 
-        className="flex-1"
-        disabled={isGeneratingPdf}
-      >
-        {isGeneratingPdf ? (
-          <span className="flex items-center">
-            <div className="loading-dot"></div>
-            <div className="loading-dot"></div>
-            <div className="loading-dot"></div>
-            <span className="ml-2">Generating...</span>
-          </span>
-        ) : (
-          <>
-            <Download className="mr-2 h-4 w-4" />
-            Download Full Report
-          </>
-        )}
-      </Button>
+    <div className="flex flex-col sm:flex-row gap-3 justify-end">
       <Button 
         variant="outline" 
-        onClick={onClose}
+        onClick={handleDownloadPDF}
+        disabled={isDownloading}
+        className="flex gap-2 items-center"
       >
-        Analyze Another Document
+        <Download className="h-4 w-4" />
+        {isDownloading ? 'Downloading...' : getDownloadButtonLabel()}
+      </Button>
+      
+      <Button 
+        onClick={handleSendEmail}
+        disabled={isSending}
+        className="flex gap-2 items-center"
+      >
+        <Send className="h-4 w-4" />
+        {isSending ? 'Sending...' : getSendButtonLabel()}
       </Button>
     </div>
   );

@@ -4,6 +4,7 @@ import { generateRisks } from './riskService';
 import { generateSuggestions } from './suggestionService';
 import { generateSummary } from './summaryService';
 import { generateScores } from './scoreService';
+import { SupportedLanguage, getLanguagePreference } from './languageService';
 
 /**
  * Request a compliance check for an uploaded document
@@ -11,11 +12,15 @@ import { generateScores } from './scoreService';
 export const requestComplianceCheck = async (
   documentId: string,
   documentName: string,
-  industry?: Industry
+  industry?: Industry,
+  language?: SupportedLanguage
 ): Promise<ApiResponse<ComplianceReport>> => {
   try {
     // Simulate API latency
     await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    // Get language preference or use provided language
+    const userLanguage = language || getLanguagePreference();
     
     // Get applicable regulations based on industry
     const regulations = industry ? INDUSTRY_REGULATIONS[industry] : [];
@@ -30,7 +35,7 @@ export const requestComplianceCheck = async (
     const suggestions = generateSuggestions(regulations);
     
     // Create a relevant summary based on scores and industry
-    const summary = generateSummary(overallScore, gdprScore, hipaaScore, pciDssScore, industry);
+    const summary = generateSummary(overallScore, gdprScore, hipaaScore, pciDssScore, industry, userLanguage);
     
     // Mock compliance report with real-time values
     const mockReport: ComplianceReport = {
@@ -47,7 +52,8 @@ export const requestComplianceCheck = async (
       risks,
       summary,
       suggestions,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      language: userLanguage
     };
     
     return {
