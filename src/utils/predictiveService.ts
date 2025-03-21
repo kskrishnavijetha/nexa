@@ -76,9 +76,14 @@ const predictRisks = (
         report.risks.some(r => r.description === risk.description && r.regulation === risk.regulation)
       ).length;
       
-      const trend = 
-        recentOccurrences > (recentReports.length / 2) ? 'increasing' :
-        recentOccurrences === 0 ? 'decreasing' : 'stable';
+      let trend: 'increasing' | 'stable' | 'decreasing';
+      if (recentOccurrences > (recentReports.length / 2)) {
+        trend = 'increasing';
+      } else if (recentOccurrences === 0) {
+        trend = 'decreasing';
+      } else {
+        trend = 'stable';
+      }
       
       return {
         riskType: risk.description,
@@ -167,7 +172,7 @@ const generateInsights = (
       title: `${recurringRisks.length} recurring compliance issues identified`,
       description: `Several risks appear in multiple compliance scans and may require systematic fixes.`,
       actionRequired: true,
-      priority: 'high'
+      priority: 'medium'
     });
   }
   
@@ -303,7 +308,7 @@ const generateRecommendations = (
     recommendations.push({
       title: "Industry-specific compliance review",
       description: `Schedule a dedicated review of ${industryRisks[0].regulation} compliance requirements with subject matter experts.`,
-      impact: "high" as const,
+      impact: "medium" as const,
       effortToImplement: "medium" as const
     });
   }
@@ -321,7 +326,7 @@ const generateRecommendations = (
       recommendations.push({
         title: "Comprehensive compliance program review",
         description: "Your compliance scores show a consistent downward trend. Consider a full review of your compliance program.",
-        impact: "high" as const,
+        impact: "medium" as const,
         effortToImplement: "high" as const
       });
     }
