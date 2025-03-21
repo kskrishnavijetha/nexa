@@ -14,8 +14,16 @@ import {
   CheckCircle2,
   ShieldCheck,
   FileText,
-  AlertTriangle
+  AlertTriangle,
+  Calendar
 } from 'lucide-react';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import ScheduleScanner from './ScheduleScanner';
 
 interface ComplianceReportProps {
   report: ComplianceReportType;
@@ -134,111 +142,134 @@ const ComplianceReport: React.FC<ComplianceReportProps> = ({ report, onClose }) 
         </div>
       </div>
       
-      <div className="p-6">
-        <div className="flex mb-6 gap-4">
-          <Button 
-            onClick={handleGeneratePDF} 
-            className="flex-1"
-            disabled={isGeneratingPdf}
-          >
-            {isGeneratingPdf ? (
-              <span className="flex items-center">
-                <div className="loading-dot"></div>
-                <div className="loading-dot"></div>
-                <div className="loading-dot"></div>
-                <span className="ml-2">Generating...</span>
-              </span>
-            ) : (
-              <>
-                <Download className="mr-2 h-4 w-4" />
-                Download Full Report
-              </>
-            )}
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={onClose}
-          >
-            Analyze Another Document
-          </Button>
+      <Tabs defaultValue="report" className="w-full">
+        <div className="px-6 pt-6">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="report">
+              <FileText className="w-4 h-4 mr-2" />
+              Report Details
+            </TabsTrigger>
+            <TabsTrigger value="schedule">
+              <Calendar className="w-4 h-4 mr-2" />
+              Schedule Scans
+            </TabsTrigger>
+          </TabsList>
         </div>
         
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="rounded-lg border p-4 text-center">
-            <div className={`text-2xl font-bold mb-1 ${getScoreColor(report.gdprScore)}`}>
-              {report.gdprScore}%
-            </div>
-            <p className="text-sm">GDPR</p>
-          </div>
-          <div className="rounded-lg border p-4 text-center">
-            <div className={`text-2xl font-bold mb-1 ${getScoreColor(report.hipaaScore)}`}>
-              {report.hipaaScore}%
-            </div>
-            <p className="text-sm">HIPAA</p>
-          </div>
-          <div className="rounded-lg border p-4 text-center">
-            <div className={`text-2xl font-bold mb-1 ${getScoreColor(report.soc2Score)}`}>
-              {report.soc2Score}%
-            </div>
-            <p className="text-sm">SOC 2</p>
-          </div>
-        </div>
-        
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-3">Issues Summary</h3>
-          <div className="flex space-x-3">
-            <div className="flex-1 p-3 rounded-lg bg-red-50 border border-red-100">
-              <p className="text-center text-2xl font-bold text-red-600">
-                {countRisksBySeverity('high')}
-              </p>
-              <p className="text-center text-sm text-red-600">High Risk</p>
-            </div>
-            <div className="flex-1 p-3 rounded-lg bg-amber-50 border border-amber-100">
-              <p className="text-center text-2xl font-bold text-amber-600">
-                {countRisksBySeverity('medium')}
-              </p>
-              <p className="text-center text-sm text-amber-600">Medium Risk</p>
-            </div>
-            <div className="flex-1 p-3 rounded-lg bg-green-50 border border-green-100">
-              <p className="text-center text-2xl font-bold text-green-600">
-                {countRisksBySeverity('low')}
-              </p>
-              <p className="text-center text-sm text-green-600">Low Risk</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="mb-6">
-          <h3 className="text-lg font-semibold mb-2">Summary</h3>
-          <p className="text-muted-foreground">{report.summary}</p>
-        </div>
-        
-        <div className="grid grid-cols-1 gap-6">
-          <div>
-            <div className="flex items-center mb-3 text-blue-600">
-              <ShieldCheck className="w-5 h-5 mr-2" />
-              <h3 className="text-lg font-semibold">GDPR Compliance</h3>
-            </div>
-            {renderRisks('GDPR')}
+        <TabsContent value="report" className="p-6 pt-4">
+          <div className="flex mb-6 gap-4">
+            <Button 
+              onClick={handleGeneratePDF} 
+              className="flex-1"
+              disabled={isGeneratingPdf}
+            >
+              {isGeneratingPdf ? (
+                <span className="flex items-center">
+                  <div className="loading-dot"></div>
+                  <div className="loading-dot"></div>
+                  <div className="loading-dot"></div>
+                  <span className="ml-2">Generating...</span>
+                </span>
+              ) : (
+                <>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download Full Report
+                </>
+              )}
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={onClose}
+            >
+              Analyze Another Document
+            </Button>
           </div>
           
-          <div>
-            <div className="flex items-center mb-3 text-purple-600">
-              <ShieldCheck className="w-5 h-5 mr-2" />
-              <h3 className="text-lg font-semibold">HIPAA Compliance</h3>
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="rounded-lg border p-4 text-center">
+              <div className={`text-2xl font-bold mb-1 ${getScoreColor(report.gdprScore)}`}>
+                {report.gdprScore}%
+              </div>
+              <p className="text-sm">GDPR</p>
             </div>
-            {renderRisks('HIPAA')}
+            <div className="rounded-lg border p-4 text-center">
+              <div className={`text-2xl font-bold mb-1 ${getScoreColor(report.hipaaScore)}`}>
+                {report.hipaaScore}%
+              </div>
+              <p className="text-sm">HIPAA</p>
+            </div>
+            <div className="rounded-lg border p-4 text-center">
+              <div className={`text-2xl font-bold mb-1 ${getScoreColor(report.soc2Score)}`}>
+                {report.soc2Score}%
+              </div>
+              <p className="text-sm">SOC 2</p>
+            </div>
           </div>
           
-          <div>
-            <div className="flex items-center mb-3 text-emerald-600">
-              <ShieldCheck className="w-5 h-5 mr-2" />
-              <h3 className="text-lg font-semibold">SOC 2 Compliance</h3>
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold mb-3">Issues Summary</h3>
+            <div className="flex space-x-3">
+              <div className="flex-1 p-3 rounded-lg bg-red-50 border border-red-100">
+                <p className="text-center text-2xl font-bold text-red-600">
+                  {countRisksBySeverity('high')}
+                </p>
+                <p className="text-center text-sm text-red-600">High Risk</p>
+              </div>
+              <div className="flex-1 p-3 rounded-lg bg-amber-50 border border-amber-100">
+                <p className="text-center text-2xl font-bold text-amber-600">
+                  {countRisksBySeverity('medium')}
+                </p>
+                <p className="text-center text-sm text-amber-600">Medium Risk</p>
+              </div>
+              <div className="flex-1 p-3 rounded-lg bg-green-50 border border-green-100">
+                <p className="text-center text-2xl font-bold text-green-600">
+                  {countRisksBySeverity('low')}
+                </p>
+                <p className="text-center text-sm text-green-600">Low Risk</p>
+              </div>
             </div>
-            {renderRisks('SOC2')}
           </div>
-        </div>
-      </div>
+          
+          <div className="mb-6">
+            <h3 className="text-lg font-semibold mb-2">Summary</h3>
+            <p className="text-muted-foreground">{report.summary}</p>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-6">
+            <div>
+              <div className="flex items-center mb-3 text-blue-600">
+                <ShieldCheck className="w-5 h-5 mr-2" />
+                <h3 className="text-lg font-semibold">GDPR Compliance</h3>
+              </div>
+              {renderRisks('GDPR')}
+            </div>
+            
+            <div>
+              <div className="flex items-center mb-3 text-purple-600">
+                <ShieldCheck className="w-5 h-5 mr-2" />
+                <h3 className="text-lg font-semibold">HIPAA Compliance</h3>
+              </div>
+              {renderRisks('HIPAA')}
+            </div>
+            
+            <div>
+              <div className="flex items-center mb-3 text-emerald-600">
+                <ShieldCheck className="w-5 h-5 mr-2" />
+                <h3 className="text-lg font-semibold">SOC 2 Compliance</h3>
+              </div>
+              {renderRisks('SOC2')}
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="schedule" className="p-6 pt-4">
+          <ScheduleScanner 
+            documentId={report.documentId} 
+            documentName={report.documentName}
+            industry={report.industry}
+          />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
