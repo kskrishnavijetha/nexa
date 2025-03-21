@@ -144,7 +144,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
               {getServiceIcon(connection.type)}
               <CardTitle className="text-base">{connection.name}</CardTitle>
             </div>
-            <Badge variant={isConnected ? "success" : "outline"}>
+            <Badge variant={isConnected ? "default" : "outline"} className={isConnected ? "bg-green-500 hover:bg-green-600" : ""}>
               {isConnected ? 'Connected' : 'Disconnected'}
             </Badge>
           </div>

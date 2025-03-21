@@ -5,8 +5,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GoogleServicesScanner from './google/GoogleServicesScanner';
 import { Industry, Region } from '@/utils/types';
 import { SupportedLanguage } from '@/utils/language';
-import { IndustrySelector } from './document-uploader/IndustrySelector';
-import { RegionSelector } from './document-uploader/RegionSelector';
+import IndustrySelector from './document-uploader/IndustrySelector';
+import RegionSelector from './document-uploader/RegionSelector';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Separator } from './ui/separator';
 import { CloudLightning, History, Settings } from 'lucide-react';
@@ -19,11 +19,11 @@ const GoogleServicesPage: React.FC = () => {
   const [language, setLanguage] = useState<SupportedLanguage>('en');
   const [activeTab, setActiveTab] = useState('scanner');
 
-  const handleIndustryChange = (newIndustry: Industry | undefined) => {
+  const handleIndustryChange = (newIndustry: Industry) => {
     setIndustry(newIndustry);
   };
 
-  const handleRegionChange = (newRegion: Region | undefined) => {
+  const handleRegionChange = (newRegion: Region) => {
     setRegion(newRegion);
   };
 
