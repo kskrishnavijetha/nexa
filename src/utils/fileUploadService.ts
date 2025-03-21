@@ -1,26 +1,48 @@
 
 import { ApiResponse } from './types';
 
+interface UploadResult {
+  documentId: string;
+  documentName: string;
+}
+
 /**
- * Upload a file to the server
+ * Simulates uploading a document to the server
  */
-export const uploadFile = async (file: File): Promise<ApiResponse<{ id: string }>> => {
+export const uploadDocument = async (
+  file: File,
+  onProgress?: (progress: number) => void
+): Promise<ApiResponse<UploadResult>> => {
   try {
-    const formData = new FormData();
-    formData.append('file', file);
+    // Simulate upload progress
+    if (onProgress) {
+      let progress = 0;
+      const interval = setInterval(() => {
+        progress += 10;
+        onProgress(progress);
+        if (progress >= 100) {
+          clearInterval(interval);
+        }
+      }, 300);
+    }
     
-    // Simulate API latency (shorter for better UX)
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Simulate network latency
+    await new Promise(resolve => setTimeout(resolve, 3000));
     
-    // Mock successful response (would be a real API call in production)
+    // Generate a unique document ID
+    const documentId = `doc_${Date.now()}`;
+    
     return {
-      data: { id: 'doc_' + Math.random().toString(36).substr(2, 9) },
+      data: {
+        documentId,
+        documentName: file.name
+      },
       status: 200
     };
   } catch (error) {
-    console.error('File upload error:', error);
+    console.error('Upload error:', error);
     return {
-      error: 'Failed to upload the file. Please try again.',
+      error: 'Failed to upload the document. Please try again.',
       status: 500
     };
   }

@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { ComplianceReport as ComplianceReportType, RiskSeverity } from '@/utils/apiService';
-import { SupportedLanguage, translate } from '@/utils/languageService';
+import { SupportedLanguage, translate } from '@/utils/language';
 
 interface IssuesSummaryProps {
   report: ComplianceReportType;

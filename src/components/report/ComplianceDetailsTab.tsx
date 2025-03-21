@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ComplianceReport as ComplianceReportType } from '@/utils/apiService';
 import { Button } from '@/components/ui/button';
@@ -7,7 +6,7 @@ import ReportSummary from './ReportSummary';
 import IssuesSummary from './IssuesSummary';
 import RegulationRisks from './RegulationRisks';
 import ReportActions from './ReportActions';
-import { SupportedLanguage } from '@/utils/languageService';
+import { SupportedLanguage } from '@/utils/language';
 
 interface ComplianceDetailsTabProps {
   report: ComplianceReportType;

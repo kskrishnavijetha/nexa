@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Check, Globe } from 'lucide-react';
 import { 
@@ -8,7 +7,7 @@ import {
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { SupportedLanguage, supportedLanguages } from '@/utils/languageService';
+import { SupportedLanguage, supportedLanguages } from '@/utils/language';
 
 interface LanguageSelectorProps {
   currentLanguage: SupportedLanguage;

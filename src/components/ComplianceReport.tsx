@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ComplianceReport as ComplianceReportType } from '@/utils/apiService';
 import { FileText, Calendar } from 'lucide-react';
@@ -13,7 +12,7 @@ import ReportHeader from './report/ReportHeader';
 import ComplianceDetailsTab from './report/ComplianceDetailsTab';
 import PredictiveAnalytics from './predictive/PredictiveAnalytics';
 import LanguageSelector from './common/LanguageSelector';
-import { SupportedLanguage, getLanguagePreference } from '@/utils/languageService';
+import { SupportedLanguage, getLanguagePreference } from '@/utils/language';
 
 interface ComplianceReportProps {
   report: ComplianceReportType;

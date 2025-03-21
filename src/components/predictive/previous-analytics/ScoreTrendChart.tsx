@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { TrendingUp } from 'lucide-react';
-import { SupportedLanguage } from '@/utils/languageService';
+import { SupportedLanguage } from '@/utils/language';
 
 interface ScoreTrendChartProps {
   trendData: {

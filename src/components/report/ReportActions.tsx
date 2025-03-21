@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { ComplianceReport } from '@/utils/apiService';
 import { generateReportPDF } from '@/utils/reportService';
-import { SupportedLanguage } from '@/utils/languageService';
+import { SupportedLanguage } from '@/utils/language';
 
 interface ReportActionsProps {
   report: ComplianceReport;

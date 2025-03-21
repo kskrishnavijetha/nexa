@@ -1,6 +1,6 @@
 
 import { ApiResponse, ComplianceReport } from './types';
-import { SupportedLanguage, translate } from './languageService';
+import { SupportedLanguage, translate } from './language';
 import jsPDF from 'jspdf';
 
 /**
