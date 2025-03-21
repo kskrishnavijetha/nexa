@@ -8,3 +8,4 @@ export * from './suggestionService';
 export * from './summaryService';
 export * from './scoreService';
 export * from './simulationService';
+export * from './googleServices';
