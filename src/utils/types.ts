@@ -1,4 +1,3 @@
-
 export type Industry = 
   | 'finance' 
   | 'healthcare' 
@@ -14,7 +13,8 @@ export type Industry =
   | 'other'
   | 'Healthcare'
   | 'Financial Services'
-  | 'Technology & IT';
+  | 'Technology & IT'
+  | 'Manufacturing & Industrial';
 
 export type Region = 
   | 'us' 
@@ -87,7 +87,12 @@ export interface ComplianceReport {
 
 // Risk trend type
 export interface RiskTrend {
+  riskId: string;
+  description: string;
   regulation: string;
+  currentSeverity: RiskSeverity;
+  predictedChange: 'increase' | 'decrease' | 'stable';
+  impact: 'high' | 'medium' | 'low';
   previousScore: number;
   predictedScore: number;
   trend: 'increasing' | 'stable' | 'decreasing';
@@ -95,11 +100,41 @@ export interface RiskTrend {
 
 // Predictive analysis type
 export interface PredictiveAnalysis {
+  scenarioId: string;
+  scenarioName: string;
+  scenarioDescription: string;
+  regulationChanges: {
+    regulation: string;
+    changeType: 'stricter' | 'updated' | 'relaxed' | 'new';
+    impactLevel: 'high' | 'medium' | 'low';
+  }[];
+  originalScores: {
+    gdpr: number;
+    hipaa: number;
+    soc2: number;
+    pciDss: number;
+    overall: number;
+  };
+  predictedScores: {
+    gdpr: number;
+    hipaa: number;
+    soc2: number;
+    pciDss: number;
+    overall: number;
+  };
+  scoreDifferences: {
+    gdpr: number;
+    hipaa: number;
+    soc2: number;
+    pciDss: number;
+    overall: number;
+  };
   predictedRisks: any[];
   complianceInsights: any[];
   riskTrends: RiskTrend[];
-  recommendations: any[];
+  recommendations: string[];
   lastUpdated: string;
+  timestamp: string;
 }
 
 // Simulation scenario type
@@ -107,6 +142,11 @@ export interface SimulationScenario {
   id: string;
   name: string;
   description: string;
+  regulationChanges: {
+    regulation: string;
+    changeType: 'stricter' | 'updated' | 'relaxed' | 'new';
+    impactLevel: 'high' | 'medium' | 'low';
+  }[];
   impact: {
     gdprScore: number;
     hipaaScore: number;
@@ -132,7 +172,8 @@ export const INDUSTRY_REGULATIONS: Record<string, string[]> = {
   'other': ['GDPR'],
   'Healthcare': ['HIPAA', 'HITECH'],
   'Financial Services': ['PCI-DSS', 'SOX'],
-  'Technology & IT': ['GDPR', 'CCPA', 'SOC 2']
+  'Technology & IT': ['GDPR', 'CCPA', 'SOC 2'],
+  'Manufacturing & Industrial': ['ISO 9001', 'FDA', 'OSHA']
 };
 
 // Region regulations mapping

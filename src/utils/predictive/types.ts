@@ -60,7 +60,12 @@ export interface RiskPrediction {
  * Risk trend analysis structure
  */
 export interface RiskTrend {
+  riskId: string;
+  description: string;
   regulation: string;
+  currentSeverity: string;
+  predictedChange: 'increase' | 'decrease' | 'stable';
+  impact: 'high' | 'medium' | 'low';
   previousScore: number;
   predictedScore: number;
   trend: 'increasing' | 'stable' | 'decreasing';
