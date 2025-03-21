@@ -32,6 +32,20 @@ import { toast } from 'sonner';
 // Define type for Google service
 type GoogleService = 'drive' | 'gmail' | 'docs';
 
+// Define the structure for scan violations
+interface ScanViolation {
+  title: string;
+  description: string;
+  severity: 'high' | 'medium' | 'low';
+  service: string;
+  location: string;
+}
+
+// Define the structure for scan results
+interface ScanResults {
+  violations: ScanViolation[];
+}
+
 interface GoogleServicesScannerProps {
   industry?: Industry;
   region?: Region;
@@ -51,7 +65,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   const [isScanning, setIsScanning] = useState(false);
   
   const [connectedServices, setConnectedServices] = useState<GoogleService[]>([]);
-  const [scanResults, setScanResults] = useState<any | null>(null);
+  const [scanResults, setScanResults] = useState<ScanResults | null>(null);
   
   const isDriveConnected = connectedServices.includes('drive');
   const isGmailConnected = connectedServices.includes('gmail');
@@ -141,20 +155,27 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
         })
       );
       
-      // Combine results
-      const combinedResults = {
-        violations: results.flatMap(result => 
-          result.data?.reports.map(report => ({
-            title: report.title,
-            description: report.description,
-            severity: report.severity,
-            service: result.data?.serviceType || 'unknown',
-            location: report.documentName
-          })) || []
-        )
-      };
+      // Combine results and properly format them as ScanViolation objects
+      const violations: ScanViolation[] = [];
       
-      setScanResults(combinedResults);
+      results.forEach(result => {
+        if (result.data?.reports) {
+          result.data.reports.forEach(report => {
+            // Each risk item in the report becomes a violation
+            report.risks.forEach(risk => {
+              violations.push({
+                title: risk.description,
+                description: `${risk.regulation}: ${risk.section || 'General compliance issue'}`,
+                severity: risk.severity,
+                service: result.data?.serviceType || 'unknown',
+                location: report.documentName
+              });
+            });
+          });
+        }
+      });
+      
+      setScanResults({ violations });
       toast.success('Scan completed successfully');
     } catch (error) {
       console.error('Error scanning:', error);
@@ -316,7 +337,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {scanResults.violations.map((violation: any, index: number) => (
+              {scanResults.violations.map((violation, index) => (
                 <div key={index} className="flex items-start p-3 rounded-md bg-muted/50">
                   {violation.severity === 'high' ? (
                     <AlertTriangle className="h-5 w-5 text-red-500 mr-3 mt-0.5" />
