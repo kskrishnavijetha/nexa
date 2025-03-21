@@ -1,4 +1,3 @@
-
 import { ComplianceReport, RiskItem, Industry } from './types';
 
 type RiskPrediction = {
@@ -293,7 +292,7 @@ const generateRecommendations = (
       recommendations.push({
         title: `Address ${risk.regulation} compliance gap`,
         description: `Develop a remediation plan for "${risk.riskType}" which has a ${risk.probability}% likelihood of occurring in future assessments.`,
-        impact: "high" as const,
+        impact: "medium" as const,
         effortToImplement: "medium" as const
       });
     }
