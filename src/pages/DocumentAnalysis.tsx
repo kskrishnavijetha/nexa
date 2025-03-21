@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DocumentUploader from '@/components/DocumentUploader';
+import DocumentUploader from '@/components/document-uploader/DocumentUploader';
 import { Button } from '@/components/ui/button';
 import { ComplianceReport, generateReportPDF } from '../utils/apiService';
 import { ArrowLeft, Download, FileText } from 'lucide-react';
