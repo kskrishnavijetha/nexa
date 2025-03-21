@@ -5,13 +5,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   Cell, ReferenceLine
 } from 'recharts';
-
-interface RiskTrend {
-  regulation: string;
-  previousScore: number;
-  predictedScore: number;
-  trend: 'increasing' | 'stable' | 'decreasing';
-}
+import { RiskTrend } from '@/utils/predictive/types';
 
 interface TrendAnalysisProps {
   trends: RiskTrend[];

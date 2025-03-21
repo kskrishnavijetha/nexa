@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { PredictiveAnalysis, RiskTrend } from '@/utils/types';
+import { PredictiveAnalysis, RiskTrend as SimulationRiskTrend } from '@/utils/types';
 import StatusBadge from '../audit/StatusBadge';
 import { TrendingUp, TrendingDown, Check } from 'lucide-react';
 
@@ -16,7 +15,7 @@ const RiskTrendList: React.FC<RiskTrendListProps> = ({ analysis }) => {
     trend.impact === 'low' || trend.predictedChange === 'stable');
 
   // Get badge for risk trend
-  const getRiskTrendBadge = (trend: RiskTrend) => {
+  const getRiskTrendBadge = (trend: SimulationRiskTrend) => {
     return (
       <StatusBadge 
         status={trend.predictedChange} 

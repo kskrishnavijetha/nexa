@@ -1,8 +1,9 @@
 
 import { ComplianceReport } from '../types';
+import { RiskTrend } from './types';
 
 // Generate risk trends based on historical data
-export const generateRiskTrends = (reports: ComplianceReport[]) => {
+export const generateRiskTrends = (reports: ComplianceReport[]): RiskTrend[] => {
   if (reports.length < 2) {
     return [];
   }

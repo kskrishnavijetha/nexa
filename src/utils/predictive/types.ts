@@ -1,4 +1,5 @@
-import { RiskPrediction } from './types';
+
+// Import from parent types file
 import { ComplianceReport, RiskItem, Industry } from '../types';
 
 export interface PredictiveAnalyticsResult {
@@ -59,6 +60,8 @@ export interface RiskPrediction {
  * Risk trend analysis structure
  */
 export interface RiskTrend {
-  riskType: string;
+  regulation: string;
+  previousScore: number;
+  predictedScore: number;
   trend: 'increasing' | 'stable' | 'decreasing';
 }
