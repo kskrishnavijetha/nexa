@@ -57,13 +57,13 @@ export interface RiskPrediction {
 }
 
 /**
- * Risk trend analysis structure
+ * Risk trend analysis structure - make it consistent with the one in utils/types.ts
  */
 export interface RiskTrend {
   riskId: string;
   description: string;
   regulation: string;
-  currentSeverity: string;
+  currentSeverity: RiskSeverity;
   predictedChange: 'increase' | 'decrease' | 'stable';
   impact: 'high' | 'medium' | 'low';
   previousScore: number;

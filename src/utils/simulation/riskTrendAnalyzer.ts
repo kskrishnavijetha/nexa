@@ -1,6 +1,6 @@
 
 import { RiskItem, RiskSeverity, SimulationScenario } from '../types';
-import { RiskTrend } from '../predictive/types';
+import { RiskTrend } from '../types';
 
 /**
  * Calculate how risks would evolve under the given scenario
@@ -15,29 +15,29 @@ export function calculateRiskTrends(currentRisks: RiskItem[], scenario: Simulati
       change.regulation === risk.regulation);
     
     if (affectedChange) {
-      let trendDirection: 'increase' | 'decrease' | 'stable';
+      let predictedChange: 'increase' | 'decrease' | 'stable';
       let impact: 'high' | 'medium' | 'low';
       
       // Determine trend direction based on change type
       if (affectedChange.changeType === 'stricter') {
-        trendDirection = 'increase';
-        impact = affectedChange.impactLevel;
+        predictedChange = 'increase';
+        impact = affectedChange.impactLevel as 'high' | 'medium' | 'low';
       } else if (affectedChange.changeType === 'updated') {
         // For updates, randomly determine if risk increases or decreases
-        trendDirection = Math.random() > 0.6 ? 'increase' : 'decrease';
-        impact = affectedChange.impactLevel;
+        predictedChange = Math.random() > 0.6 ? 'increase' : 'decrease';
+        impact = affectedChange.impactLevel as 'high' | 'medium' | 'low';
       } else if (affectedChange.changeType === 'new') {
-        trendDirection = 'increase';
+        predictedChange = 'increase';
         impact = 'high';
       } else {
-        trendDirection = 'stable';
+        predictedChange = 'stable';
         impact = 'low';
       }
       
       // Generate random scores for trend analysis
       const previousScore = Math.floor(Math.random() * 50) + 30;
-      const scoreDiff = trendDirection === 'increase' ? Math.floor(Math.random() * 20) + 5 : 
-                        trendDirection === 'decrease' ? -Math.floor(Math.random() * 20) - 5 : 
+      const scoreDiff = predictedChange === 'increase' ? Math.floor(Math.random() * 20) + 5 : 
+                        predictedChange === 'decrease' ? -Math.floor(Math.random() * 20) - 5 : 
                         Math.floor(Math.random() * 6) - 3;
       const predictedScore = Math.max(0, Math.min(100, previousScore + scoreDiff));
 
@@ -50,7 +50,7 @@ export function calculateRiskTrends(currentRisks: RiskItem[], scenario: Simulati
         description: risk.description,
         regulation: risk.regulation,
         currentSeverity: risk.severity,
-        predictedChange: trendDirection,
+        predictedChange,
         impact,
         previousScore,
         predictedScore,

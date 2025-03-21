@@ -65,8 +65,13 @@ export const runPredictiveAnalysis = async (
       overall: adjustedScores.overallScore - report.overallScore
     };
     
-    // Prepare the predictive analysis result
-    const complianceInsights = [
+    // Prepare the predictive analysis result with strictly typed properties
+    const complianceInsights: Array<{
+      title: string;
+      description: string;
+      actionRequired: boolean;
+      priority: 'high' | 'medium' | 'low' | 'critical';
+    }> = [
       {
         title: 'Regulatory Impact Analysis',
         description: `The simulation predicts a ${Math.abs(scoreDifferences.overall)}% ${scoreDifferences.overall >= 0 ? 'improvement' : 'decrease'} in overall compliance.`,
@@ -80,6 +85,12 @@ export const runPredictiveAnalysis = async (
         priority: riskTrends.filter(t => t.predictedChange === 'increase' && t.impact === 'high').length > 0 ? 'high' : 'medium'
       }
     ];
+    
+    // Convert riskTrends from simulation/riskTrendAnalyzer to the correct type if needed
+    const typedRiskTrends: RiskTrend[] = riskTrends.map(trend => ({
+      ...trend,
+      currentSeverity: trend.currentSeverity as RiskSeverity
+    }));
     
     const analysis: PredictiveAnalysis = {
       scenarioId,
@@ -103,7 +114,7 @@ export const runPredictiveAnalysis = async (
       scoreDifferences,
       predictedRisks,
       complianceInsights,
-      riskTrends,
+      riskTrends: typedRiskTrends,
       recommendations,
       lastUpdated: new Date().toISOString(),
       timestamp: new Date().toISOString()

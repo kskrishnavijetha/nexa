@@ -74,8 +74,19 @@ export const generateRiskTrends = (reports: ComplianceReport[]): RiskTrend[] => 
       trend = 'decreasing';
     }
     
+    // Determine predictedChange based on the trend
+    const predictedChange: 'increase' | 'decrease' | 'stable' = 
+      trend === 'increasing' ? 'increase' : 
+      trend === 'decreasing' ? 'decrease' : 'stable';
+    
+    // Create a complete RiskTrend object with all required properties
     return {
+      riskId: regulation, // Using regulation as the riskId
+      description: `${regulation} compliance trend`, // Generate a description
       regulation,
+      currentSeverity: scoreDiff < -5 ? 'high' : scoreDiff < 0 ? 'medium' : 'low', // Map to RiskSeverity
+      predictedChange,
+      impact: scoreDiff < -10 ? 'high' : scoreDiff < -5 ? 'medium' : 'low', // Map to impact
       previousScore: Math.round(previousScore),
       predictedScore: Math.round(currentScore + (scoreDiff / 2)), // Simple prediction
       trend
