@@ -1,7 +1,8 @@
+
 import { Industry } from '../types';
 
 // Industry translations
-export const industryTranslations: Record<string, Record<Industry, string>> = {
+export const industryTranslations: Record<string, Record<string, string>> = {
   en: {
     finance: 'Finance',
     healthcare: 'Healthcare',

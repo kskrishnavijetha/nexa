@@ -1,3 +1,4 @@
+
 export type Industry = 
   | 'finance' 
   | 'healthcare' 
@@ -44,6 +45,7 @@ export interface ApiResponse<T = any> {
 
 // Risk item definition
 export interface RiskItem {
+  id?: string;
   description: string;
   severity: RiskSeverity;
   regulation: string;
@@ -130,7 +132,12 @@ export interface PredictiveAnalysis {
     overall: number;
   };
   predictedRisks: any[];
-  complianceInsights: any[];
+  complianceInsights: {
+    title: string;
+    description: string;
+    actionRequired: boolean;
+    priority: 'high' | 'medium' | 'low' | 'critical';
+  }[];
   riskTrends: RiskTrend[];
   recommendations: string[];
   lastUpdated: string;
