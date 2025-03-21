@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
 import { ComplianceReport } from '@/utils/types';
-import { PredictiveAnalyticsResult, RiskTrend } from '@/utils/predictive/types';
+import { PredictiveAnalyticsResult, ComplianceInsight } from '@/utils/predictive/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CalendarIcon, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { CalendarIcon, TrendingUp, TrendingDown, Minus, ArrowUp, ArrowDown } from 'lucide-react';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   BarChart, Bar, Cell, ReferenceLine 
@@ -49,6 +49,7 @@ const PreviousAnalytics: React.FC<PreviousAnalyticsProps> = ({
         
         if (previousResult) {
           let score = 0;
+          // Use type assertion to ensure TypeScript knows we're working with a ComplianceReport
           if (selectedMetric === 'gdpr') score = report.gdprScore;
           else if (selectedMetric === 'hipaa') score = report.hipaaScore;
           else if (selectedMetric === 'soc2') score = report.soc2Score;
@@ -64,24 +65,26 @@ const PreviousAnalytics: React.FC<PreviousAnalyticsProps> = ({
     });
     
     // Add current data point
-    const currentReport = historicalReports[0] || { timestamp: new Date().toISOString() };
-    let currentScore = 0;
-    if (selectedMetric === 'gdpr') currentScore = currentReport.gdprScore;
-    else if (selectedMetric === 'hipaa') currentScore = currentReport.hipaaScore;
-    else if (selectedMetric === 'soc2') currentScore = currentReport.soc2Score;
-    else if (selectedMetric === 'overall') currentScore = currentReport.overallScore;
-    
-    dataPoints.push({
-      name: 'Current',
-      score: currentScore,
-      predictedScore: getAverageScoreFromTrends(currentResult.riskTrends, selectedMetric)
-    });
+    const currentReport = historicalReports[0];
+    if (currentReport) {
+      let currentScore = 0;
+      if (selectedMetric === 'gdpr') currentScore = currentReport.gdprScore;
+      else if (selectedMetric === 'hipaa') currentScore = currentReport.hipaaScore;
+      else if (selectedMetric === 'soc2') currentScore = currentReport.soc2Score;
+      else if (selectedMetric === 'overall') currentScore = currentReport.overallScore;
+      
+      dataPoints.push({
+        name: 'Current',
+        score: currentScore,
+        predictedScore: getAverageScoreFromTrends(currentResult.riskTrends, selectedMetric)
+      });
+    }
     
     return dataPoints;
   };
   
   // Get average score from risk trends for a specific regulation
-  const getAverageScoreFromTrends = (trends: RiskTrend[], metricType: string) => {
+  const getAverageScoreFromTrends = (trends: any[], metricType: string) => {
     if (!trends || trends.length === 0) return 0;
     
     const relevantTrends = trends.filter(trend => {
@@ -103,6 +106,18 @@ const PreviousAnalytics: React.FC<PreviousAnalyticsProps> = ({
     return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
   };
   
+  // Get direction icon for insights
+  const getInsightDirectionIcon = (insight: ComplianceInsight) => {
+    // Check the priority to determine which icon to show
+    if (insight.priority === 'critical' || insight.priority === 'high') {
+      return <ArrowDown className="h-4 w-4 text-red-500" />;
+    } else if (insight.priority === 'low' && insight.title.includes('improvement')) {
+      return <ArrowUp className="h-4 w-4 text-green-500" />;
+    } else {
+      return <Minus className="h-4 w-4 text-slate-500" />;
+    }
+  };
+  
   // Get trend icon
   const getTrendIcon = (trend: 'increasing' | 'stable' | 'decreasing') => {
     if (trend === 'increasing') return <TrendingUp className="h-4 w-4 text-green-500" />;
@@ -122,11 +137,12 @@ const PreviousAnalytics: React.FC<PreviousAnalyticsProps> = ({
     const previousTrends = mostRecentPreviousResult.riskTrends;
     
     previousTrends.forEach(prevTrend => {
-      if (historicalReports[0]) {
+      const currentReport = historicalReports[0];
+      if (currentReport) {
         let actualScore = 0;
-        if (prevTrend.regulation === 'GDPR') actualScore = historicalReports[0].gdprScore;
-        else if (prevTrend.regulation === 'HIPAA') actualScore = historicalReports[0].hipaaScore;
-        else if (prevTrend.regulation === 'SOC 2') actualScore = historicalReports[0].soc2Score;
+        if (prevTrend.regulation === 'GDPR') actualScore = currentReport.gdprScore;
+        else if (prevTrend.regulation === 'HIPAA') actualScore = currentReport.hipaaScore;
+        else if (prevTrend.regulation === 'SOC 2') actualScore = currentReport.soc2Score;
         
         if (actualScore > 0) {
           const predictedScore = prevTrend.predictedScore;
@@ -278,7 +294,7 @@ const PreviousAnalytics: React.FC<PreviousAnalyticsProps> = ({
                       <ul className="text-xs space-y-1">
                         {prevResult.complianceInsights.slice(0, 3).map((insight, insightIdx) => (
                           <li key={insightIdx} className="flex items-start gap-1">
-                            <span className="mt-0.5">{getTrendIcon(insight.trend)}</span>
+                            <span className="mt-0.5">{getInsightDirectionIcon(insight)}</span>
                             <span>{insight.description}</span>
                           </li>
                         ))}
