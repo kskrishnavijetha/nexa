@@ -10,13 +10,15 @@ interface ScenarioSelectorProps {
   onSelectScenario: (scenarioId: string) => void;
   isLoading: boolean;
   selectedScenarioId?: string;
+  hideRunButton?: boolean; // New prop to control button visibility
 }
 
 const ScenarioSelector: React.FC<ScenarioSelectorProps> = ({
   scenarios,
   onSelectScenario,
   isLoading,
-  selectedScenarioId
+  selectedScenarioId,
+  hideRunButton = false // Default to showing the button
 }) => {
   // Get an icon based on scenario id
   const getScenarioIcon = (scenarioId: string) => {
@@ -74,7 +76,8 @@ const ScenarioSelector: React.FC<ScenarioSelectorProps> = ({
           </Card>
         ))}
       </div>
-      {selectedScenarioId && (
+      {/* Only show the button if hideRunButton is false and we have a selected scenario */}
+      {!hideRunButton && selectedScenarioId && (
         <div className="mt-4">
           <Button 
             onClick={() => onSelectScenario(selectedScenarioId)} 

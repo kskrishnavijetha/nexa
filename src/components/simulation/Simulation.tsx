@@ -94,6 +94,8 @@ const Simulation: React.FC<SimulationProps> = ({ report }) => {
               onSelectScenario={handleSelectScenario}
               isLoading={isLoading}
               selectedScenarioId={selectedScenarioId}
+              // Remove the Run Simulation button from ScenarioSelector
+              hideRunButton={showConfiguration}
             />
             
             {selectedScenarioId && selectedScenario && showConfiguration && (
