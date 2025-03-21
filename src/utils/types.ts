@@ -18,7 +18,10 @@ export type Industry =
   | 'Education'
   | 'Government & Public Sector'
   | 'Telecommunications'
-  | 'Environmental & Sustainability';
+  | 'Environmental & Sustainability'
+  | 'Life Sciences'
+  | 'SaaS & Tech'
+  | 'E-commerce & Payments';
 
 /**
  * Mapping of industries to their regulations
@@ -33,7 +36,10 @@ export const INDUSTRY_REGULATIONS: Record<Industry, string[]> = {
   'Education': ['FERPA', 'COPPA'],
   'Government & Public Sector': ['FISMA', 'CJIS', 'GDPR'],
   'Telecommunications': ['FCC Regulations', 'GDPR', 'CCPA'],
-  'Environmental & Sustainability': ['EPA', 'REACH', 'ISO 14001']
+  'Environmental & Sustainability': ['EPA', 'REACH', 'ISO 14001'],
+  'Life Sciences': ['FDA', 'GxP', 'ICH', 'GDPR', '21 CFR Part 11'],
+  'SaaS & Tech': ['SOC 2', 'GDPR', 'CCPA', 'ISO/IEC 27001', 'ISO 27018'],
+  'E-commerce & Payments': ['PCI-DSS', 'GDPR', 'CCPA', 'APPI', 'ePrivacy Directive']
 };
 
 /**
