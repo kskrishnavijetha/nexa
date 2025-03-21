@@ -59,7 +59,7 @@ export const generateRecommendations = (
         title: "Comprehensive compliance program review",
         description: "Your compliance scores show a consistent downward trend. Consider a full review of your compliance program.",
         impact: "medium" as const,
-        effortToImplement: "high" as const
+        effortToImplement: "medium" as const
       });
     }
   }

@@ -8,7 +8,8 @@ import RiskPredictions from './RiskPredictions';
 import ComplianceInsights from './ComplianceInsights';
 import RecommendedActions from './RecommendedActions';
 import TrendAnalysis from './TrendAnalysis';
-import { Brain, Lightbulb, BarChart3, TrendingUp, Loader2 } from 'lucide-react';
+import RegulatoryUpdatesFeed from './RegulatoryUpdatesFeed';
+import { Brain, Lightbulb, BarChart3, TrendingUp, Loader2, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface PredictiveAnalyticsProps {
@@ -90,7 +91,7 @@ const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="insights">
-          <TabsList className="mb-4 w-full grid grid-cols-4">
+          <TabsList className="mb-4 w-full grid grid-cols-5">
             <TabsTrigger value="insights" className="flex items-center">
               <Lightbulb className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Insights</span>
@@ -111,6 +112,11 @@ const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
               <span className="hidden sm:inline">Recommended Actions</span>
               <span className="sm:hidden">Actions</span>
             </TabsTrigger>
+            <TabsTrigger value="updates" className="flex items-center">
+              <AlertTriangle className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Regulatory Updates</span>
+              <span className="sm:hidden">Updates</span>
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="insights">
@@ -127,6 +133,10 @@ const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
 
           <TabsContent value="actions">
             <RecommendedActions recommendations={analyticsResult.recommendations} />
+          </TabsContent>
+          
+          <TabsContent value="updates">
+            <RegulatoryUpdatesFeed industry={report.industry} />
           </TabsContent>
         </Tabs>
 
