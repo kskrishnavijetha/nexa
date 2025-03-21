@@ -1,6 +1,6 @@
 
 // Import from parent types file
-import { ComplianceReport, RiskItem, Industry } from '../types';
+import { ComplianceReport, Industry, ComplianceRisk } from '../types';
 
 export interface PredictiveAnalyticsResult {
   predictedRisks: RiskPrediction[];

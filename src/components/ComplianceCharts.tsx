@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   PieChart, Pie, Cell
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ComplianceReport, RiskItem } from '@/utils/types';
+import { ComplianceReport, ComplianceRisk } from '@/utils/types';
 
 interface ComplianceChartsProps {
   report: ComplianceReport;
@@ -38,7 +37,7 @@ const ComplianceCharts: React.FC<ComplianceChartsProps> = ({ report }) => {
   }
 
   // Prepare data for risk distribution pie chart
-  const calculateRiskDistribution = (risks: RiskItem[]) => {
+  const calculateRiskDistribution = (risks: ComplianceRisk[]) => {
     const counts: Record<string, number> = { high: 0, medium: 0, low: 0 };
     risks.forEach(risk => {
       counts[risk.severity] += 1;

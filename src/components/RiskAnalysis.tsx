@@ -1,11 +1,10 @@
-
 import React from 'react';
-import { RiskItem } from '@/utils/types';
+import { ComplianceRisk } from '@/utils/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, Info, CheckCircle } from 'lucide-react';
 
 interface RiskAnalysisProps {
-  risks: RiskItem[];
+  risks: ComplianceRisk[];
 }
 
 const RiskAnalysis: React.FC<RiskAnalysisProps> = ({ risks }) => {
@@ -27,7 +26,7 @@ const RiskAnalysis: React.FC<RiskAnalysisProps> = ({ risks }) => {
     }
   };
 
-  const renderRiskGroup = (risksGroup: RiskItem[], title: string) => (
+  const renderRiskGroup = (risksGroup: ComplianceRisk[], title: string) => (
     <div className="mb-4">
       <h4 className="font-medium text-lg mb-2 flex items-center gap-2">
         {getSeverityIcon(risksGroup[0]?.severity || '')}

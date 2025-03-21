@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import DocumentUploader from '@/components/document-uploader/DocumentUploader';
@@ -26,7 +25,6 @@ const DocumentAnalysis = () => {
     try {
       setIsGeneratingPDF(true);
       
-      // Generate PDF report
       const response = await generateReportPDF(report);
       
       if (response.error) {
@@ -35,17 +33,14 @@ const DocumentAnalysis = () => {
       }
       
       if (response.data) {
-        // Create a blob URL for the PDF
         const blobUrl = URL.createObjectURL(response.data);
         
-        // Create a download link and trigger the download
         const link = document.createElement('a');
         link.href = blobUrl;
         link.download = `compliance-report-${report.documentId}.pdf`;
         document.body.appendChild(link);
         link.click();
         
-        // Clean up
         document.body.removeChild(link);
         setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
         
@@ -126,7 +121,7 @@ const DocumentAnalysis = () => {
                     {report.regionalRegulations && Object.keys(report.regionalRegulations).length > 0 && (
                       <p className="text-sm text-blue-600 mt-1">
                         Regional Frameworks: {Object.entries(report.regionalRegulations)
-                          .map(([key, value]) => `${key} (${value})`)
+                          .map(([key, value]) => `${key} (${String(value)})`)
                           .join(', ')}
                       </p>
                     )}
@@ -153,7 +148,6 @@ const DocumentAnalysis = () => {
                 </div>
               </div>
               
-              {/* Region-specific scores */}
               {report.regionScores && Object.keys(report.regionScores).length > 0 && (
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold mb-3">Regional Compliance Scores</h3>
@@ -168,13 +162,10 @@ const DocumentAnalysis = () => {
                 </div>
               )}
               
-              {/* Interactive Charts */}
               <ComplianceCharts report={report} />
               
-              {/* Risk Analysis */}
               <RiskAnalysis risks={report.risks} />
               
-              {/* Scenario Simulation */}
               <div className="mb-6">
                 <Simulation report={report} />
               </div>
@@ -197,7 +188,6 @@ const DocumentAnalysis = () => {
                 </div>
               )}
               
-              {/* Audit Trail */}
               <AuditTrail documentName={report.documentName} />
             </div>
             

@@ -1,4 +1,4 @@
-import { ApiResponse, ComplianceReport, Industry, INDUSTRY_REGULATIONS, Region, REGION_REGULATIONS } from './types';
+import { ApiResponse, ComplianceReport, Industry, Region, INDUSTRY_REGULATIONS, REGION_REGULATIONS } from './types';
 import { generateRisks } from './riskService';
 import { generateSuggestions } from './suggestionService';
 import { generateSummary } from './summaryService';
@@ -50,6 +50,7 @@ export const requestComplianceCheck = async (
     
     // Mock compliance report with real-time values
     const mockReport: ComplianceReport = {
+      id: documentId, // Use documentId as id
       documentId,
       documentName,
       industry,

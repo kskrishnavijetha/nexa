@@ -1,15 +1,17 @@
-import { RiskItem, Region, REGION_REGULATIONS } from './types';
+import { ComplianceRisk, RiskSeverity, Region, REGION_REGULATIONS } from './types';
 
 // Industry-specific risk templates
-const INDUSTRY_RISKS: Record<string, RiskItem[]> = {
+const INDUSTRY_RISKS: Record<string, ComplianceRisk[]> = {
   'HIPAA': [
     {
+      id: 'hipaa-1',
       description: 'Inadequate PHI access controls',
       severity: 'high',
       regulation: 'HIPAA',
       section: '164.312(a)'
     },
     {
+      id: 'hipaa-2',
       description: 'Missing BAA agreements with vendors',
       severity: 'medium',
       regulation: 'HIPAA',
@@ -18,12 +20,14 @@ const INDUSTRY_RISKS: Record<string, RiskItem[]> = {
   ],
   'GDPR': [
     {
+      id: 'gdpr-1',
       description: 'No clear consent mechanism for data processing',
       severity: 'high',
       regulation: 'GDPR',
       section: 'Article 7'
     },
     {
+      id: 'gdpr-2',
       description: 'Inadequate data breach notification procedures',
       severity: 'medium',
       regulation: 'GDPR',
@@ -32,12 +36,14 @@ const INDUSTRY_RISKS: Record<string, RiskItem[]> = {
   ],
   'PCI-DSS': [
     {
+      id: 'pci-dss-1',
       description: 'Insufficient network segmentation for cardholder data environment',
       severity: 'high',
       regulation: 'PCI-DSS',
       section: 'Requirement 1.3'
     },
     {
+      id: 'pci-dss-2',
       description: 'Weak encryption standards for stored cardholder data',
       severity: 'high',
       regulation: 'PCI-DSS',
@@ -46,12 +52,14 @@ const INDUSTRY_RISKS: Record<string, RiskItem[]> = {
   ],
   'SOC 2': [
     {
+      id: 'soc-2-1',
       description: 'Inadequate access control measures',
       severity: 'medium',
       regulation: 'SOC 2',
       section: 'CC6.1'
     },
     {
+      id: 'soc-2-2',
       description: 'No formal risk assessment process',
       severity: 'medium',
       regulation: 'SOC 2',
@@ -60,6 +68,7 @@ const INDUSTRY_RISKS: Record<string, RiskItem[]> = {
   ],
   'ISO/IEC 27001': [
     {
+      id: 'iso-iec-27001-1',
       description: 'Missing information security policy documentation',
       severity: 'medium',
       regulation: 'ISO/IEC 27001',
@@ -68,6 +77,7 @@ const INDUSTRY_RISKS: Record<string, RiskItem[]> = {
   ],
   'FERPA': [
     {
+      id: 'ferpa-1',
       description: 'Unauthorized disclosure of student records',
       severity: 'high',
       regulation: 'FERPA',
@@ -76,6 +86,7 @@ const INDUSTRY_RISKS: Record<string, RiskItem[]> = {
   ],
   'FISMA': [
     {
+      id: 'fisma-1',
       description: 'Inadequate security assessment procedures',
       severity: 'medium',
       regulation: 'FISMA',
@@ -84,6 +95,7 @@ const INDUSTRY_RISKS: Record<string, RiskItem[]> = {
   ],
   'FDA': [
     {
+      id: 'fda-1',
       description: 'Missing documentation for quality control procedures',
       severity: 'high',
       regulation: 'FDA',
@@ -92,6 +104,7 @@ const INDUSTRY_RISKS: Record<string, RiskItem[]> = {
   ],
   'ISO 14001': [
     {
+      id: 'iso-14001-1',
       description: 'No formal environmental management system established',
       severity: 'medium',
       regulation: 'ISO 14001',
@@ -101,15 +114,33 @@ const INDUSTRY_RISKS: Record<string, RiskItem[]> = {
 };
 
 // Region-specific risk templates
-const REGION_RISKS: Record<Region, RiskItem[]> = {
-  'North America': [
+const REGION_RISKS: Record<string, ComplianceRisk[]> = {
+  'us': [
     {
+      id: 'us-1',
       description: 'Missing privacy notice required by CCPA',
       severity: 'high',
       regulation: 'CCPA',
       section: '1798.100'
     },
     {
+      id: 'us-2',
+      description: 'No documented data subject request process',
+      severity: 'medium',
+      regulation: 'CCPA',
+      section: '1798.130'
+    }
+  ],
+  'North America': [
+    {
+      id: 'na-1',
+      description: 'Missing privacy notice required by CCPA',
+      severity: 'high',
+      regulation: 'CCPA',
+      section: '1798.100'
+    },
+    {
+      id: 'na-2',
       description: 'No documented data subject request process',
       severity: 'medium',
       regulation: 'CCPA',
@@ -118,12 +149,14 @@ const REGION_RISKS: Record<Region, RiskItem[]> = {
   ],
   'European Union': [
     {
+      id: 'eu-1',
       description: 'Inadequate data processing agreements with processors',
       severity: 'high',
       regulation: 'GDPR',
       section: 'Article 28'
     },
     {
+      id: 'eu-2',
       description: 'Missing Data Protection Impact Assessment',
       severity: 'medium',
       regulation: 'GDPR',
@@ -132,12 +165,14 @@ const REGION_RISKS: Record<Region, RiskItem[]> = {
   ],
   'Asia Pacific': [
     {
+      id: 'ap-1',
       description: 'No designated data protection officer',
       severity: 'medium',
       regulation: 'PDPA',
       section: 'Section 11'
     },
     {
+      id: 'ap-2',
       description: 'Inadequate cross-border transfer safeguards',
       severity: 'high',
       regulation: 'PIPL',
@@ -146,12 +181,14 @@ const REGION_RISKS: Record<Region, RiskItem[]> = {
   ],
   'United Kingdom': [
     {
+      id: 'uk-1',
       description: 'Missing legitimate interest assessment',
       severity: 'medium',
       regulation: 'UK GDPR',
       section: 'Article 6(1)(f)'
     },
     {
+      id: 'uk-2',
       description: 'Inadequate cookie consent mechanism',
       severity: 'high',
       regulation: 'PECR',
@@ -160,12 +197,14 @@ const REGION_RISKS: Record<Region, RiskItem[]> = {
   ],
   'Latin America': [
     {
+      id: 'la-1',
       description: 'Missing data subject rights procedure',
       severity: 'high',
       regulation: 'LGPD',
       section: 'Article 18'
     },
     {
+      id: 'la-2',
       description: 'No documented legal basis for processing',
       severity: 'medium',
       regulation: 'LGPD',
@@ -174,12 +213,14 @@ const REGION_RISKS: Record<Region, RiskItem[]> = {
   ],
   'Middle East': [
     {
+      id: 'me-1',
       description: 'Inadequate consent mechanisms for personal data',
       severity: 'medium',
       regulation: 'PDPL',
       section: 'Article 4'
     },
     {
+      id: 'me-2',
       description: 'No data breach notification procedure',
       severity: 'high',
       regulation: 'DPL',
@@ -188,12 +229,14 @@ const REGION_RISKS: Record<Region, RiskItem[]> = {
   ],
   'Africa': [
     {
+      id: 'af-1',
       description: 'Missing documentation for data processing activities',
       severity: 'medium',
       regulation: 'POPIA',
       section: 'Section 17'
     },
     {
+      id: 'af-2',
       description: 'Inadequate security safeguards',
       severity: 'high',
       regulation: 'POPIA',
@@ -212,12 +255,16 @@ export function generateRisks(
   pciDssScore: number, 
   regulations: string[] = [],
   region?: Region
-): RiskItem[] {
-  const risks: RiskItem[] = [];
+): ComplianceRisk[] {
+  let riskIdCounter = 1;
+  const generateRiskId = () => `risk-${riskIdCounter++}`;
+  
+  const risks: ComplianceRisk[] = [];
   
   // Add GDPR risks if applicable
   if ((regulations.includes('GDPR') || regulations.length === 0) && gdprScore < 90) {
     risks.push({
+      id: generateRiskId(),
       description: 'Personal data storage duration not specified',
       severity: 'medium',
       regulation: 'GDPR',
@@ -227,6 +274,7 @@ export function generateRisks(
   
   if ((regulations.includes('GDPR') || regulations.length === 0) && gdprScore < 75) {
     risks.push({
+      id: generateRiskId(),
       description: 'No clear process for data subject access requests',
       severity: 'high',
       regulation: 'GDPR',
@@ -237,6 +285,7 @@ export function generateRisks(
   // Add HIPAA risks if applicable
   if ((regulations.includes('HIPAA') || regulations.length === 0) && hipaaScore < 85) {
     risks.push({
+      id: generateRiskId(),
       description: 'Insufficient details on physical safeguards',
       severity: 'medium',
       regulation: 'HIPAA',
@@ -246,6 +295,7 @@ export function generateRisks(
   
   if ((regulations.includes('HIPAA') || regulations.length === 0) && hipaaScore < 70) {
     risks.push({
+      id: generateRiskId(),
       description: 'Missing data encryption requirements',
       severity: 'high',
       regulation: 'HIPAA',
@@ -256,6 +306,7 @@ export function generateRisks(
   // Add SOC2 risks if applicable
   if ((regulations.includes('SOC 2') || regulations.length === 0) && soc2Score < 80) {
     risks.push({
+      id: generateRiskId(),
       description: 'Access control policy needs enhancement',
       severity: 'low',
       regulation: 'SOC 2',
@@ -266,6 +317,7 @@ export function generateRisks(
   // Add PCI-DSS related risks if applicable
   if ((regulations.includes('PCI-DSS') || regulations.length === 0) && pciDssScore < 85) {
     risks.push({
+      id: generateRiskId(),
       description: 'Insufficient network segmentation for cardholder data environment',
       severity: 'high',
       regulation: 'PCI-DSS',
@@ -275,6 +327,7 @@ export function generateRisks(
   
   if ((regulations.includes('PCI-DSS') || regulations.length === 0) && pciDssScore < 75) {
     risks.push({
+      id: generateRiskId(),
       description: 'Weak encryption standards for stored cardholder data',
       severity: 'high',
       regulation: 'PCI-DSS',
@@ -300,6 +353,7 @@ export function generateRisks(
       // Only add if not already covered and with 40% probability
       if (!risks.some(r => r.regulation === regKey) && Math.random() < 0.4) {
         risks.push({
+          id: generateRiskId(),
           description: `Potential compliance gap with ${regionalRegulations[regKey]}`,
           severity: Math.random() < 0.3 ? 'high' : 'medium',
           regulation: regKey

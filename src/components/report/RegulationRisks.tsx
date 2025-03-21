@@ -1,6 +1,6 @@
 import React from 'react';
 import { AlertCircle, AlertTriangle, CheckCircle2, ShieldCheck } from 'lucide-react';
-import { ComplianceReport as ComplianceReportType, RiskSeverity } from '@/utils/apiService';
+import { ComplianceReport as ComplianceReportType, RiskSeverity } from '@/utils/types';
 import { SupportedLanguage, translate } from '@/utils/language';
 
 interface RegulationRisksProps {
