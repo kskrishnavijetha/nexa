@@ -5,7 +5,8 @@ import {
   Industry, 
   SimulationScenario,
   RiskTrend,
-  PredictiveAnalysis
+  PredictiveAnalysis,
+  RiskSeverity
 } from './types';
 import { generateSimulationScenarios } from './simulation/scenarioGenerator';
 import { calculateRiskTrends } from './simulation/riskTrendAnalyzer';
