@@ -12,12 +12,14 @@ import { Separator } from './ui/separator';
 import { CloudLightning, History, Settings } from 'lucide-react';
 import AuditTrail from './audit/AuditTrail';
 import ScheduleScanner from './ScheduleScanner';
+import GoogleFileUploader from './google/GoogleFileUploader';
 
 const GoogleServicesPage: React.FC = () => {
   const [industry, setIndustry] = useState<Industry | undefined>(undefined);
   const [region, setRegion] = useState<Region | undefined>(undefined);
   const [language, setLanguage] = useState<SupportedLanguage>('en');
   const [activeTab, setActiveTab] = useState('scanner');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   const handleIndustryChange = (newIndustry: Industry) => {
     setIndustry(newIndustry);
@@ -29,6 +31,10 @@ const GoogleServicesPage: React.FC = () => {
 
   const handleLanguageChange = (newLanguage: SupportedLanguage) => {
     setLanguage(newLanguage);
+  };
+
+  const handleFileSelect = (file: File) => {
+    setSelectedFile(file);
   };
 
   return (
@@ -51,6 +57,8 @@ const GoogleServicesPage: React.FC = () => {
                 region={region} 
                 setRegion={handleRegionChange} 
               />
+              
+              <GoogleFileUploader onFileSelect={handleFileSelect} />
               
               <div>
                 <label htmlFor="language" className="block text-sm font-medium mb-1">
@@ -123,6 +131,7 @@ const GoogleServicesPage: React.FC = () => {
             industry={industry}
             language={language}
             region={region}
+            file={selectedFile}
           />
         </TabsContent>
         

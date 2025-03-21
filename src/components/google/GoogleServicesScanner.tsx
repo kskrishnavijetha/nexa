@@ -1,341 +1,349 @@
 
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import { GoogleServiceConnection, GoogleServiceScanResult, connectGoogleService, disconnectGoogleService, getGoogleConnections, scanGoogleService } from '@/utils/googleServices';
-import { Check, ExternalLink, Lock, Mail, FileText, Database, Loader2, AlertCircle } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { useState } from 'react';
 import { Industry, Region } from '@/utils/types';
-import { Progress } from '@/components/ui/progress';
+import { 
+  Card, 
+  CardContent, 
+  CardDescription, 
+  CardHeader, 
+  CardTitle 
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { 
+  AlertTriangle, 
+  Check, 
+  ChevronRight, 
+  Cloud, 
+  FileText, 
+  Loader2, 
+  Mail, 
+  XCircle 
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { 
+  connectGoogleDrive, 
+  connectGmail, 
+  connectGoogleDocs, 
+  scanGoogleServices, 
+  disconnectGoogleService, 
+  GoogleService 
+} from '@/utils/googleServices';
 import { SupportedLanguage } from '@/utils/language';
+import { toast } from 'sonner';
 
 interface GoogleServicesScannerProps {
   industry?: Industry;
-  language?: SupportedLanguage;
   region?: Region;
+  language: SupportedLanguage;
+  file?: File | null;
 }
 
 const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({ 
   industry, 
+  region, 
   language,
-  region
+  file
 }) => {
-  const [connections, setConnections] = useState<GoogleServiceConnection[]>([]);
-  const [loading, setLoading] = useState<{ [key: string]: boolean }>({});
-  const [scanning, setScanning] = useState<{ [key: string]: boolean }>({});
-  const [scanResults, setScanResults] = useState<{ [key: string]: GoogleServiceScanResult | null }>({});
-  const [activeTab, setActiveTab] = useState('overview');
-
-  useEffect(() => {
-    loadConnections();
-  }, []);
-
-  const loadConnections = async () => {
-    const response = await getGoogleConnections();
-    if (response.data) {
-      setConnections(response.data);
-    } else {
-      toast.error(response.error || 'Failed to load Google connections');
-    }
-  };
-
-  const handleConnect = async (serviceId: string) => {
-    setLoading(prev => ({ ...prev, [serviceId]: true }));
-    
+  const [isConnectingDrive, setIsConnectingDrive] = useState(false);
+  const [isConnectingGmail, setIsConnectingGmail] = useState(false);
+  const [isConnectingDocs, setIsConnectingDocs] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  
+  const [connectedServices, setConnectedServices] = useState<GoogleService[]>([]);
+  const [scanResults, setScanResults] = useState<any | null>(null);
+  
+  const isDriveConnected = connectedServices.includes('drive');
+  const isGmailConnected = connectedServices.includes('gmail');
+  const isDocsConnected = connectedServices.includes('docs');
+  
+  const anyServiceConnected = connectedServices.length > 0;
+  
+  const handleConnectDrive = async () => {
+    setIsConnectingDrive(true);
     try {
-      const response = await connectGoogleService(serviceId);
-      
-      if (response.data) {
-        setConnections(prev => 
-          prev.map(conn => conn.id === serviceId ? response.data : conn)
-        );
-        toast.success(`Connected to ${response.data.name} successfully`);
-      } else {
-        toast.error(response.error || 'Failed to connect to service');
+      const result = await connectGoogleDrive();
+      if (result.data && result.data.connected) {
+        setConnectedServices(prev => [...prev, 'drive']);
+        toast.success('Google Drive connected successfully');
       }
     } catch (error) {
-      toast.error('An error occurred while connecting to the service');
+      console.error('Error connecting Drive:', error);
+      toast.error('Failed to connect Google Drive');
     } finally {
-      setLoading(prev => ({ ...prev, [serviceId]: false }));
+      setIsConnectingDrive(false);
     }
   };
-
-  const handleDisconnect = async (serviceId: string) => {
-    setLoading(prev => ({ ...prev, [serviceId]: true }));
-    
+  
+  const handleConnectGmail = async () => {
+    setIsConnectingGmail(true);
     try {
-      const response = await disconnectGoogleService(serviceId);
-      
-      if (response.data) {
-        setConnections(prev => 
-          prev.map(conn => conn.id === serviceId ? response.data : conn)
-        );
-        toast.success(`Disconnected from ${response.data.name} successfully`);
-        
-        // Clear scan results for this service
-        setScanResults(prev => ({
-          ...prev,
-          [serviceId]: null
-        }));
-      } else {
-        toast.error(response.error || 'Failed to disconnect from service');
+      const result = await connectGmail();
+      if (result.data && result.data.connected) {
+        setConnectedServices(prev => [...prev, 'gmail']);
+        toast.success('Gmail connected successfully');
       }
     } catch (error) {
-      toast.error('An error occurred while disconnecting from the service');
+      console.error('Error connecting Gmail:', error);
+      toast.error('Failed to connect Gmail');
     } finally {
-      setLoading(prev => ({ ...prev, [serviceId]: false }));
+      setIsConnectingGmail(false);
     }
   };
-
-  const handleScan = async (serviceId: string) => {
-    setScanning(prev => ({ ...prev, [serviceId]: true }));
-    setScanResults(prev => ({ ...prev, [serviceId]: null }));
-    
+  
+  const handleConnectDocs = async () => {
+    setIsConnectingDocs(true);
     try {
-      const response = await scanGoogleService(serviceId, industry, language, region);
-      
-      if (response.data) {
-        setScanResults(prev => ({
-          ...prev,
-          [serviceId]: response.data
-        }));
-        
-        toast.success(`Scanned ${response.data.serviceType} successfully`, {
-          description: `Found ${response.data.violationsFound} compliance issues out of ${response.data.itemsScanned} items`
-        });
-        
-        // Update tab to show results
-        setActiveTab(serviceId);
-      } else {
-        toast.error(response.error || 'Failed to scan service');
+      const result = await connectGoogleDocs();
+      if (result.data && result.data.connected) {
+        setConnectedServices(prev => [...prev, 'docs']);
+        toast.success('Google Docs connected successfully');
       }
     } catch (error) {
-      toast.error('An error occurred while scanning the service');
+      console.error('Error connecting Docs:', error);
+      toast.error('Failed to connect Google Docs');
     } finally {
-      setScanning(prev => ({ ...prev, [serviceId]: false }));
+      setIsConnectingDocs(false);
     }
   };
-
-  const getServiceIcon = (type: string) => {
-    switch (type) {
-      case 'gmail':
-        return <Mail className="h-5 w-5 text-red-500" />;
-      case 'drive':
-        return <Database className="h-5 w-5 text-blue-500" />;
-      case 'docs':
-        return <FileText className="h-5 w-5 text-green-500" />;
-      default:
-        return <Lock className="h-5 w-5 text-gray-500" />;
+  
+  const handleDisconnect = async (service: GoogleService) => {
+    try {
+      await disconnectGoogleService(service);
+      setConnectedServices(prev => prev.filter(s => s !== service));
+      toast.success(`${service} disconnected successfully`);
+    } catch (error) {
+      console.error(`Error disconnecting ${service}:`, error);
+      toast.error(`Failed to disconnect ${service}`);
     }
   };
-
-  const renderConnectionCard = (connection: GoogleServiceConnection) => {
-    const isLoading = loading[connection.id] || false;
-    const isScanning = scanning[connection.id] || false;
-    const isConnected = connection.connected;
-    
-    return (
-      <Card key={connection.id} className="mb-4">
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {getServiceIcon(connection.type)}
-              <CardTitle className="text-base">{connection.name}</CardTitle>
-            </div>
-            <Badge variant={isConnected ? "default" : "outline"} className={isConnected ? "bg-green-500 hover:bg-green-600" : ""}>
-              {isConnected ? 'Connected' : 'Disconnected'}
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          {isConnected && (
-            <div className="mb-4 text-sm">
-              <p className="flex items-center justify-between">
-                <span className="text-muted-foreground">Last scanned:</span>
-                <span>{connection.lastScanned ? new Date(connection.lastScanned).toLocaleString() : 'Never'}</span>
-              </p>
-              <p className="flex items-center justify-between mt-1">
-                <span className="text-muted-foreground">Items:</span>
-                <span>{connection.itemCount || '0'}</span>
-              </p>
-            </div>
-          )}
-
-          <div className="flex gap-2">
-            {isConnected ? (
-              <>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => handleDisconnect(connection.id)}
-                  disabled={isLoading || isScanning}
-                >
-                  {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Disconnect'}
-                </Button>
-                <Button 
-                  variant="default" 
-                  size="sm"
-                  className="flex-1"
-                  onClick={() => handleScan(connection.id)}
-                  disabled={isLoading || isScanning}
-                >
-                  {isScanning ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                  {isScanning ? 'Scanning...' : 'Scan Now'}
-                </Button>
-              </>
-            ) : (
-              <Button 
-                variant="default" 
-                size="sm"
-                className="w-full"
-                onClick={() => handleConnect(connection.id)}
-                disabled={isLoading}
-              >
-                {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                {isLoading ? 'Connecting...' : 'Connect'}
-              </Button>
-            )}
-          </div>
-          
-          {isScanning && (
-            <div className="mt-4">
-              <p className="text-sm mb-2">Scanning in progress...</p>
-              <Progress value={Math.random() * 100} max={100} className="h-2" />
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    );
-  };
-
-  const renderScanResults = (serviceId: string) => {
-    const result = scanResults[serviceId];
-    
-    if (!result) {
-      return (
-        <div className="flex flex-col items-center justify-center py-8 text-center">
-          <AlertCircle className="h-8 w-8 text-muted-foreground mb-2" />
-          <p className="text-muted-foreground">No scan results available for this service yet.</p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Connect and scan the service to see compliance results.
-          </p>
-        </div>
-      );
+  
+  const handleScan = async () => {
+    if (!industry) {
+      toast.error('Please select an industry before scanning');
+      return;
     }
     
-    return (
-      <div>
-        <div className="mb-6 bg-muted/50 p-4 rounded-md">
-          <h3 className="font-medium mb-2">Scan Summary</h3>
-          <div className="grid grid-cols-3 gap-4 text-sm">
-            <div className="bg-background p-3 rounded-md">
-              <p className="text-muted-foreground">Items Scanned</p>
-              <p className="text-2xl font-semibold">{result.itemsScanned}</p>
-            </div>
-            <div className="bg-background p-3 rounded-md">
-              <p className="text-muted-foreground">Violations Found</p>
-              <p className="text-2xl font-semibold text-red-500">{result.violationsFound}</p>
-            </div>
-            <div className="bg-background p-3 rounded-md">
-              <p className="text-muted-foreground">Scan Date</p>
-              <p className="text-base font-medium">{new Date(result.scanDate).toLocaleString()}</p>
-            </div>
-          </div>
-        </div>
-        
-        {result.violationsFound > 0 ? (
-          <div>
-            <h3 className="font-medium mb-3">Compliance Issues</h3>
-            <div className="space-y-4">
-              {result.reports.map((report, index) => (
-                <Card key={index} className="border-red-200">
-                  <CardHeader className="pb-2">
-                    <div className="flex items-start justify-between">
-                      <CardTitle className="text-sm">{report.documentName}</CardTitle>
-                      <Badge variant="destructive" className="ml-2">
-                        {report.overallScore}% Compliant
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm mb-3">{report.summary}</p>
-                    
-                    {report.risks.length > 0 && (
-                      <div>
-                        <h4 className="text-xs font-medium mb-2">Key Risks:</h4>
-                        <ul className="text-xs space-y-1">
-                          {report.risks.slice(0, 3).map((risk, idx) => (
-                            <li key={idx} className="flex items-start gap-2">
-                              <AlertCircle className="h-3 w-3 text-red-500 mt-0.5 flex-shrink-0" />
-                              <span>{risk.description}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    
-                    <Button 
-                      variant="link" 
-                      size="sm" 
-                      className="p-0 h-auto mt-2 text-xs"
-                    >
-                      View Full Report
-                      <ExternalLink className="h-3 w-3 ml-1" />
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <Check className="h-8 w-8 text-green-500 mb-2" />
-            <p className="text-muted-foreground">No compliance issues found in this service.</p>
-          </div>
-        )}
-      </div>
-    );
+    if (connectedServices.length === 0) {
+      toast.error('Please connect at least one Google service before scanning');
+      return;
+    }
+    
+    setIsScanning(true);
+    setScanResults(null);
+    
+    try {
+      const result = await scanGoogleServices(connectedServices, industry, region, language, file);
+      if (result.data) {
+        setScanResults(result.data);
+        toast.success('Scan completed successfully');
+      }
+    } catch (error) {
+      console.error('Error scanning:', error);
+      toast.error('Failed to complete scan');
+    } finally {
+      setIsScanning(false);
+    }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Lock className="h-5 w-5 text-primary" />
-          Google Services Compliance Scanner
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="mb-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            {connections.map(conn => (
-              <TabsTrigger key={conn.id} value={conn.id}>
-                {conn.name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Google Services Integration</CardTitle>
+          <CardDescription>
+            Connect your Google services to scan for compliance issues
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-3">
+            <Card className="border-gray-200">
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-base flex items-center">
+                    <Cloud className="h-4 w-4 mr-2 text-blue-500" />
+                    Google Drive
+                  </CardTitle>
+                  <Badge variant={isDriveConnected ? "default" : "outline"} className={isDriveConnected ? "bg-green-500" : ""}>
+                    {isDriveConnected ? 'Connected' : 'Not Connected'}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Scan your Drive files for sensitive data and compliance issues
+                </p>
+                <Button 
+                  variant={isDriveConnected ? "outline" : "default"} 
+                  className="w-full"
+                  onClick={isDriveConnected ? () => handleDisconnect('drive') : handleConnectDrive}
+                  disabled={isConnectingDrive || isScanning}
+                >
+                  {isConnectingDrive ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Connecting...
+                    </>
+                  ) : isDriveConnected ? (
+                    'Disconnect'
+                  ) : (
+                    'Connect'
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-gray-200">
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-base flex items-center">
+                    <Mail className="h-4 w-4 mr-2 text-red-500" />
+                    Gmail
+                  </CardTitle>
+                  <Badge variant={isGmailConnected ? "default" : "outline"} className={isGmailConnected ? "bg-green-500" : ""}>
+                    {isGmailConnected ? 'Connected' : 'Not Connected'}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Analyze email content for potential compliance violations
+                </p>
+                <Button 
+                  variant={isGmailConnected ? "outline" : "default"} 
+                  className="w-full"
+                  onClick={isGmailConnected ? () => handleDisconnect('gmail') : handleConnectGmail}
+                  disabled={isConnectingGmail || isScanning}
+                >
+                  {isConnectingGmail ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Connecting...
+                    </>
+                  ) : isGmailConnected ? (
+                    'Disconnect'
+                  ) : (
+                    'Connect'
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+            
+            <Card className="border-gray-200">
+              <CardHeader className="pb-2">
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-base flex items-center">
+                    <FileText className="h-4 w-4 mr-2 text-green-500" />
+                    Google Docs
+                  </CardTitle>
+                  <Badge variant={isDocsConnected ? "default" : "outline"} className={isDocsConnected ? "bg-green-500" : ""}>
+                    {isDocsConnected ? 'Connected' : 'Not Connected'}
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Check documents for regulatory compliance and PII
+                </p>
+                <Button 
+                  variant={isDocsConnected ? "outline" : "default"} 
+                  className="w-full"
+                  onClick={isDocsConnected ? () => handleDisconnect('docs') : handleConnectDocs}
+                  disabled={isConnectingDocs || isScanning}
+                >
+                  {isConnectingDocs ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Connecting...
+                    </>
+                  ) : isDocsConnected ? (
+                    'Disconnect'
+                  ) : (
+                    'Connect'
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
           
-          <TabsContent value="overview">
-            <p className="text-sm text-muted-foreground mb-4">
-              Connect to your Google services to scan them for compliance violations in real-time.
-            </p>
+          <div className="flex justify-center mt-4">
+            <Button 
+              onClick={handleScan} 
+              disabled={!anyServiceConnected || isScanning || !industry}
+              className="px-8"
+            >
+              {isScanning ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Scanning...
+                </>
+              ) : (
+                <>
+                  Scan Now
+                  <ChevronRight className="h-4 w-4 ml-2" />
+                </>
+              )}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+      
+      {scanResults && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Scan Results</CardTitle>
+            <CardDescription>
+              Found {scanResults.violations.length} potential compliance issues
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <div className="space-y-4">
-              {connections.map(renderConnectionCard)}
+              {scanResults.violations.map((violation: any, index: number) => (
+                <div key={index} className="flex items-start p-3 rounded-md bg-muted/50">
+                  {violation.severity === 'high' ? (
+                    <AlertTriangle className="h-5 w-5 text-red-500 mr-3 mt-0.5" />
+                  ) : violation.severity === 'medium' ? (
+                    <AlertTriangle className="h-5 w-5 text-amber-500 mr-3 mt-0.5" />
+                  ) : (
+                    <AlertTriangle className="h-5 w-5 text-blue-500 mr-3 mt-0.5" />
+                  )}
+                  <div>
+                    <h4 className="font-medium">
+                      {violation.title}
+                      <Badge 
+                        variant="outline" 
+                        className={`ml-2 ${
+                          violation.severity === 'high' 
+                            ? 'border-red-200 bg-red-100 text-red-800' 
+                            : violation.severity === 'medium'
+                            ? 'border-amber-200 bg-amber-100 text-amber-800'
+                            : 'border-blue-200 bg-blue-100 text-blue-800'
+                        }`}
+                      >
+                        {violation.severity}
+                      </Badge>
+                    </h4>
+                    <p className="text-sm text-muted-foreground mt-1">{violation.description}</p>
+                    <div className="flex items-center mt-2 text-xs text-muted-foreground">
+                      <Badge variant="outline" className="mr-2">
+                        {violation.service}
+                      </Badge>
+                      <span>{violation.location}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              
+              {scanResults.violations.length === 0 && (
+                <div className="flex items-center justify-center p-4 rounded-md bg-green-50 text-green-700">
+                  <Check className="h-5 w-5 mr-2" />
+                  <span>No compliance issues found</span>
+                </div>
+              )}
             </div>
-          </TabsContent>
-          
-          {connections.map(conn => (
-            <TabsContent key={conn.id} value={conn.id}>
-              {renderScanResults(conn.id)}
-            </TabsContent>
-          ))}
-        </Tabs>
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 };
 
