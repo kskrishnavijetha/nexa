@@ -44,12 +44,12 @@ const GoogleServicesPage: React.FC = () => {
             <div className="space-y-4">
               <IndustrySelector 
                 industry={industry} 
-                onChange={handleIndustryChange} 
+                setIndustry={handleIndustryChange} 
               />
               
               <RegionSelector 
                 region={region} 
-                onChange={handleRegionChange} 
+                setRegion={handleRegionChange} 
               />
               
               <div>
