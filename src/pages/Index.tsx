@@ -1,6 +1,5 @@
 
 import React, { useEffect, useState } from 'react';
-import Hero from '@/components/Hero';
 import Features from '@/components/Features';
 import ContactForm from '@/components/ContactForm';
 import { Button } from '@/components/ui/button';
@@ -210,7 +209,6 @@ const Index = () => {
           </p>
         </div>
         
-        <Hero onGetStarted={handleGetStarted} />
         <Features />
         <ContactForm />
       </div>
