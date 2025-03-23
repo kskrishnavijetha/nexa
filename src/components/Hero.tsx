@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ShieldCheck, FileCog } from 'lucide-react';
+import { FileCog, ShieldCheck } from 'lucide-react';
 
 interface HeroProps {
   onGetStarted: () => void;
