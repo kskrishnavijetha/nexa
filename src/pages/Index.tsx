@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Hero from '@/components/Hero';
 import Features from '@/components/Features';
+import ComplianceFeatures from '@/components/ComplianceFeatures';
 import ContactForm from '@/components/ContactForm';
 import { Button } from '@/components/ui/button';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -50,6 +51,7 @@ Monitoring  </h1>
         </div>
         
         <Hero onGetStarted={handleGetStarted} />
+        <ComplianceFeatures />
         <Features />
         <ContactForm />
       </div>
