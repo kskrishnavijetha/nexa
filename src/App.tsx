@@ -1,6 +1,7 @@
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner';
+import Layout from '@/components/layout/Layout';
 import Dashboard from '@/pages/Dashboard';
 import DocumentAnalysis from '@/pages/DocumentAnalysis';
 import GoogleServices from '@/pages/GoogleServices';
@@ -15,20 +16,21 @@ function App() {
     <>
       <Toaster />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/document-analysis" element={<DocumentAnalysis />} />
-          <Route path="/google-services" element={<GoogleServices />} />
-          <Route path="/slack-monitoring" element={<SlackMonitoringPage />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/payment" element={<Payment />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/document-analysis" element={<DocumentAnalysis />} />
+            <Route path="/google-services" element={<GoogleServices />} />
+            <Route path="/slack-monitoring" element={<SlackMonitoringPage />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/payment" element={<Payment />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Layout>
       </BrowserRouter>
     </>
   );
 }
 
 export default App;
-
