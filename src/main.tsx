@@ -5,8 +5,9 @@ import App from './App.tsx'
 import './index.css'
 import { ClerkProvider } from '@clerk/clerk-react'
 
-// Placeholder - in production this would be an environment variable
-const PUBLISHABLE_KEY = "pk_test_example-publishable-key"
+// Use an environment variable or a direct key value
+// For this example, we'll use a specific key directly since this is a demo app
+const PUBLISHABLE_KEY = "pk_test_aW5jcmVkaWJsZS1naXJhZmZlLTUzLmNsZXJrLmFjY291bnRzLmRldiQ"
 if (!PUBLISHABLE_KEY) {
   throw new Error("Missing Clerk Publishable Key")
 }
