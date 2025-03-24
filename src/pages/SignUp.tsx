@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { SignUp } from '@clerk/clerk-react';
+import { toast } from 'sonner';
 
 const SignUpPage = () => {
   return (
@@ -9,6 +10,9 @@ const SignUpPage = () => {
         <div className="text-center">
           <h1 className="text-2xl font-bold">Create a CompliZen Account</h1>
           <p className="mt-2 text-gray-600">Sign up to start your compliance journey</p>
+          <p className="mt-2 text-amber-600 text-sm">
+            Please verify your email after signing up to continue to subscription selection
+          </p>
         </div>
         
         <div className="mt-8">
@@ -16,7 +20,8 @@ const SignUpPage = () => {
             routing="path" 
             path="/sign-up" 
             signInUrl="/sign-in"
-            redirectUrl="/dashboard"
+            redirectUrl="/payment"
+            afterSignUpUrl="/payment"
           />
         </div>
       </div>

@@ -19,7 +19,7 @@ const SignInPage = () => {
             routing="path" 
             path="/sign-in" 
             signUpUrl="/sign-up"
-            redirectUrl="/dashboard"
+            redirectUrl="/payment"
           />
         </div>
       </div>

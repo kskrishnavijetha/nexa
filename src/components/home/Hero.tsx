@@ -11,7 +11,7 @@ const Hero: React.FC = () => {
   
   const handleGetStarted = () => {
     if (isSignedIn) {
-      navigate('/dashboard');
+      navigate('/payment');
     } else {
       navigate('/sign-up');
     }
