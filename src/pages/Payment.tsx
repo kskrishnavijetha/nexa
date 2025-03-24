@@ -1,14 +1,15 @@
 
 import React, { useEffect, useState } from 'react';
-import PaymentForm from '@/components/PaymentForm';
-import { useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
-import { getSubscription, hasActiveSubscription } from '@/utils/paymentService';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { createSubscription, getSubscription, hasActiveSubscription } from '@/utils/paymentService';
 
 const Payment = () => {
   const navigate = useNavigate();
+  const [selectedPlan, setSelectedPlan] = useState('free');
+  const [loading, setLoading] = useState(false);
   const [subscription, setSubscription] = useState(getSubscription());
   const [isRenewal, setIsRenewal] = useState(false);
 
@@ -17,6 +18,7 @@ const Payment = () => {
     const currentSubscription = getSubscription();
     if (currentSubscription && !currentSubscription.active) {
       setIsRenewal(true);
+      setSelectedPlan(currentSubscription.plan);
     }
     setSubscription(currentSubscription);
   }, []);
@@ -32,6 +34,26 @@ const Payment = () => {
     setTimeout(() => {
       navigate('/document-analysis');
     }, 2000);
+  };
+
+  const handleActivatePlan = async () => {
+    if (loading) return;
+    setLoading(true);
+    
+    try {
+      // Process the subscription based on the selected plan
+      const result = await createSubscription('mock_payment_method', `price_${selectedPlan}`);
+      if (result.success) {
+        toast.success(`${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)} plan activated!`);
+        handlePaymentSuccess(result.paymentId || 'unknown');
+      } else {
+        toast.error(result.error || 'Failed to activate plan. Please try again.');
+      }
+    } catch (error) {
+      toast.error('Failed to activate plan. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Feature lists for each tier
@@ -64,6 +86,38 @@ const Payment = () => {
     "Advanced AI-powered suggestions",
     "Dedicated account manager",
     "24/7 priority support"
+  ];
+
+  // Pricing tiers definition
+  const pricingTiers = [
+    { 
+      id: 'free', 
+      name: 'Free', 
+      scans: '1', 
+      price: 'Free',
+      perMonth: 'per month'
+    },
+    { 
+      id: 'basic', 
+      name: 'Basic', 
+      scans: '10', 
+      price: '$29/month',
+      perMonth: 'per month'
+    },
+    { 
+      id: 'pro', 
+      name: 'Pro', 
+      scans: '50', 
+      price: '$99/month',
+      perMonth: 'per month'
+    },
+    { 
+      id: 'enterprise', 
+      name: 'Enterprise', 
+      scans: 'Unlimited', 
+      price: '$299/month',
+      perMonth: 'per month'
+    }
   ];
 
   const renderSubscriptionStatus = () => {
@@ -111,77 +165,129 @@ const Payment = () => {
     );
   };
 
+  const renderFeatureList = (plan: string) => {
+    let features;
+    
+    switch (plan) {
+      case 'free':
+        features = freeFeatures;
+        break;
+      case 'basic':
+        features = basicFeatures;
+        break;
+      case 'pro':
+        features = proFeatures;
+        break;
+      case 'enterprise':
+        features = enterpriseFeatures;
+        break;
+      default:
+        features = [];
+    }
+    
+    return features.map((feature, index) => (
+      <li key={index} className="flex items-start gap-2">
+        <div className="rounded-full bg-primary/10 p-1 mt-0.5">
+          <Check className="h-3 w-3 text-primary" />
+        </div>
+        <span className="text-sm">{feature}</span>
+      </li>
+    ));
+  };
+
   return (
     <div className="container mx-auto py-12">
       <div className="max-w-5xl mx-auto">
         <h1 className="text-3xl font-bold text-center mb-10">
-          {isRenewal ? 'Renew Your Subscription' : (hasActiveSubscription() ? 'Manage Your Subscription' : 'Choose Your Subscription Plan')}
+          Choose Your Subscription Plan
         </h1>
         
-        {renderSubscriptionStatus()}
+        {hasActiveSubscription() && renderSubscriptionStatus()}
         
         {(isRenewal || !hasActiveSubscription()) && (
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="flex-1">
-              <PaymentForm onSuccess={handlePaymentSuccess} />
-            </div>
-            <div className="flex-1 bg-muted/30 p-6 rounded-lg">
-              <h3 className="text-lg font-medium mb-4">What you get</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <h2 className="text-2xl font-bold mb-2">Choose Your Plan</h2>
+              <p className="text-muted-foreground mb-8">Select a subscription plan to start analyzing documents</p>
               
-              <div className="space-y-6">
+              <div className="mb-6">
+                <h3 className="text-lg font-medium mb-4">Select a Plan</h3>
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  {pricingTiers.map((tier) => (
+                    <div 
+                      key={tier.id}
+                      className={`relative rounded-lg border p-4 cursor-pointer transition-all ${
+                        selectedPlan === tier.id 
+                          ? 'border-primary bg-primary/5 shadow-sm' 
+                          : 'border-input hover:border-primary/50'
+                      }`}
+                      onClick={() => setSelectedPlan(tier.id)}
+                    >
+                      <div className="flex justify-between">
+                        <div className="font-medium">{tier.name}</div>
+                        {selectedPlan === tier.id && (
+                          <Check className="h-5 w-5 text-primary" />
+                        )}
+                      </div>
+                      <div className="mt-1 text-sm text-muted-foreground">
+                        {tier.scans} scans
+                        <br />
+                        {tier.perMonth}
+                      </div>
+                      <div className="mt-2 font-semibold">
+                        {tier.price}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="bg-slate-50 border rounded-md p-4 mb-6">
+                <p className="text-sm text-muted-foreground mb-4">
+                  {selectedPlan === 'free' 
+                    ? 'Activate your free plan to start analyzing documents'
+                    : 'Set up your subscription for quick and secure payments.'
+                  }
+                </p>
+                <Button
+                  className="w-full"
+                  disabled={loading}
+                  onClick={handleActivatePlan}
+                >
+                  {loading ? 'Processing...' : `Activate ${selectedPlan.charAt(0).toUpperCase() + selectedPlan.slice(1)} Plan`}
+                </Button>
+              </div>
+            </div>
+            
+            <div>
+              <h2 className="text-2xl font-bold mb-8">What you get</h2>
+              
+              <div className="space-y-8">
                 <div>
-                  <h4 className="font-medium text-primary mb-2">Free Plan</h4>
+                  <h3 className="font-medium text-primary mb-2">Free Plan</h3>
                   <ul className="space-y-2">
-                    {freeFeatures.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                          <Check className="h-3 w-3 text-primary" />
-                        </div>
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
+                    {renderFeatureList('free')}
                   </ul>
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-primary mb-2">Basic Plan - $29/month</h4>
+                  <h3 className="font-medium text-primary mb-2">Basic Plan - $29/month</h3>
                   <ul className="space-y-2">
-                    {basicFeatures.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                          <Check className="h-3 w-3 text-primary" />
-                        </div>
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
+                    {renderFeatureList('basic')}
                   </ul>
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-primary mb-2">Pro Plan - $99/month</h4>
+                  <h3 className="font-medium text-primary mb-2">Pro Plan - $99/month</h3>
                   <ul className="space-y-2">
-                    {proFeatures.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                          <Check className="h-3 w-3 text-primary" />
-                        </div>
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
+                    {renderFeatureList('pro')}
                   </ul>
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-primary mb-2">Enterprise Plan - $299/month</h4>
+                  <h3 className="font-medium text-primary mb-2">Enterprise Plan - $299/month</h3>
                   <ul className="space-y-2">
-                    {enterpriseFeatures.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                          <Check className="h-3 w-3 text-primary" />
-                        </div>
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
+                    {renderFeatureList('enterprise')}
                   </ul>
                 </div>
               </div>
