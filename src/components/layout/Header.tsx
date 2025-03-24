@@ -18,14 +18,22 @@ const Header: React.FC = () => {
   const location = useLocation();
   const { user, signOut } = useAuth();
   
-  const navItems = [
-    { name: 'Home', path: '/', icon: <Home className="h-4 w-4 mr-2" /> },
+  // These navigation items will only be shown to logged-in users
+  const authNavItems = [
     { name: 'Dashboard', path: '/dashboard', icon: <BarChart className="h-4 w-4 mr-2" /> },
     { name: 'Document Analysis', path: '/document-analysis', icon: <FileText className="h-4 w-4 mr-2" /> },
     { name: 'History', path: '/history', icon: <History className="h-4 w-4 mr-2" /> },
     { name: 'Google Services', path: '/google-services', icon: <Settings className="h-4 w-4 mr-2" /> },
     { name: 'Slack Monitoring', path: '/slack-monitoring', icon: <MessageSquare className="h-4 w-4 mr-2" /> },
   ];
+  
+  // This item will be shown to all users
+  const publicNavItems = [
+    { name: 'Home', path: '/', icon: <Home className="h-4 w-4 mr-2" /> },
+  ];
+  
+  // Get the relevant navigation items based on auth state
+  const navItems = user ? [...publicNavItems, ...authNavItems] : publicNavItems;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -100,27 +108,29 @@ const Header: React.FC = () => {
         </div>
       </div>
       
-      {/* Mobile Navigation */}
-      <div className="md:hidden container py-2 overflow-x-auto">
-        <ul className="flex space-x-2 min-w-max">
-          {navItems.map((item) => (
-            <li key={item.path}>
-              <Link 
-                to={item.path}
-                className={cn(
-                  "flex items-center px-3 py-2 text-xs font-medium rounded-md whitespace-nowrap",
-                  location.pathname === item.path 
-                    ? "bg-primary text-primary-foreground" 
-                    : "text-foreground/60 hover:text-foreground hover:bg-muted"
-                )}
-              >
-                {item.icon}
-                {item.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+      {/* Mobile Navigation - Only show for logged in users */}
+      {user && (
+        <div className="md:hidden container py-2 overflow-x-auto">
+          <ul className="flex space-x-2 min-w-max">
+            {navItems.map((item) => (
+              <li key={item.path}>
+                <Link 
+                  to={item.path}
+                  className={cn(
+                    "flex items-center px-3 py-2 text-xs font-medium rounded-md whitespace-nowrap",
+                    location.pathname === item.path 
+                      ? "bg-primary text-primary-foreground" 
+                      : "text-foreground/60 hover:text-foreground hover:bg-muted"
+                  )}
+                >
+                  {item.icon}
+                  {item.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </header>
   );
 };
