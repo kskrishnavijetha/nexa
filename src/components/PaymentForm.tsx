@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Loader2, Check } from 'lucide-react';
-import { createSubscription, getSubscription } from '@/utils/paymentService';
+import { createSubscription } from '@/utils/paymentService';
 
 interface PaymentFormProps {
   onSuccess?: (paymentId: string) => void;
@@ -34,13 +34,9 @@ const PayPalButton = ({ onSuccess, tier, loading, setLoading }: {
         try {
           // For free tier, just show success message without processing payment
           if (tier === 'free') {
-            const result = await createSubscription('mock_payment_method', `price_${tier}`);
-            if (result.success) {
-              toast.success('Free plan activated!');
-              onSuccess(result.paymentId || 'unknown');
-            } else {
-              toast.error(result.error || 'Failed to activate free plan. Please try again.');
-            }
+            const mockPaymentId = 'free_' + Math.random().toString(36).substring(2, 15);
+            toast.success('Free plan activated!');
+            onSuccess(mockPaymentId);
             setLoading(false);
             return;
           }
@@ -90,14 +86,6 @@ const PayPalButton = ({ onSuccess, tier, loading, setLoading }: {
 const CheckoutForm = ({ onSuccess }: PaymentFormProps) => {
   const [selectedTier, setSelectedTier] = useState<keyof typeof pricingTiers>('free');
   const [loading, setLoading] = useState(false);
-  const currentSubscription = getSubscription();
-  
-  // If user has an existing subscription (even if expired), preselect that tier
-  useEffect(() => {
-    if (currentSubscription && pricingTiers[currentSubscription.plan as keyof typeof pricingTiers]) {
-      setSelectedTier(currentSubscription.plan as keyof typeof pricingTiers);
-    }
-  }, []);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -182,9 +170,7 @@ const PaymentForm = (props: PaymentFormProps) => {
   return (
     <div className="max-w-md w-full mx-auto">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold">
-          {getSubscription()?.active ? 'Change Your Plan' : 'Choose Your Plan'}
-        </h2>
+        <h2 className="text-2xl font-bold">Choose Your Plan</h2>
         <p className="text-muted-foreground">
           Select a subscription plan to start analyzing documents
         </p>
