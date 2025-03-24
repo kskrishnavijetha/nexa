@@ -3,9 +3,20 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { useAuth } from '@clerk/clerk-react';
 
 const Hero: React.FC = () => {
   const navigate = useNavigate();
+  const { isSignedIn } = useAuth();
+  
+  const handleGetStarted = () => {
+    if (isSignedIn) {
+      navigate('/payment');
+    } else {
+      navigate('/sign-up');
+    }
+    console.log("Get Started clicked");
+  };
   
   return (
     <div className="text-center">
@@ -28,10 +39,7 @@ const Hero: React.FC = () => {
         <Button 
           size="lg" 
           className="px-8 py-6 text-lg bg-[#8B5CF6] hover:bg-[#7c4af0]"
-          onClick={() => {
-            navigate('/document-analysis');
-            console.log("Get Started clicked");
-          }}
+          onClick={handleGetStarted}
         >
           Get Started Now
           <ArrowRight className="ml-2 h-5 w-5" />

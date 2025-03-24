@@ -6,11 +6,14 @@ import { Check } from 'lucide-react';
 import { getSubscription, hasActiveSubscription } from '@/utils/paymentService';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { SignedIn, SignedOut, RedirectToSignIn, useAuth } from '@clerk/clerk-react';
 
 const Payment = () => {
   const navigate = useNavigate();
   const [subscription, setSubscription] = useState(getSubscription());
   const [isRenewal, setIsRenewal] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
+  const { isSignedIn, isLoaded } = useAuth();
 
   useEffect(() => {
     // Check if user has a subscription but it's expired (renewal case)
@@ -18,8 +21,24 @@ const Payment = () => {
     if (currentSubscription && !currentSubscription.active) {
       setIsRenewal(true);
     }
+    
+    // Check if user has free plan and has used up scans (upgrade case)
+    if (currentSubscription && currentSubscription.active && 
+        currentSubscription.plan === 'free' && 
+        currentSubscription.scansUsed >= currentSubscription.scansLimit) {
+      setIsUpgrading(true);
+      toast.info("You've used all your free scans. Consider upgrading to a paid plan for more features.");
+    }
+    
     setSubscription(currentSubscription);
   }, []);
+
+  useEffect(() => {
+    // If user isn't signed in and auth is loaded, show notification
+    if (isLoaded && !isSignedIn) {
+      toast.error("Please sign in to access subscription plans");
+    }
+  }, [isLoaded, isSignedIn]);
 
   const handlePaymentSuccess = (paymentId: string) => {
     console.log('Payment successful:', paymentId);
@@ -107,88 +126,114 @@ const Payment = () => {
             </Button>
           </div>
         )}
+        
+        {isUpgrading && subscription.active && subscription.plan === 'free' && (
+          <div className="mt-4">
+            <p className="text-amber-600 mb-2">You've used all your free scans. Upgrade for more features and scans!</p>
+            <Button 
+              onClick={() => setIsUpgrading(true)} 
+              className="w-full"
+            >
+              Upgrade Your Plan
+            </Button>
+          </div>
+        )}
       </div>
     );
   };
 
   return (
     <div className="container mx-auto py-12">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-10">
-          {isRenewal ? 'Renew Your Subscription' : (hasActiveSubscription() ? 'Manage Your Subscription' : 'Choose Your Subscription Plan')}
-        </h1>
-        
-        {renderSubscriptionStatus()}
-        
-        {(isRenewal || !hasActiveSubscription()) && (
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="flex-1">
-              <PaymentForm onSuccess={handlePaymentSuccess} />
-            </div>
-            <div className="flex-1 bg-muted/30 p-6 rounded-lg">
-              <h3 className="text-lg font-medium mb-4">What you get</h3>
-              
-              <div className="space-y-6">
-                <div>
-                  <h4 className="font-medium text-primary mb-2">Free Plan</h4>
-                  <ul className="space-y-2">
-                    {freeFeatures.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                          <Check className="h-3 w-3 text-primary" />
-                        </div>
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+      <SignedIn>
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-3xl font-bold text-center mb-10">
+            {isRenewal ? 'Renew Your Subscription' : 
+             isUpgrading ? 'Upgrade Your Plan' :
+             (hasActiveSubscription() ? 'Manage Your Subscription' : 'Choose Your Subscription Plan')}
+          </h1>
+          
+          {renderSubscriptionStatus()}
+          
+          {(isRenewal || isUpgrading || !hasActiveSubscription()) && (
+            <div className="flex flex-col md:flex-row gap-8">
+              <div className="flex-1">
+                <PaymentForm onSuccess={handlePaymentSuccess} />
+              </div>
+              <div className="flex-1 bg-muted/30 p-6 rounded-lg">
+                <h3 className="text-lg font-medium mb-4">What you get</h3>
                 
-                <div>
-                  <h4 className="font-medium text-primary mb-2">Basic Plan - $29/month</h4>
-                  <ul className="space-y-2">
-                    {basicFeatures.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                          <Check className="h-3 w-3 text-primary" />
-                        </div>
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium text-primary mb-2">Pro Plan - $99/month</h4>
-                  <ul className="space-y-2">
-                    {proFeatures.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                          <Check className="h-3 w-3 text-primary" />
-                        </div>
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                
-                <div>
-                  <h4 className="font-medium text-primary mb-2">Enterprise Plan - $299/month</h4>
-                  <ul className="space-y-2">
-                    {enterpriseFeatures.map((feature, index) => (
-                      <li key={index} className="flex items-start gap-2">
-                        <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                          <Check className="h-3 w-3 text-primary" />
-                        </div>
-                        <span className="text-sm">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
+                <div className="space-y-6">
+                  <div>
+                    <h4 className="font-medium text-primary mb-2">Free Plan</h4>
+                    <ul className="space-y-2">
+                      {freeFeatures.map((feature, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <div className="rounded-full bg-primary/10 p-1 mt-0.5">
+                            <Check className="h-3 w-3 text-primary" />
+                          </div>
+                          <span className="text-sm">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium text-primary mb-2">Basic Plan - $29/month</h4>
+                    <ul className="space-y-2">
+                      {basicFeatures.map((feature, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <div className="rounded-full bg-primary/10 p-1 mt-0.5">
+                            <Check className="h-3 w-3 text-primary" />
+                          </div>
+                          <span className="text-sm">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium text-primary mb-2">Pro Plan - $99/month</h4>
+                    <ul className="space-y-2">
+                      {proFeatures.map((feature, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <div className="rounded-full bg-primary/10 p-1 mt-0.5">
+                            <Check className="h-3 w-3 text-primary" />
+                          </div>
+                          <span className="text-sm">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  
+                  <div>
+                    <h4 className="font-medium text-primary mb-2">Enterprise Plan - $299/month</h4>
+                    <ul className="space-y-2">
+                      {enterpriseFeatures.map((feature, index) => (
+                        <li key={index} className="flex items-start gap-2">
+                          <div className="rounded-full bg-primary/10 p-1 mt-0.5">
+                            <Check className="h-3 w-3 text-primary" />
+                          </div>
+                          <span className="text-sm">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
             </div>
+          )}
+        </div>
+      </SignedIn>
+      <SignedOut>
+        <div className="text-center py-12">
+          <h1 className="text-3xl font-bold mb-6">Sign In Required</h1>
+          <p className="text-lg mb-8">Please sign in to access subscription plans</p>
+          <div className="flex justify-center gap-4">
+            <Button onClick={() => navigate('/sign-in')}>Sign In</Button>
+            <Button variant="outline" onClick={() => navigate('/sign-up')}>Create Account</Button>
           </div>
-        )}
-      </div>
+        </div>
+      </SignedOut>
     </div>
   );
 };

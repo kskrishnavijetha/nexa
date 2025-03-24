@@ -1,3 +1,4 @@
+
 /**
  * Service for handling payment processing
  */
@@ -79,6 +80,16 @@ export const recordScanUsage = (): void => {
     subscription.scansUsed += 1;
     localStorage.setItem('subscription', JSON.stringify(subscription));
   }
+};
+
+// Check if user should upgrade (free plan with all scans used)
+export const shouldUpgrade = (): boolean => {
+  const subscription = getSubscription();
+  if (!subscription) return false;
+  
+  return subscription.active && 
+         subscription.plan === 'free' && 
+         subscription.scansUsed >= subscription.scansLimit;
 };
 
 // PayPal client ID - Using your provided PayPal Client ID
