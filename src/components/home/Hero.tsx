@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 
 const Hero: React.FC = () => {
   const navigate = useNavigate();
@@ -23,17 +24,17 @@ const Hero: React.FC = () => {
         Reduce compliance costs, minimize risks, and ensure full regulatory alignment—without the manual effort.
       </p>
       
-      <div className="flex flex-col sm:flex-row justify-center gap-4 mb-12">
-        <Button size="lg" className="px-8" onClick={() => {
-          navigate('/document-analysis');
-          console.log("Upload clicked");
-        }}>
-          Upload Document
-        </Button>
-        <Button variant="outline" size="lg" onClick={() => {
-          navigate('/payment');
-        }}>
-          Pricing Plans
+      <div className="flex justify-center mb-12">
+        <Button 
+          size="lg" 
+          className="px-8 py-6 text-lg bg-[#8B5CF6] hover:bg-[#7c4af0]"
+          onClick={() => {
+            navigate('/document-analysis');
+            console.log("Get Started clicked");
+          }}
+        >
+          Get Started Now
+          <ArrowRight className="ml-2 h-5 w-5" />
         </Button>
       </div>
     </div>

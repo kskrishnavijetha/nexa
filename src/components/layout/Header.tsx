@@ -48,10 +48,17 @@ const Header: React.FC = () => {
           </ul>
         </nav>
         
-        <div className="ml-auto">
-          <Button variant="outline" className="mr-2" onClick={() => window.location.href='/payment'}>
-            Pricing
-          </Button>
+        <div className="ml-auto flex space-x-3">
+          <Link to="/">
+            <Button variant="outline">
+              Home
+            </Button>
+          </Link>
+          <Link to="/payment">
+            <Button variant="outline">
+              Pricing
+            </Button>
+          </Link>
         </div>
       </div>
       
