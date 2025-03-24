@@ -18,6 +18,14 @@ export const processOneTimePayment = async (
 ): Promise<PaymentResult> => {
   // This is a mock implementation. In a real app, you would call your backend.
   try {
+    // Free tier doesn't need payment processing
+    if (amount === 0) {
+      return {
+        success: true,
+        paymentId: 'free_' + Math.random().toString(36).substring(2, 15)
+      };
+    }
+    
     // Simulate API latency
     await new Promise(resolve => setTimeout(resolve, 1500));
     
@@ -30,7 +38,7 @@ export const processOneTimePayment = async (
     } else {
       return {
         success: false,
-        error: 'Card declined. Please try a different payment method.'
+        error: 'Payment declined. Please try a different payment method.'
       };
     }
   } catch (error) {
@@ -51,6 +59,14 @@ export const createSubscription = async (
 ): Promise<PaymentResult> => {
   // This is a mock implementation. In a real app, you would call your backend.
   try {
+    // Free tier doesn't need subscription processing
+    if (priceId === 'price_free') {
+      return {
+        success: true,
+        paymentId: 'free_sub_' + Math.random().toString(36).substring(2, 15)
+      };
+    }
+    
     // Simulate API latency
     await new Promise(resolve => setTimeout(resolve, 2000));
     

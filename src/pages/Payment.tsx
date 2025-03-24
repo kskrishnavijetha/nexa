@@ -16,6 +16,13 @@ const Payment = () => {
   };
 
   // Feature lists for each tier
+  const freeFeatures = [
+    "1 compliance scan per month",
+    "Basic GDPR compliance check",
+    "Basic PDF report",
+    "Community support"
+  ];
+  
   const basicFeatures = [
     "10 compliance scans per month",
     "Basic GDPR, HIPAA, and SOC2 compliance checks",
@@ -52,6 +59,20 @@ const Payment = () => {
             <h3 className="text-lg font-medium mb-4">What you get</h3>
             
             <div className="space-y-6">
+              <div>
+                <h4 className="font-medium text-primary mb-2">Free Plan</h4>
+                <ul className="space-y-2">
+                  {freeFeatures.map((feature, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <div className="rounded-full bg-primary/10 p-1 mt-0.5">
+                        <Check className="h-3 w-3 text-primary" />
+                      </div>
+                      <span className="text-sm">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
               <div>
                 <h4 className="font-medium text-primary mb-2">Basic Plan - $29/month</h4>
                 <ul className="space-y-2">
