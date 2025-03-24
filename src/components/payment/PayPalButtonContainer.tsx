@@ -7,7 +7,7 @@ import {
   createSubscription, 
   loadPayPalScript,
   createPayPalButtons
-} from '@/utils/paymentService';
+} from '@/utils/payment';
 import { PricingTierKey, pricingTiers } from './PricingTier';
 
 interface PayPalButtonContainerProps {

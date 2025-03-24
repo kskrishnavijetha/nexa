@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { getSubscription } from '@/utils/paymentService';
+import { getSubscription } from '@/utils/payment';
 import PayPalButtonContainer from './PayPalButtonContainer';
 import PricingTier, { PricingTierKey, pricingTiers } from './PricingTier';
 import OrderSummary from './OrderSummary';

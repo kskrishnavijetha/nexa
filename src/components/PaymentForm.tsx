@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getSubscription, hasActiveSubscription } from '@/utils/paymentService';
+import { getSubscription, hasActiveSubscription } from '@/utils/payment';
 import { toast } from 'sonner';
 import CheckoutForm from './payment/CheckoutForm';
 import SubscriptionStatus from './payment/SubscriptionStatus';

@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { SubscriptionInfo } from '@/utils/paymentService';
+import { SubscriptionInfo } from '@/utils/payment';
 
 interface SubscriptionStatusProps {
   subscription: SubscriptionInfo;
