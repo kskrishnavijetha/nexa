@@ -1,3 +1,4 @@
+
 /**
  * Service for handling payment processing
  */
@@ -218,7 +219,7 @@ declare global {
 
 // PayPal plan IDs - Replace with your actual plan IDs
 const PAYPAL_PLAN_IDS = {
-  basic: 'P-9HD8411875146223CMUSBMCA',  // Example plan ID - update this with your actual plan ID
+  basic: 'P-1YE78369FA595372FM7QORFY',  // Updated with your actual Basic plan ID
   pro: 'P-3NN72537D3262274CMUSBMDI',    // Example plan ID - update this with your actual plan ID
   enterprise: 'P-5GJ8318862350144UMUSBMEI'  // Example plan ID - update this with your actual plan ID
 };
