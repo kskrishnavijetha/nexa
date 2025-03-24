@@ -23,7 +23,7 @@ const Header: React.FC = () => {
         <div className="mr-8 flex items-center">
           <Link to="/" className="flex items-center space-x-2">
             <Book className="h-6 w-6" />
-            <span className="font-bold text-xl">ComplianceAI</span>
+            <span className="font-bold text-xl">CompliZen</span>
           </Link>
         </div>
         
