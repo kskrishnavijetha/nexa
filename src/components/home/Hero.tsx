@@ -11,11 +11,10 @@ const Hero: React.FC = () => {
   
   const handleGetStarted = () => {
     if (isSignedIn) {
-      navigate('/payment');
+      navigate('/dashboard');
     } else {
       navigate('/sign-up');
     }
-    console.log("Get Started clicked");
   };
   
   return (
