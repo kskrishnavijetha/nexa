@@ -1,14 +1,9 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Loader2, Check } from 'lucide-react';
-import { 
-  createSubscription, 
-  getSubscription, 
-  loadPayPalScript,
-  createPayPalButtons
-} from '@/utils/paymentService';
+import { createSubscription } from '@/utils/paymentService';
 
 interface PaymentFormProps {
   onSuccess?: (paymentId: string) => void;
@@ -22,137 +17,88 @@ const pricingTiers = {
   enterprise: { name: 'Enterprise', price: 299, scans: 'Unlimited', monthly: true },
 };
 
-const PayPalButtonContainer = ({ onSuccess, tier, loading, setLoading }: { 
+const PayPalButton = ({ onSuccess, tier, loading, setLoading }: { 
   onSuccess: (paymentId: string) => void, 
   tier: keyof typeof pricingTiers,
   loading: boolean,
   setLoading: React.Dispatch<React.SetStateAction<boolean>>
 }) => {
-  const paypalContainerRef = useRef<HTMLDivElement>(null);
-  
   useEffect(() => {
-    // For free tier, create a custom button instead of PayPal
-    if (tier === 'free') {
-      return;
-    }
-    
-    // Load PayPal script
-    const initializePayPal = async () => {
-      try {
-        await loadPayPalScript();
+    // In a real app, you would load the PayPal SDK here
+    const mockPayPalButton = document.getElementById('paypal-button-container');
+    if (mockPayPalButton) {
+      mockPayPalButton.onclick = async () => {
+        if (loading) return;
+        setLoading(true);
         
-        // Create PayPal buttons
-        createPayPalButtons(
-          'paypal-button-container',
-          tier,
-          // On approve handler
-          async (data) => {
-            setLoading(true);
-            try {
-              // Call your backend to verify and record the subscription
-              const result = await createSubscription('paypal_subscription', `price_${tier}`);
-              if (result.success) {
-                toast.success(`${pricingTiers[tier].name} plan activated! You now have access to ${pricingTiers[tier].scans} compliance scans per month.`);
-                onSuccess(result.paymentId || data.subscriptionID || 'unknown');
-              } else {
-                toast.error(result.error || 'Payment failed. Please try again.');
-              }
-            } catch (error) {
-              toast.error('Failed to process subscription. Please try again.');
-              console.error('Subscription error:', error);
-            } finally {
-              setLoading(false);
-            }
-          },
-          // On error handler
-          (err) => {
-            console.error('PayPal error:', err);
-            toast.error('PayPal payment failed. Please try again.');
+        try {
+          // For free tier, just show success message without processing payment
+          if (tier === 'free') {
+            const mockPaymentId = 'free_' + Math.random().toString(36).substring(2, 15);
+            toast.success('Free plan activated!');
+            onSuccess(mockPaymentId);
             setLoading(false);
+            return;
           }
-        );
-      } catch (error) {
-        console.error('Failed to load PayPal:', error);
-        toast.error('Failed to load PayPal. Please try again later.');
-      }
-    };
-    
-    if (!loading) {
-      initializePayPal();
-    }
-    
-    // Cleanup function
-    return () => {
-      if (paypalContainerRef.current) {
-        paypalContainerRef.current.innerHTML = '';
-      }
-    };
-  }, [tier, onSuccess, loading, setLoading]);
-  
-  // For free tier, use a regular button
-  if (tier === 'free') {
-    return (
-      <Button 
-        className="w-full"
-        disabled={loading}
-        onClick={async () => {
-          if (loading) return;
-          setLoading(true);
           
-          try {
-            const result = await createSubscription('mock_payment_method', `price_${tier}`);
-            if (result.success) {
-              toast.success('Free plan activated!');
-              onSuccess(result.paymentId || 'unknown');
-            } else {
-              toast.error(result.error || 'Failed to activate free plan. Please try again.');
-            }
-          } catch (error) {
-            toast.error('Failed to activate free plan. Please try again.');
-          } finally {
-            setLoading(false);
+          // For paid tiers, use the subscription service
+          const result = await createSubscription('mock_payment_method', `price_${tier}`);
+          
+          if (result.success) {
+            toast.success(`${pricingTiers[tier].name} plan activated! You now have access to ${pricingTiers[tier].scans} compliance scans per month.`);
+            onSuccess(result.paymentId || 'unknown');
+          } else {
+            toast.error(result.error || 'Payment failed. Please try again.');
           }
-        }}
-      >
-        {loading ? (
-          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-        ) : null}
-        {loading ? 'Processing...' : 'Activate Free Plan'}
-      </Button>
-    );
-  }
-  
-  // For paid plans, render the PayPal button container
+        } catch (error) {
+          toast.error('PayPal payment failed. Please try again.');
+        } finally {
+          setLoading(false);
+        }
+      };
+    }
+  }, [tier, onSuccess, loading, setLoading]);
+
+  // For free tier, change button text
+  const buttonText = tier === 'free' ? 'Activate Free Plan' : `Subscribe with PayPal - $${pricingTiers[tier].price}/month`;
+
   return (
-    <div 
-      id="paypal-button-container" 
-      ref={paypalContainerRef}
-      className="w-full min-h-[40px]"
+    <Button 
+      id="paypal-button-container"
+      className="w-full bg-[#0070ba] hover:bg-[#003087]" 
+      disabled={loading}
     >
-      {loading && (
-        <div className="flex items-center justify-center py-2">
-          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-          <span>Loading PayPal...</span>
-        </div>
+      {loading ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : (
+        tier !== 'free' && (
+          <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.15 5.9c.2 1.16.11 2-.3 2.9-.53 1.2-1.5 2.06-2.82 2.7-.09.05-.19.09-.28.13H16.74c-1.33.64-2.8.92-4.3.92h-.32c-.24 0-.48-.05-.71-.1-.5 2.3-1 4.58-1.5 6.87-.04.18-.1.27-.3.27H6.18c-.22 0-.31-.09-.27-.3.48-2.17.96-4.35 1.44-6.52.08-.37.16-.73.25-1.1L8.1 9.4c.06-.25.12-.3.38-.3h4.22c.9 0 1.7-.26 2.34-.85.47-.43.78-.96.93-1.6.05-.22.02-.3-.2-.3h-3.95c-.25 0-.32-.07-.32-.32 0-.64.01-1.27 0-1.9 0-.2.06-.3.27-.3h5.18c.36 0 .7-.04 1.03-.17 1.42-.57 2.5-1.5 3.17-2.9v4.14z"/>
+            <path d="M3.37 18.48c-.36-.12-.47-.42-.35-.77.05-.15.11-.3.18-.44 1.77-3.77 3.55-7.54 5.33-11.3.15-.31.4-.47.76-.47h2.9c-.15.34-.31.66-.45.99-1.69 3.56-3.37 7.13-5.05 10.7-.18.4-.5.63-.93.63H3.52c-.05 0-.1 0-.15-.02v.68z"/>
+          </svg>
+        )
       )}
-    </div>
+      {loading ? 'Processing...' : buttonText}
+    </Button>
   );
 };
 
 const CheckoutForm = ({ onSuccess }: PaymentFormProps) => {
   const [selectedTier, setSelectedTier] = useState<keyof typeof pricingTiers>('free');
   const [loading, setLoading] = useState(false);
-  const currentSubscription = getSubscription();
-  
-  // If user has an existing subscription (even if expired), preselect that tier
-  useEffect(() => {
-    if (currentSubscription && pricingTiers[currentSubscription.plan as keyof typeof pricingTiers]) {
-      setSelectedTier(currentSubscription.plan as keyof typeof pricingTiers);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    
+    // PayPal button handles the payment processing
+    const paypalButton = document.getElementById('paypal-button-container');
+    if (paypalButton) {
+      paypalButton.click();
     }
-  }, []);
+  };
 
   return (
-    <div className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Select a Plan</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -190,7 +136,7 @@ const CheckoutForm = ({ onSuccess }: PaymentFormProps) => {
             : 'Set up your subscription with PayPal for quick and secure payments.'
           }
         </p>
-        <PayPalButtonContainer 
+        <PayPalButton 
           onSuccess={onSuccess || (() => {})}
           tier={selectedTier}
           loading={loading}
@@ -216,7 +162,7 @@ const CheckoutForm = ({ onSuccess }: PaymentFormProps) => {
           <span>{selectedTier === 'free' ? 'Free' : `$${pricingTiers[selectedTier].price}/month`}</span>
         </div>
       </div>
-    </div>
+    </form>
   );
 };
 
@@ -224,9 +170,7 @@ const PaymentForm = (props: PaymentFormProps) => {
   return (
     <div className="max-w-md w-full mx-auto">
       <div className="mb-6">
-        <h2 className="text-2xl font-bold">
-          {getSubscription()?.active ? 'Change Your Plan' : 'Choose Your Plan'}
-        </h2>
+        <h2 className="text-2xl font-bold">Choose Your Plan</h2>
         <p className="text-muted-foreground">
           Select a subscription plan to start analyzing documents
         </p>
