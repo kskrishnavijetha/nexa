@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Book, FileText, History, Home, BarChart, MessageSquare, Settings, User, LogOut } from 'lucide-react';
+import { Book, FileText, History, Home, BarChart, MessageSquare, Settings, User, LogOut, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -66,7 +66,14 @@ const Header: React.FC = () => {
           </ul>
         </nav>
         
-        <div className="ml-auto flex space-x-3">
+        <div className="ml-auto flex space-x-3 items-center">
+          <Link to="/payment" className="flex items-center">
+            <Button variant="outline" size="sm" className="mr-2">
+              <DollarSign className="h-4 w-4 mr-1" />
+              Pricing
+            </Button>
+          </Link>
+
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
