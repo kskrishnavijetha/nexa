@@ -2,7 +2,7 @@
 import React from 'react';
 import PaymentForm from '@/components/PaymentForm';
 import { useNavigate } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import PlansFeatureList from '@/components/payment/PlansFeatureList';
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -55,67 +55,12 @@ const Payment = () => {
           <div className="flex-1">
             <PaymentForm onSuccess={handlePaymentSuccess} />
           </div>
-          <div className="flex-1 bg-muted/30 p-6 rounded-lg">
-            <h3 className="text-lg font-medium mb-4">What you get</h3>
-            
-            <div className="space-y-6">
-              <div>
-                <h4 className="font-medium text-primary mb-2">Free Plan</h4>
-                <ul className="space-y-2">
-                  {freeFeatures.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                        <Check className="h-3 w-3 text-primary" />
-                      </div>
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-medium text-primary mb-2">Basic Plan - $29/month</h4>
-                <ul className="space-y-2">
-                  {basicFeatures.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                        <Check className="h-3 w-3 text-primary" />
-                      </div>
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-medium text-primary mb-2">Pro Plan - $99/month</h4>
-                <ul className="space-y-2">
-                  {proFeatures.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                        <Check className="h-3 w-3 text-primary" />
-                      </div>
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-medium text-primary mb-2">Enterprise Plan - $299/month</h4>
-                <ul className="space-y-2">
-                  {enterpriseFeatures.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-2">
-                      <div className="rounded-full bg-primary/10 p-1 mt-0.5">
-                        <Check className="h-3 w-3 text-primary" />
-                      </div>
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
+          <PlansFeatureList 
+            freeFeatures={freeFeatures}
+            basicFeatures={basicFeatures}
+            proFeatures={proFeatures}
+            enterpriseFeatures={enterpriseFeatures}
+          />
         </div>
       </div>
     </div>
