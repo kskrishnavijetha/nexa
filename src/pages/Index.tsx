@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Features from '@/components/Features';
-import ContactForm from '@/components/ContactForm';
 import Hero from '@/components/home/Hero';
 import WhyChooseSection from '@/components/home/WhyChooseSection';
 import ComplianceFeaturesSection from '@/components/home/ComplianceFeaturesSection';
@@ -31,7 +30,6 @@ const Index = () => {
         <ResultsSection />
         <TrustedBySection />
         <Features />
-        <ContactForm />
       </div>
     </div>
   );
