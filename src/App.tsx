@@ -1,6 +1,7 @@
 
+import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from 'sonner';
 import Layout from '@/components/layout/Layout';
 import Dashboard from '@/pages/Dashboard';
 import DocumentAnalysis from '@/pages/DocumentAnalysis';
@@ -17,54 +18,52 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 function App() {
   return (
-    <>
-      <Toaster />
-      <BrowserRouter>
-        <AuthProvider>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              
-              {/* Auth routes */}
-              <Route path="/auth/signin" element={<SignIn />} />
-              <Route path="/auth/signup" element={<SignUp />} />
-              
-              {/* Protected routes */}
-              <Route path="/dashboard" element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              } />
-              <Route path="/document-analysis" element={
-                <ProtectedRoute>
-                  <DocumentAnalysis />
-                </ProtectedRoute>
-              } />
-              <Route path="/google-services" element={
-                <ProtectedRoute>
-                  <GoogleServices />
-                </ProtectedRoute>
-              } />
-              <Route path="/slack-monitoring" element={
-                <ProtectedRoute>
-                  <SlackMonitoringPage />
-                </ProtectedRoute>
-              } />
-              <Route path="/history" element={
-                <ProtectedRoute>
-                  <History />
-                </ProtectedRoute>
-              } />
-              
-              {/* Payment page can be accessed by anyone, but will show different UI based on auth state */}
-              <Route path="/payment" element={<Payment />} />
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Layout>
-        </AuthProvider>
-      </BrowserRouter>
-    </>
+    <BrowserRouter>
+      <AuthProvider>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            
+            {/* Auth routes */}
+            <Route path="/auth/signin" element={<SignIn />} />
+            <Route path="/auth/signup" element={<SignUp />} />
+            
+            {/* Protected routes */}
+            <Route path="/dashboard" element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } />
+            <Route path="/document-analysis" element={
+              <ProtectedRoute>
+                <DocumentAnalysis />
+              </ProtectedRoute>
+            } />
+            <Route path="/google-services" element={
+              <ProtectedRoute>
+                <GoogleServices />
+              </ProtectedRoute>
+            } />
+            <Route path="/slack-monitoring" element={
+              <ProtectedRoute>
+                <SlackMonitoringPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/history" element={
+              <ProtectedRoute>
+                <History />
+              </ProtectedRoute>
+            } />
+            
+            {/* Payment page can be accessed by anyone, but will show different UI based on auth state */}
+            <Route path="/payment" element={<Payment />} />
+            
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Layout>
+        <Toaster />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
