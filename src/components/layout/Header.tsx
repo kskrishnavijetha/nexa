@@ -1,15 +1,12 @@
 
 import React from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Book, FileText, History, Home, BarChart, MessageSquare, Settings, LogIn, UserPlus, LogOut, User } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Book, FileText, History, Home, BarChart, MessageSquare, Settings } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { SignedIn, SignedOut, UserButton, useAuth } from '@clerk/clerk-react';
 
 const Header: React.FC = () => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const { isSignedIn } = useAuth();
   
   const navItems = [
     { name: 'Home', path: '/', icon: <Home className="h-4 w-4 mr-2" /> },
@@ -51,7 +48,7 @@ const Header: React.FC = () => {
           </ul>
         </nav>
         
-        <div className="ml-auto flex space-x-3 items-center">
+        <div className="ml-auto flex space-x-3">
           <Link to="/">
             <Button variant="outline">
               Home
@@ -62,31 +59,6 @@ const Header: React.FC = () => {
               Pricing
             </Button>
           </Link>
-          
-          <SignedIn>
-            <UserButton afterSignOutUrl="/" />
-          </SignedIn>
-          
-          <SignedOut>
-            <Button 
-              variant="outline"
-              size="sm"
-              onClick={() => navigate('/sign-in')}
-              className="flex items-center"
-            >
-              <LogIn className="h-4 w-4 mr-2" />
-              Sign In
-            </Button>
-            <Button 
-              variant="default"
-              size="sm"
-              onClick={() => navigate('/sign-up')}
-              className="flex items-center"
-            >
-              <UserPlus className="h-4 w-4 mr-2" />
-              Sign Up
-            </Button>
-          </SignedOut>
         </div>
       </div>
       
