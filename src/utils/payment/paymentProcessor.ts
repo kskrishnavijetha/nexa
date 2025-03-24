@@ -1,5 +1,5 @@
 
-import { PaymentResult } from './types';
+import { PaymentResult, DEV_MODE } from './types';
 import { saveSubscription } from './subscriptionService';
 
 /**
@@ -9,7 +9,7 @@ export const processOneTimePayment = async (
   paymentMethodId: string,
   amount: number
 ): Promise<PaymentResult> => {
-  // This is a mock implementation. In a real app, you would call your backend.
+  // Always use mock implementation in development mode
   try {
     // Free tier doesn't need payment processing
     if (amount === 0) {
@@ -22,7 +22,15 @@ export const processOneTimePayment = async (
     // Simulate API latency
     await new Promise(resolve => setTimeout(resolve, 1500));
     
-    // Simulate successful payment ~90% of the time
+    if (DEV_MODE) {
+      console.log('DEV MODE: Simulating successful payment');
+      return {
+        success: true,
+        paymentId: 'dev_pi_' + Math.random().toString(36).substring(2, 15)
+      };
+    }
+    
+    // Simulate successful payment ~90% of the time (only happens if not in dev mode)
     if (Math.random() > 0.1) {
       return {
         success: true,
@@ -50,8 +58,27 @@ export const createSubscription = async (
   paymentMethodId: string,
   priceId: string
 ): Promise<PaymentResult> => {
-  // This is a mock implementation. In a real app, you would call your backend.
   try {
+    // Extract plan name from priceId (e.g., price_basic -> basic)
+    const planName = priceId.split('_')[1];
+    
+    // Simulate API latency
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    if (DEV_MODE) {
+      console.log(`DEV MODE: Simulating successful subscription to ${planName} plan`);
+      const paymentId = 'dev_sub_' + Math.random().toString(36).substring(2, 15);
+      
+      // Save the subscription
+      saveSubscription(planName, paymentId);
+      
+      return {
+        success: true,
+        paymentId: paymentId
+      };
+    }
+    
+    // If not in dev mode, use the existing logic
     // Free tier doesn't need subscription processing
     if (priceId === 'price_free') {
       const paymentId = 'free_sub_' + Math.random().toString(36).substring(2, 15);
@@ -64,12 +91,6 @@ export const createSubscription = async (
         paymentId: paymentId
       };
     }
-    
-    // Extract plan name from priceId (e.g., price_basic -> basic)
-    const planName = priceId.split('_')[1];
-    
-    // Simulate API latency
-    await new Promise(resolve => setTimeout(resolve, 2000));
     
     // Simulate successful subscription creation ~90% of the time
     if (Math.random() > 0.1) {
@@ -103,6 +124,10 @@ export const createSubscription = async (
 export const fetchPaymentMethods = async (): Promise<any[]> => {
   // Mock implementation - would fetch from your backend in a real app
   await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  if (DEV_MODE) {
+    console.log('DEV MODE: Returning empty payment methods array');
+  }
   
   // Return empty array for new customers or mock data for testing
   return [];

@@ -6,7 +6,8 @@ import { toast } from 'sonner';
 import { 
   createSubscription, 
   loadPayPalScript,
-  createPayPalButtons
+  createPayPalButtons,
+  DEV_MODE
 } from '@/utils/payment';
 import { PricingTierKey, pricingTiers } from './PricingTier';
 
@@ -119,17 +120,24 @@ const PayPalButtonContainer: React.FC<PayPalButtonContainerProps> = ({
   
   // For paid plans, render the PayPal button container
   return (
-    <div 
-      id="paypal-button-container" 
-      ref={paypalContainerRef}
-      className="w-full min-h-[40px]"
-    >
-      {loading && (
-        <div className="flex items-center justify-center py-2">
-          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-          <span>Loading PayPal...</span>
+    <div className="mb-4">
+      {DEV_MODE && (
+        <div className="bg-amber-100 text-amber-800 p-2 mb-2 rounded text-xs">
+          DEVELOPMENT MODE: All payments are simulated and no real charges will be made.
         </div>
       )}
+      <div 
+        id="paypal-button-container" 
+        ref={paypalContainerRef}
+        className="w-full min-h-[40px]"
+      >
+        {loading && (
+          <div className="flex items-center justify-center py-2">
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            <span>Loading PayPal...</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

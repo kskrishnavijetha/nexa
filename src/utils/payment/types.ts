@@ -24,6 +24,9 @@ export const PAYPAL_PLAN_IDS = {
 // PayPal client ID
 export const PAYPAL_CLIENT_ID = 'AbjWpZd-uPzFyoPALjqopkA1ptAxkfpmqfYgirEXeXpprFfM-YlimFqVzVYJP_69pzxqCmxSv_RHY7P1';
 
+// Development mode flag - always true for now to ensure app stays in development mode
+export const DEV_MODE = true;
+
 // Declare global types for PayPal
 declare global {
   interface Window {
