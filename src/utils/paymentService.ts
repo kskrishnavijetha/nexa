@@ -1,4 +1,3 @@
-
 /**
  * Service for handling payment processing
  */
@@ -82,8 +81,8 @@ export const recordScanUsage = (): void => {
   }
 };
 
-// PayPal client ID - Replace with your actual PayPal Client ID when going to production
-const PAYPAL_CLIENT_ID = 'YOUR_PAYPAL_CLIENT_ID'; // Use a sandbox ID for testing
+// PayPal client ID - Using your provided PayPal Client ID
+const PAYPAL_CLIENT_ID = 'AbjWpZd-uPzFyoPALjqopkA1ptAxkfpmqfYgirEXeXpprFfM-YlimFqVzVYJP_69pzxqCmxSv_RHY7P1';
 
 /**
  * Load PayPal SDK
@@ -219,9 +218,9 @@ declare global {
 
 // PayPal plan IDs - Replace with your actual plan IDs
 const PAYPAL_PLAN_IDS = {
-  basic: 'YOUR_BASIC_PLAN_ID',
-  pro: 'YOUR_PRO_PLAN_ID',
-  enterprise: 'YOUR_ENTERPRISE_PLAN_ID'
+  basic: 'P-9HD8411875146223CMUSBMCA',  // Example plan ID - update this with your actual plan ID
+  pro: 'P-3NN72537D3262274CMUSBMDI',    // Example plan ID - update this with your actual plan ID
+  enterprise: 'P-5GJ8318862350144UMUSBMEI'  // Example plan ID - update this with your actual plan ID
 };
 
 /**
