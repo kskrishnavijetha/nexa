@@ -1,12 +1,22 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Book, FileText, History, Home, BarChart, MessageSquare, Settings } from 'lucide-react';
+import { Book, FileText, History, Home, BarChart, MessageSquare, Settings, User, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header: React.FC = () => {
   const location = useLocation();
+  const { user, signOut } = useAuth();
   
   const navItems = [
     { name: 'Home', path: '/', icon: <Home className="h-4 w-4 mr-2" /> },
@@ -49,16 +59,44 @@ const Header: React.FC = () => {
         </nav>
         
         <div className="ml-auto flex space-x-3">
-          <Link to="/">
-            <Button variant="outline">
-              Home
-            </Button>
-          </Link>
-          <Link to="/payment">
-            <Button variant="outline">
-              Pricing
-            </Button>
-          </Link>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="flex items-center">
+                  <User className="h-4 w-4 mr-2" />
+                  {user.email?.split('@')[0]}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/dashboard" className="w-full cursor-pointer">Dashboard</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/payment" className="w-full cursor-pointer">Subscription</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => signOut()} className="text-red-500 cursor-pointer">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Link to="/auth/signin">
+                <Button variant="outline">
+                  Sign In
+                </Button>
+              </Link>
+              <Link to="/auth/signup">
+                <Button>
+                  Sign Up
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
       
