@@ -34,7 +34,7 @@ const Header: React.FC = () => {
   ];
   
   // Get the relevant navigation items based on auth state
-  const navItems = user ? [...publicNavItems, ...authNavItems] : publicNavItems;
+  const navItems = user ? authNavItems : publicNavItems;
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
