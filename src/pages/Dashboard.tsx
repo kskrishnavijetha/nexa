@@ -9,19 +9,18 @@ import ComplianceScanTable from '@/components/dashboard/ComplianceScanTable';
 const Dashboard: React.FC = () => {
   const [riskFilter, setRiskFilter] = useState<string>('all');
 
-  const filteredScans = mockScans.filter(scan => {
-    if (riskFilter === 'all') return true;
-    
-    const worstRiskLevel = getWorstRiskLevel(scan);
-    return worstRiskLevel === riskFilter.toLowerCase();
-  });
-
   const getWorstRiskLevel = (scan: ComplianceReport): string => {
     if (scan.risks.some(risk => risk.severity === 'high')) return 'high';
     if (scan.risks.some(risk => risk.severity === 'medium')) return 'medium';
     if (scan.risks.some(risk => risk.severity === 'low')) return 'low';
     return 'low';
   };
+
+  const filteredScans = mockScans.filter(scan => {
+    if (riskFilter === 'all') return true;
+    const worstRiskLevel = getWorstRiskLevel(scan);
+    return worstRiskLevel === riskFilter.toLowerCase();
+  });
 
   return (
     <div className="container mx-auto p-6">
