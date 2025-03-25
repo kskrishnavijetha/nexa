@@ -13,7 +13,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { FileText, AlertTriangle, Info, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import ComplianceReport from '@/components/ComplianceReport';
+import ComplianceReportComponent from '@/components/ComplianceReport';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface ComplianceScanTableProps {
@@ -133,7 +133,7 @@ const ComplianceScanTable: React.FC<ComplianceScanTableProps> = ({ scans }) => {
       <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
         <DialogContent className="max-w-3xl p-0">
           {selectedReport && (
-            <ComplianceReport 
+            <ComplianceReportComponent 
               report={selectedReport} 
               onClose={handleCloseReport} 
             />

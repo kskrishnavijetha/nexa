@@ -10,7 +10,7 @@ interface ComplianceReportProps {
   onClose: () => void;
 }
 
-const ComplianceReport: React.FC<ComplianceReportProps> = ({ report, onClose }) => {
+const ComplianceReportComponent: React.FC<ComplianceReportProps> = ({ report, onClose }) => {
   const { language, setLanguage } = useLanguagePreference();
 
   return (
@@ -30,4 +30,4 @@ const ComplianceReport: React.FC<ComplianceReportProps> = ({ report, onClose }) 
   );
 };
 
-export default ComplianceReport;
+export default ComplianceReportComponent;
