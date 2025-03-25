@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ComplianceReport as ComplianceReportType } from '@/utils/apiService';
 import { Button } from '@/components/ui/button';
@@ -42,7 +43,7 @@ const ComplianceDetailsTab: React.FC<ComplianceDetailsTabProps> = ({
         />
         <RegulationRisks 
           report={report} 
-          regulation="SOC2" 
+          regulation="SOC 2" 
           title="SOC 2 Compliance" 
           colorClass="text-teal-600"
           language={language}

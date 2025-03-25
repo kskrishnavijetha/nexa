@@ -58,7 +58,10 @@ const ComplianceScanTable: React.FC<ComplianceScanTableProps> = ({ scans }) => {
 
   const handleCloseReport = () => {
     setReportDialogOpen(false);
-    setSelectedReport(null);
+    // Add a slight delay before clearing the selected report to prevent UI flicker
+    setTimeout(() => {
+      setSelectedReport(null);
+    }, 300);
   };
 
   const handleRiskLevelClick = (riskLevel: string) => {
