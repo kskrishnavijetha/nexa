@@ -1,25 +1,32 @@
 
 import React, { useEffect, useState } from 'react';
-import PaymentForm from '@/components/PaymentForm';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Check } from 'lucide-react';
+import PaymentForm from '@/components/PaymentForm';
 import { getSubscription, hasActiveSubscription } from '@/utils/paymentService';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
 const Payment = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [subscription, setSubscription] = useState(getSubscription());
   const [isRenewal, setIsRenewal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
   useEffect(() => {
+    // Check if a plan was selected from the pricing page
+    if (location.state?.selectedPlan) {
+      setSelectedPlan(location.state.selectedPlan);
+    }
+    
     // Check if user has a subscription but it's expired (renewal case)
     const currentSubscription = getSubscription();
     if (currentSubscription && !currentSubscription.active) {
       setIsRenewal(true);
     }
     setSubscription(currentSubscription);
-  }, []);
+  }, [location.state]);
 
   const handlePaymentSuccess = (paymentId: string) => {
     console.log('Payment successful:', paymentId);
@@ -123,7 +130,7 @@ const Payment = () => {
         {(isRenewal || !hasActiveSubscription()) && (
           <div className="flex flex-col md:flex-row gap-8">
             <div className="flex-1">
-              <PaymentForm onSuccess={handlePaymentSuccess} />
+              <PaymentForm onSuccess={handlePaymentSuccess} initialPlan={selectedPlan} />
             </div>
             <div className="flex-1 bg-muted/30 p-6 rounded-lg">
               <h3 className="text-lg font-medium mb-4">What you get</h3>

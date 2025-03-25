@@ -10,6 +10,7 @@ import History from '@/pages/History';
 import Index from '@/pages/Index';
 import NotFound from '@/pages/NotFound';
 import Payment from '@/pages/Payment';
+import PricingPlans from '@/pages/PricingPlans';
 import SlackMonitoringPage from '@/pages/SlackMonitoring';
 import SignIn from '@/pages/auth/SignIn';
 import SignUp from '@/pages/auth/SignUp';
@@ -55,7 +56,8 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* Payment page can be accessed by anyone, but will show different UI based on auth state */}
+            {/* Public routes */}
+            <Route path="/pricing" element={<PricingPlans />} />
             <Route path="/payment" element={<Payment />} />
             
             <Route path="*" element={<NotFound />} />

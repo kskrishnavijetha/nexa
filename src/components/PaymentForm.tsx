@@ -12,6 +12,7 @@ import {
 
 interface PaymentFormProps {
   onSuccess?: (paymentId: string) => void;
+  initialPlan?: string | null;
 }
 
 // Define pricing tiers
@@ -139,17 +140,19 @@ const PayPalButtonContainer = ({ onSuccess, tier, loading, setLoading }: {
   );
 };
 
-const CheckoutForm = ({ onSuccess }: PaymentFormProps) => {
+const CheckoutForm = ({ onSuccess, initialPlan }: PaymentFormProps) => {
   const [selectedTier, setSelectedTier] = useState<keyof typeof pricingTiers>('free');
   const [loading, setLoading] = useState(false);
   const currentSubscription = getSubscription();
   
-  // If user has an existing subscription (even if expired), preselect that tier
+  // If initialPlan is provided or user has an existing subscription, preselect that tier
   useEffect(() => {
-    if (currentSubscription && pricingTiers[currentSubscription.plan as keyof typeof pricingTiers]) {
+    if (initialPlan && pricingTiers[initialPlan as keyof typeof pricingTiers]) {
+      setSelectedTier(initialPlan as keyof typeof pricingTiers);
+    } else if (currentSubscription && pricingTiers[currentSubscription.plan as keyof typeof pricingTiers]) {
       setSelectedTier(currentSubscription.plan as keyof typeof pricingTiers);
     }
-  }, []);
+  }, [initialPlan]);
 
   return (
     <div className="space-y-6">

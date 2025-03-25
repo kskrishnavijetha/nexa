@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Book, FileText, History, Home, BarChart, MessageSquare, Settings, User, LogOut } from 'lucide-react';
+import { Book, FileText, History, Home, BarChart, MessageSquare, Settings, User, LogOut, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -30,6 +30,7 @@ const Header: React.FC = () => {
   // This item will be shown to all users
   const publicNavItems = [
     { name: 'Home', path: '/', icon: <Home className="h-4 w-4 mr-2" /> },
+    { name: 'Pricing', path: '/pricing', icon: <CreditCard className="h-4 w-4 mr-2" /> },
   ];
   
   // Get the relevant navigation items based on auth state
