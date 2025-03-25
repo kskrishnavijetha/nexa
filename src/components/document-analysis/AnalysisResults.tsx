@@ -1,0 +1,66 @@
+
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { ComplianceReport } from '@/utils/types';
+import DocumentInfoHeader from './DocumentInfoHeader';
+import DocumentMetadata from './DocumentMetadata';
+import ScoreCards from './ScoreCards';
+import RegionalScores from './RegionalScores';
+import ComplianceCharts from '@/components/ComplianceCharts';
+import RiskAnalysis from '@/components/RiskAnalysis';
+import Simulation from '@/components/simulation/Simulation';
+import DocumentSummary from './DocumentSummary';
+import ImprovementSuggestions from './ImprovementSuggestions';
+import AuditTrail from '@/components/AuditTrail';
+
+interface AnalysisResultsProps {
+  report: ComplianceReport;
+  isGeneratingPDF: boolean;
+  onDownloadReport: () => void;
+  onResetAnalysis: () => void;
+}
+
+const AnalysisResults: React.FC<AnalysisResultsProps> = ({
+  report,
+  isGeneratingPDF,
+  onDownloadReport,
+  onResetAnalysis
+}) => {
+  return (
+    <div className="space-y-6">
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <DocumentInfoHeader 
+          report={report} 
+          isGeneratingPDF={isGeneratingPDF} 
+          onDownloadReport={onDownloadReport} 
+        />
+        
+        <DocumentMetadata report={report} />
+        
+        <ScoreCards report={report} />
+        
+        <RegionalScores report={report} />
+        
+        <ComplianceCharts report={report} />
+        
+        <RiskAnalysis risks={report.risks} />
+        
+        <div className="mb-6">
+          <Simulation report={report} />
+        </div>
+        
+        <DocumentSummary report={report} />
+        
+        <ImprovementSuggestions report={report} />
+        
+        <AuditTrail documentName={report.documentName} />
+      </div>
+      
+      <div className="mt-8 text-center">
+        <Button onClick={onResetAnalysis}>Analyze Another Document</Button>
+      </div>
+    </div>
+  );
+};
+
+export default AnalysisResults;
