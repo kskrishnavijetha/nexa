@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { GoogleService } from '@/components/google/types';
-import { connectGoogleService, disconnectGoogleService } from '@/utils/googleServices';
+import { connectGoogleService, disconnectGoogleService } from '@/utils/google/connectionService';
 import { toast } from 'sonner';
 
 export function useGoogleServiceConnections() {
