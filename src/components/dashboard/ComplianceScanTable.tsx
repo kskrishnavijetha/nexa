@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ComplianceReport } from '@/utils/types';
 import {
@@ -13,6 +13,8 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { FileText, AlertTriangle, Info, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import ComplianceReport from '@/components/ComplianceReport';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 
 interface ComplianceScanTableProps {
   scans: ComplianceReport[];
@@ -20,6 +22,8 @@ interface ComplianceScanTableProps {
 
 const ComplianceScanTable: React.FC<ComplianceScanTableProps> = ({ scans }) => {
   const navigate = useNavigate();
+  const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
   
   const getWorstRiskLevel = (scan: ComplianceReport): string => {
     if (scan.risks.some(risk => risk.severity === 'high')) return 'high';
@@ -47,9 +51,14 @@ const ComplianceScanTable: React.FC<ComplianceScanTableProps> = ({ scans }) => {
     }
   };
 
-  const handleViewReport = (documentId: string) => {
-    // Update to navigate to history with a specific documentId parameter
-    navigate(`/history?documentId=${documentId}`);
+  const handleViewReport = (report: ComplianceReport) => {
+    setSelectedReport(report);
+    setReportDialogOpen(true);
+  };
+
+  const handleCloseReport = () => {
+    setReportDialogOpen(false);
+    setSelectedReport(null);
   };
 
   const handleRiskLevelClick = (riskLevel: string) => {
@@ -58,67 +67,80 @@ const ComplianceScanTable: React.FC<ComplianceScanTableProps> = ({ scans }) => {
   };
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Document</TableHead>
-          <TableHead>Date</TableHead>
-          <TableHead>Risk Level</TableHead>
-          <TableHead>Score</TableHead>
-          <TableHead>Issues</TableHead>
-          <TableHead className="text-right">Actions</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {scans.map((scan) => {
-          const riskLevel = getWorstRiskLevel(scan);
-          return (
-            <TableRow key={scan.documentId}>
-              <TableCell className="font-medium flex items-center gap-2">
-                <FileText className="h-4 w-4 text-blue-500" />
-                {scan.documentName}
-              </TableCell>
-              <TableCell>
-                {new Date(scan.timestamp).toLocaleDateString()}
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={() => handleRiskLevelClick(riskLevel)}
-                    className="flex items-center gap-2 hover:underline"
-                  >
-                    {getRiskIcon(riskLevel)}
-                    <Badge 
-                      variant={
-                        riskLevel === 'high' ? 'destructive' : 
-                        riskLevel === 'medium' ? 'outline' : 'secondary'
-                      }
+    <>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Document</TableHead>
+            <TableHead>Date</TableHead>
+            <TableHead>Risk Level</TableHead>
+            <TableHead>Score</TableHead>
+            <TableHead>Issues</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {scans.map((scan) => {
+            const riskLevel = getWorstRiskLevel(scan);
+            return (
+              <TableRow key={scan.documentId}>
+                <TableCell className="font-medium flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-blue-500" />
+                  {scan.documentName}
+                </TableCell>
+                <TableCell>
+                  {new Date(scan.timestamp).toLocaleDateString()}
+                </TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={() => handleRiskLevelClick(riskLevel)}
+                      className="flex items-center gap-2 hover:underline"
                     >
-                      {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)}
-                    </Badge>
-                  </button>
-                </div>
-              </TableCell>
-              <TableCell>
-                <span className={getScoreColor(scan.overallScore)}>
-                  {scan.overallScore}%
-                </span>
-              </TableCell>
-              <TableCell>{scan.risks.length}</TableCell>
-              <TableCell className="text-right">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => handleViewReport(scan.documentId)}
-                >
-                  View Report
-                </Button>
-              </TableCell>
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+                      {getRiskIcon(riskLevel)}
+                      <Badge 
+                        variant={
+                          riskLevel === 'high' ? 'destructive' : 
+                          riskLevel === 'medium' ? 'outline' : 'secondary'
+                        }
+                      >
+                        {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)}
+                      </Badge>
+                    </button>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <span className={getScoreColor(scan.overallScore)}>
+                    {scan.overallScore}%
+                  </span>
+                </TableCell>
+                <TableCell>{scan.risks.length}</TableCell>
+                <TableCell className="text-right">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleViewReport(scan)}
+                  >
+                    View Report
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+      </Table>
+
+      <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
+        <DialogContent className="max-w-3xl p-0">
+          {selectedReport && (
+            <ComplianceReport 
+              report={selectedReport} 
+              onClose={handleCloseReport} 
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

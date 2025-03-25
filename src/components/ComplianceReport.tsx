@@ -15,7 +15,11 @@ const ComplianceReport: React.FC<ComplianceReportProps> = ({ report, onClose }) 
 
   return (
     <div className="animate-fade-up bg-background rounded-xl border shadow-soft overflow-hidden max-w-3xl w-full mx-auto">
-      <ReportHeader report={report} language={language} />
+      <ReportHeader 
+        report={report} 
+        language={language} 
+        onBack={onClose}
+      />
       <ReportTabs 
         report={report} 
         onClose={onClose} 
