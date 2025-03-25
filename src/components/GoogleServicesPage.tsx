@@ -7,7 +7,6 @@ import { CloudLightning, History, Settings } from 'lucide-react';
 import AuditTrail from './audit/AuditTrail';
 import GoogleServicesScanner from './google/GoogleServicesScanner';
 import GoogleScannerConfig from './google/GoogleScannerConfig';
-import GoogleScannerStatus from './google/GoogleScannerStatus';
 import GoogleScannerSettings from './google/GoogleScannerSettings';
 
 const GoogleServicesPage: React.FC = () => {
@@ -47,8 +46,6 @@ const GoogleServicesPage: React.FC = () => {
           setLanguage={handleLanguageChange}
           onFileSelect={handleFileSelect}
         />
-
-        <GoogleScannerStatus />
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">

@@ -43,7 +43,7 @@ const ComplianceDetailsTab: React.FC<ComplianceDetailsTabProps> = ({
         />
         <RegulationRisks 
           report={report} 
-          regulation="SOC 2" 
+          regulation="SOC2" 
           title="SOC 2 Compliance" 
           colorClass="text-teal-600"
           language={language}

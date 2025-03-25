@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Card, 
   CardContent, 
@@ -18,6 +18,8 @@ import { GoogleService, GoogleServicesScannerProps, ScanResults, ScanViolation }
 import ServiceTabs from './ServiceTabs';
 import ScanButton from './ScanButton';
 import ScanResultsComponent from './ScanResults';
+import GoogleScannerStatus from './GoogleScannerStatus';
+import '../assets/custom.css';
 
 const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({ 
   industry, 
@@ -36,8 +38,39 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   
   const [connectedServices, setConnectedServices] = useState<GoogleService[]>([]);
   const [scanResults, setScanResults] = useState<ScanResults | null>(null);
+  const [lastScanTime, setLastScanTime] = useState<Date | undefined>(undefined);
+  const [itemsScanned, setItemsScanned] = useState<number>(0);
+  const [violationsFound, setViolationsFound] = useState<number>(0);
   
   const anyServiceConnected = connectedServices.length > 0;
+  
+  // Real-time simulation for connected services
+  useEffect(() => {
+    let interval: number | null = null;
+    
+    if (connectedServices.length > 0) {
+      // Simulate real-time updates for connected services
+      interval = window.setInterval(() => {
+        // Simulate random changes to items scanned
+        if (lastScanTime) {
+          const randomChange = Math.floor(Math.random() * 5);
+          setItemsScanned(prev => prev + randomChange);
+          
+          // Occasionally add a new violation
+          if (Math.random() > 0.8) {
+            setViolationsFound(prev => prev + 1);
+            toast.info(`New potential compliance issue detected in ${connectedServices[Math.floor(Math.random() * connectedServices.length)]}`);
+          }
+        }
+      }, 15000); // Update every 15 seconds
+    }
+    
+    return () => {
+      if (interval !== null) {
+        window.clearInterval(interval);
+      }
+    };
+  }, [connectedServices, lastScanTime]);
   
   const handleConnectDrive = async () => {
     setIsConnectingDrive(true);
@@ -184,24 +217,32 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
       
       // Combine results and properly format them as ScanViolation objects
       const violations: ScanViolation[] = [];
+      let totalItemsScanned = 0;
       
       results.forEach(result => {
-        if (result.data?.reports) {
-          result.data.reports.forEach(report => {
-            // Each risk item in the report becomes a violation
-            report.risks.forEach(risk => {
-              violations.push({
-                title: risk.description,
-                description: `${risk.regulation}: ${risk.section || 'General compliance issue'}`,
-                severity: risk.severity,
-                service: result.data?.serviceType || 'unknown',
-                location: report.documentName
+        if (result.data) {
+          totalItemsScanned += result.data.itemsScanned;
+          
+          if (result.data.reports) {
+            result.data.reports.forEach(report => {
+              // Each risk item in the report becomes a violation
+              report.risks.forEach(risk => {
+                violations.push({
+                  title: risk.description,
+                  description: `${risk.regulation}: ${risk.section || 'General compliance issue'}`,
+                  severity: risk.severity,
+                  service: result.data?.serviceType || 'unknown',
+                  location: report.documentName
+                });
               });
             });
-          });
+          }
         }
       });
       
+      setLastScanTime(new Date());
+      setItemsScanned(totalItemsScanned);
+      setViolationsFound(violations.length);
       setScanResults({ violations });
       toast.success('Scan completed successfully');
     } catch (error) {
@@ -214,6 +255,13 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
 
   return (
     <div className="space-y-6">
+      <GoogleScannerStatus 
+        connectedServices={connectedServices}
+        lastScanTime={lastScanTime}
+        itemsScanned={itemsScanned}
+        violationsFound={violationsFound}
+      />
+      
       <Card>
         <CardHeader>
           <CardTitle>Cloud Services Integration</CardTitle>

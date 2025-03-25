@@ -6,6 +6,7 @@ import RiskPredictions from '@/components/predictive/RiskPredictions';
 import RecommendedActions from '@/components/predictive/RecommendedActions';
 import TrendAnalysis from '@/components/predictive/TrendAnalysis';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RiskTrend } from '@/utils/predictive/types';
 
 interface PredictiveTabProps {
   report: ComplianceReport;
@@ -60,24 +61,40 @@ const PredictiveTab: React.FC<PredictiveTabProps> = ({ report }) => {
     }
   ];
 
-  const mockTrends = [
+  // Create properly typed mock trends that match the RiskTrend type
+  const mockTrends: RiskTrend[] = [
     {
+      riskId: 'gdpr-risk-1',
       regulation: 'GDPR',
+      description: 'Data Protection Risk',
+      currentSeverity: 'medium',
       previousScore: 85,
       predictedScore: 90,
-      trend: 'increasing' as const,
+      predictedChange: 5,
+      trend: 'increasing',
+      impact: 'high'
     },
     {
+      riskId: 'hipaa-risk-1',
       regulation: 'HIPAA',
+      description: 'Patient Data Protection',
+      currentSeverity: 'medium',
       previousScore: 78,
       predictedScore: 82,
-      trend: 'increasing' as const,
+      predictedChange: 4,
+      trend: 'increasing',
+      impact: 'medium'
     },
     {
-      regulation: 'SOC 2',
+      riskId: 'soc2-risk-1',
+      regulation: 'SOC2',
+      description: 'Access Control Risk',
+      currentSeverity: 'low',
       previousScore: 92,
       predictedScore: 88,
-      trend: 'decreasing' as const,
+      predictedChange: -4,
+      trend: 'decreasing',
+      impact: 'high'
     }
   ];
 
