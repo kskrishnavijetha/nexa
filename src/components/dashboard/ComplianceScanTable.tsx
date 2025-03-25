@@ -48,7 +48,13 @@ const ComplianceScanTable: React.FC<ComplianceScanTableProps> = ({ scans }) => {
   };
 
   const handleViewReport = (documentId: string) => {
-    navigate(`/document-analysis?documentId=${documentId}`);
+    // Update to navigate to history with a specific documentId parameter
+    navigate(`/history?documentId=${documentId}`);
+  };
+
+  const handleRiskLevelClick = (riskLevel: string) => {
+    // Navigate to history page with risk filter
+    navigate(`/history?riskLevel=${riskLevel}`);
   };
 
   return (
@@ -77,15 +83,20 @@ const ComplianceScanTable: React.FC<ComplianceScanTableProps> = ({ scans }) => {
               </TableCell>
               <TableCell>
                 <div className="flex items-center gap-2">
-                  {getRiskIcon(riskLevel)}
-                  <Badge 
-                    variant={
-                      riskLevel === 'high' ? 'destructive' : 
-                      riskLevel === 'medium' ? 'outline' : 'secondary'
-                    }
+                  <button 
+                    onClick={() => handleRiskLevelClick(riskLevel)}
+                    className="flex items-center gap-2 hover:underline"
                   >
-                    {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)}
-                  </Badge>
+                    {getRiskIcon(riskLevel)}
+                    <Badge 
+                      variant={
+                        riskLevel === 'high' ? 'destructive' : 
+                        riskLevel === 'medium' ? 'outline' : 'secondary'
+                      }
+                    >
+                      {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)}
+                    </Badge>
+                  </button>
                 </div>
               </TableCell>
               <TableCell>
