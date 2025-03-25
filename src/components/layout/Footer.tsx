@@ -34,7 +34,7 @@ const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/payment" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Pricing
                 </Link>
               </li>
