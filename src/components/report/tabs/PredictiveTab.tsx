@@ -70,7 +70,7 @@ const PredictiveTab: React.FC<PredictiveTabProps> = ({ report }) => {
       currentSeverity: 'medium',
       previousScore: 85,
       predictedScore: 90,
-      predictedChange: 5,
+      predictedChange: 'increase', // Changed from numeric 5 to string 'increase'
       trend: 'increasing',
       impact: 'high'
     },
@@ -81,7 +81,7 @@ const PredictiveTab: React.FC<PredictiveTabProps> = ({ report }) => {
       currentSeverity: 'medium',
       previousScore: 78,
       predictedScore: 82,
-      predictedChange: 4,
+      predictedChange: 'increase', // Changed from numeric 4 to string 'increase'
       trend: 'increasing',
       impact: 'medium'
     },
@@ -92,7 +92,7 @@ const PredictiveTab: React.FC<PredictiveTabProps> = ({ report }) => {
       currentSeverity: 'low',
       previousScore: 92,
       predictedScore: 88,
-      predictedChange: -4,
+      predictedChange: 'decrease', // Changed from numeric -4 to string 'decrease'
       trend: 'decreasing',
       impact: 'high'
     }
