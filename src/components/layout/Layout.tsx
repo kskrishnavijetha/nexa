@@ -1,10 +1,11 @@
+
 import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { BarChart, FileText, History, Home, MessageSquare, Settings } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -32,42 +33,42 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={location.pathname === '/dashboard'}>
-                      <a href="/dashboard">
+                      <Link to="/dashboard">
                         <BarChart className="h-4 w-4 mr-2" />
                         Dashboard
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={location.pathname === '/document-analysis'}>
-                      <a href="/document-analysis">
+                      <Link to="/document-analysis">
                         <FileText className="h-4 w-4 mr-2" />
                         Document Analysis
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={location.pathname === '/history'}>
-                      <a href="/history">
+                      <Link to="/history">
                         <History className="h-4 w-4 mr-2" />
                         History
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={location.pathname === '/google-services'}>
-                      <a href="/google-services">
+                      <Link to="/google-services">
                         <Settings className="h-4 w-4 mr-2" />
                         Google Services
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={location.pathname === '/slack-monitoring'}>
-                      <a href="/slack-monitoring">
+                      <Link to="/slack-monitoring">
                         <MessageSquare className="h-4 w-4 mr-2" />
                         Slack Monitoring
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 </SidebarMenu>
