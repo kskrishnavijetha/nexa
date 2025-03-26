@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, Send } from 'lucide-react';
+import { Download, Send, Eye } from 'lucide-react';
 import { toast } from 'sonner';
 import { ComplianceReport } from '@/utils/apiService';
 import { generateReportPDF } from '@/utils/reportService';
 import { SupportedLanguage } from '@/utils/language';
+import DocumentPreview from '@/components/document-analysis/DocumentPreview';
 
 interface ReportActionsProps {
   report: ComplianceReport;
@@ -14,6 +15,7 @@ interface ReportActionsProps {
 const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }) => {
   const [isDownloading, setIsDownloading] = React.useState(false);
   const [isSending, setIsSending] = React.useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const getDownloadButtonLabel = (): string => {
     switch (language) {
@@ -75,27 +77,54 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
     }, 2000);
   };
 
+  const getPreviewButtonLabel = (): string => {
+    switch (language) {
+      case 'es': return 'Vista Previa';
+      case 'fr': return 'Aperçu';
+      case 'de': return 'Vorschau';
+      case 'zh': return '预览';
+      default: return 'Preview';
+    }
+  };
+
   return (
-    <div className="flex flex-col sm:flex-row gap-3 justify-end">
-      <Button 
-        variant="outline" 
-        onClick={handleDownloadPDF}
-        disabled={isDownloading}
-        className="flex gap-2 items-center"
-      >
-        <Download className="h-4 w-4" />
-        {isDownloading ? 'Downloading...' : getDownloadButtonLabel()}
-      </Button>
-      
-      <Button 
-        onClick={handleSendEmail}
-        disabled={isSending}
-        className="flex gap-2 items-center"
-      >
-        <Send className="h-4 w-4" />
-        {isSending ? 'Sending...' : getSendButtonLabel()}
-      </Button>
-    </div>
+    <>
+      <div className="flex flex-col sm:flex-row gap-3 justify-end">
+        <Button 
+          variant="outline" 
+          onClick={() => setPreviewOpen(true)}
+          className="flex gap-2 items-center"
+        >
+          <Eye className="h-4 w-4" />
+          {getPreviewButtonLabel()}
+        </Button>
+        
+        <Button 
+          variant="outline" 
+          onClick={handleDownloadPDF}
+          disabled={isDownloading}
+          className="flex gap-2 items-center"
+        >
+          <Download className="h-4 w-4" />
+          {isDownloading ? 'Downloading...' : getDownloadButtonLabel()}
+        </Button>
+        
+        <Button 
+          onClick={handleSendEmail}
+          disabled={isSending}
+          className="flex gap-2 items-center"
+        >
+          <Send className="h-4 w-4" />
+          {isSending ? 'Sending...' : getSendButtonLabel()}
+        </Button>
+      </div>
+
+      <DocumentPreview 
+        report={report}
+        isOpen={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
+    </>
   );
 };
 

@@ -1,149 +1,107 @@
 
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ComplianceReport } from '@/utils/types';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { FileText, AlertTriangle, Info, CheckCircle } from 'lucide-react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
-import ComplianceReportComponent from '@/components/ComplianceReport';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Eye, ChevronRight } from 'lucide-react';
+import { ComplianceReport } from '@/utils/types';
+import { useNavigate } from 'react-router-dom';
 
 interface ComplianceScanTableProps {
   scans: ComplianceReport[];
+  onPreview?: (report: ComplianceReport) => void;
 }
 
-const ComplianceScanTable: React.FC<ComplianceScanTableProps> = ({ scans }) => {
+const ComplianceScanTable: React.FC<ComplianceScanTableProps> = ({ scans, onPreview }) => {
   const navigate = useNavigate();
-  const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
-  const [reportDialogOpen, setReportDialogOpen] = useState(false);
-  
-  const getWorstRiskLevel = (scan: ComplianceReport): string => {
-    if (scan.risks.some(risk => risk.severity === 'high')) return 'high';
-    if (scan.risks.some(risk => risk.severity === 'medium')) return 'medium';
-    if (scan.risks.some(risk => risk.severity === 'low')) return 'low';
-    return 'low';
-  };
 
-  const getScoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-500';
-    if (score >= 70) return 'text-amber-500';
-    return 'text-red-500';
-  };
-
-  const getRiskIcon = (riskLevel: string) => {
-    switch (riskLevel) {
-      case 'high':
-        return <AlertTriangle className="h-5 w-5 text-red-500" />;
-      case 'medium':
-        return <Info className="h-5 w-5 text-amber-500" />;
-      case 'low':
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      default:
-        return null;
+  const handlePreview = (e: React.MouseEvent, scan: ComplianceReport) => {
+    e.stopPropagation();
+    if (onPreview) {
+      onPreview(scan);
     }
   };
 
-  const handleViewReport = (report: ComplianceReport) => {
-    setSelectedReport(report);
-    setReportDialogOpen(true);
+  const handleViewDetails = (scan: ComplianceReport) => {
+    // Navigate to the details page or show a modal
+    navigate(`/document-analysis?id=${scan.id}`);
   };
 
-  const handleCloseReport = () => {
-    setReportDialogOpen(false);
-    // Add a slight delay before clearing the selected report to prevent UI flicker
-    setTimeout(() => {
-      setSelectedReport(null);
-    }, 300);
+  const getSeverityBadgeClass = (severity: string) => {
+    switch (severity.toLowerCase()) {
+      case 'high':
+        return 'bg-red-100 text-red-800';
+      case 'medium':
+        return 'bg-orange-100 text-orange-800';
+      case 'low':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-blue-100 text-blue-800';
+    }
   };
 
-  const handleRiskLevelClick = (riskLevel: string) => {
-    // Navigate to history page with risk filter
-    navigate(`/history?riskLevel=${riskLevel}`);
+  const getWorstRiskLevel = (scan: ComplianceReport): string => {
+    if (scan.risks.some(risk => risk.severity === 'high')) return 'High';
+    if (scan.risks.some(risk => risk.severity === 'medium')) return 'Medium';
+    if (scan.risks.some(risk => risk.severity === 'low')) return 'Low';
+    return 'Low';
   };
 
   return (
-    <>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Document</TableHead>
-            <TableHead>Date</TableHead>
-            <TableHead>Risk Level</TableHead>
-            <TableHead>Score</TableHead>
-            <TableHead>Issues</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead>
+          <tr className="border-b border-gray-200">
+            <th className="py-3 text-left text-sm font-medium text-gray-500">Document</th>
+            <th className="py-3 text-left text-sm font-medium text-gray-500">Date Scanned</th>
+            <th className="py-3 text-left text-sm font-medium text-gray-500">Compliance Score</th>
+            <th className="py-3 text-left text-sm font-medium text-gray-500">Risk Level</th>
+            <th className="py-3 text-left text-sm font-medium text-gray-500">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
           {scans.map((scan) => {
-            const riskLevel = getWorstRiskLevel(scan);
+            const worstRiskLevel = getWorstRiskLevel(scan);
             return (
-              <TableRow key={scan.documentId}>
-                <TableCell className="font-medium flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-blue-500" />
-                  {scan.documentName}
-                </TableCell>
-                <TableCell>
-                  {new Date(scan.timestamp).toLocaleDateString()}
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <button 
-                      onClick={() => handleRiskLevelClick(riskLevel)}
-                      className="flex items-center gap-2 hover:underline"
-                    >
-                      {getRiskIcon(riskLevel)}
-                      <Badge 
-                        variant={
-                          riskLevel === 'high' ? 'destructive' : 
-                          riskLevel === 'medium' ? 'outline' : 'secondary'
-                        }
-                      >
-                        {riskLevel.charAt(0).toUpperCase() + riskLevel.slice(1)}
-                      </Badge>
-                    </button>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <span className={getScoreColor(scan.overallScore)}>
-                    {scan.overallScore}%
+              <tr
+                key={scan.id}
+                className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
+                onClick={() => handleViewDetails(scan)}
+              >
+                <td className="py-4 text-sm">{scan.documentName}</td>
+                <td className="py-4 text-sm">{new Date(scan.timestamp).toLocaleDateString()}</td>
+                <td className="py-4 text-sm">{scan.overallScore}%</td>
+                <td className="py-4 text-sm">
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityBadgeClass(worstRiskLevel)}`}>
+                    {worstRiskLevel}
                   </span>
-                </TableCell>
-                <TableCell>{scan.risks.length}</TableCell>
-                <TableCell className="text-right">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleViewReport(scan)}
-                  >
-                    View Report
-                  </Button>
-                </TableCell>
-              </TableRow>
+                </td>
+                <td className="py-4 text-sm">
+                  <div className="flex space-x-2">
+                    {onPreview && (
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-blue-600 hover:text-blue-800"
+                        onClick={(e) => handlePreview(e, scan)}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        Preview
+                      </Button>
+                    )}
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="text-blue-600 hover:text-blue-800"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </td>
+              </tr>
             );
           })}
-        </TableBody>
-      </Table>
-
-      <Dialog open={reportDialogOpen} onOpenChange={setReportDialogOpen}>
-        <DialogContent className="max-w-3xl p-0">
-          {selectedReport && (
-            <ComplianceReportComponent 
-              report={selectedReport} 
-              onClose={handleCloseReport} 
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-    </>
+        </tbody>
+      </table>
+    </div>
   );
 };
 

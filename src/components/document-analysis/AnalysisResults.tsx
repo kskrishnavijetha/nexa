@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ComplianceReport } from '@/utils/types';
 import DocumentInfoHeader from './DocumentInfoHeader';
@@ -12,6 +12,7 @@ import Simulation from '@/components/simulation/Simulation';
 import DocumentSummary from './DocumentSummary';
 import ImprovementSuggestions from './ImprovementSuggestions';
 import AuditTrail from '@/components/AuditTrail';
+import DocumentPreview from './DocumentPreview';
 
 interface AnalysisResultsProps {
   report: ComplianceReport;
@@ -26,13 +27,16 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
   onDownloadReport,
   onResetAnalysis
 }) => {
+  const [previewOpen, setPreviewOpen] = useState(false);
+
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow-md p-6">
         <DocumentInfoHeader 
           report={report} 
           isGeneratingPDF={isGeneratingPDF} 
-          onDownloadReport={onDownloadReport} 
+          onDownloadReport={onDownloadReport}
+          onPreviewReport={() => setPreviewOpen(true)}
         />
         
         <DocumentMetadata report={report} />
@@ -59,6 +63,12 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
       <div className="mt-8 text-center">
         <Button onClick={onResetAnalysis}>Analyze Another Document</Button>
       </div>
+
+      <DocumentPreview 
+        report={report}
+        isOpen={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   );
 };
