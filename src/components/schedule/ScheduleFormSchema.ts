@@ -8,7 +8,7 @@ export const scheduleFormSchema = z.object({
     message: "Time must be in HH:MM format",
   }),
   documentName: z.string().min(1, "Document name is required"),
-  email: z.string().email("Please enter a valid email address").min(1, "Email is required"),
+  email: z.string().email("Please enter a valid email address"),
 });
 
 export type ScheduleFormValues = z.infer<typeof scheduleFormSchema>;

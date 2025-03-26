@@ -11,7 +11,6 @@ import FrequencySelector from './schedule/FrequencySelector';
 import TimeSelector from './schedule/TimeSelector';
 import DocumentNameInput from './schedule/DocumentNameInput';
 import EmailNotificationInput from './schedule/EmailNotificationInput';
-import { AlertCircle } from 'lucide-react';
 
 interface ScheduleScannerProps {
   documentId: string;
@@ -25,7 +24,6 @@ const ScheduleScanner: React.FC<ScheduleScannerProps> = ({
   industry 
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [testEmailSent, setTestEmailSent] = useState(false);
 
   const defaultValues: Partial<ScheduleFormValues> = {
     frequency: 'weekly',
@@ -53,11 +51,6 @@ const ScheduleScanner: React.FC<ScheduleScannerProps> = ({
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Send a test email to verify the email address
-      await sendTestEmail(data.email, data.frequency, data.documentName);
-      
-      setTestEmailSent(true);
-      
       toast.success(`Automated scans scheduled ${data.frequency}`, {
         description: `We'll send reports to ${data.email}`,
       });
@@ -66,41 +59,6 @@ const ScheduleScanner: React.FC<ScheduleScannerProps> = ({
       console.error(error);
     } finally {
       setIsSubmitting(false);
-    }
-  };
-
-  const sendTestEmail = async (email: string, frequency: string, documentName: string) => {
-    // In a real app, this would call an API to send a test email
-    console.log(`Sending test email to ${email}`);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // Return success
-    return true;
-  };
-
-  const handleSendTestEmail = async () => {
-    const email = form.getValues('email');
-    
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Please enter a valid email address");
-      return;
-    }
-    
-    try {
-      toast.info("Sending test email...");
-      await sendTestEmail(
-        email,
-        form.getValues('frequency'),
-        form.getValues('documentName')
-      );
-      toast.success("Test email sent successfully", {
-        description: `Check your inbox at ${email}`,
-      });
-    } catch (error) {
-      toast.error("Failed to send test email");
-      console.error(error);
     }
   };
 
@@ -118,32 +76,7 @@ const ScheduleScanner: React.FC<ScheduleScannerProps> = ({
           </div>
           
           <DocumentNameInput form={form} />
-          
-          <div className="space-y-2">
-            <EmailNotificationInput form={form} />
-            
-            {form.watch("enabled") && form.watch("email") && (
-              <Button 
-                type="button" 
-                variant="outline" 
-                size="sm"
-                onClick={handleSendTestEmail}
-                className="w-full sm:w-auto mt-2"
-              >
-                Send Test Email
-              </Button>
-            )}
-          </div>
-
-          {testEmailSent && (
-            <div className="bg-green-50 border border-green-200 rounded-md p-3 flex items-start">
-              <AlertCircle className="h-5 w-5 text-green-500 mr-2 flex-shrink-0 mt-0.5" />
-              <div className="text-sm text-green-800">
-                <p className="font-medium">Email Configuration Verified</p>
-                <p className="mt-1">You'll receive scan reports according to your selected schedule.</p>
-              </div>
-            </div>
-          )}
+          <EmailNotificationInput form={form} />
 
           <Button 
             type="submit" 
@@ -152,10 +85,6 @@ const ScheduleScanner: React.FC<ScheduleScannerProps> = ({
           >
             {isSubmitting ? 'Scheduling...' : 'Schedule Automated Scans'}
           </Button>
-          
-          <p className="text-xs text-muted-foreground text-center mt-2">
-            You'll receive scan reports at the specified frequency
-          </p>
         </form>
       </Form>
     </div>
