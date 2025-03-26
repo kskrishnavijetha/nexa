@@ -14,7 +14,7 @@ import AuditTrail from '@/components/audit/AuditTrail';
 import RiskAnalysis from '@/components/RiskAnalysis';
 import { mockScans } from '@/utils/historyMocks';
 import { Badge } from '@/components/ui/badge';
-import { Clock } from 'lucide-react';
+import { Clock, FileText, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const History: React.FC = () => {
@@ -23,6 +23,7 @@ const History: React.FC = () => {
   const [reports, setReports] = useState<ComplianceReport[]>(mockScans);
   const [realTimeEnabled, setRealTimeEnabled] = useState<boolean>(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+  const [analyzingDocument, setAnalyzingDocument] = useState<string | null>(null);
 
   // Real-time updates simulation
   useEffect(() => {
@@ -32,9 +33,10 @@ const History: React.FC = () => {
       // Update last updated timestamp
       setLastUpdated(new Date());
       
-      // 20% chance to add a new report or update an existing one
+      // 20% chance to update an existing report or start analyzing a new document
       if (Math.random() < 0.2) {
-        if (Math.random() < 0.5 && reports.length > 0) {
+        // 70% chance to update an existing report, 30% chance to start analyzing a new document
+        if (Math.random() < 0.7 && reports.length > 0) {
           // Update an existing report score
           const reportIndex = Math.floor(Math.random() * reports.length);
           const updatedReports = [...reports];
@@ -50,32 +52,55 @@ const History: React.FC = () => {
           setReports(updatedReports);
           toast.info(`Compliance scores updated for "${report.documentName}"`);
         } else {
-          // Create a new report
-          const newReport: ComplianceReport = {
-            id: `auto-${Date.now()}`,
-            documentId: `auto-${Date.now()}`,
-            documentName: `Auto-generated Report ${new Date().toLocaleDateString()}`,
-            timestamp: new Date().toISOString(),
-            overallScore: 60 + Math.floor(Math.random() * 40),
-            gdprScore: 60 + Math.floor(Math.random() * 40),
-            hipaaScore: 60 + Math.floor(Math.random() * 40),
-            soc2Score: 60 + Math.floor(Math.random() * 40),
-            risks: [
-              { 
-                id: `risk-${Date.now()}-1`, 
-                description: 'Automatically detected compliance issue', 
-                severity: Math.random() > 0.7 ? 'high' : Math.random() > 0.5 ? 'medium' : 'low', 
-                regulation: Math.random() > 0.6 ? 'GDPR' : Math.random() > 0.3 ? 'HIPAA' : 'SOC 2' 
-              },
-            ],
-            summary: 'Automatically generated compliance report with detected issues',
-          };
+          // Simulate analyzing a new document
+          const documentNames = [
+            "Terms of Service",
+            "Cookie Policy",
+            "Employee Handbook",
+            "GDPR Compliance Statement",
+            "Data Processing Agreement",
+            "Information Security Policy"
+          ];
           
-          setReports(prev => [newReport, ...prev]);
-          toast.success(`New compliance report added: "${newReport.documentName}"`);
+          // Get a random document that's not already in reports
+          const existingNames = reports.map(r => r.documentName);
+          const availableNames = documentNames.filter(name => !existingNames.includes(name));
+          
+          if (availableNames.length > 0) {
+            const newDocName = availableNames[Math.floor(Math.random() * availableNames.length)];
+            setAnalyzingDocument(newDocName);
+            
+            // After 5-10 seconds, add the document to reports
+            const analysisTime = 5000 + Math.random() * 5000;
+            setTimeout(() => {
+              const newReport: ComplianceReport = {
+                id: `doc-${Date.now()}`,
+                documentId: `doc-${Date.now()}`,
+                documentName: newDocName,
+                timestamp: new Date().toISOString(),
+                overallScore: 60 + Math.floor(Math.random() * 40),
+                gdprScore: 60 + Math.floor(Math.random() * 40),
+                hipaaScore: 60 + Math.floor(Math.random() * 40),
+                soc2Score: 60 + Math.floor(Math.random() * 40),
+                risks: [
+                  { 
+                    id: `risk-${Date.now()}-1`, 
+                    description: 'Automatically detected compliance issue', 
+                    severity: Math.random() > 0.7 ? 'high' : Math.random() > 0.5 ? 'medium' : 'low', 
+                    regulation: Math.random() > 0.6 ? 'GDPR' : Math.random() > 0.3 ? 'HIPAA' : 'SOC 2' 
+                  },
+                ],
+                summary: 'Automatically generated compliance report with detected issues',
+              };
+              
+              setReports(prev => [newReport, ...prev]);
+              setAnalyzingDocument(null);
+              toast.success(`New compliance report added: "${newReport.documentName}"`);
+            }, analysisTime);
+          }
         }
       }
-    }, 20000); // Check every 20 seconds
+    }, 10000); // Check every 10 seconds
     
     return () => clearInterval(interval);
   }, [realTimeEnabled, reports]);
@@ -145,10 +170,25 @@ const History: React.FC = () => {
                               className="cursor-pointer rounded p-2 hover:bg-slate-100"
                               onClick={() => handleDocumentSelect(scan.documentName)}
                             >
-                              {scan.documentName}
+                              <div className="flex items-center justify-between">
+                                <span>{scan.documentName}</span>
+                                {scan.documentName === selectedDocument && (
+                                  <Badge variant="outline" className="ml-2">Selected</Badge>
+                                )}
+                              </div>
                             </li>
                           ))}
                         </ul>
+                        
+                        {analyzingDocument && (
+                          <div className="mt-4 p-2 border border-blue-200 rounded bg-blue-50">
+                            <div className="flex items-center text-sm text-blue-600">
+                              <Loader2 className="h-3 w-3 mr-2 animate-spin" />
+                              <FileText className="h-3 w-3 mr-2" />
+                              <span>Analyzing: {analyzingDocument}</span>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </NavigationMenuContent>
                   </NavigationMenuItem>

@@ -5,7 +5,7 @@ import { predictRisks } from './riskPredictor';
 import { generateInsights } from './insightGenerator';
 import { generateRiskTrends } from './trendAnalyzer';
 import { generateRecommendations } from './recommendationEngine';
-import { mockHistoricalScans, generateSyntheticReports } from './syntheticDataGenerator';
+import { generateSyntheticReports } from './syntheticDataGenerator';
 
 // Main function to analyze reports and generate predictive analytics
 export const analyzePastReports = async (
@@ -13,7 +13,7 @@ export const analyzePastReports = async (
   historicalReports: ComplianceReport[] = []
 ): Promise<PredictiveAnalyticsResult> => {
   // In a real implementation, we might fetch historical data here
-  const allReports = [currentReport, ...historicalReports, ...mockHistoricalScans];
+  const allReports = [currentReport, ...historicalReports];
   
   // If we don't have enough data, use simulated historical data
   if (allReports.length < 3) {

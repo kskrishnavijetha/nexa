@@ -9,46 +9,14 @@ import ComplianceScanTable from '@/components/dashboard/ComplianceScanTable';
 import DocumentPreview from '@/components/document-analysis/DocumentPreview';
 import { generateReportPDF } from '@/utils/reportService';
 import { toast } from 'sonner';
-
-// Sample initial compliance data
-const initialScanResults: ComplianceReport[] = [
-  {
-    id: '1',
-    documentId: '1',
-    documentName: 'Privacy Policy',
-    timestamp: new Date().toISOString(),
-    overallScore: 87,
-    gdprScore: 92,
-    hipaaScore: 85,
-    soc2Score: 90,
-    risks: [
-      { id: '101', description: 'Data retention policy needs review', severity: 'medium', regulation: 'GDPR' },
-    ],
-    summary: 'This document is generally compliant with minor improvements needed',
-  },
-  {
-    id: '2',
-    documentId: '2',
-    documentName: 'Data Processing Agreement',
-    timestamp: new Date(Date.now() - 86400000).toISOString(),
-    overallScore: 72,
-    gdprScore: 68,
-    hipaaScore: 75,
-    soc2Score: 78,
-    risks: [
-      { id: '201', description: 'Insufficient data subject rights details', severity: 'high', regulation: 'GDPR' },
-      { id: '202', description: 'Access control provisions need enhancement', severity: 'medium', regulation: 'SOC 2' },
-    ],
-    summary: 'Several compliance gaps identified requiring attention',
-  },
-];
+import { mockScans } from '@/utils/historyMocks';
 
 const Dashboard: React.FC = () => {
   const [riskFilter, setRiskFilter] = useState<string>('all');
   const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const [scans, setScans] = useState<ComplianceReport[]>(initialScanResults);
+  const [scans, setScans] = useState<ComplianceReport[]>(mockScans);
 
   // Define the function to get worst risk level for filtering
   const getWorstRiskLevel = (scan: ComplianceReport): string => {
