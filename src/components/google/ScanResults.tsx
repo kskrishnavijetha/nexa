@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { AlertTriangle, Check, FileText, Download } from 'lucide-react';
@@ -7,6 +8,7 @@ import { ScanViolation } from './types';
 import { generateReportPDF } from '@/utils/reportService';
 import { toast } from 'sonner';
 import { SupportedLanguage } from '@/utils/language';
+import { Industry } from '@/utils/types';
 
 interface ScanResultsProps {
   violations: ScanViolation[];
@@ -31,7 +33,7 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
         hipaaScore: Math.floor(Math.random() * 30) + 70,
         soc2Score: Math.floor(Math.random() * 30) + 70,
         pciDssScore: Math.floor(Math.random() * 30) + 70,
-        industry: 'Technology',
+        industry: 'technology' as Industry, // Cast to Industry type
         risks: violations.map((v, index) => ({
           id: `risk-${index + 1}`, // Add a unique ID for each risk
           severity: v.severity,
