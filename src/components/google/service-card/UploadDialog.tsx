@@ -41,7 +41,7 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
     } else if (serviceId.includes('gmail')) {
       formData = { recipientEmail, emailSubject, emailContent };
     } else if (serviceId.includes('docs')) {
-      formData = { docTitle, docContent };
+      formData = { docTitle, docContent, file: uploadFile };
     }
     
     onSubmit(formData);
@@ -104,7 +104,7 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
                   id="content" 
                   value={emailContent} 
                   onChange={(e) => setEmailContent(e.target.value)} 
-                  placeholder="Type your message here..." 
+                  placeholder="Type your message here or paste content to analyze..." 
                   rows={6} 
                   required 
                 />
@@ -115,6 +115,15 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
           {serviceId.includes('docs') && (
             <>
               <div className="space-y-2">
+                <Label htmlFor="file">Upload Document</Label>
+                <Input 
+                  id="file" 
+                  type="file" 
+                  onChange={(e) => e.target.files && setUploadFile(e.target.files[0])} 
+                  accept=".doc,.docx,.pdf,.txt"
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="title">Document Title</Label>
                 <Input 
                   id="title" 
@@ -124,17 +133,19 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
                   required 
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="docContent">Document Content</Label>
-                <Textarea 
-                  id="docContent" 
-                  value={docContent} 
-                  onChange={(e) => setDocContent(e.target.value)} 
-                  placeholder="Start typing..." 
-                  rows={8} 
-                  required 
-                />
-              </div>
+              {!uploadFile && (
+                <div className="space-y-2">
+                  <Label htmlFor="docContent">Document Content</Label>
+                  <Textarea 
+                    id="docContent" 
+                    value={docContent} 
+                    onChange={(e) => setDocContent(e.target.value)} 
+                    placeholder="Start typing or paste document content..." 
+                    rows={8} 
+                    required={!uploadFile}
+                  />
+                </div>
+              )}
             </>
           )}
           

@@ -24,15 +24,15 @@ export const getUploadDialogTitle = (serviceId: string): string => {
 };
 
 export const getUploadDialogDescription = (serviceId: string): string => {
-  if (serviceId.includes('drive')) return 'Select a file to upload to your Google Drive';
-  if (serviceId.includes('gmail')) return 'Create or analyze email content from your Gmail account';
-  if (serviceId.includes('docs')) return 'Upload a document to Google Docs';
+  if (serviceId.includes('drive')) return 'Select a file to upload to your Google Drive for compliance scanning';
+  if (serviceId.includes('gmail')) return 'Enter email content to scan for compliance issues or paste existing content to analyze';
+  if (serviceId.includes('docs')) return 'Upload a document or enter content to create a new Google Doc for scanning';
   return '';
 };
 
 export const getSubmitButtonText = (serviceId: string): string => {
-  if (serviceId.includes('drive')) return 'Upload';
-  if (serviceId.includes('gmail')) return 'Send Email';
-  if (serviceId.includes('docs')) return 'Upload';
+  if (serviceId.includes('drive')) return 'Upload & Scan';
+  if (serviceId.includes('gmail')) return 'Process Email';
+  if (serviceId.includes('docs')) return 'Upload & Scan';
   return 'Submit';
 };

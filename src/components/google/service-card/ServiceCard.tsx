@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { ServiceCardProps } from './types';
+import { ServiceCardProps, UploadedFileInfo } from './types';
 import ServiceCardHeader from './ServiceCardHeader';
 import RealTimeMonitor from './RealTimeMonitor';
 import ActionButtons from './ActionButtons';
@@ -28,6 +28,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [hasScannedContent, setHasScannedContent] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState<UploadedFileInfo | null>(null);
   
   const helperTexts = getServiceHelperTexts(serviceId);
   
@@ -59,12 +60,13 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     } else {
       setIsRealTimeActive(false);
       setHasScannedContent(false);
+      setUploadedFile(null);
     }
   }, [isConnected]);
 
   // Set has scanned content when scanning is complete
   useEffect(() => {
-    if (isConnected && !isScanning && isRealTimeActive) {
+    if (isConnected && !isScanning && isRealTimeActive && uploadedFile) {
       // Simulate having scanned content after a successful scan
       const timer = setTimeout(() => {
         setHasScannedContent(true);
@@ -72,7 +74,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       
       return () => clearTimeout(timer);
     }
-  }, [isConnected, isScanning, isRealTimeActive]);
+  }, [isConnected, isScanning, isRealTimeActive, uploadedFile]);
 
   const toggleRealTime = () => {
     setIsRealTimeActive(!isRealTimeActive);
@@ -84,6 +86,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     } else {
       onDisconnect();
       setHasScannedContent(false);
+      setUploadedFile(null);
     }
   };
 
@@ -104,18 +107,33 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     setTimeout(() => {
       if (serviceId.includes('drive') && formData.file) {
         console.log(`Uploading file to Google Drive: ${formData.file.name}`);
+        setUploadedFile({
+          name: formData.file.name,
+          type: formData.file.type,
+          size: formData.file.size
+        });
         toast.success(`File "${formData.file.name}" uploaded to Google Drive`);
       } else if (serviceId.includes('gmail')) {
         console.log(`Sending email to ${formData.recipientEmail} with subject: ${formData.emailSubject}`);
-        toast.success(`Email sent to ${formData.recipientEmail}`);
+        setUploadedFile({
+          name: `Email to ${formData.recipientEmail}`,
+          type: 'email',
+          size: formData.emailContent.length
+        });
+        toast.success(`Email content processed for ${formData.recipientEmail}`);
       } else if (serviceId.includes('docs')) {
-        console.log(`Uploading Google Doc: ${formData.docTitle || formData.file?.name || 'Untitled Document'}`);
-        toast.success(`Document "${formData.docTitle || formData.file?.name || 'Untitled Document'}" uploaded to Google Docs`);
+        const docName = formData.docTitle || formData.file?.name || 'Untitled Document';
+        console.log(`Uploading Google Doc: ${docName}`);
+        setUploadedFile({
+          name: docName,
+          type: formData.file ? formData.file.type : 'application/vnd.google-apps.document',
+          size: formData.file ? formData.file.size : formData.docContent?.length || 0
+        });
+        toast.success(`Document "${docName}" uploaded to Google Docs`);
       }
       
       setIsUploading(false);
       setShowUploadDialog(false);
-      setHasScannedContent(true);
     }, 2000); // Simulate a 2-second upload process
   };
 
@@ -124,11 +142,16 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     toast.info("Preparing document for download...");
     
     setTimeout(() => {
-      const documentName = 
-        serviceId.includes('drive') ? 'drive-document.pdf' : 
-        serviceId.includes('gmail') ? 'email-report.pdf' : 
-        serviceId.includes('docs') ? 'google-doc.pdf' : 
-        'document.pdf';
+      let documentName = '';
+      if (serviceId.includes('drive')) {
+        documentName = uploadedFile?.name || 'drive-document.pdf';
+      } else if (serviceId.includes('gmail')) {
+        documentName = 'email-report.pdf';
+      } else if (serviceId.includes('docs')) {
+        documentName = uploadedFile?.name || 'google-doc.pdf';
+      } else {
+        documentName = 'document.pdf';
+      }
       
       // Create a mock blob to simulate a file download
       const blob = new Blob(['Mock file content'], { type: 'application/pdf' });
@@ -169,6 +192,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           isConnecting={isConnecting}
           isUploading={isUploading}
           isScanned={hasScannedContent}
+          fileUploaded={uploadedFile?.name}
           handleConnect={handleConnect}
           handleUpload={handleUpload}
           handleDownload={handleDownload}

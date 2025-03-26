@@ -25,6 +25,7 @@ export interface ActionButtonsProps {
   isConnecting: boolean;
   isUploading?: boolean;
   isScanned?: boolean;
+  fileUploaded?: string;
   handleConnect: () => void;
   handleUpload?: () => void;
   handleDownload?: () => void;
@@ -32,4 +33,10 @@ export interface ActionButtonsProps {
   connectVariant?: ButtonVariant;
   uploadVariant?: ButtonVariant;
   downloadVariant?: ButtonVariant;
+}
+
+export interface UploadedFileInfo {
+  name: string;
+  type: string;
+  size: number;
 }

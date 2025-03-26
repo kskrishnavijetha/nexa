@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, Upload, Download } from 'lucide-react';
+import { Loader2, Upload, Download, FileText } from 'lucide-react';
 import { ButtonVariant, ActionButtonsProps } from './types';
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({
@@ -9,6 +9,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   isConnecting,
   isUploading = false,
   isScanned = false,
+  fileUploaded,
   handleConnect,
   handleUpload,
   handleDownload,
@@ -39,7 +40,14 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
       
       {isConnected && (
         <>
-          {handleUpload && (
+          {fileUploaded ? (
+            <div className="flex items-center border border-gray-200 rounded-md p-2 text-sm bg-gray-50 mb-2">
+              <FileText className="h-4 w-4 mr-2 text-blue-500" />
+              <span className="truncate">{fileUploaded}</span>
+            </div>
+          ) : null}
+          
+          {handleUpload && (!isScanned || !fileUploaded) && (
             <Button 
               variant={uploadVariant} 
               className="w-full flex items-center" 
