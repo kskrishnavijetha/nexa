@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   Dialog, 
   DialogContent, 
@@ -10,28 +10,37 @@ import {
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { AuthDialogProps } from './types';
+
+interface AuthDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  service: string;
+}
 
 const AuthDialog: React.FC<AuthDialogProps> = ({
-  title,
-  showDialog,
-  setShowDialog,
-  onAuth,
-  email,
-  setEmail,
-  password,
-  setPassword
+  open,
+  onOpenChange,
+  service
 }) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Authentication logic here
+    onOpenChange(false);
+  };
+
   return (
-    <Dialog open={showDialog} onOpenChange={setShowDialog}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Connect to {title}</DialogTitle>
+          <DialogTitle>Connect to {service}</DialogTitle>
           <DialogDescription>
-            Enter your Google account credentials to connect to {title}.
+            Enter your credentials to connect to {service}.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={onAuth} className="space-y-4">
+        <form onSubmit={handleAuth} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input 
@@ -39,7 +48,7 @@ const AuthDialog: React.FC<AuthDialogProps> = ({
               type="email" 
               value={email} 
               onChange={(e) => setEmail(e.target.value)} 
-              placeholder="your.email@gmail.com" 
+              placeholder="your.email@example.com" 
               required 
             />
           </div>
@@ -54,7 +63,7 @@ const AuthDialog: React.FC<AuthDialogProps> = ({
             />
           </div>
           <div className="flex justify-end space-x-2">
-            <Button type="button" variant="outline" onClick={() => setShowDialog(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
             <Button type="submit">

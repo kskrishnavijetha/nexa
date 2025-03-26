@@ -1,4 +1,3 @@
-
 export type Industry = 
   | 'finance' 
   | 'healthcare' 
@@ -200,4 +199,42 @@ export const REGION_REGULATIONS: Record<string, Record<string, string>> = {
   'Latin America': { 'LGPD': 'Lei Geral de Proteção de Dados' },
   'Middle East': { 'PDPL': 'Personal Data Protection Law', 'DPL': 'Data Protection Law' },
   'Africa': { 'POPIA': 'Protection of Personal Information Act' }
+};
+
+// Add missing INDUSTRIES and REGIONS exports
+export const INDUSTRIES: Record<Industry, string> = {
+  'finance': 'Finance',
+  'healthcare': 'Healthcare',
+  'technology': 'Technology',
+  'retail': 'Retail',
+  'education': 'Education',
+  'government': 'Government',
+  'legal': 'Legal',
+  'manufacturing': 'Manufacturing',
+  'insurance': 'Insurance',
+  'telecom': 'Telecom',
+  'energy': 'Energy',
+  'other': 'Other',
+  'Healthcare': 'Healthcare',
+  'Financial Services': 'Financial Services',
+  'Technology & IT': 'Technology & IT',
+  'Manufacturing & Industrial': 'Manufacturing & Industrial'
+};
+
+export const REGIONS: Record<Region, string> = {
+  'us': 'United States',
+  'eu': 'European Union',
+  'uk': 'United Kingdom',
+  'asia': 'Asia',
+  'australia': 'Australia',
+  'canada': 'Canada',
+  'global': 'Global',
+  'other': 'Other',
+  'North America': 'North America',
+  'European Union': 'European Union',
+  'Asia Pacific': 'Asia Pacific',
+  'United Kingdom': 'United Kingdom',
+  'Latin America': 'Latin America',
+  'Middle East': 'Middle East',
+  'Africa': 'Africa'
 };

@@ -35,6 +35,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 }) => {
   const [showAnalysisDialog, setShowAnalysisDialog] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [isRealTimeActive, setIsRealTimeActive] = useState(false);
   
   // Determine if this is a Microsoft service
   const isMicrosoftService = 
@@ -85,19 +86,29 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     }
   };
 
+  // Toggle real-time monitoring
+  const toggleRealTime = () => {
+    setIsRealTimeActive(!isRealTimeActive);
+  };
+
   return (
     <Card className="overflow-hidden">
       <ServiceCardHeader 
         icon={icon} 
         title={title} 
-        description={description} 
+        description={description}
+        isConnected={isConnected}
+        isRealTimeActive={isRealTimeActive}
+        toggleRealTime={toggleRealTime}
       />
       
       <CardContent className="p-4 pt-0">
         {isConnected && (
           <RealTimeMonitor 
             serviceId={serviceId}
-            serviceType={serviceType as any}
+            serviceType={serviceType}
+            isRealTimeActive={isRealTimeActive}
+            lastUpdated={new Date()}
           />
         )}
         
@@ -140,7 +151,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       <AuthDialog
         open={showAuthDialog}
         onOpenChange={setShowAuthDialog}
-        service={title.toLowerCase()}
+        service={title}
       />
     </Card>
   );
