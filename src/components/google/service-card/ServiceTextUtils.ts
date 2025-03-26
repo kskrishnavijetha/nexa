@@ -1,5 +1,7 @@
 
-export const getServiceHelperTexts = (serviceId: string) => {
+import { ServiceHelperTexts } from './types';
+
+export const getServiceHelperTexts = (serviceId: string): ServiceHelperTexts => {
   return {
     actionButtonText: getActionButtonText(serviceId),
     uploadDialogTitle: getUploadDialogTitle(serviceId),

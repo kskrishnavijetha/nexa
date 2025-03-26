@@ -1,4 +1,6 @@
 
+import React from 'react';
+
 export interface ServiceCardProps {
   serviceId: string;
   icon: React.ReactNode;
