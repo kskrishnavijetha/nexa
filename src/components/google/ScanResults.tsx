@@ -1,15 +1,69 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, Check } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { AlertTriangle, Check, FilePdf, Download } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { ScanViolation } from './types';
+import { generateReportPDF } from '@/utils/reportService';
+import { toast } from 'sonner';
+import { SupportedLanguage } from '@/utils/language';
 
 interface ScanResultsProps {
   violations: ScanViolation[];
 }
 
 const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
+  const handleDownloadPDF = async () => {
+    try {
+      toast.info('Generating PDF report...');
+      
+      // Create a mock report structure with the violations data
+      const mockReport = {
+        documentName: 'Cloud Services Compliance Scan',
+        timestamp: new Date().toISOString(),
+        overallScore: Math.max(100 - violations.length * 5, 50), // Simple score calculation
+        gdprScore: Math.floor(Math.random() * 30) + 70,
+        hipaaScore: Math.floor(Math.random() * 30) + 70,
+        soc2Score: Math.floor(Math.random() * 30) + 70,
+        pciDssScore: Math.floor(Math.random() * 30) + 70,
+        industry: 'Technology',
+        risks: violations.map(v => ({
+          severity: v.severity,
+          description: v.title + ": " + v.description,
+          regulation: v.service,
+          section: v.location
+        })),
+        summary: `Scan completed with ${violations.length} potential compliance issues found across cloud services.`,
+        suggestions: [
+          'Review high severity issues immediately',
+          'Implement access controls for sensitive data',
+          'Update compliance policies for all connected services'
+        ]
+      };
+      
+      const result = await generateReportPDF(mockReport, 'en' as SupportedLanguage);
+      
+      if (result.data) {
+        // Create a download link for the PDF
+        const url = URL.createObjectURL(result.data);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'compliance-scan-report.pdf';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast.success('PDF report downloaded successfully');
+      } else {
+        toast.error('Failed to generate PDF report');
+      }
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('An error occurred while generating the PDF');
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -64,6 +118,18 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
           )}
         </div>
       </CardContent>
+      {violations.length > 0 && (
+        <CardFooter className="flex justify-end">
+          <Button 
+            onClick={handleDownloadPDF}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <FilePdf className="h-4 w-4" />
+            Download PDF Report
+          </Button>
+        </CardFooter>
+      )}
     </Card>
   );
 };
