@@ -1,8 +1,10 @@
-
 import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import { useAuth } from '@/contexts/AuthContext';
+import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
+import { BarChart, FileText, History, Home, MessageSquare, Settings } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,14 +12,88 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user } = useAuth();
+  const location = useLocation();
   
+  // Only render the Sidebar for authenticated users
+  if (user) {
+    return (
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full">
+          <Sidebar>
+            <SidebarHeader className="border-b">
+              <div className="px-2 py-4">
+                <h2 className="font-semibold text-xl">CompliZen</h2>
+                <p className="text-sm text-muted-foreground">Document Analysis Platform</p>
+              </div>
+            </SidebarHeader>
+            <SidebarContent>
+              <SidebarGroup>
+                <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === '/dashboard'}>
+                      <a href="/dashboard">
+                        <BarChart className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === '/document-analysis'}>
+                      <a href="/document-analysis">
+                        <FileText className="h-4 w-4 mr-2" />
+                        Document Analysis
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === '/history'}>
+                      <a href="/history">
+                        <History className="h-4 w-4 mr-2" />
+                        History
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === '/google-services'}>
+                      <a href="/google-services">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Google Services
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === '/slack-monitoring'}>
+                      <a href="/slack-monitoring">
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Slack Monitoring
+                      </a>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroup>
+            </SidebarContent>
+          </Sidebar>
+          
+          <div className="flex-1 flex flex-col">
+            <Header />
+            <main className="flex-1">
+              {children}
+            </main>
+          </div>
+        </div>
+      </SidebarProvider>
+    );
+  }
+  
+  // For unauthenticated users, keep the original layout
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
       <main className="flex-1">
         {children}
       </main>
-      {!user && <Footer />}
+      <Footer />
     </div>
   );
 };

@@ -9,7 +9,7 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-slate-50 border-t">
       <div className="container py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Book className="h-6 w-6" />
@@ -18,53 +18,6 @@ const Footer: React.FC = () => {
             <p className="text-sm text-muted-foreground">
               Automate your compliance monitoring with AI. Stay compliant with GDPR, HIPAA, SOC 2, and PCI-DSS regulations effortlessly.
             </p>
-          </div>
-          
-          <div>
-            <h3 className="font-medium text-lg mb-4">Company</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link to="/about" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  About Us
-                </Link>
-              </li>
-              <li>
-                <Link to="/pricing" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Pricing
-                </Link>
-              </li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="font-medium text-lg mb-4">Resources</h3>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/document-analysis" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Document Analysis
-                </Link>
-              </li>
-              <li>
-                <Link to="/history" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Compliance History
-                </Link>
-              </li>
-              <li>
-                <Link to="/google-services" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Google Services
-                </Link>
-              </li>
-              <li>
-                <Link to="/slack-monitoring" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Slack Monitoring
-                </Link>
-              </li>
-            </ul>
           </div>
           
           <div>
