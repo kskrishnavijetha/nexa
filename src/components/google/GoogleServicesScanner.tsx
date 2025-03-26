@@ -44,6 +44,23 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   
   // Handler for scan button
   const onScanButtonClick = () => {
+    console.log('Scan button clicked', {
+      connectedServices,
+      industry,
+      language,
+      region
+    });
+    
+    if (connectedServices.length === 0) {
+      console.error('No services connected');
+      return;
+    }
+    
+    if (!industry) {
+      console.error('No industry selected');
+      return;
+    }
+    
     handleScan(connectedServices, industry, language, region);
   };
 
