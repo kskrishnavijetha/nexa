@@ -1,25 +1,6 @@
 
 import React from 'react';
-
-interface ScoreProps {
-  score: number;
-  label: string;
-}
-
-const ScoreCard: React.FC<ScoreProps> = ({ score, label }) => {
-  return (
-    <div className="rounded-lg border p-4 text-center">
-      <div className={`text-2xl font-bold mb-1 ${
-        score >= 80 ? 'text-green-500' : 
-        score >= 70 ? 'text-amber-500' : 
-        'text-red-500'
-      }`}>
-        {score}%
-      </div>
-      <p className="text-sm">{label}</p>
-    </div>
-  );
-};
+import ScoreCard from './ScoreCard';
 
 interface ComplianceScoreCardsProps {
   gdprScore: number;
