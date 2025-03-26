@@ -4,6 +4,7 @@ import { GoogleService } from '@/components/google/types';
 import { SupportedLanguage } from '@/utils/language';
 import { Industry, Region } from '@/utils/types';
 import { scanGoogleService } from '@/utils/google/scanService';
+import { scanMicrosoftService } from '@/utils/microsoft/microsoftServices';
 import { toast } from 'sonner';
 import { ScanViolation, ScanResults } from '@/components/google/types';
 
@@ -74,7 +75,15 @@ export function useServiceScanner() {
             service === 'sharepoint' ? 'sharepoint-1' :
             service === 'outlook' ? 'outlook-1' : 'teams-1';
             
-          return scanGoogleService(serviceId, industry, language, region);
+          // Determine if this is a Google or Microsoft service
+          const isMicrosoftService = service === 'sharepoint' || 
+                                     service === 'outlook' || 
+                                     service === 'teams';
+                                     
+          // Call the appropriate scanning function
+          return isMicrosoftService
+            ? scanMicrosoftService(serviceId, industry, language, region)
+            : scanGoogleService(serviceId, industry, language, region);
         })
       );
       
