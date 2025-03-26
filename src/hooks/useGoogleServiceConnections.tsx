@@ -8,9 +8,6 @@ export function useGoogleServiceConnections() {
   const [isConnectingDrive, setIsConnectingDrive] = useState(false);
   const [isConnectingGmail, setIsConnectingGmail] = useState(false);
   const [isConnectingDocs, setIsConnectingDocs] = useState(false);
-  const [isConnectingSharePoint, setIsConnectingSharePoint] = useState(false);
-  const [isConnectingOutlook, setIsConnectingOutlook] = useState(false);
-  const [isConnectingTeams, setIsConnectingTeams] = useState(false);
   const [connectedServices, setConnectedServices] = useState<GoogleService[]>([]);
 
   const handleConnectDrive = async () => {
@@ -68,62 +65,11 @@ export function useGoogleServiceConnections() {
     }
   };
   
-  const handleConnectSharePoint = async () => {
-    setIsConnectingSharePoint(true);
-    try {
-      const result = await connectGoogleService('sharepoint-1');
-      if (result.data && result.data.connected) {
-        setConnectedServices(prev => [...prev, 'sharepoint']);
-        toast.success('SharePoint connected successfully');
-      }
-    } catch (error) {
-      console.error('Error connecting SharePoint:', error);
-      toast.error('Failed to connect SharePoint');
-    } finally {
-      setIsConnectingSharePoint(false);
-    }
-  };
-  
-  const handleConnectOutlook = async () => {
-    setIsConnectingOutlook(true);
-    try {
-      const result = await connectGoogleService('outlook-1');
-      if (result.data && result.data.connected) {
-        setConnectedServices(prev => [...prev, 'outlook']);
-        toast.success('Outlook connected successfully');
-      }
-    } catch (error) {
-      console.error('Error connecting Outlook:', error);
-      toast.error('Failed to connect Outlook');
-    } finally {
-      setIsConnectingOutlook(false);
-    }
-  };
-  
-  const handleConnectTeams = async () => {
-    setIsConnectingTeams(true);
-    try {
-      const result = await connectGoogleService('teams-1');
-      if (result.data && result.data.connected) {
-        setConnectedServices(prev => [...prev, 'teams']);
-        toast.success('Teams connected successfully');
-      }
-    } catch (error) {
-      console.error('Error connecting Teams:', error);
-      toast.error('Failed to connect Teams');
-    } finally {
-      setIsConnectingTeams(false);
-    }
-  };
-  
   const handleDisconnect = async (service: GoogleService) => {
     try {
       const serviceId = 
         service === 'drive' ? 'drive-1' : 
-        service === 'gmail' ? 'gmail-1' : 
-        service === 'docs' ? 'docs-1' :
-        service === 'sharepoint' ? 'sharepoint-1' :
-        service === 'outlook' ? 'outlook-1' : 'teams-1';
+        service === 'gmail' ? 'gmail-1' : 'docs-1';
         
       await disconnectGoogleService(serviceId);
       setConnectedServices(prev => prev.filter(s => s !== service));
@@ -138,17 +84,11 @@ export function useGoogleServiceConnections() {
     isConnectingDrive,
     isConnectingGmail,
     isConnectingDocs,
-    isConnectingSharePoint,
-    isConnectingOutlook,
-    isConnectingTeams,
     connectedServices,
     setConnectedServices,
     handleConnectDrive,
     handleConnectGmail,
     handleConnectDocs,
-    handleConnectSharePoint,
-    handleConnectOutlook,
-    handleConnectTeams,
     handleDisconnect
   };
 }

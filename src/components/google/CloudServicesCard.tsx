@@ -12,15 +12,9 @@ interface CloudServicesCardProps {
   isConnectingDrive: boolean;
   isConnectingGmail: boolean;
   isConnectingDocs: boolean;
-  isConnectingSharePoint: boolean;
-  isConnectingOutlook: boolean;
-  isConnectingTeams: boolean;
   onConnectDrive: () => void;
   onConnectGmail: () => void;
   onConnectDocs: () => void;
-  onConnectSharePoint: () => void;
-  onConnectOutlook: () => void;
-  onConnectTeams: () => void;
   onDisconnect: (service: GoogleService) => void;
   onScan: () => void;
   anyServiceConnected: boolean;
@@ -33,21 +27,16 @@ const CloudServicesCard: React.FC<CloudServicesCardProps> = ({
   isConnectingDrive,
   isConnectingGmail,
   isConnectingDocs,
-  isConnectingSharePoint,
-  isConnectingOutlook,
-  isConnectingTeams,
   onConnectDrive,
   onConnectGmail,
   onConnectDocs,
-  onConnectSharePoint,
-  onConnectOutlook,
-  onConnectTeams,
   onDisconnect,
   onScan,
   anyServiceConnected,
   disableScan
 }) => {
-  const [activeTab, setActiveTab] = useState<'google' | 'microsoft'>('google');
+  // Using only 'google' as the tab value since Microsoft services were removed
+  const [activeTab] = useState<'google'>('google');
 
   return (
     <Card>
@@ -58,10 +47,9 @@ const CloudServicesCard: React.FC<CloudServicesCardProps> = ({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'google' | 'microsoft')}>
+        <Tabs value="google" defaultValue="google">
           <TabsList className="mb-4">
             <TabsTrigger value="google">Google Services</TabsTrigger>
-            <TabsTrigger value="microsoft">Microsoft Services</TabsTrigger>
           </TabsList>
           
           <ServiceTabs 
@@ -71,15 +59,9 @@ const CloudServicesCard: React.FC<CloudServicesCardProps> = ({
             isConnectingDrive={isConnectingDrive}
             isConnectingGmail={isConnectingGmail}
             isConnectingDocs={isConnectingDocs}
-            isConnectingSharePoint={isConnectingSharePoint}
-            isConnectingOutlook={isConnectingOutlook}
-            isConnectingTeams={isConnectingTeams}
             onConnectDrive={onConnectDrive}
             onConnectGmail={onConnectGmail}
             onConnectDocs={onConnectDocs}
-            onConnectSharePoint={onConnectSharePoint}
-            onConnectOutlook={onConnectOutlook}
-            onConnectTeams={onConnectTeams}
             onDisconnect={onDisconnect}
           />
         </Tabs>

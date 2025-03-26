@@ -3,7 +3,7 @@ import { Industry, Region } from '@/utils/types';
 import { SupportedLanguage } from '@/utils/language';
 
 // Define type for cloud service
-export type GoogleService = 'drive' | 'gmail' | 'docs' | 'sharepoint' | 'outlook' | 'teams';
+export type GoogleService = 'drive' | 'gmail' | 'docs';
 
 // Define the structure for scan violations
 export interface ScanViolation {
