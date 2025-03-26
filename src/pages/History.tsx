@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   NavigationMenu,
   NavigationMenuContent,
@@ -13,22 +13,107 @@ import { ComplianceReport } from '@/utils/types';
 import AuditTrail from '@/components/audit/AuditTrail';
 import RiskAnalysis from '@/components/RiskAnalysis';
 import { mockScans } from '@/utils/historyMocks';
+import { Badge } from '@/components/ui/badge';
+import { Clock } from 'lucide-react';
+import { toast } from 'sonner';
 
 const History: React.FC = () => {
   const [selectedDocument, setSelectedDocument] = useState<string | null>(mockScans[0]?.documentName || null);
   const [activeTab, setActiveTab] = useState<string>('reports');
+  const [reports, setReports] = useState<ComplianceReport[]>(mockScans);
+  const [realTimeEnabled, setRealTimeEnabled] = useState<boolean>(true);
+  const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
+
+  // Real-time updates simulation
+  useEffect(() => {
+    if (!realTimeEnabled) return;
+    
+    const interval = setInterval(() => {
+      // Update last updated timestamp
+      setLastUpdated(new Date());
+      
+      // 20% chance to add a new report or update an existing one
+      if (Math.random() < 0.2) {
+        if (Math.random() < 0.5 && reports.length > 0) {
+          // Update an existing report score
+          const reportIndex = Math.floor(Math.random() * reports.length);
+          const updatedReports = [...reports];
+          const scoreChange = Math.floor(Math.random() * 10) - 3; // Between -3 and +6
+          const report = {...updatedReports[reportIndex]};
+          
+          report.overallScore = Math.min(100, Math.max(0, report.overallScore + scoreChange));
+          report.gdprScore = Math.min(100, Math.max(0, report.gdprScore + Math.floor(Math.random() * 8) - 3));
+          report.hipaaScore = Math.min(100, Math.max(0, report.hipaaScore + Math.floor(Math.random() * 8) - 3));
+          report.soc2Score = Math.min(100, Math.max(0, report.soc2Score + Math.floor(Math.random() * 8) - 3));
+          
+          updatedReports[reportIndex] = report;
+          setReports(updatedReports);
+          toast.info(`Compliance scores updated for "${report.documentName}"`);
+        } else {
+          // Create a new report
+          const newReport: ComplianceReport = {
+            id: `auto-${Date.now()}`,
+            documentId: `auto-${Date.now()}`,
+            documentName: `Auto-generated Report ${new Date().toLocaleDateString()}`,
+            timestamp: new Date().toISOString(),
+            overallScore: 60 + Math.floor(Math.random() * 40),
+            gdprScore: 60 + Math.floor(Math.random() * 40),
+            hipaaScore: 60 + Math.floor(Math.random() * 40),
+            soc2Score: 60 + Math.floor(Math.random() * 40),
+            risks: [
+              { 
+                id: `risk-${Date.now()}-1`, 
+                description: 'Automatically detected compliance issue', 
+                severity: Math.random() > 0.7 ? 'high' : Math.random() > 0.5 ? 'medium' : 'low', 
+                regulation: Math.random() > 0.6 ? 'GDPR' : Math.random() > 0.3 ? 'HIPAA' : 'SOC 2' 
+              },
+            ],
+            summary: 'Automatically generated compliance report with detected issues',
+          };
+          
+          setReports(prev => [newReport, ...prev]);
+          toast.success(`New compliance report added: "${newReport.documentName}"`);
+        }
+      }
+    }, 20000); // Check every 20 seconds
+    
+    return () => clearInterval(interval);
+  }, [realTimeEnabled, reports]);
 
   const handleDocumentSelect = (documentName: string) => {
     setSelectedDocument(documentName);
   };
 
+  const toggleRealTime = () => {
+    setRealTimeEnabled(!realTimeEnabled);
+    toast.info(realTimeEnabled ? 'Real-time updates disabled' : 'Real-time updates enabled');
+  };
+
   const getSelectedReport = () => {
-    return mockScans.find(scan => scan.documentName === selectedDocument) || mockScans[0];
+    return reports.find(scan => scan.documentName === selectedDocument) || reports[0];
   };
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Compliance History</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Compliance History</h1>
+        <div 
+          className="flex items-center space-x-2 cursor-pointer"
+          onClick={toggleRealTime}
+          title={realTimeEnabled ? "Disable real-time updates" : "Enable real-time updates"}
+        >
+          <Badge 
+            variant={realTimeEnabled ? "default" : "outline"}
+            className={realTimeEnabled ? "bg-green-500" : ""}
+          >
+            {realTimeEnabled ? "Real-time" : "Static"}
+          </Badge>
+          <Clock className={`h-4 w-4 ${realTimeEnabled ? "text-green-500 animate-pulse" : "text-gray-400"}`} />
+          <span className="text-sm text-muted-foreground">
+            {realTimeEnabled ? `Updated: ${lastUpdated.toLocaleTimeString()}` : "Updates paused"}
+          </span>
+        </div>
+      </div>
       
       <Tabs 
         defaultValue="reports" 
@@ -53,8 +138,8 @@ const History: React.FC = () => {
                     <NavigationMenuContent>
                       <div className="p-4 w-[300px]">
                         <div className="font-medium mb-2">Documents</div>
-                        <ul className="space-y-2">
-                          {mockScans.map((scan) => (
+                        <ul className="space-y-2 max-h-[300px] overflow-y-auto">
+                          {reports.map((scan) => (
                             <li 
                               key={scan.documentId}
                               className="cursor-pointer rounded p-2 hover:bg-slate-100"
