@@ -17,3 +17,16 @@ export interface ServiceHelperTexts {
   uploadDialogDescription: string;
   submitButtonText: string;
 }
+
+export type ButtonVariant = 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
+
+export interface ActionButtonsProps {
+  isConnected: boolean;
+  isConnecting: boolean;
+  isUploading?: boolean;
+  handleConnect: () => void;
+  handleUpload?: () => void;
+  actionButtonText: string;
+  connectVariant?: ButtonVariant;
+  uploadVariant?: ButtonVariant;
+}

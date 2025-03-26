@@ -2,26 +2,22 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, Upload } from 'lucide-react';
-
-interface ActionButtonsProps {
-  isConnected: boolean;
-  isConnecting: boolean;
-  handleConnect: () => void;
-  handleUpload?: () => void;
-  actionButtonText: string;
-}
+import { ButtonVariant, ActionButtonsProps } from './types';
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({
   isConnected,
   isConnecting,
+  isUploading = false,
   handleConnect,
   handleUpload,
   actionButtonText,
+  connectVariant = 'default',
+  uploadVariant = 'outline',
 }) => {
   return (
     <div className="flex flex-col space-y-2">
       <Button 
-        variant={isConnected ? "outline" : "default"} 
+        variant={isConnected ? "outline" : connectVariant} 
         className="w-full"
         onClick={handleConnect}
         disabled={isConnecting}
@@ -40,12 +36,22 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
       
       {isConnected && handleUpload && (
         <Button 
-          variant="outline" 
+          variant={uploadVariant} 
           className="w-full flex items-center" 
           onClick={handleUpload}
+          disabled={isUploading}
         >
-          <Upload className="h-4 w-4 mr-2" />
-          {actionButtonText}
+          {isUploading ? (
+            <>
+              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            <>
+              <Upload className="h-4 w-4 mr-2" />
+              {actionButtonText}
+            </>
+          )}
         </Button>
       )}
     </div>

@@ -25,6 +25,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [realtimeTimer, setRealtimeTimer] = useState<number | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   
   const helperTexts = getServiceHelperTexts(serviceId);
   
@@ -76,17 +77,26 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     onConnect();
   };
 
-  const handleUpload = (formData: any) => {
-    // Simulate file upload based on service type
-    if (serviceId.includes('drive') && formData.file) {
-      console.log(`Uploading file to Google Drive: ${formData.file.name}`);
-    } else if (serviceId.includes('gmail')) {
-      console.log(`Sending email to ${formData.recipientEmail} with subject: ${formData.emailSubject}`);
-    } else if (serviceId.includes('docs')) {
-      console.log(`Creating Google Doc: ${formData.docTitle}`);
-    }
+  const handleUpload = () => {
+    setShowUploadDialog(true);
+  };
+
+  const handleUploadSubmit = (formData: any) => {
+    setIsUploading(true);
     
-    setShowUploadDialog(false);
+    // Simulate file upload based on service type
+    setTimeout(() => {
+      if (serviceId.includes('drive') && formData.file) {
+        console.log(`Uploading file to Google Drive: ${formData.file.name}`);
+      } else if (serviceId.includes('gmail')) {
+        console.log(`Sending email to ${formData.recipientEmail} with subject: ${formData.emailSubject}`);
+      } else if (serviceId.includes('docs')) {
+        console.log(`Creating Google Doc: ${formData.docTitle}`);
+      }
+      
+      setIsUploading(false);
+      setShowUploadDialog(false);
+    }, 2000); // Simulate a 2-second upload process
   };
 
   return (
@@ -112,9 +122,12 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         <ActionButtons 
           isConnected={isConnected}
           isConnecting={isConnecting}
+          isUploading={isUploading}
           handleConnect={handleConnect}
-          handleUpload={() => setShowUploadDialog(true)}
+          handleUpload={handleUpload}
           actionButtonText={helperTexts.actionButtonText}
+          connectVariant="default"
+          uploadVariant="outline"
         />
 
         <AuthDialog 
@@ -127,7 +140,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         <UploadDialog 
           isOpen={showUploadDialog}
           onClose={() => setShowUploadDialog(false)}
-          onSubmit={handleUpload}
+          onSubmit={handleUploadSubmit}
           serviceId={serviceId}
           dialogTitle={helperTexts.uploadDialogTitle}
           dialogDescription={helperTexts.uploadDialogDescription}

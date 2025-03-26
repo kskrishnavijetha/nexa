@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, Send, Eye } from 'lucide-react';
+import { Download, Send, Eye, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ComplianceReport } from '@/utils/apiService';
 import { generateReportPDF } from '@/utils/reportService';
@@ -105,8 +106,17 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
           disabled={isDownloading}
           className="flex gap-2 items-center"
         >
-          <Download className="h-4 w-4" />
-          {isDownloading ? 'Downloading...' : getDownloadButtonLabel()}
+          {isDownloading ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Downloading...
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4" />
+              {getDownloadButtonLabel()}
+            </>
+          )}
         </Button>
         
         <Button 
@@ -114,8 +124,17 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
           disabled={isSending}
           className="flex gap-2 items-center"
         >
-          <Send className="h-4 w-4" />
-          {isSending ? 'Sending...' : getSendButtonLabel()}
+          {isSending ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Sending...
+            </>
+          ) : (
+            <>
+              <Send className="h-4 w-4" />
+              {getSendButtonLabel()}
+            </>
+          )}
         </Button>
       </div>
 
