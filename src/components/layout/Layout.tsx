@@ -33,7 +33,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={location.pathname === '/dashboard'}>
-                      <Link to="/dashboard">
+                      <Link to="/dashboard" draggable="false">
                         <BarChart className="h-4 w-4 mr-2" />
                         Dashboard
                       </Link>
@@ -41,7 +41,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={location.pathname === '/document-analysis'}>
-                      <Link to="/document-analysis">
+                      <Link to="/document-analysis" draggable="false">
                         <FileText className="h-4 w-4 mr-2" />
                         Document Analysis
                       </Link>
@@ -49,7 +49,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={location.pathname === '/history'}>
-                      <Link to="/history">
+                      <Link to="/history" draggable="false">
                         <History className="h-4 w-4 mr-2" />
                         History
                       </Link>
@@ -57,7 +57,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={location.pathname === '/google-services'}>
-                      <Link to="/google-services">
+                      <Link to="/google-services" draggable="false">
                         <Settings className="h-4 w-4 mr-2" />
                         Google Services
                       </Link>
@@ -65,7 +65,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={location.pathname === '/slack-monitoring'}>
-                      <Link to="/slack-monitoring">
+                      <Link to="/slack-monitoring" draggable="false">
                         <MessageSquare className="h-4 w-4 mr-2" />
                         Slack Monitoring
                       </Link>
