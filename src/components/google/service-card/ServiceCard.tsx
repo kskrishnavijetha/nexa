@@ -5,10 +5,9 @@ import { ServiceCardProps } from './types';
 import ServiceCardHeader from './ServiceCardHeader';
 import RealTimeMonitor from './RealTimeMonitor';
 import ActionButtons from './ActionButtons';
-import AuthDialog from './AuthDialog';
-import UploadDialog from './UploadDialog';
+import { AuthDialog, UploadDialog } from './dialogs';
 import { getServiceHelperTexts } from './ServiceTextUtils';
-import { useServiceCardState } from './hooks/useServiceCardState';
+import { useServiceCardState } from './hooks';
 
 const ServiceCard: React.FC<ServiceCardProps> = ({
   serviceId,
