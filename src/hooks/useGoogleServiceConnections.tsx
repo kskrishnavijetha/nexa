@@ -16,6 +16,11 @@ export function useGoogleServiceConnections() {
   const handleConnectDrive = async () => {
     setIsConnectingDrive(true);
     try {
+      // Mock Google OAuth flow - in a real app, this would redirect to Google
+      // const authUrl = 'https://accounts.google.com/o/oauth2/v2/auth?...' 
+      // window.location.href = authUrl;
+      
+      // For demo purposes, simulate successful connection
       const result = await connectGoogleService('drive-1');
       if (result.data && result.data.connected) {
         setConnectedServices(prev => [...prev, 'drive']);
@@ -32,6 +37,7 @@ export function useGoogleServiceConnections() {
   const handleConnectGmail = async () => {
     setIsConnectingGmail(true);
     try {
+      // Mock authentication
       const result = await connectGoogleService('gmail-1');
       if (result.data && result.data.connected) {
         setConnectedServices(prev => [...prev, 'gmail']);
@@ -48,6 +54,7 @@ export function useGoogleServiceConnections() {
   const handleConnectDocs = async () => {
     setIsConnectingDocs(true);
     try {
+      // Mock authentication
       const result = await connectGoogleService('docs-1');
       if (result.data && result.data.connected) {
         setConnectedServices(prev => [...prev, 'docs']);

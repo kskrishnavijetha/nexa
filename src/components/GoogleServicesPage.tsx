@@ -8,6 +8,7 @@ import AuditTrail from './audit/AuditTrail';
 import GoogleServicesScanner from './google/GoogleServicesScanner';
 import GoogleScannerConfig from './google/GoogleScannerConfig';
 import GoogleScannerSettings from './google/GoogleScannerSettings';
+import { toast } from 'sonner';
 
 const GoogleServicesPage: React.FC = () => {
   const [industry, setIndustry] = useState<Industry | undefined>(undefined);
@@ -30,6 +31,7 @@ const GoogleServicesPage: React.FC = () => {
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
+    toast.success(`File selected: ${file.name}`);
   };
 
   return (

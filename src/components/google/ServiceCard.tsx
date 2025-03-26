@@ -3,8 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2, RefreshCw, Upload } from 'lucide-react';
 import { GoogleService } from './types';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 interface ServiceCardProps {
   serviceId: string;
@@ -32,6 +36,16 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [isRealTimeActive, setIsRealTimeActive] = useState<boolean>(false);
   const [realtimeTimer, setRealtimeTimer] = useState<number | null>(null);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [emailContent, setEmailContent] = useState('');
+  const [emailSubject, setEmailSubject] = useState('');
+  const [recipientEmail, setRecipientEmail] = useState('');
+  const [docTitle, setDocTitle] = useState('');
+  const [docContent, setDocContent] = useState('');
   
   // Real-time updates simulation
   useEffect(() => {
@@ -65,6 +79,44 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 
   const toggleRealTime = () => {
     setIsRealTimeActive(!isRealTimeActive);
+  };
+
+  const handleConnect = () => {
+    if (!isConnected) {
+      setShowAuthDialog(true);
+    } else {
+      onDisconnect();
+    }
+  };
+
+  const handleAuth = (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowAuthDialog(false);
+    // Simulate authentication
+    onConnect();
+    // Clear credentials after use
+    setEmail('');
+    setPassword('');
+  };
+
+  const handleUpload = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simulate file upload
+    if (serviceId.includes('drive') && uploadFile) {
+      console.log(`Uploading file to Google Drive: ${uploadFile.name}`);
+    } else if (serviceId.includes('gmail')) {
+      console.log(`Sending email to ${recipientEmail} with subject: ${emailSubject}`);
+    } else if (serviceId.includes('docs')) {
+      console.log(`Creating Google Doc: ${docTitle}`);
+    }
+    setShowUploadDialog(false);
+    // Clear form
+    setUploadFile(null);
+    setEmailContent('');
+    setEmailSubject('');
+    setRecipientEmail('');
+    setDocTitle('');
+    setDocContent('');
   };
 
   return (
@@ -108,23 +160,186 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           </div>
         )}
         
-        <Button 
-          variant={isConnected ? "outline" : "default"} 
-          className="w-full"
-          onClick={isConnected ? onDisconnect : onConnect}
-          disabled={isConnecting || isScanning}
-        >
-          {isConnecting ? (
-            <>
-              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-              Connecting...
-            </>
-          ) : isConnected ? (
-            'Disconnect'
-          ) : (
-            'Connect'
+        <div className="flex flex-col space-y-2">
+          <Button 
+            variant={isConnected ? "outline" : "default"} 
+            className="w-full"
+            onClick={handleConnect}
+            disabled={isConnecting || isScanning}
+          >
+            {isConnecting ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Connecting...
+              </>
+            ) : isConnected ? (
+              'Disconnect'
+            ) : (
+              'Connect'
+            )}
+          </Button>
+          
+          {isConnected && (
+            <Button 
+              variant="outline" 
+              className="w-full flex items-center" 
+              onClick={() => setShowUploadDialog(true)}
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              {serviceId.includes('drive') ? 'Upload File' : 
+               serviceId.includes('gmail') ? 'Compose Email' : 
+               'Create Document'}
+            </Button>
           )}
-        </Button>
+        </div>
+
+        {/* Authentication Dialog */}
+        <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Connect to {title}</DialogTitle>
+              <DialogDescription>
+                Enter your Google account credentials to connect to {title}.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleAuth} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input 
+                  id="email" 
+                  type="email" 
+                  value={email} 
+                  onChange={(e) => setEmail(e.target.value)} 
+                  placeholder="your.email@gmail.com" 
+                  required 
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input 
+                  id="password" 
+                  type="password" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  required 
+                />
+              </div>
+              <div className="flex justify-end space-x-2">
+                <Button type="button" variant="outline" onClick={() => setShowAuthDialog(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  Connect
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+
+        {/* Upload/Create Dialog */}
+        <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>
+                {serviceId.includes('drive') ? 'Upload to Google Drive' : 
+                 serviceId.includes('gmail') ? 'Compose Email' : 
+                 'Create Google Document'}
+              </DialogTitle>
+              <DialogDescription>
+                {serviceId.includes('drive') ? 'Select a file to upload to your Google Drive' : 
+                 serviceId.includes('gmail') ? 'Compose an email to send from your Gmail account' : 
+                 'Create a new document in Google Docs'}
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleUpload} className="space-y-4">
+              {serviceId.includes('drive') && (
+                <div className="space-y-2">
+                  <Label htmlFor="file">File</Label>
+                  <Input 
+                    id="file" 
+                    type="file" 
+                    onChange={(e) => e.target.files && setUploadFile(e.target.files[0])} 
+                    required 
+                  />
+                </div>
+              )}
+              
+              {serviceId.includes('gmail') && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="recipient">To</Label>
+                    <Input 
+                      id="recipient" 
+                      type="email" 
+                      value={recipientEmail} 
+                      onChange={(e) => setRecipientEmail(e.target.value)} 
+                      placeholder="recipient@example.com" 
+                      required 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="subject">Subject</Label>
+                    <Input 
+                      id="subject" 
+                      value={emailSubject} 
+                      onChange={(e) => setEmailSubject(e.target.value)} 
+                      placeholder="Email subject" 
+                      required 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="content">Message</Label>
+                    <Textarea 
+                      id="content" 
+                      value={emailContent} 
+                      onChange={(e) => setEmailContent(e.target.value)} 
+                      placeholder="Type your message here..." 
+                      rows={6} 
+                      required 
+                    />
+                  </div>
+                </>
+              )}
+              
+              {serviceId.includes('docs') && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="title">Document Title</Label>
+                    <Input 
+                      id="title" 
+                      value={docTitle} 
+                      onChange={(e) => setDocTitle(e.target.value)} 
+                      placeholder="Untitled Document" 
+                      required 
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="docContent">Document Content</Label>
+                    <Textarea 
+                      id="docContent" 
+                      value={docContent} 
+                      onChange={(e) => setDocContent(e.target.value)} 
+                      placeholder="Start typing..." 
+                      rows={8} 
+                      required 
+                    />
+                  </div>
+                </>
+              )}
+              
+              <div className="flex justify-end space-x-2">
+                <Button type="button" variant="outline" onClick={() => setShowUploadDialog(false)}>
+                  Cancel
+                </Button>
+                <Button type="submit">
+                  {serviceId.includes('drive') ? 'Upload' : 
+                   serviceId.includes('gmail') ? 'Send Email' : 
+                   'Create Document'}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );

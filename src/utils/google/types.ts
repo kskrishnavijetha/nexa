@@ -12,6 +12,7 @@ export interface GoogleServiceConnection {
   lastScanned?: string;
   itemCount?: number;
   provider: 'google' | 'microsoft';
+  isAuthenticated?: boolean;
 }
 
 export interface GoogleServiceScanResult {
@@ -29,21 +30,24 @@ export const mockGoogleConnections: GoogleServiceConnection[] = [
     type: 'gmail',
     name: 'Gmail',
     connected: false,
-    provider: 'google'
+    provider: 'google',
+    isAuthenticated: false
   },
   {
     id: 'drive-1',
     type: 'drive',
     name: 'Google Drive',
     connected: false,
-    provider: 'google'
+    provider: 'google',
+    isAuthenticated: false
   },
   {
     id: 'docs-1',
     type: 'docs',
     name: 'Google Docs',
     connected: false,
-    provider: 'google'
+    provider: 'google',
+    isAuthenticated: false
   },
   // Add Microsoft services
   {
@@ -51,20 +55,23 @@ export const mockGoogleConnections: GoogleServiceConnection[] = [
     type: 'sharepoint',
     name: 'SharePoint',
     connected: false,
-    provider: 'microsoft'
+    provider: 'microsoft',
+    isAuthenticated: false
   },
   {
     id: 'outlook-1',
     type: 'outlook',
     name: 'Outlook',
     connected: false,
-    provider: 'microsoft'
+    provider: 'microsoft',
+    isAuthenticated: false
   },
   {
     id: 'teams-1',
     type: 'teams',
     name: 'Teams',
     connected: false,
-    provider: 'microsoft'
+    provider: 'microsoft',
+    isAuthenticated: false
   }
 ];

@@ -27,7 +27,8 @@ export const connectGoogleService = async (
       ...updatedConnections[serviceIndex],
       connected: true,
       lastScanned: new Date().toISOString(),
-      itemCount: Math.floor(Math.random() * 100) + 5 // Random number of items
+      itemCount: Math.floor(Math.random() * 100) + 5, // Random number of items
+      isAuthenticated: true // Mark as authenticated
     };
     
     // Update the mock data (in a real app, this would be stored in a database)
@@ -70,7 +71,8 @@ export const disconnectGoogleService = async (
       ...updatedConnections[serviceIndex],
       connected: false,
       lastScanned: undefined,
-      itemCount: undefined
+      itemCount: undefined,
+      isAuthenticated: false
     };
     
     // Update the mock data
@@ -103,6 +105,80 @@ export const getGoogleConnections = async (): Promise<ApiResponse<GoogleServiceC
     console.error('Error getting Google connections:', error);
     return {
       error: 'Failed to get Google service connections. Please try again.',
+      status: 500
+    };
+  }
+};
+
+// Upload a file to Google Drive
+export const uploadToGoogleDrive = async (
+  file: File
+): Promise<ApiResponse<{ fileId: string; fileName: string; }>> => {
+  try {
+    // Simulate upload delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
+    return {
+      data: {
+        fileId: `file-${Date.now()}`,
+        fileName: file.name
+      },
+      status: 200
+    };
+  } catch (error) {
+    console.error('Error uploading to Google Drive:', error);
+    return {
+      error: 'Failed to upload file to Google Drive. Please try again.',
+      status: 500
+    };
+  }
+};
+
+// Send an email via Gmail
+export const sendGmailEmail = async (
+  to: string,
+  subject: string,
+  body: string
+): Promise<ApiResponse<{ messageId: string; }>> => {
+  try {
+    // Simulate sending delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    return {
+      data: {
+        messageId: `msg-${Date.now()}`
+      },
+      status: 200
+    };
+  } catch (error) {
+    console.error('Error sending Gmail:', error);
+    return {
+      error: 'Failed to send email. Please try again.',
+      status: 500
+    };
+  }
+};
+
+// Create a Google Doc
+export const createGoogleDoc = async (
+  title: string,
+  content: string
+): Promise<ApiResponse<{ docId: string; docTitle: string; }>> => {
+  try {
+    // Simulate creation delay
+    await new Promise(resolve => setTimeout(resolve, 1700));
+    
+    return {
+      data: {
+        docId: `doc-${Date.now()}`,
+        docTitle: title
+      },
+      status: 200
+    };
+  } catch (error) {
+    console.error('Error creating Google Doc:', error);
+    return {
+      error: 'Failed to create Google Doc. Please try again.',
       status: 500
     };
   }
