@@ -39,6 +39,14 @@ const ScheduleScanner: React.FC<ScheduleScannerProps> = ({
   });
 
   const onSubmit = async (data: ScheduleFormValues) => {
+    if (!data.email && data.enabled) {
+      form.setError("email", { 
+        type: "manual", 
+        message: "Email is required for notifications" 
+      });
+      return;
+    }
+    
     setIsSubmitting(true);
     try {
       // In a real app, this would call an API to schedule the scan
