@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { AlertTriangle, Check, FilePdf, Download } from 'lucide-react';
+import { AlertTriangle, Check, FileText, Download } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScanViolation } from './types';
@@ -18,8 +18,13 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
     try {
       toast.info('Generating PDF report...');
       
+      // Create a unique document ID
+      const docId = `scan-${Date.now()}`;
+      
       // Create a mock report structure with the violations data
       const mockReport = {
+        id: docId,
+        documentId: docId,
         documentName: 'Cloud Services Compliance Scan',
         timestamp: new Date().toISOString(),
         overallScore: Math.max(100 - violations.length * 5, 50), // Simple score calculation
@@ -125,7 +130,7 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
             variant="outline"
             className="flex items-center gap-2"
           >
-            <FilePdf className="h-4 w-4" />
+            <FileText className="h-4 w-4" />
             Download PDF Report
           </Button>
         </CardFooter>
