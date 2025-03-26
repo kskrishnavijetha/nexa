@@ -43,10 +43,11 @@ export const useMicrosoftServiceUpload = (
       // Add files to the state
       setUploadedFiles(prev => [...prev, ...files]);
       
-      // Update real-time context
+      // Update real-time context - fixed the type error by using explicit number
+      // instead of a function that returns a number
       updateScanStats({
         isActive: true,
-        itemsScanned: (prev) => prev + files.length,
+        itemsScanned: files.length, // Fixed: using the direct number instead of a function
         lastScanTime: new Date()
       });
       

@@ -36,7 +36,8 @@ const MicrosoftScanResults: React.FC<MicrosoftScanResultsProps> = ({ violations,
       case 'high':
         return <Badge variant="destructive">High</Badge>;
       case 'medium':
-        return <Badge variant="warning" className="bg-orange-500">Medium</Badge>;
+        // Changed from "warning" to "secondary" and added custom color via className
+        return <Badge variant="secondary" className="bg-orange-500 text-white">Medium</Badge>;
       case 'low':
         return <Badge variant="outline" className="bg-green-100 text-green-800">Low</Badge>;
       default:
@@ -96,6 +97,7 @@ const MicrosoftScanResults: React.FC<MicrosoftScanResultsProps> = ({ violations,
       summary: `This document contains a compliance violation related to ${violation.title}. The specific issue is: ${violation.description}`,
       risks: [
         {
+          id: `risk-${Math.random().toString().substring(2, 10)}`, // Added unique id
           severity: violation.severity,
           regulation: serviceName,
           description: violation.description,
