@@ -4,6 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Scan } from 'lucide-react';
 
 interface GoogleDocsDialogProps {
   isOpen: boolean;
@@ -88,6 +89,7 @@ const GoogleDocsDialog: React.FC<GoogleDocsDialogProps> = ({
               Cancel
             </Button>
             <Button type="submit">
+              <Scan className="h-4 w-4 mr-2" />
               {submitButtonText}
             </Button>
           </DialogFooter>

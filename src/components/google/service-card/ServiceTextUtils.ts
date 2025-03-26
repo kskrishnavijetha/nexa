@@ -13,7 +13,7 @@ export const getServiceHelperTexts = (serviceId: string): ServiceHelperTexts => 
 // Helper functions for service-specific text
 export const getActionButtonText = (serviceId: string): string => {
   if (serviceId.includes('drive')) return 'Upload File';
-  if (serviceId.includes('gmail')) return 'Email Content';
+  if (serviceId.includes('gmail')) return 'Scan Email Content';
   if (serviceId.includes('docs')) return 'Upload Google Doc';
   return 'Action';
 };
@@ -34,7 +34,7 @@ export const getUploadDialogDescription = (serviceId: string): string => {
 
 export const getSubmitButtonText = (serviceId: string): string => {
   if (serviceId.includes('drive')) return 'Upload & Scan';
-  if (serviceId.includes('gmail')) return 'Process Email';
+  if (serviceId.includes('gmail')) return 'Scan';
   if (serviceId.includes('docs')) return 'Upload & Scan';
   return 'Submit';
 };

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, Upload, Download, FileText } from 'lucide-react';
+import { Loader2, Upload, Download, FileText, FilePdf, Scan } from 'lucide-react';
 import { ButtonVariant, ActionButtonsProps } from './types';
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({
@@ -47,7 +47,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
             </div>
           ) : null}
           
-          {handleUpload && (!isScanned || !fileUploaded) && (
+          {!isScanned && handleUpload && (
             <Button 
               variant={uploadVariant} 
               className="w-full flex items-center" 
@@ -61,7 +61,11 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
                 </>
               ) : (
                 <>
-                  <Upload className="h-4 w-4 mr-2" />
+                  {actionButtonText.toLowerCase().includes('scan') ? (
+                    <Scan className="h-4 w-4 mr-2" />
+                  ) : (
+                    <Upload className="h-4 w-4 mr-2" />
+                  )}
                   {actionButtonText}
                 </>
               )}
@@ -74,8 +78,8 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
               className="w-full flex items-center" 
               onClick={handleDownload}
             >
-              <Download className="h-4 w-4 mr-2" />
-              Download Document
+              <FilePdf className="h-4 w-4 mr-2" />
+              Download PDF
             </Button>
           )}
         </>

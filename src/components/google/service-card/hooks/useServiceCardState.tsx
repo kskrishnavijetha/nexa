@@ -115,13 +115,13 @@ export const useServiceCardState = ({
         });
         toast.success(`File "${formData.file.name}" uploaded to Google Drive`);
       } else if (serviceId.includes('gmail')) {
-        console.log(`Sending email to ${formData.recipientEmail} with subject: ${formData.emailSubject}`);
+        console.log(`Scanning email content: ${formData.emailContent.substring(0, 20)}...`);
         setUploadedFile({
-          name: `Email to ${formData.recipientEmail}`,
+          name: `Email content (${new Date().toLocaleTimeString()})`,
           type: 'email',
           size: formData.emailContent.length
         });
-        toast.success(`Email content processed for ${formData.recipientEmail}`);
+        toast.success(`Email content scanned successfully`);
       } else if (serviceId.includes('docs')) {
         const docName = formData.docTitle || formData.file?.name || 'Untitled Document';
         console.log(`Uploading Google Doc: ${docName}`);
@@ -145,18 +145,23 @@ export const useServiceCardState = ({
 
   const handleDownload = () => {
     // Simulate downloading a document
-    toast.info("Preparing document for download...");
+    toast.info("Preparing PDF document for download...");
     
     setTimeout(() => {
       let documentName = '';
       if (serviceId.includes('drive')) {
         documentName = uploadedFile?.name || 'drive-document.pdf';
       } else if (serviceId.includes('gmail')) {
-        documentName = 'email-report.pdf';
+        documentName = 'email-scan-report.pdf';
       } else if (serviceId.includes('docs')) {
         documentName = uploadedFile?.name || 'google-doc.pdf';
       } else {
         documentName = 'document.pdf';
+      }
+      
+      // Make sure documentName has .pdf extension
+      if (!documentName.toLowerCase().endsWith('.pdf')) {
+        documentName = documentName.split('.')[0] + '.pdf';
       }
       
       // Create a mock blob to simulate a file download
@@ -169,7 +174,7 @@ export const useServiceCardState = ({
       a.click();
       document.body.removeChild(a);
       
-      toast.success(`Document "${documentName}" downloaded successfully`);
+      toast.success(`PDF "${documentName}" downloaded successfully`);
     }, 1500);
   };
 

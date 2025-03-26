@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Scan } from 'lucide-react';
 
 interface UploadDialogProps {
   isOpen: boolean;
@@ -27,8 +28,6 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
 }) => {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [emailContent, setEmailContent] = useState('');
-  const [emailSubject, setEmailSubject] = useState('');
-  const [recipientEmail, setRecipientEmail] = useState('');
   const [docTitle, setDocTitle] = useState('');
   const [docContent, setDocContent] = useState('');
 
@@ -39,7 +38,7 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
     if (serviceId.includes('drive')) {
       formData = { file: uploadFile };
     } else if (serviceId.includes('gmail')) {
-      formData = { recipientEmail, emailSubject, emailContent };
+      formData = { emailContent };
     } else if (serviceId.includes('docs')) {
       formData = { docTitle, docContent, file: uploadFile };
     }
@@ -49,8 +48,6 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
     // Clear form
     setUploadFile(null);
     setEmailContent('');
-    setEmailSubject('');
-    setRecipientEmail('');
     setDocTitle('');
     setDocContent('');
   };
@@ -76,40 +73,17 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
           )}
           
           {serviceId.includes('gmail') && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="recipient">To</Label>
-                <Input 
-                  id="recipient" 
-                  type="email" 
-                  value={recipientEmail} 
-                  onChange={(e) => setRecipientEmail(e.target.value)} 
-                  placeholder="recipient@example.com" 
-                  required 
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="subject">Subject</Label>
-                <Input 
-                  id="subject" 
-                  value={emailSubject} 
-                  onChange={(e) => setEmailSubject(e.target.value)} 
-                  placeholder="Email subject" 
-                  required 
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="content">Message</Label>
-                <Textarea 
-                  id="content" 
-                  value={emailContent} 
-                  onChange={(e) => setEmailContent(e.target.value)} 
-                  placeholder="Type your message here or paste content to analyze..." 
-                  rows={6} 
-                  required 
-                />
-              </div>
-            </>
+            <div className="space-y-2">
+              <Label htmlFor="content">Email Content</Label>
+              <Textarea 
+                id="content" 
+                value={emailContent} 
+                onChange={(e) => setEmailContent(e.target.value)} 
+                placeholder="Type your message here or paste content to analyze..." 
+                rows={8} 
+                required 
+              />
+            </div>
           )}
           
           {serviceId.includes('docs') && (
@@ -154,7 +128,14 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
               Cancel
             </Button>
             <Button type="submit">
-              {submitButtonText}
+              {serviceId.includes('gmail') ? (
+                <>
+                  <Scan className="h-4 w-4 mr-2" />
+                  Scan
+                </>
+              ) : (
+                submitButtonText
+              )}
             </Button>
           </div>
         </form>
