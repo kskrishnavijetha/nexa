@@ -84,11 +84,13 @@ const CloudServicesCard: React.FC<CloudServicesCardProps> = ({
           />
         </Tabs>
         
-        <ScanButton 
-          onScan={onScan} 
-          isScanning={isScanning} 
-          disabled={!anyServiceConnected || disableScan}
-        />
+        <div className="flex justify-center mt-4">
+          <ScanButton 
+            onScan={onScan} 
+            isScanning={isScanning} 
+            disabled={!anyServiceConnected || disableScan}
+          />
+        </div>
       </CardContent>
     </Card>
   );

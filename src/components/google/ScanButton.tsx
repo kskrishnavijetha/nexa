@@ -15,7 +15,8 @@ const ScanButton: React.FC<ScanButtonProps> = ({ onScan, isScanning, disabled })
       <Button 
         onClick={onScan} 
         disabled={disabled || isScanning}
-        className="px-8"
+        className="px-8 bg-gray-500 hover:bg-gray-600 text-white"
+        size="default"
       >
         {isScanning ? (
           <>
