@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { TabsContent } from '@/components/ui/tabs';
 import { GoogleService } from './types';
 import { Cloud, FileText, Mail, MessageSquare, ShareIcon } from 'lucide-react';
-import ServiceCard from './ServiceCard';
+import ServiceCard from './service-card/ServiceCard';
 
 interface ServicesTabProps {
   activeTab: 'google' | 'microsoft';
