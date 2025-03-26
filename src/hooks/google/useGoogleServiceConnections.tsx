@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { GoogleService } from '@/components/google/types';
 import { toast } from 'sonner';
@@ -23,40 +22,26 @@ export function useGoogleServiceConnections() {
     handleConnectTeams
   } = useMicrosoftConnections();
   const { handleDisconnect } = useServiceDisconnection();
+  const { authData, clearAuthData } = useGoogleAuth();
   
   const [connectedServices, setConnectedServices] = useState<GoogleService[]>([]);
 
   // Check for automatic connection after Google auth
   useEffect(() => {
-    if (window.localStorage) {
-      const authCode = window.localStorage.getItem('googleAuthCode');
-      const timestamp = window.localStorage.getItem('googleAuthTimestamp');
-      const requestedService = window.localStorage.getItem('requestedService');
-      
-      if (authCode && timestamp && requestedService) {
-        // Only process if the auth code is recent (last 5 minutes)
-        const authTime = parseInt(timestamp, 10);
-        const currentTime = Date.now();
-        const fiveMinutesInMs = 5 * 60 * 1000;
-        
-        if (currentTime - authTime < fiveMinutesInMs) {
-          // Connect the requested service
-          if (requestedService === 'drive') {
-            handleConnectDriveWrapper(true);
-          } else if (requestedService === 'gmail') {
-            handleConnectGmailWrapper(true);
-          } else if (requestedService === 'docs') {
-            handleConnectDocsWrapper(true);
-          }
-          
-          // Clear the stored auth data
-          window.localStorage.removeItem('googleAuthCode');
-          window.localStorage.removeItem('googleAuthTimestamp');
-          window.localStorage.removeItem('requestedService');
-        }
+    if (authData.authCode && authData.requestedService) {
+      // Connect the requested service
+      if (authData.requestedService === 'drive') {
+        handleConnectDriveWrapper(true);
+      } else if (authData.requestedService === 'gmail') {
+        handleConnectGmailWrapper(true);
+      } else if (authData.requestedService === 'docs') {
+        handleConnectDocsWrapper(true);
       }
+      
+      // Clear the stored auth data
+      clearAuthData();
     }
-  }, []);
+  }, [authData.authCode, authData.requestedService]);
 
   // Wrapper functions to update the connectedServices state
   const handleConnectDriveWrapper = async (autoConnect = false) => {
