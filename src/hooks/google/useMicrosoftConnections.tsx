@@ -1,7 +1,8 @@
 
 import { useState } from 'react';
-import { connectGoogleService, disconnectGoogleService } from '@/utils/google/connectionService';
+import { connectGoogleService } from '@/utils/google/connectionService';
 import { toast } from 'sonner';
+import { useMicrosoftAuth } from '@/hooks/microsoft/useMicrosoftAuth';
 
 /**
  * Hook to manage Microsoft services connections
@@ -10,12 +11,22 @@ export function useMicrosoftConnections() {
   const [isConnectingSharePoint, setIsConnectingSharePoint] = useState(false);
   const [isConnectingOutlook, setIsConnectingOutlook] = useState(false);
   const [isConnectingTeams, setIsConnectingTeams] = useState(false);
+  const { isAuthenticating, initiateAuth } = useMicrosoftAuth();
   
   const handleConnectSharePoint = async () => {
     setIsConnectingSharePoint(true);
     try {
+      // First authenticate with Microsoft
+      const authenticated = await initiateAuth('sharepoint');
+      if (!authenticated) {
+        setIsConnectingSharePoint(false);
+        return false;
+      }
+      
+      // Then connect the service
       const result = await connectGoogleService('sharepoint-1');
       if (result.data && result.data.connected) {
+        toast.success('SharePoint connected successfully');
         return result.data.connected;
       }
     } catch (error) {
@@ -31,8 +42,17 @@ export function useMicrosoftConnections() {
   const handleConnectOutlook = async () => {
     setIsConnectingOutlook(true);
     try {
+      // First authenticate with Microsoft
+      const authenticated = await initiateAuth('outlook');
+      if (!authenticated) {
+        setIsConnectingOutlook(false);
+        return false;
+      }
+      
+      // Then connect the service
       const result = await connectGoogleService('outlook-1');
       if (result.data && result.data.connected) {
+        toast.success('Outlook connected successfully');
         return result.data.connected;
       }
     } catch (error) {
@@ -48,8 +68,17 @@ export function useMicrosoftConnections() {
   const handleConnectTeams = async () => {
     setIsConnectingTeams(true);
     try {
+      // First authenticate with Microsoft
+      const authenticated = await initiateAuth('teams');
+      if (!authenticated) {
+        setIsConnectingTeams(false);
+        return false;
+      }
+      
+      // Then connect the service
       const result = await connectGoogleService('teams-1');
       if (result.data && result.data.connected) {
+        toast.success('Teams connected successfully');
         return result.data.connected;
       }
     } catch (error) {
@@ -66,6 +95,7 @@ export function useMicrosoftConnections() {
     isConnectingSharePoint,
     isConnectingOutlook,
     isConnectingTeams,
+    isAuthenticating,
     handleConnectSharePoint,
     handleConnectOutlook,
     handleConnectTeams
