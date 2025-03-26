@@ -15,33 +15,53 @@ interface ScanResultsProps {
 }
 
 const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
-  const handleDownloadPDF = async () => {
+  // Get unique services from violations
+  const uniqueServices = [...new Set(violations.map(v => v.service))];
+
+  // Group violations by service
+  const violationsByService = uniqueServices.reduce((acc, service) => {
+    acc[service] = violations.filter(v => v.service === service);
+    return acc;
+  }, {} as Record<string, ScanViolation[]>);
+
+  const handleDownloadPDF = async (serviceFilter?: string) => {
     try {
-      toast.info('Generating PDF report...');
+      const filteredViolations = serviceFilter 
+        ? violations.filter(v => v.service === serviceFilter)
+        : violations;
+      
+      if (filteredViolations.length === 0) {
+        toast.error('No violations to include in report');
+        return;
+      }
+      
+      toast.info(`Generating PDF report${serviceFilter ? ` for ${serviceFilter}` : ''}...`);
       
       // Create a unique document ID
       const docId = `scan-${Date.now()}`;
       
-      // Create a mock report structure with the violations data
+      // Create a mock report structure with the filtered violations data
       const mockReport = {
         id: docId,
         documentId: docId,
-        documentName: 'Cloud Services Compliance Scan',
+        documentName: serviceFilter 
+          ? `${serviceFilter} Compliance Scan` 
+          : 'Cloud Services Compliance Scan',
         timestamp: new Date().toISOString(),
-        overallScore: Math.max(100 - violations.length * 5, 50), // Simple score calculation
+        overallScore: Math.max(100 - filteredViolations.length * 5, 50), // Simple score calculation
         gdprScore: Math.floor(Math.random() * 30) + 70,
         hipaaScore: Math.floor(Math.random() * 30) + 70,
         soc2Score: Math.floor(Math.random() * 30) + 70,
         pciDssScore: Math.floor(Math.random() * 30) + 70,
         industry: 'technology' as Industry, // Cast to Industry type
-        risks: violations.map((v, index) => ({
+        risks: filteredViolations.map((v, index) => ({
           id: `risk-${index + 1}`, // Add a unique ID for each risk
           severity: v.severity,
           description: v.title + ": " + v.description,
           regulation: v.service,
           section: v.location
         })),
-        summary: `Scan completed with ${violations.length} potential compliance issues found across cloud services.`,
+        summary: `Scan completed with ${filteredViolations.length} potential compliance issues found${serviceFilter ? ` in ${serviceFilter}` : ' across cloud services'}.`,
         suggestions: [
           'Review high severity issues immediately',
           'Implement access controls for sensitive data',
@@ -56,12 +76,14 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
         const url = URL.createObjectURL(result.data);
         const link = document.createElement('a');
         link.href = url;
-        link.download = 'compliance-scan-report.pdf';
+        link.download = serviceFilter 
+          ? `${serviceFilter.toLowerCase()}-compliance-scan.pdf` 
+          : 'compliance-scan-report.pdf';
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
         
-        toast.success('PDF report downloaded successfully');
+        toast.success(`PDF report for ${serviceFilter || 'all services'} downloaded successfully`);
       } else {
         toast.error('Failed to generate PDF report');
       }
@@ -126,15 +148,29 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
         </div>
       </CardContent>
       {violations.length > 0 && (
-        <CardFooter className="flex justify-end">
+        <CardFooter className="flex flex-col space-y-3 items-stretch sm:flex-row sm:space-y-0 sm:justify-end sm:space-x-2">
+          {/* Download all results button */}
           <Button 
-            onClick={handleDownloadPDF}
+            onClick={() => handleDownloadPDF()}
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2"
           >
             <FileText className="h-4 w-4" />
-            Download PDF Report
+            Download Full Report
           </Button>
+          
+          {/* Per-service download buttons */}
+          {uniqueServices.map(service => (
+            <Button 
+              key={service}
+              onClick={() => handleDownloadPDF(service)}
+              variant="outline"
+              className="flex items-center justify-center gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Download {service}
+            </Button>
+          ))}
         </CardFooter>
       )}
     </Card>
