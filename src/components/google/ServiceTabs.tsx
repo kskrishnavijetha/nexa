@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { TabsContent } from '@/components/ui/tabs';
 import { GoogleService } from './types';
 import { Cloud, FileText, Mail, MessageSquare, ShareIcon } from 'lucide-react';
-import ServiceCard from './service-card/ServiceCard';
+import ServiceCard from './ServiceCard';
 
 interface ServicesTabProps {
   activeTab: 'google' | 'microsoft';
@@ -70,7 +71,7 @@ const ServiceTabs: React.FC<ServicesTabProps> = ({
             serviceId="gmail-1"
             icon={<Mail className="h-4 w-4 mr-2 text-red-500" />}
             title="Gmail"
-            description="Analyze email content for compliance violations and data protection issues"
+            description="Analyze email content for potential compliance violations"
             isConnected={isGmailConnected}
             isConnecting={isConnectingGmail}
             isScanning={isScanning}
@@ -82,7 +83,7 @@ const ServiceTabs: React.FC<ServicesTabProps> = ({
             serviceId="docs-1"
             icon={<FileText className="h-4 w-4 mr-2 text-green-500" />}
             title="Google Docs"
-            description="Check documents for regulatory compliance, PII and sensitive information"
+            description="Check documents for regulatory compliance and PII"
             isConnected={isDocsConnected}
             isConnecting={isConnectingDocs}
             isScanning={isScanning}
