@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GoogleService } from '@/components/google/types';
 import { connectGoogleService, disconnectGoogleService } from '@/utils/google/connectionService';
 import { toast } from 'sonner';
@@ -13,7 +13,46 @@ export function useGoogleServiceConnections() {
   const [isConnectingTeams, setIsConnectingTeams] = useState(false);
   const [connectedServices, setConnectedServices] = useState<GoogleService[]>([]);
 
-  const handleConnectDrive = async () => {
+  // Check for automatic connection after Google auth
+  useEffect(() => {
+    if (window.localStorage) {
+      const authCode = window.localStorage.getItem('googleAuthCode');
+      const timestamp = window.localStorage.getItem('googleAuthTimestamp');
+      const requestedService = window.localStorage.getItem('requestedService');
+      
+      if (authCode && timestamp && requestedService) {
+        // Only process if the auth code is recent (last 5 minutes)
+        const authTime = parseInt(timestamp, 10);
+        const currentTime = Date.now();
+        const fiveMinutesInMs = 5 * 60 * 1000;
+        
+        if (currentTime - authTime < fiveMinutesInMs) {
+          // Connect the requested service
+          if (requestedService === 'drive') {
+            handleConnectDrive(true);
+          } else if (requestedService === 'gmail') {
+            handleConnectGmail(true);
+          } else if (requestedService === 'docs') {
+            handleConnectDocs(true);
+          }
+          
+          // Clear the stored auth data
+          window.localStorage.removeItem('googleAuthCode');
+          window.localStorage.removeItem('googleAuthTimestamp');
+          window.localStorage.removeItem('requestedService');
+        }
+      }
+    }
+  }, []);
+
+  const handleConnectDrive = async (autoConnect = false) => {
+    if (!autoConnect) {
+      // Store requested service for when we come back from auth
+      if (window.localStorage) {
+        window.localStorage.setItem('requestedService', 'drive');
+      }
+    }
+    
     setIsConnectingDrive(true);
     try {
       // Mock Google OAuth flow - in a real app, this would redirect to Google
@@ -34,7 +73,14 @@ export function useGoogleServiceConnections() {
     }
   };
   
-  const handleConnectGmail = async () => {
+  const handleConnectGmail = async (autoConnect = false) => {
+    if (!autoConnect) {
+      // Store requested service for when we come back from auth
+      if (window.localStorage) {
+        window.localStorage.setItem('requestedService', 'gmail');
+      }
+    }
+    
     setIsConnectingGmail(true);
     try {
       // Mock authentication
@@ -51,7 +97,14 @@ export function useGoogleServiceConnections() {
     }
   };
   
-  const handleConnectDocs = async () => {
+  const handleConnectDocs = async (autoConnect = false) => {
+    if (!autoConnect) {
+      // Store requested service for when we come back from auth
+      if (window.localStorage) {
+        window.localStorage.setItem('requestedService', 'docs');
+      }
+    }
+    
     setIsConnectingDocs(true);
     try {
       // Mock authentication

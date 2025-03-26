@@ -3,12 +3,13 @@ import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, RefreshCw, Upload } from 'lucide-react';
+import { Loader2, RefreshCw, Search, Shield } from 'lucide-react';
 import { GoogleService } from './types';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
 
 interface ServiceCardProps {
   serviceId: string;
@@ -37,15 +38,13 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [isRealTimeActive, setIsRealTimeActive] = useState<boolean>(false);
   const [realtimeTimer, setRealtimeTimer] = useState<number | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [showAnalysisDialog, setShowAnalysisDialog] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
-  const [emailContent, setEmailContent] = useState('');
-  const [emailSubject, setEmailSubject] = useState('');
-  const [recipientEmail, setRecipientEmail] = useState('');
-  const [docTitle, setDocTitle] = useState('');
-  const [docContent, setDocContent] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedContent, setSelectedContent] = useState('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<string | null>(null);
   
   // Real-time updates simulation
   useEffect(() => {
@@ -99,24 +98,96 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     setPassword('');
   };
 
-  const handleUpload = (e: React.FormEvent) => {
+  const handleAnalyze = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate file upload
-    if (serviceId.includes('drive') && uploadFile) {
-      console.log(`Uploading file to Google Drive: ${uploadFile.name}`);
-    } else if (serviceId.includes('gmail')) {
-      console.log(`Sending email to ${recipientEmail} with subject: ${emailSubject}`);
+    setIsAnalyzing(true);
+    setAnalysisResult(null);
+    
+    // Simulate analysis process
+    setTimeout(() => {
+      setIsAnalyzing(false);
+      
+      if (serviceId.includes('gmail')) {
+        // Show email analysis results
+        setAnalysisResult(`
+          Compliance Analysis Results:
+          - PII Detection: Found 2 potential instances of PII data
+          - GDPR Compliance: 87% (Caution: Email mentions user location data)
+          - HIPAA Compliance: 75% (Warning: Contains potential health information)
+          - Sensitive Data: Medium Risk (Email contains financial transaction details)
+          
+          Recommendation: Review email content before sending. Consider removing personal health information.
+        `);
+      } else if (serviceId.includes('docs')) {
+        // Show document analysis results
+        setAnalysisResult(`
+          Document Compliance Scan:
+          - PII Detection: Found 3 instances of personal identifiable information
+          - Data Retention Policies: Document exceeds recommended storage duration
+          - CCPA Compliance: 81% (Needs explicit consent statement)
+          - SOC2 Compliance: 90% (Good)
+          
+          Recommendation: Add explicit data usage consent statement. Review and redact unnecessary PII.
+        `);
+      } else if (serviceId.includes('drive')) {
+        // Show storage analysis results
+        setAnalysisResult(`
+          Storage Compliance Analysis:
+          - Sensitive Files: Found 5 documents with potential confidential information
+          - Access Controls: 3 documents have overly permissive sharing settings
+          - Data Retention: 2 files exceed retention policy timeframes
+          - Cross-border Data Transfer: 4 files may be subject to international data regulations
+          
+          Recommendation: Review sharing settings on flagged files. Update retention policies.
+        `);
+      }
+      
+      toast.success('Analysis completed successfully');
+    }, 2500);
+  };
+
+  const getAnalysisDialogTitle = () => {
+    if (serviceId.includes('gmail')) {
+      return 'Analyze Gmail Content';
     } else if (serviceId.includes('docs')) {
-      console.log(`Creating Google Doc: ${docTitle}`);
+      return 'Analyze Google Docs';
+    } else if (serviceId.includes('drive')) {
+      return 'Analyze Drive Files';
     }
-    setShowUploadDialog(false);
-    // Clear form
-    setUploadFile(null);
-    setEmailContent('');
-    setEmailSubject('');
-    setRecipientEmail('');
-    setDocTitle('');
-    setDocContent('');
+    return 'Analyze Content';
+  };
+
+  const getAnalysisDialogDescription = () => {
+    if (serviceId.includes('gmail')) {
+      return 'Search and analyze emails for compliance violations and sensitive information.';
+    } else if (serviceId.includes('docs')) {
+      return 'Check your documents for regulatory compliance issues and PII.';
+    } else if (serviceId.includes('drive')) {
+      return 'Scan your Drive files for compliance issues and security vulnerabilities.';
+    }
+    return 'Analyze your content for compliance.';
+  };
+
+  const getPlaceholderText = () => {
+    if (serviceId.includes('gmail')) {
+      return 'Search by sender, subject, or content...';
+    } else if (serviceId.includes('docs')) {
+      return 'Search documents by title or content...';
+    } else if (serviceId.includes('drive')) {
+      return 'Search files by name or content...';
+    }
+    return 'Search...';
+  };
+
+  const getContentSamplePlaceholder = () => {
+    if (serviceId.includes('gmail')) {
+      return 'Or paste email content to analyze...';
+    } else if (serviceId.includes('docs')) {
+      return 'Or paste document content to analyze...';
+    } else if (serviceId.includes('drive')) {
+      return 'Describe file contents to analyze...';
+    }
+    return 'Enter content to analyze...';
   };
 
   return (
@@ -183,12 +254,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
             <Button 
               variant="outline" 
               className="w-full flex items-center" 
-              onClick={() => setShowUploadDialog(true)}
+              onClick={() => setShowAnalysisDialog(true)}
             >
-              <Upload className="h-4 w-4 mr-2" />
-              {serviceId.includes('drive') ? 'Upload File' : 
-               serviceId.includes('gmail') ? 'Compose Email' : 
-               'Create Document'}
+              <Shield className="h-4 w-4 mr-2" />
+              Analyze Compliance
             </Button>
           )}
         </div>
@@ -236,105 +305,61 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           </DialogContent>
         </Dialog>
 
-        {/* Upload/Create Dialog */}
-        <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
-          <DialogContent className="sm:max-w-[500px]">
+        {/* Analysis Dialog */}
+        <Dialog open={showAnalysisDialog} onOpenChange={setShowAnalysisDialog}>
+          <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
-              <DialogTitle>
-                {serviceId.includes('drive') ? 'Upload to Google Drive' : 
-                 serviceId.includes('gmail') ? 'Compose Email' : 
-                 'Create Google Document'}
-              </DialogTitle>
+              <DialogTitle>{getAnalysisDialogTitle()}</DialogTitle>
               <DialogDescription>
-                {serviceId.includes('drive') ? 'Select a file to upload to your Google Drive' : 
-                 serviceId.includes('gmail') ? 'Compose an email to send from your Gmail account' : 
-                 'Create a new document in Google Docs'}
+                {getAnalysisDialogDescription()}
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleUpload} className="space-y-4">
-              {serviceId.includes('drive') && (
-                <div className="space-y-2">
-                  <Label htmlFor="file">File</Label>
+            <form onSubmit={handleAnalyze} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="searchQuery">Search</Label>
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input 
-                    id="file" 
-                    type="file" 
-                    onChange={(e) => e.target.files && setUploadFile(e.target.files[0])} 
-                    required 
+                    id="searchQuery" 
+                    value={searchQuery} 
+                    onChange={(e) => setSearchQuery(e.target.value)} 
+                    placeholder={getPlaceholderText()}
+                    className="pl-8"
                   />
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="contentSample">Content Sample</Label>
+                <Textarea 
+                  id="contentSample" 
+                  value={selectedContent} 
+                  onChange={(e) => setSelectedContent(e.target.value)} 
+                  placeholder={getContentSamplePlaceholder()}
+                  rows={6} 
+                />
+              </div>
+              
+              {analysisResult && (
+                <div className="p-4 bg-slate-50 border rounded-md text-sm whitespace-pre-line">
+                  <div className="font-semibold mb-2">Analysis Results:</div>
+                  {analysisResult}
                 </div>
               )}
               
-              {serviceId.includes('gmail') && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="recipient">To</Label>
-                    <Input 
-                      id="recipient" 
-                      type="email" 
-                      value={recipientEmail} 
-                      onChange={(e) => setRecipientEmail(e.target.value)} 
-                      placeholder="recipient@example.com" 
-                      required 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="subject">Subject</Label>
-                    <Input 
-                      id="subject" 
-                      value={emailSubject} 
-                      onChange={(e) => setEmailSubject(e.target.value)} 
-                      placeholder="Email subject" 
-                      required 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="content">Message</Label>
-                    <Textarea 
-                      id="content" 
-                      value={emailContent} 
-                      onChange={(e) => setEmailContent(e.target.value)} 
-                      placeholder="Type your message here..." 
-                      rows={6} 
-                      required 
-                    />
-                  </div>
-                </>
-              )}
-              
-              {serviceId.includes('docs') && (
-                <>
-                  <div className="space-y-2">
-                    <Label htmlFor="title">Document Title</Label>
-                    <Input 
-                      id="title" 
-                      value={docTitle} 
-                      onChange={(e) => setDocTitle(e.target.value)} 
-                      placeholder="Untitled Document" 
-                      required 
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="docContent">Document Content</Label>
-                    <Textarea 
-                      id="docContent" 
-                      value={docContent} 
-                      onChange={(e) => setDocContent(e.target.value)} 
-                      placeholder="Start typing..." 
-                      rows={8} 
-                      required 
-                    />
-                  </div>
-                </>
-              )}
-              
               <div className="flex justify-end space-x-2">
-                <Button type="button" variant="outline" onClick={() => setShowUploadDialog(false)}>
-                  Cancel
+                <Button type="button" variant="outline" onClick={() => setShowAnalysisDialog(false)}>
+                  Close
                 </Button>
-                <Button type="submit">
-                  {serviceId.includes('drive') ? 'Upload' : 
-                   serviceId.includes('gmail') ? 'Send Email' : 
-                   'Create Document'}
+                <Button type="submit" disabled={isAnalyzing}>
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Analyzing...
+                    </>
+                  ) : (
+                    'Run Analysis'
+                  )}
                 </Button>
               </div>
             </form>

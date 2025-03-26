@@ -71,7 +71,7 @@ const ServiceTabs: React.FC<ServicesTabProps> = ({
             serviceId="gmail-1"
             icon={<Mail className="h-4 w-4 mr-2 text-red-500" />}
             title="Gmail"
-            description="Analyze email content for potential compliance violations"
+            description="Analyze email content for compliance violations and data protection issues"
             isConnected={isGmailConnected}
             isConnecting={isConnectingGmail}
             isScanning={isScanning}
@@ -83,7 +83,7 @@ const ServiceTabs: React.FC<ServicesTabProps> = ({
             serviceId="docs-1"
             icon={<FileText className="h-4 w-4 mr-2 text-green-500" />}
             title="Google Docs"
-            description="Check documents for regulatory compliance and PII"
+            description="Check documents for regulatory compliance, PII and sensitive information"
             isConnected={isDocsConnected}
             isConnecting={isConnectingDocs}
             isScanning={isScanning}

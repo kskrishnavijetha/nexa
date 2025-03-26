@@ -15,6 +15,18 @@ const GoogleServices: React.FC = () => {
       toast.success('Google authorization successful!');
       // Clear URL parameters without refreshing
       window.history.replaceState({}, document.title, window.location.pathname);
+      
+      // Try to auto-connect to Google services if coming from Google Auth
+      if (window.localStorage) {
+        window.localStorage.setItem('googleAuthCode', authCode);
+        window.localStorage.setItem('googleAuthTimestamp', Date.now().toString());
+        
+        const requestedService = window.localStorage.getItem('requestedService');
+        if (requestedService) {
+          toast.info(`Connecting to ${requestedService}...`);
+          // The connection will be handled in the GoogleServicesPage component
+        }
+      }
     } else if (error) {
       // Authorization failed
       toast.error('Google authorization failed. Please try again.');
