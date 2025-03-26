@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -20,7 +19,6 @@ const MicrosoftScanResults: React.FC<MicrosoftScanResultsProps> = ({ violations,
   const [previewOpen, setPreviewOpen] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
-  // Group violations by service
   const violationsByService = violations.reduce((acc, violation) => {
     const service = violation.service;
     if (!acc[service]) {
@@ -30,13 +28,11 @@ const MicrosoftScanResults: React.FC<MicrosoftScanResultsProps> = ({ violations,
     return acc;
   }, {} as Record<string, ScanViolation[]>);
 
-  // Function to convert severity to badge variant
   const getSeverityBadge = (severity: string) => {
     switch (severity.toLowerCase()) {
       case 'high':
         return <Badge variant="destructive">High</Badge>;
       case 'medium':
-        // Changed from "warning" to "secondary" and added custom color via className
         return <Badge variant="secondary" className="bg-orange-500 text-white">Medium</Badge>;
       case 'low':
         return <Badge variant="outline" className="bg-green-100 text-green-800">Low</Badge>;
@@ -53,10 +49,8 @@ const MicrosoftScanResults: React.FC<MicrosoftScanResultsProps> = ({ violations,
   const handleDownloadPDF = async (service: string) => {
     setIsGeneratingPDF(true);
     
-    // Simulate PDF generation delay
     setTimeout(() => {
       try {
-        // Create a mock blob to simulate a file download
         const blob = new Blob(['PDF content for ' + service], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -77,7 +71,6 @@ const MicrosoftScanResults: React.FC<MicrosoftScanResultsProps> = ({ violations,
     }, 1500);
   };
 
-  // Convert ScanViolation to ComplianceReport for preview
   const violationToReport = (violation: ScanViolation): ComplianceReport => {
     return {
       id: Math.random().toString(),
@@ -92,12 +85,12 @@ const MicrosoftScanResults: React.FC<MicrosoftScanResultsProps> = ({ violations,
       region: 'global',
       language: 'en',
       industry: 'technology',
-      contentType: 'document',
       fileSize: '1.2 MB',
+      contentType: 'document',
       summary: `This document contains a compliance violation related to ${violation.title}. The specific issue is: ${violation.description}`,
       risks: [
         {
-          id: `risk-${Math.random().toString().substring(2, 10)}`, // Added unique id
+          id: `risk-${Math.random().toString().substring(2, 10)}`,
           severity: violation.severity,
           regulation: serviceName,
           description: violation.description,
