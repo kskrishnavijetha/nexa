@@ -9,7 +9,6 @@ export const scheduleFormSchema = z.object({
   }),
   documentName: z.string().min(1, "Document name is required"),
   email: z.string().email("Please enter a valid email address").min(1, "Email is required"),
-  serviceType: z.enum(['google', 'microsoft', 'all']).default('all'),
 });
 
 export type ScheduleFormValues = z.infer<typeof scheduleFormSchema>;
@@ -22,19 +21,6 @@ export const getFrequencyDescription = (frequency: string) => {
       return 'Scans will run every week on the same day at the specified time';
     case 'monthly':
       return 'Scans will run on the same day each month at the specified time';
-    default:
-      return '';
-  }
-};
-
-export const getMicrosoftServiceDescription = (service: string) => {
-  switch (service) {
-    case 'sharepoint':
-      return 'Scan SharePoint sites and documents for compliance issues';
-    case 'outlook':
-      return 'Analyze Outlook emails for sensitive information and compliance violations';
-    case 'teams':
-      return 'Scan Teams messages and channels for PII and regulatory compliance';
     default:
       return '';
   }

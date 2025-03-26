@@ -13,7 +13,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import ScanStatusIndicator from './ScanStatusIndicator';
 
 const Header: React.FC = () => {
   const location = useLocation();
@@ -58,10 +57,7 @@ const Header: React.FC = () => {
           </nav>
         )}
         
-        <div className="ml-auto flex items-center space-x-3">
-          {/* Show scan status indicator for authenticated users */}
-          {user && <ScanStatusIndicator />}
-          
+        <div className="ml-auto flex space-x-3">
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

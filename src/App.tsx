@@ -15,57 +15,54 @@ import SlackMonitoringPage from '@/pages/SlackMonitoring';
 import SignIn from '@/pages/auth/SignIn';
 import SignUp from '@/pages/auth/SignUp';
 import { AuthProvider } from '@/contexts/AuthContext';
-import { RealTimeScanProvider } from '@/contexts/RealTimeScanContext';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 function App() {
   return (
     <AuthProvider>
-      <RealTimeScanProvider>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            
-            {/* Auth routes */}
-            <Route path="/auth/signin" element={<SignIn />} />
-            <Route path="/auth/signup" element={<SignUp />} />
-            
-            {/* Protected routes */}
-            <Route path="/dashboard" element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            } />
-            <Route path="/document-analysis" element={
-              <ProtectedRoute>
-                <DocumentAnalysis />
-              </ProtectedRoute>
-            } />
-            <Route path="/google-services" element={
-              <ProtectedRoute>
-                <GoogleServices />
-              </ProtectedRoute>
-            } />
-            <Route path="/slack-monitoring" element={
-              <ProtectedRoute>
-                <SlackMonitoringPage />
-              </ProtectedRoute>
-            } />
-            <Route path="/history" element={
-              <ProtectedRoute>
-                <History />
-              </ProtectedRoute>
-            } />
-            
-            {/* Public routes */}
-            <Route path="/pricing" element={<PricingPlans />} />
-            <Route path="/payment" element={<Payment />} />
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
-        <Toaster />
-      </RealTimeScanProvider>
+      <Layout>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          
+          {/* Auth routes */}
+          <Route path="/auth/signin" element={<SignIn />} />
+          <Route path="/auth/signup" element={<SignUp />} />
+          
+          {/* Protected routes */}
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/document-analysis" element={
+            <ProtectedRoute>
+              <DocumentAnalysis />
+            </ProtectedRoute>
+          } />
+          <Route path="/google-services" element={
+            <ProtectedRoute>
+              <GoogleServices />
+            </ProtectedRoute>
+          } />
+          <Route path="/slack-monitoring" element={
+            <ProtectedRoute>
+              <SlackMonitoringPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/history" element={
+            <ProtectedRoute>
+              <History />
+            </ProtectedRoute>
+          } />
+          
+          {/* Public routes */}
+          <Route path="/pricing" element={<PricingPlans />} />
+          <Route path="/payment" element={<Payment />} />
+          
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Layout>
+      <Toaster />
     </AuthProvider>
   );
 }

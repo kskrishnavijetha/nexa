@@ -1,7 +1,7 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { AlertTriangle, Check, FileText, Download, Filter } from 'lucide-react';
+import { AlertTriangle, Check, FileText, Download } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScanViolation } from './types';
@@ -9,15 +9,12 @@ import { generateReportPDF } from '@/utils/reportService';
 import { toast } from 'sonner';
 import { SupportedLanguage } from '@/utils/language';
 import { Industry } from '@/utils/types';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ScanResultsProps {
   violations: ScanViolation[];
 }
 
 const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
-  const [filteredService, setFilteredService] = useState<string | null>(null);
-  
   // Get unique services from violations
   const uniqueServices = [...new Set(violations.map(v => v.service))];
 
@@ -26,11 +23,6 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
     acc[service] = violations.filter(v => v.service === service);
     return acc;
   }, {} as Record<string, ScanViolation[]>);
-
-  // Filter violations based on selected service
-  const filteredViolations = filteredService 
-    ? violations.filter(v => v.service === filteredService)
-    : violations;
 
   const handleDownloadPDF = async (serviceFilter?: string) => {
     try {
@@ -103,85 +95,51 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <div>
-          <CardTitle>Scan Results</CardTitle>
-          <CardDescription>
-            Found {violations.length} potential compliance issues
-          </CardDescription>
-        </div>
-        
-        {uniqueServices.length > 1 && (
-          <div className="flex items-center space-x-2">
-            <Select
-              value={filteredService || ""}
-              onValueChange={(value) => setFilteredService(value || null)}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by service" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All services</SelectItem>
-                {uniqueServices.map((service) => (
-                  <SelectItem key={service} value={service}>
-                    {service}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            {filteredService && (
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => setFilteredService(null)}
-                title="Clear filter"
-              >
-                <Filter className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        )}
+      <CardHeader>
+        <CardTitle>Scan Results</CardTitle>
+        <CardDescription>
+          Found {violations.length} potential compliance issues
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {filteredViolations.length > 0 ? (
-            filteredViolations.map((violation, index) => (
-              <div key={index} className="flex items-start p-3 rounded-md bg-muted/50">
-                {violation.severity === 'high' ? (
-                  <AlertTriangle className="h-5 w-5 text-red-500 mr-3 mt-0.5" />
-                ) : violation.severity === 'medium' ? (
-                  <AlertTriangle className="h-5 w-5 text-amber-500 mr-3 mt-0.5" />
-                ) : (
-                  <AlertTriangle className="h-5 w-5 text-blue-500 mr-3 mt-0.5" />
-                )}
-                <div>
-                  <h4 className="font-medium">
-                    {violation.title}
-                    <Badge 
-                      variant="outline" 
-                      className={`ml-2 ${
-                        violation.severity === 'high' 
-                          ? 'border-red-200 bg-red-100 text-red-800' 
-                          : violation.severity === 'medium'
-                          ? 'border-amber-200 bg-amber-100 text-amber-800'
-                          : 'border-blue-200 bg-blue-100 text-blue-800'
-                      }`}
-                    >
-                      {violation.severity}
-                    </Badge>
-                  </h4>
-                  <p className="text-sm text-muted-foreground mt-1">{violation.description}</p>
-                  <div className="flex items-center mt-2 text-xs text-muted-foreground">
-                    <Badge variant="outline" className="mr-2">
-                      {violation.service}
-                    </Badge>
-                    <span>{violation.location}</span>
-                  </div>
+          {violations.map((violation, index) => (
+            <div key={index} className="flex items-start p-3 rounded-md bg-muted/50">
+              {violation.severity === 'high' ? (
+                <AlertTriangle className="h-5 w-5 text-red-500 mr-3 mt-0.5" />
+              ) : violation.severity === 'medium' ? (
+                <AlertTriangle className="h-5 w-5 text-amber-500 mr-3 mt-0.5" />
+              ) : (
+                <AlertTriangle className="h-5 w-5 text-blue-500 mr-3 mt-0.5" />
+              )}
+              <div>
+                <h4 className="font-medium">
+                  {violation.title}
+                  <Badge 
+                    variant="outline" 
+                    className={`ml-2 ${
+                      violation.severity === 'high' 
+                        ? 'border-red-200 bg-red-100 text-red-800' 
+                        : violation.severity === 'medium'
+                        ? 'border-amber-200 bg-amber-100 text-amber-800'
+                        : 'border-blue-200 bg-blue-100 text-blue-800'
+                    }`}
+                  >
+                    {violation.severity}
+                  </Badge>
+                </h4>
+                <p className="text-sm text-muted-foreground mt-1">{violation.description}</p>
+                <div className="flex items-center mt-2 text-xs text-muted-foreground">
+                  <Badge variant="outline" className="mr-2">
+                    {violation.service}
+                  </Badge>
+                  <span>{violation.location}</span>
                 </div>
               </div>
-            ))
-          ) : (
+            </div>
+          ))}
+          
+          {violations.length === 0 && (
             <div className="flex items-center justify-center p-4 rounded-md bg-green-50 text-green-700">
               <Check className="h-5 w-5 mr-2" />
               <span>No compliance issues found</span>
@@ -190,7 +148,7 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
         </div>
       </CardContent>
       {violations.length > 0 && (
-        <CardFooter className="flex flex-wrap gap-2">
+        <CardFooter className="flex flex-col space-y-3 items-stretch sm:flex-row sm:space-y-0 sm:justify-end sm:space-x-2">
           {/* Download all results button */}
           <Button 
             onClick={() => handleDownloadPDF()}
@@ -208,7 +166,6 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
               onClick={() => handleDownloadPDF(service)}
               variant="outline"
               className="flex items-center justify-center gap-2"
-              size="sm"
             >
               <Download className="h-4 w-4" />
               Download {service}

@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { scheduleFormSchema, ScheduleFormValues, getMicrosoftServiceDescription } from './schedule/ScheduleFormSchema';
+import { scheduleFormSchema, ScheduleFormValues } from './schedule/ScheduleFormSchema';
 import ScheduleToggle from './schedule/ScheduleToggle';
 import FrequencySelector from './schedule/FrequencySelector';
 import TimeSelector from './schedule/TimeSelector';
@@ -17,14 +17,12 @@ interface ScheduleScannerProps {
   documentId: string;
   documentName: string;
   industry?: string;
-  serviceType?: 'google' | 'microsoft';
 }
 
 const ScheduleScanner: React.FC<ScheduleScannerProps> = ({ 
   documentId, 
   documentName, 
-  industry,
-  serviceType = 'google'
+  industry 
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [testEmailSent, setTestEmailSent] = useState(false);
@@ -35,7 +33,6 @@ const ScheduleScanner: React.FC<ScheduleScannerProps> = ({
     time: '09:00',
     documentName: documentName,
     email: '',
-    serviceType: serviceType === 'microsoft' ? 'microsoft' : 'google'
   };
 
   const form = useForm<ScheduleFormValues>({
@@ -107,28 +104,9 @@ const ScheduleScanner: React.FC<ScheduleScannerProps> = ({
     }
   };
 
-  // Get description based on service type
-  const getServiceDescription = () => {
-    if (serviceType === 'microsoft') {
-      // Get a service-specific description if one was selected
-      if (documentName.toLowerCase().includes('sharepoint')) {
-        return getMicrosoftServiceDescription('sharepoint');
-      } else if (documentName.toLowerCase().includes('outlook')) {
-        return getMicrosoftServiceDescription('outlook');
-      } else if (documentName.toLowerCase().includes('teams')) {
-        return getMicrosoftServiceDescription('teams');
-      } else {
-        return "Schedule automated scans for Microsoft services";
-      }
-    } else {
-      return "Schedule automated scans for Google services";
-    }
-  };
-
   return (
     <div className="p-4 border rounded-lg bg-card">
       <h3 className="text-lg font-semibold mb-4">Schedule Automated Scans</h3>
-      <p className="text-sm text-muted-foreground mb-4">{getServiceDescription()}</p>
       
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">

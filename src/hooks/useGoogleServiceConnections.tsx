@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { GoogleService } from '@/components/google/types';
 import { connectGoogleService, disconnectGoogleService } from '@/utils/google/connectionService';
-import { connectMicrosoftService, disconnectMicrosoftService } from '@/utils/microsoft/microsoftServices';
 import { toast } from 'sonner';
 
 export function useGoogleServiceConnections() {
@@ -72,8 +71,7 @@ export function useGoogleServiceConnections() {
   const handleConnectSharePoint = async () => {
     setIsConnectingSharePoint(true);
     try {
-      // Use Microsoft connection service
-      const result = await connectMicrosoftService('sharepoint-1');
+      const result = await connectGoogleService('sharepoint-1');
       if (result.data && result.data.connected) {
         setConnectedServices(prev => [...prev, 'sharepoint']);
         toast.success('SharePoint connected successfully');
@@ -89,8 +87,7 @@ export function useGoogleServiceConnections() {
   const handleConnectOutlook = async () => {
     setIsConnectingOutlook(true);
     try {
-      // Use Microsoft connection service
-      const result = await connectMicrosoftService('outlook-1');
+      const result = await connectGoogleService('outlook-1');
       if (result.data && result.data.connected) {
         setConnectedServices(prev => [...prev, 'outlook']);
         toast.success('Outlook connected successfully');
@@ -106,8 +103,7 @@ export function useGoogleServiceConnections() {
   const handleConnectTeams = async () => {
     setIsConnectingTeams(true);
     try {
-      // Use Microsoft connection service
-      const result = await connectMicrosoftService('teams-1');
+      const result = await connectGoogleService('teams-1');
       if (result.data && result.data.connected) {
         setConnectedServices(prev => [...prev, 'teams']);
         toast.success('Teams connected successfully');
@@ -122,23 +118,14 @@ export function useGoogleServiceConnections() {
   
   const handleDisconnect = async (service: GoogleService) => {
     try {
-      // Determine which service API to use based on service type
-      if (service === 'sharepoint' || service === 'outlook' || service === 'teams') {
-        // Microsoft service
-        const serviceId = 
-          service === 'sharepoint' ? 'sharepoint-1' :
-          service === 'outlook' ? 'outlook-1' : 'teams-1';
-          
-        await disconnectMicrosoftService(serviceId);
-      } else {
-        // Google service
-        const serviceId = 
-          service === 'drive' ? 'drive-1' : 
-          service === 'gmail' ? 'gmail-1' : 'docs-1';
-          
-        await disconnectGoogleService(serviceId);
-      }
-      
+      const serviceId = 
+        service === 'drive' ? 'drive-1' : 
+        service === 'gmail' ? 'gmail-1' : 
+        service === 'docs' ? 'docs-1' :
+        service === 'sharepoint' ? 'sharepoint-1' :
+        service === 'outlook' ? 'outlook-1' : 'teams-1';
+        
+      await disconnectGoogleService(serviceId);
       setConnectedServices(prev => prev.filter(s => s !== service));
       toast.success(`${service} disconnected successfully`);
     } catch (error) {

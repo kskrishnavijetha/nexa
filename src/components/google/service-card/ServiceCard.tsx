@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { ServiceCardProps } from './types';
 import ServiceCardHeader from './ServiceCardHeader';
@@ -8,7 +8,6 @@ import ActionButtons from './ActionButtons';
 import { AuthDialog, UploadDialog, GoogleDocsDialog } from './dialogs';
 import { getServiceHelperTexts } from './ServiceTextUtils';
 import { useServiceCardState } from './hooks';
-import { useMicrosoftServiceUpload } from './hooks/useMicrosoftServiceUpload';
 
 const ServiceCard: React.FC<ServiceCardProps> = ({
   serviceId,
@@ -27,7 +26,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     showAuthDialog,
     showUploadDialog,
     showGoogleDocsDialog,
-    isUploading: isServiceUploading,
+    isUploading,
     hasScannedContent,
     uploadedFile,
     toggleRealTime,
@@ -48,27 +47,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     onDisconnect
   });
   
-  // Check if this is a Microsoft service
-  const isMicrosoftService = serviceId.includes('sharepoint') || 
-                            serviceId.includes('outlook') || 
-                            serviceId.includes('teams');
-  
-  // Use Microsoft specific upload hook if it's a Microsoft service
-  const microsoftUpload = useMicrosoftServiceUpload(
-    serviceId,
-    isConnected,
-    title
-  );
-  
-  const isUploading = isServiceUploading || (isMicrosoftService && microsoftUpload.isUploading);
-  
   const helperTexts = getServiceHelperTexts(serviceId);
-
-  // Update action button text based on service type
-  let actionButtonText = helperTexts.actionButtonText;
-  if (isMicrosoftService) {
-    actionButtonText = isConnected ? "Upload Files" : "Connect";
-  }
 
   return (
     <Card className="border-gray-200">
@@ -94,13 +73,12 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           isConnected={isConnected}
           isConnecting={isConnecting}
           isUploading={isUploading}
-          isScanned={hasScannedContent || (isMicrosoftService && microsoftUpload.uploadedFiles.length > 0)}
-          fileUploaded={uploadedFile?.name || (isMicrosoftService && microsoftUpload.uploadedFiles.length > 0 ? 
-            `${microsoftUpload.uploadedFiles.length} files` : undefined)}
+          isScanned={hasScannedContent}
+          fileUploaded={uploadedFile?.name}
           handleConnect={handleConnect}
-          handleUpload={isMicrosoftService ? () => setShowUploadDialog(true) : handleUpload}
+          handleUpload={handleUpload}
           handleDownload={handleDownload}
-          actionButtonText={actionButtonText}
+          actionButtonText={helperTexts.actionButtonText}
           connectVariant="default"
           uploadVariant="outline"
           downloadVariant="secondary"
@@ -116,15 +94,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
         <UploadDialog 
           isOpen={showUploadDialog}
           onClose={() => setShowUploadDialog(false)}
-          onSubmit={isMicrosoftService ? 
-            (files) => microsoftUpload.handleFileUpload(files) : 
-            handleUploadSubmit}
+          onSubmit={handleUploadSubmit}
           serviceId={serviceId}
-          dialogTitle={helperTexts.uploadDialogTitle || `Upload ${title} Files`}
-          dialogDescription={helperTexts.uploadDialogDescription || 
-            `Select files to upload for compliance scanning in ${title}`}
-          submitButtonText={helperTexts.submitButtonText || "Upload & Scan"}
-          allowMultiple={isMicrosoftService}
+          dialogTitle={helperTexts.uploadDialogTitle}
+          dialogDescription={helperTexts.uploadDialogDescription}
+          submitButtonText={helperTexts.submitButtonText}
         />
 
         <GoogleDocsDialog
