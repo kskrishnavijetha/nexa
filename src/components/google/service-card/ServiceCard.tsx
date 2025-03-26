@@ -5,7 +5,7 @@ import { ServiceCardProps } from './types';
 import ServiceCardHeader from './ServiceCardHeader';
 import RealTimeMonitor from './RealTimeMonitor';
 import ActionButtons from './ActionButtons';
-import { AuthDialog, UploadDialog } from './dialogs';
+import { AuthDialog, UploadDialog, GoogleDocsDialog } from './dialogs';
 import { getServiceHelperTexts } from './ServiceTextUtils';
 import { useServiceCardState } from './hooks';
 
@@ -25,6 +25,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     isRealTimeActive,
     showAuthDialog,
     showUploadDialog,
+    showGoogleDocsDialog,
     isUploading,
     hasScannedContent,
     uploadedFile,
@@ -33,9 +34,11 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     handleAuth,
     handleUpload,
     handleUploadSubmit,
+    handleGoogleDocsSubmit,
     handleDownload,
     setShowAuthDialog,
-    setShowUploadDialog
+    setShowUploadDialog,
+    setShowGoogleDocsDialog
   } = useServiceCardState({
     serviceId,
     isConnected,
@@ -96,6 +99,15 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           dialogTitle={helperTexts.uploadDialogTitle}
           dialogDescription={helperTexts.uploadDialogDescription}
           submitButtonText={helperTexts.submitButtonText}
+        />
+
+        <GoogleDocsDialog
+          isOpen={showGoogleDocsDialog}
+          onClose={() => setShowGoogleDocsDialog(false)}
+          onSubmit={handleGoogleDocsSubmit}
+          dialogTitle="Upload Google Document"
+          dialogDescription="Select a Google Docs file to upload for compliance scanning"
+          submitButtonText="Upload & Scan"
         />
       </CardContent>
     </Card>

@@ -24,6 +24,7 @@ export const useServiceCardState = ({
   const [realtimeTimer, setRealtimeTimer] = useState<number | null>(null);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
+  const [showGoogleDocsDialog, setShowGoogleDocsDialog] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [hasScannedContent, setHasScannedContent] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<UploadedFileInfo | null>(null);
@@ -93,7 +94,11 @@ export const useServiceCardState = ({
   };
 
   const handleUpload = () => {
-    setShowUploadDialog(true);
+    if (serviceId.includes('docs')) {
+      setShowGoogleDocsDialog(true);
+    } else {
+      setShowUploadDialog(true);
+    }
   };
 
   const handleUploadSubmit = (formData: any) => {
@@ -123,14 +128,19 @@ export const useServiceCardState = ({
         setUploadedFile({
           name: docName,
           type: formData.file ? formData.file.type : 'application/vnd.google-apps.document',
-          size: formData.file ? formData.file.size : formData.docContent?.length || 0
+          size: formData.file ? formData.file.size : 0
         });
         toast.success(`Document "${docName}" uploaded to Google Docs`);
       }
       
       setIsUploading(false);
       setShowUploadDialog(false);
+      setShowGoogleDocsDialog(false);
     }, 2000); // Simulate a 2-second upload process
+  };
+
+  const handleGoogleDocsSubmit = (formData: any) => {
+    handleUploadSubmit(formData);
   };
 
   const handleDownload = () => {
@@ -168,6 +178,7 @@ export const useServiceCardState = ({
     isRealTimeActive,
     showAuthDialog,
     showUploadDialog,
+    showGoogleDocsDialog,
     isUploading,
     hasScannedContent,
     uploadedFile,
@@ -176,8 +187,10 @@ export const useServiceCardState = ({
     handleAuth,
     handleUpload,
     handleUploadSubmit,
+    handleGoogleDocsSubmit,
     handleDownload,
     setShowAuthDialog,
-    setShowUploadDialog
+    setShowUploadDialog,
+    setShowGoogleDocsDialog
   };
 };
