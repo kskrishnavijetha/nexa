@@ -7,6 +7,7 @@ import { scanGoogleService } from '@/utils/google/scanService';
 import { scanMicrosoftService } from '@/utils/microsoft/microsoftServices';
 import { toast } from 'sonner';
 import { ScanViolation, ScanResults } from '@/components/google/types';
+import { useRealTimeScan } from '@/contexts/RealTimeScanContext';
 
 export function useServiceScanner() {
   const [isScanning, setIsScanning] = useState(false);
@@ -14,6 +15,9 @@ export function useServiceScanner() {
   const [lastScanTime, setLastScanTime] = useState<Date | undefined>(undefined);
   const [itemsScanned, setItemsScanned] = useState<number>(0);
   const [violationsFound, setViolationsFound] = useState<number>(0);
+  
+  // Get access to our global real-time scan context
+  const { updateScanStats, addViolation } = useRealTimeScan();
 
   // Real-time simulation for connected services
   useEffect(() => {
@@ -26,9 +30,28 @@ export function useServiceScanner() {
         const randomChange = Math.floor(Math.random() * 5);
         setItemsScanned(prev => prev + randomChange);
         
+        // Update global scan stats
+        updateScanStats({
+          itemsScanned: itemsScanned + randomChange,
+          lastScanTime: new Date()
+        });
+        
         // Occasionally add a new violation
         if (Math.random() > 0.8) {
           setViolationsFound(prev => prev + 1);
+          
+          // Create a new random violation
+          const newViolation: ScanViolation = {
+            title: `New compliance issue #${Math.floor(Math.random() * 1000)}`,
+            description: 'Potential compliance violation detected during real-time monitoring',
+            severity: Math.random() > 0.7 ? 'high' : Math.random() > 0.4 ? 'medium' : 'low',
+            service: Math.random() > 0.5 ? 'gmail' : 'drive',
+            location: `Document-${Math.floor(Math.random() * 100)}.pdf`
+          };
+          
+          // Add to global context
+          addViolation(newViolation);
+          
           toast.info(`New potential compliance issue detected`);
         }
       }, 15000); // Update every 15 seconds
@@ -39,7 +62,7 @@ export function useServiceScanner() {
         window.clearInterval(interval);
       }
     };
-  }, [lastScanTime]);
+  }, [lastScanTime, itemsScanned, updateScanStats, addViolation]);
 
   const handleScan = async (
     connectedServices: GoogleService[],
@@ -61,6 +84,12 @@ export function useServiceScanner() {
     
     setIsScanning(true);
     setScanResults(null);
+    
+    // Update global scan context to show scanning is active
+    updateScanStats({
+      isActive: true,
+      lastScanTime: new Date()
+    });
     
     try {
       // Scan each connected service
@@ -101,7 +130,7 @@ export function useServiceScanner() {
             result.data.reports.forEach(report => {
               // Each risk item in the report becomes a violation
               report.risks.forEach(risk => {
-                violations.push({
+                const violation: ScanViolation = {
                   title: risk.description.split(': ')[0] || risk.description,
                   description: risk.description.includes(': ') ? 
                     risk.description.split(': ')[1] : 
@@ -109,7 +138,12 @@ export function useServiceScanner() {
                   severity: risk.severity,
                   service: result.data?.serviceType || 'unknown',
                   location: report.documentName
-                });
+                };
+                
+                violations.push(violation);
+                
+                // Add each violation to the global context for real-time tracking
+                addViolation(violation);
               });
             });
           }
@@ -118,14 +152,28 @@ export function useServiceScanner() {
       
       console.log('Processed violations:', violations);
       
+      // Update local state
       setLastScanTime(new Date());
       setItemsScanned(totalItemsScanned);
       setViolationsFound(violations.length);
       setScanResults({ violations });
+      
+      // Update global state
+      updateScanStats({
+        itemsScanned: totalItemsScanned,
+        violationsFound: violations.length,
+        lastScanTime: new Date()
+      });
+      
       toast.success('Scan completed successfully');
     } catch (error) {
       console.error('Error scanning:', error);
       toast.error('Failed to complete scan');
+      
+      // Update global scan context
+      updateScanStats({
+        isActive: false
+      });
     } finally {
       setIsScanning(false);
     }

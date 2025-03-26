@@ -6,7 +6,9 @@ import { useServiceScanner } from '@/hooks/useServiceScanner';
 import GoogleScannerStatus from './GoogleScannerStatus';
 import CloudServicesCard from './CloudServicesCard';
 import ScanResultsComponent from './ScanResults';
+import MicrosoftScanResults from '../microsoft/MicrosoftScanResults';
 import { toast } from 'sonner';
+import { useRealTimeScan } from '@/contexts/RealTimeScanContext';
 
 const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({ 
   industry, 
@@ -41,7 +43,16 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     handleScan
   } = useServiceScanner();
   
+  const { updateScanStats } = useRealTimeScan();
+  
   const anyServiceConnected = connectedServices.length > 0;
+  
+  // When connection state changes, update the global scan stats
+  useEffect(() => {
+    updateScanStats({
+      isActive: anyServiceConnected
+    });
+  }, [anyServiceConnected, updateScanStats]);
   
   // Handler for scan button
   const onScanButtonClick = () => {
@@ -74,6 +85,24 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
       });
     }
   }, []);
+  
+  // Filter scan results by service type
+  const getServiceViolations = (serviceType: 'google' | 'microsoft') => {
+    if (!scanResults) return [];
+    
+    return scanResults.violations.filter(violation => {
+      const service = violation.service.toLowerCase();
+      
+      if (serviceType === 'google') {
+        return service === 'gmail' || service === 'drive' || service === 'docs';
+      } else {
+        return service === 'sharepoint' || service === 'outlook' || service === 'teams';
+      }
+    });
+  };
+  
+  const googleViolations = getServiceViolations('google');
+  const microsoftViolations = getServiceViolations('microsoft');
 
   return (
     <div className="space-y-6">
@@ -105,7 +134,17 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
         disableScan={!industry}
       />
       
-      {scanResults && <ScanResultsComponent violations={scanResults.violations} />}
+      {/* Render Google and Microsoft scan results separately */}
+      {googleViolations.length > 0 && (
+        <ScanResultsComponent violations={googleViolations} />
+      )}
+      
+      {microsoftViolations.length > 0 && (
+        <MicrosoftScanResults 
+          violations={microsoftViolations} 
+          serviceName="Microsoft Services" 
+        />
+      )}
     </div>
   );
 };
