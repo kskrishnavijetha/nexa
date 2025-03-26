@@ -24,9 +24,12 @@ export interface ActionButtonsProps {
   isConnected: boolean;
   isConnecting: boolean;
   isUploading?: boolean;
+  isScanned?: boolean;
   handleConnect: () => void;
   handleUpload?: () => void;
+  handleDownload?: () => void;
   actionButtonText: string;
   connectVariant?: ButtonVariant;
   uploadVariant?: ButtonVariant;
+  downloadVariant?: ButtonVariant;
 }

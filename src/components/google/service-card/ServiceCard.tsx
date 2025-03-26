@@ -8,6 +8,7 @@ import ActionButtons from './ActionButtons';
 import AuthDialog from './AuthDialog';
 import UploadDialog from './UploadDialog';
 import { getServiceHelperTexts } from './ServiceTextUtils';
+import { toast } from 'sonner';
 
 const ServiceCard: React.FC<ServiceCardProps> = ({
   serviceId,
@@ -26,6 +27,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [hasScannedContent, setHasScannedContent] = useState(false);
   
   const helperTexts = getServiceHelperTexts(serviceId);
   
@@ -56,8 +58,21 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       setIsRealTimeActive(true);
     } else {
       setIsRealTimeActive(false);
+      setHasScannedContent(false);
     }
   }, [isConnected]);
+
+  // Set has scanned content when scanning is complete
+  useEffect(() => {
+    if (isConnected && !isScanning && isRealTimeActive) {
+      // Simulate having scanned content after a successful scan
+      const timer = setTimeout(() => {
+        setHasScannedContent(true);
+      }, 5000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isConnected, isScanning, isRealTimeActive]);
 
   const toggleRealTime = () => {
     setIsRealTimeActive(!isRealTimeActive);
@@ -68,6 +83,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
       setShowAuthDialog(true);
     } else {
       onDisconnect();
+      setHasScannedContent(false);
     }
   };
 
@@ -88,15 +104,44 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     setTimeout(() => {
       if (serviceId.includes('drive') && formData.file) {
         console.log(`Uploading file to Google Drive: ${formData.file.name}`);
+        toast.success(`File "${formData.file.name}" uploaded to Google Drive`);
       } else if (serviceId.includes('gmail')) {
         console.log(`Sending email to ${formData.recipientEmail} with subject: ${formData.emailSubject}`);
+        toast.success(`Email sent to ${formData.recipientEmail}`);
       } else if (serviceId.includes('docs')) {
-        console.log(`Creating Google Doc: ${formData.docTitle}`);
+        console.log(`Uploading Google Doc: ${formData.docTitle || formData.file?.name || 'Untitled Document'}`);
+        toast.success(`Document "${formData.docTitle || formData.file?.name || 'Untitled Document'}" uploaded to Google Docs`);
       }
       
       setIsUploading(false);
       setShowUploadDialog(false);
+      setHasScannedContent(true);
     }, 2000); // Simulate a 2-second upload process
+  };
+
+  const handleDownload = () => {
+    // Simulate downloading a document
+    toast.info("Preparing document for download...");
+    
+    setTimeout(() => {
+      const documentName = 
+        serviceId.includes('drive') ? 'drive-document.pdf' : 
+        serviceId.includes('gmail') ? 'email-report.pdf' : 
+        serviceId.includes('docs') ? 'google-doc.pdf' : 
+        'document.pdf';
+      
+      // Create a mock blob to simulate a file download
+      const blob = new Blob(['Mock file content'], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = documentName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      
+      toast.success(`Document "${documentName}" downloaded successfully`);
+    }, 1500);
   };
 
   return (
@@ -123,11 +168,14 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           isConnected={isConnected}
           isConnecting={isConnecting}
           isUploading={isUploading}
+          isScanned={hasScannedContent}
           handleConnect={handleConnect}
           handleUpload={handleUpload}
+          handleDownload={handleDownload}
           actionButtonText={helperTexts.actionButtonText}
           connectVariant="default"
           uploadVariant="outline"
+          downloadVariant="secondary"
         />
 
         <AuthDialog 

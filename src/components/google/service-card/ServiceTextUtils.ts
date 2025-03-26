@@ -12,27 +12,27 @@ export const getServiceHelperTexts = (serviceId: string) => {
 export const getActionButtonText = (serviceId: string): string => {
   if (serviceId.includes('drive')) return 'Upload File';
   if (serviceId.includes('gmail')) return 'Email Content';
-  if (serviceId.includes('docs')) return 'Create Document';
+  if (serviceId.includes('docs')) return 'Upload Google Doc';
   return 'Action';
 };
 
 export const getUploadDialogTitle = (serviceId: string): string => {
   if (serviceId.includes('drive')) return 'Upload to Google Drive';
   if (serviceId.includes('gmail')) return 'Email Content';
-  if (serviceId.includes('docs')) return 'Create Google Document';
+  if (serviceId.includes('docs')) return 'Upload Google Document';
   return 'Action';
 };
 
 export const getUploadDialogDescription = (serviceId: string): string => {
   if (serviceId.includes('drive')) return 'Select a file to upload to your Google Drive';
   if (serviceId.includes('gmail')) return 'Create or analyze email content from your Gmail account';
-  if (serviceId.includes('docs')) return 'Create a new document in Google Docs';
+  if (serviceId.includes('docs')) return 'Upload a document to Google Docs';
   return '';
 };
 
 export const getSubmitButtonText = (serviceId: string): string => {
   if (serviceId.includes('drive')) return 'Upload';
   if (serviceId.includes('gmail')) return 'Send Email';
-  if (serviceId.includes('docs')) return 'Create Document';
+  if (serviceId.includes('docs')) return 'Upload';
   return 'Submit';
 };
