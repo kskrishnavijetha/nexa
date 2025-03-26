@@ -6,6 +6,7 @@ import { useServiceScanner } from '@/hooks/useServiceScanner';
 import GoogleScannerStatus from './GoogleScannerStatus';
 import CloudServicesCard from './CloudServicesCard';
 import ScanResultsComponent from './ScanResults';
+import { toast } from 'sonner';
 
 const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({ 
   industry, 
@@ -52,17 +53,27 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     });
     
     if (connectedServices.length === 0) {
-      console.error('No services connected');
+      toast.error('No services connected. Please connect at least one service before scanning.');
       return;
     }
     
     if (!industry) {
-      console.error('No industry selected');
+      toast.error('No industry selected. Please select an industry before scanning.');
       return;
     }
     
     handleScan(connectedServices, industry, language, region);
   };
+
+  // Show guidance if no services are connected
+  useEffect(() => {
+    if (connectedServices.length === 0) {
+      toast.info('Connect at least one service and select an industry to begin scanning', {
+        duration: 5000,
+        id: 'connect-service-toast', // Prevent duplicate toasts
+      });
+    }
+  }, []);
 
   return (
     <div className="space-y-6">

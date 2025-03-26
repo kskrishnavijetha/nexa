@@ -56,6 +56,8 @@ export function useServiceScanner() {
       return;
     }
     
+    console.log('Starting scan with:', { connectedServices, industry, language, region });
+    
     setIsScanning(true);
     setScanResults(null);
     
@@ -63,6 +65,8 @@ export function useServiceScanner() {
       // Scan each connected service
       const results = await Promise.all(
         connectedServices.map(service => {
+          console.log(`Scanning service: ${service}`);
+          
           const serviceId = 
             service === 'drive' ? 'drive-1' : 
             service === 'gmail' ? 'gmail-1' : 
@@ -73,6 +77,8 @@ export function useServiceScanner() {
           return scanGoogleService(serviceId, industry, language, region);
         })
       );
+      
+      console.log('Scan results:', results);
       
       // Combine results and properly format them as ScanViolation objects
       const violations: ScanViolation[] = [];
@@ -87,8 +93,10 @@ export function useServiceScanner() {
               // Each risk item in the report becomes a violation
               report.risks.forEach(risk => {
                 violations.push({
-                  title: risk.description,
-                  description: `${risk.regulation}: ${risk.section || 'General compliance issue'}`,
+                  title: risk.description.split(': ')[0] || risk.description,
+                  description: risk.description.includes(': ') ? 
+                    risk.description.split(': ')[1] : 
+                    `${risk.regulation}: ${risk.section || 'General compliance issue'}`,
                   severity: risk.severity,
                   service: result.data?.serviceType || 'unknown',
                   location: report.documentName
@@ -98,6 +106,8 @@ export function useServiceScanner() {
           }
         }
       });
+      
+      console.log('Processed violations:', violations);
       
       setLastScanTime(new Date());
       setItemsScanned(totalItemsScanned);

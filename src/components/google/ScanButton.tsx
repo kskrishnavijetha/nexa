@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronRight, Loader2 } from 'lucide-react';
+import { ChevronRight, Loader2, Scan } from 'lucide-react';
 
 interface ScanButtonProps {
   onScan: () => void;
@@ -15,7 +15,7 @@ const ScanButton: React.FC<ScanButtonProps> = ({ onScan, isScanning, disabled })
       <Button 
         onClick={onScan} 
         disabled={disabled || isScanning}
-        className="px-8 bg-gray-500 hover:bg-gray-600 text-white"
+        className="px-8 bg-blue-600 hover:bg-blue-700 text-white"
         size="default"
       >
         {isScanning ? (
@@ -25,6 +25,7 @@ const ScanButton: React.FC<ScanButtonProps> = ({ onScan, isScanning, disabled })
           </>
         ) : (
           <>
+            <Scan className="h-4 w-4 mr-2" />
             Scan Now
             <ChevronRight className="h-4 w-4 ml-2" />
           </>
