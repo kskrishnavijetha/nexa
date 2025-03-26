@@ -69,10 +69,7 @@ export function useServiceScanner() {
           
           const serviceId = 
             service === 'drive' ? 'drive-1' : 
-            service === 'gmail' ? 'gmail-1' : 
-            service === 'docs' ? 'docs-1' :
-            service === 'sharepoint' ? 'sharepoint-1' :
-            service === 'outlook' ? 'outlook-1' : 'teams-1';
+            service === 'gmail' ? 'gmail-1' : 'docs-1';
             
           return scanGoogleService(serviceId, industry, language, region);
         })

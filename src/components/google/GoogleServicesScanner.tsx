@@ -19,16 +19,10 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     isConnectingDrive,
     isConnectingGmail,
     isConnectingDocs,
-    isConnectingSharePoint,
-    isConnectingOutlook,
-    isConnectingTeams,
     connectedServices,
     handleConnectDrive,
     handleConnectGmail,
     handleConnectDocs,
-    handleConnectSharePoint,
-    handleConnectOutlook,
-    handleConnectTeams,
     handleDisconnect
   } = useGoogleServiceConnections();
 
@@ -90,15 +84,9 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
         isConnectingDrive={isConnectingDrive}
         isConnectingGmail={isConnectingGmail}
         isConnectingDocs={isConnectingDocs}
-        isConnectingSharePoint={isConnectingSharePoint}
-        isConnectingOutlook={isConnectingOutlook}
-        isConnectingTeams={isConnectingTeams}
         onConnectDrive={handleConnectDrive}
         onConnectGmail={handleConnectGmail}
         onConnectDocs={handleConnectDocs}
-        onConnectSharePoint={handleConnectSharePoint}
-        onConnectOutlook={handleConnectOutlook}
-        onConnectTeams={handleConnectTeams}
         onDisconnect={handleDisconnect}
         onScan={onScanButtonClick}
         anyServiceConnected={anyServiceConnected}
