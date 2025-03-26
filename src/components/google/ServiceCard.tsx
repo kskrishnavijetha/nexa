@@ -119,6 +119,38 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
     setDocContent('');
   };
 
+  // Determine the action button text based on service type
+  const getActionButtonText = () => {
+    if (serviceId.includes('drive')) return 'Upload File';
+    if (serviceId.includes('gmail')) return 'Email Content';
+    if (serviceId.includes('docs')) return 'Create Document';
+    return 'Action';
+  };
+
+  // Determine the upload dialog title based on service type
+  const getUploadDialogTitle = () => {
+    if (serviceId.includes('drive')) return 'Upload to Google Drive';
+    if (serviceId.includes('gmail')) return 'Email Content';
+    if (serviceId.includes('docs')) return 'Create Google Document';
+    return 'Action';
+  };
+
+  // Determine the upload dialog description based on service type
+  const getUploadDialogDescription = () => {
+    if (serviceId.includes('drive')) return 'Select a file to upload to your Google Drive';
+    if (serviceId.includes('gmail')) return 'Create or analyze email content from your Gmail account';
+    if (serviceId.includes('docs')) return 'Create a new document in Google Docs';
+    return '';
+  };
+
+  // Determine the submit button text based on service type
+  const getSubmitButtonText = () => {
+    if (serviceId.includes('drive')) return 'Upload';
+    if (serviceId.includes('gmail')) return 'Send Email';
+    if (serviceId.includes('docs')) return 'Create Document';
+    return 'Submit';
+  };
+
   return (
     <Card className="border-gray-200">
       <CardHeader className="pb-2">
@@ -186,9 +218,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
               onClick={() => setShowUploadDialog(true)}
             >
               <Upload className="h-4 w-4 mr-2" />
-              {serviceId.includes('drive') ? 'Upload File' : 
-               serviceId.includes('gmail') ? 'Compose Email' : 
-               'Create Document'}
+              {getActionButtonText()}
             </Button>
           )}
         </div>
@@ -241,14 +271,10 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>
-                {serviceId.includes('drive') ? 'Upload to Google Drive' : 
-                 serviceId.includes('gmail') ? 'Compose Email' : 
-                 'Create Google Document'}
+                {getUploadDialogTitle()}
               </DialogTitle>
               <DialogDescription>
-                {serviceId.includes('drive') ? 'Select a file to upload to your Google Drive' : 
-                 serviceId.includes('gmail') ? 'Compose an email to send from your Gmail account' : 
-                 'Create a new document in Google Docs'}
+                {getUploadDialogDescription()}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleUpload} className="space-y-4">
@@ -332,9 +358,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
                   Cancel
                 </Button>
                 <Button type="submit">
-                  {serviceId.includes('drive') ? 'Upload' : 
-                   serviceId.includes('gmail') ? 'Send Email' : 
-                   'Create Document'}
+                  {getSubmitButtonText()}
                 </Button>
               </div>
             </form>
@@ -346,3 +370,4 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 };
 
 export default ServiceCard;
+
