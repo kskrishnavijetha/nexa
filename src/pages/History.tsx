@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ComplianceReport } from '@/utils/types';
 import AuditTrail from '@/components/audit/AuditTrail';
@@ -8,7 +8,7 @@ import DocumentSelector from '@/components/history/DocumentSelector';
 import ComplianceDetails from '@/components/history/ComplianceDetails';
 import RealtimeAnalysisSimulator from '@/components/history/RealtimeAnalysisSimulator';
 import { getHistoricalReports } from '@/utils/historyService';
-import { toast } from 'sonner';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const History: React.FC = () => {
   const [reports, setReports] = useState<ComplianceReport[]>([]);
@@ -17,6 +17,38 @@ const History: React.FC = () => {
   const [realTimeEnabled, setRealTimeEnabled] = useState<boolean>(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [analyzingDocument, setAnalyzingDocument] = useState<string | null>(null);
+  
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Parse URL parameters
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const documentParam = params.get('document');
+    const tabParam = params.get('tab');
+    
+    if (documentParam) {
+      setSelectedDocument(documentParam);
+    }
+    
+    if (tabParam && (tabParam === 'reports' || tabParam === 'audit')) {
+      setActiveTab(tabParam);
+    }
+  }, [location]);
+
+  // Update URL when selections change
+  const updateUrl = useCallback(() => {
+    const params = new URLSearchParams();
+    if (selectedDocument) {
+      params.set('document', selectedDocument);
+    }
+    params.set('tab', activeTab);
+    navigate(`/history?${params.toString()}`, { replace: true });
+  }, [selectedDocument, activeTab, navigate]);
+
+  useEffect(() => {
+    updateUrl();
+  }, [selectedDocument, activeTab, updateUrl]);
 
   useEffect(() => {
     // Load reports from history service
@@ -62,6 +94,10 @@ const History: React.FC = () => {
     }
   };
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
+
   const selectedReport = getSelectedReport();
 
   return (
@@ -87,9 +123,9 @@ const History: React.FC = () => {
         </div>
       ) : (
         <Tabs 
-          defaultValue="reports" 
+          value={activeTab}
           className="mb-6"
-          onValueChange={(value) => setActiveTab(value)}
+          onValueChange={handleTabChange}
         >
           <TabsList className="grid w-full max-w-md grid-cols-2">
             <TabsTrigger value="reports">Compliance Reports</TabsTrigger>

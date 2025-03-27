@@ -13,7 +13,7 @@ const AuditTrail: React.FC<AuditTrailProps> = ({ documentName }) => {
   return (
     <Card>
       <AuditTrailProvider documentName={documentName}>
-        <AuditTrailHeader />
+        <AuditTrailHeader documentName={documentName} />
         <CardContent>
           <AuditTrailList />
         </CardContent>

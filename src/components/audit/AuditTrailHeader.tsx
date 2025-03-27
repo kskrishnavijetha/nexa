@@ -1,16 +1,36 @@
 
 import React from 'react';
-import { Clock } from 'lucide-react';
-import { CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuditTrail } from './AuditTrailProvider';
+import { Download } from 'lucide-react';
 
-const AuditTrailHeader: React.FC = () => {
+interface AuditTrailHeaderProps {
+  documentName: string;
+}
+
+const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => {
+  const { auditEvents, isGeneratingReport, downloadAuditReport } = useAuditTrail();
+
   return (
-    <CardHeader>
-      <CardTitle className="flex items-center gap-2">
-        <Clock className="h-5 w-5 text-gray-500" />
-        Smart Audit Trail & Collaboration
-        <span className="ml-2 text-xs font-normal bg-green-100 text-green-800 px-2 py-1 rounded-full animate-pulse">Live</span>
-      </CardTitle>
+    <CardHeader className="flex flex-row items-center justify-between">
+      <div>
+        <CardTitle>Audit Trail</CardTitle>
+        <CardDescription>
+          {auditEvents.length} event{auditEvents.length !== 1 ? 's' : ''} for {documentName}
+        </CardDescription>
+      </div>
+      
+      <Button 
+        size="sm" 
+        variant="outline" 
+        className="ml-auto" 
+        onClick={downloadAuditReport}
+        disabled={isGeneratingReport || auditEvents.length === 0}
+      >
+        <Download className="mr-2 h-4 w-4" />
+        {isGeneratingReport ? "Generating..." : "Download Report"}
+      </Button>
     </CardHeader>
   );
 };
