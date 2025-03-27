@@ -1,7 +1,8 @@
 
-import { ReactNode } from 'react';
+import { LucideIcon } from 'lucide-react';
+import { ComplianceReport } from '@/utils/types';
 
-export interface Comment {
+export interface AuditComment {
   id: string;
   user: string;
   text: string;
@@ -10,21 +11,21 @@ export interface Comment {
 
 export interface AuditEvent {
   id: string;
+  timestamp: string;
   action: string;
   documentName: string;
-  timestamp: string;
   user: string;
   status?: 'pending' | 'in-progress' | 'completed';
-  comments?: Comment[];
-  icon?: ReactNode;
+  comments?: AuditComment[];
+  icon?: React.ReactNode;
 }
 
 export interface ServiceScanHistory {
   serviceId: string;
   serviceName: string;
+  documentName?: string;
   scanDate: string;
   itemsScanned: number;
   violationsFound: number;
-  documentName?: string;
-  reportUrl?: string;
+  report?: ComplianceReport;
 }

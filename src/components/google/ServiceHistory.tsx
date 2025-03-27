@@ -1,26 +1,33 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { FileText, AlertTriangle, Calendar, Download } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
 import { toast } from 'sonner';
-import { useAuditTrail } from '@/components/audit/AuditTrailProvider';
 import { Button } from '@/components/ui/button';
+import DocumentPreview from '@/components/document-analysis/DocumentPreview';
+import { ComplianceReport } from '@/utils/types';
+import { AuditTrailProvider } from '@/components/audit/AuditTrailProvider';
+import AuditTrailList from '@/components/audit/AuditTrailList';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
 const ServiceHistory: React.FC = () => {
   const { scanHistory } = useServiceHistoryStore();
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [auditDialogOpen, setAuditDialogOpen] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
+  const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
+  
+  const handleDocumentClick = (document: string, report?: ComplianceReport) => {
+    setSelectedDocument(document);
+    setSelectedReport(report || null);
+    setAuditDialogOpen(true);
+  };
 
   const handleDownloadAuditReport = async (documentName: string) => {
     try {
-      // Create a temporary AuditTrailProvider context for this document
-      const auditTrailContext = document.createElement('div');
-      const auditTrailProvider = document.createElement('div');
-      auditTrailProvider.setAttribute('data-document-name', documentName);
-      auditTrailContext.appendChild(auditTrailProvider);
-      document.body.appendChild(auditTrailContext);
-      
       // Use the utility function from auditReportService directly
       const { generateAuditReport, getAuditReportFileName } = await import('@/utils/auditReportService');
       
@@ -48,9 +55,6 @@ const ServiceHistory: React.FC = () => {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
-      // Clean up the temporary context
-      document.body.removeChild(auditTrailContext);
       
       toast.success(`Audit report for "${documentName}" downloaded successfully`);
     } catch (error) {
@@ -111,11 +115,10 @@ const ServiceHistory: React.FC = () => {
                 <TableCell className="font-medium">
                   <Button 
                     variant="link" 
-                    className="p-0 h-auto text-left text-blue-600 hover:text-blue-800 hover:underline flex items-center"
-                    onClick={() => handleDownloadAuditReport(item.documentName || 'Document Scan')}
+                    className="p-0 h-auto text-left text-blue-600 hover:text-blue-800 hover:underline"
+                    onClick={() => handleDocumentClick(item.documentName || 'Document Scan', item.report)}
                   >
                     {item.documentName || 'General Scan'}
-                    <Download className="ml-1 h-3 w-3" />
                   </Button>
                 </TableCell>
                 <TableCell>
@@ -133,6 +136,42 @@ const ServiceHistory: React.FC = () => {
           </TableBody>
         </Table>
       </CardContent>
+
+      {/* Document Preview Modal */}
+      {selectedReport && (
+        <DocumentPreview 
+          report={selectedReport}
+          isOpen={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+        />
+      )}
+
+      {/* Audit Trail Dialog */}
+      <Dialog open={auditDialogOpen} onOpenChange={setAuditDialogOpen}>
+        <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold">Audit Trail: {selectedDocument}</DialogTitle>
+          </DialogHeader>
+          
+          {selectedDocument && (
+            <div className="mt-4 flex-1 overflow-auto">
+              <AuditTrailProvider documentName={selectedDocument}>
+                <AuditTrailList />
+              </AuditTrailProvider>
+            </div>
+          )}
+          
+          <DialogFooter className="mt-6">
+            <Button 
+              onClick={() => selectedDocument && handleDownloadAuditReport(selectedDocument)}
+              className="flex items-center"
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download Detailed Report
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
