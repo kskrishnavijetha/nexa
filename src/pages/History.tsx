@@ -1,21 +1,32 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ComplianceReport } from '@/utils/types';
 import AuditTrail from '@/components/audit/AuditTrail';
-import { mockScans } from '@/utils/historyMocks';
 import HistoryHeader from '@/components/history/HistoryHeader';
 import DocumentSelector from '@/components/history/DocumentSelector';
 import ComplianceDetails from '@/components/history/ComplianceDetails';
 import RealtimeAnalysisSimulator from '@/components/history/RealtimeAnalysisSimulator';
+import { getHistoricalReports } from '@/utils/historyService';
 
 const History: React.FC = () => {
-  const [selectedDocument, setSelectedDocument] = useState<string | null>(mockScans[0]?.documentName || null);
+  const [reports, setReports] = useState<ComplianceReport[]>([]);
+  const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<string>('reports');
-  const [reports, setReports] = useState<ComplianceReport[]>(mockScans);
   const [realTimeEnabled, setRealTimeEnabled] = useState<boolean>(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [analyzingDocument, setAnalyzingDocument] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Load reports from history service
+    const historicalReports = getHistoricalReports();
+    setReports(historicalReports);
+    
+    // Set selected document to the first report if available
+    if (historicalReports.length > 0 && !selectedDocument) {
+      setSelectedDocument(historicalReports[0].documentName);
+    }
+  }, []);
 
   const handleDocumentSelect = (documentName: string) => {
     setSelectedDocument(documentName);

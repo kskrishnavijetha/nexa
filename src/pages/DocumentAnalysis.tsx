@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { ComplianceReport, generateReportPDF } from '../utils/apiService';
 import DocumentHeader from '@/components/document-analysis/DocumentHeader';
 import DocumentUploader from '@/components/document-uploader/DocumentUploader';
 import AnalysisResults from '@/components/document-analysis/AnalysisResults';
+import { addReportToHistory } from '@/utils/historyService';
 
 const DocumentAnalysis = () => {
   const [report, setReport] = useState<ComplianceReport | null>(null);
@@ -12,6 +13,10 @@ const DocumentAnalysis = () => {
 
   const handleReportGenerated = (reportData: ComplianceReport) => {
     setReport(reportData);
+    
+    // Save the report to history for viewing in the history page
+    addReportToHistory(reportData);
+    toast.success('Report added to history');
   };
 
   const handleDownloadReport = async () => {

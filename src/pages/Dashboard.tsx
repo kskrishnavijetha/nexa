@@ -9,14 +9,20 @@ import ComplianceScanTable from '@/components/dashboard/ComplianceScanTable';
 import DocumentPreview from '@/components/document-analysis/DocumentPreview';
 import { generateReportPDF } from '@/utils/reportService';
 import { toast } from 'sonner';
-import { mockScans } from '@/utils/historyMocks';
+import { getHistoricalReports } from '@/utils/historyService';
 
 const Dashboard: React.FC = () => {
   const [riskFilter, setRiskFilter] = useState<string>('all');
   const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const [scans, setScans] = useState<ComplianceReport[]>(mockScans);
+  const [scans, setScans] = useState<ComplianceReport[]>([]);
+
+  useEffect(() => {
+    // Load reports from history service
+    const historicalReports = getHistoricalReports();
+    setScans(historicalReports);
+  }, []);
 
   // Define the function to get worst risk level for filtering
   const getWorstRiskLevel = (scan: ComplianceReport): string => {
