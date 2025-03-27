@@ -1,6 +1,5 @@
-
 import { useEffect } from 'react';
-import { GoogleServicesScannerProps, ScanResults } from './types';
+import { GoogleService, GoogleServicesScannerProps, ScanResults } from './types';
 import { useGoogleServiceConnections } from '@/hooks/useGoogleServiceConnections';
 import { useServiceScanner } from '@/hooks/useServiceScanner';
 import GoogleScannerStatus from './GoogleScannerStatus';

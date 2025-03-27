@@ -11,6 +11,7 @@ import GoogleScannerSettings from './google/GoogleScannerSettings';
 import ServiceHistory from './google/ServiceHistory';
 import { toast } from 'sonner';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
+import { GoogleService } from './google/types';
 
 const GoogleServicesPage: React.FC = () => {
   const [industry, setIndustry] = useState<Industry | undefined>(undefined);
@@ -18,7 +19,7 @@ const GoogleServicesPage: React.FC = () => {
   const [language, setLanguage] = useState<SupportedLanguage>('en');
   const [activeTab, setActiveTab] = useState('scanner');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [persistedConnectedServices, setPersistedConnectedServices] = useState<string[]>([]);
+  const [persistedConnectedServices, setPersistedConnectedServices] = useState<GoogleService[]>([]);
 
   // Listen for Google authorization response
   useEffect(() => {
@@ -59,7 +60,7 @@ const GoogleServicesPage: React.FC = () => {
     setActiveTab(value);
   };
 
-  const handleServicesUpdate = (services: string[]) => {
+  const handleServicesUpdate = (services: GoogleService[]) => {
     setPersistedConnectedServices(services);
   };
 
