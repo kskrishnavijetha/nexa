@@ -3,7 +3,88 @@ import { AuditEvent } from '@/components/audit/types';
 import jsPDF from 'jspdf';
 
 /**
- * Generate a downloadable audit trail report PDF
+ * Generate AI-enhanced insights from audit events
+ */
+const generateAIInsights = (auditEvents: AuditEvent[]): string[] => {
+  // In a real application, this would call an AI model API
+  // For now, we'll generate insights based on patterns in the audit data
+  
+  const insights: string[] = [];
+  
+  // Analyze user activity patterns
+  const userActions = new Map<string, number>();
+  auditEvents.forEach(event => {
+    if (event.user !== 'System') {
+      const count = userActions.get(event.user) || 0;
+      userActions.set(event.user, count + 1);
+    }
+  });
+  
+  // Find most active user
+  let mostActiveUser = '';
+  let mostActions = 0;
+  userActions.forEach((count, user) => {
+    if (count > mostActions) {
+      mostActiveUser = user;
+      mostActions = count;
+    }
+  });
+  
+  if (mostActiveUser) {
+    insights.push(`${mostActiveUser} is the most active user with ${mostActions} actions recorded.`);
+  }
+  
+  // Analyze task completion rates
+  const totalTasks = auditEvents.filter(e => e.status).length;
+  const completedTasks = auditEvents.filter(e => e.status === 'completed').length;
+  
+  if (totalTasks > 0) {
+    const completionRate = (completedTasks / totalTasks * 100).toFixed(1);
+    insights.push(`Task completion rate is ${completionRate}% (${completedTasks} out of ${totalTasks} tasks completed).`);
+    
+    if (parseFloat(completionRate) < 50) {
+      insights.push(`Recommendation: Follow up on pending tasks to improve completion rate.`);
+    }
+  }
+  
+  // Analyze activity over time
+  const activityByDay = new Map<string, number>();
+  auditEvents.forEach(event => {
+    const date = new Date(event.timestamp).toISOString().split('T')[0];
+    const count = activityByDay.get(date) || 0;
+    activityByDay.set(date, count + 1);
+  });
+  
+  // Find most active day
+  let mostActiveDay = '';
+  let mostDayActions = 0;
+  activityByDay.forEach((count, day) => {
+    if (count > mostDayActions) {
+      mostActiveDay = day;
+      mostDayActions = count;
+    }
+  });
+  
+  if (mostActiveDay) {
+    insights.push(`Highest activity was recorded on ${new Date(mostActiveDay).toLocaleDateString()} with ${mostDayActions} events.`);
+  }
+  
+  // Add recommendations based on patterns
+  if (auditEvents.length > 10) {
+    insights.push(`This document has significant activity with ${auditEvents.length} tracked events, indicating high collaboration.`);
+  }
+  
+  // Return at least some insights even if our analysis didn't find patterns
+  if (insights.length === 0) {
+    insights.push("Not enough audit data to generate meaningful insights.");
+    insights.push("Continue tracking document activities to enable more detailed analysis in future reports.");
+  }
+  
+  return insights;
+};
+
+/**
+ * Generate a downloadable audit trail report PDF with AI insights
  */
 export const generateAuditReport = async (
   documentName: string,
@@ -29,10 +110,41 @@ export const generateAuditReport = async (
   doc.setLineWidth(0.5);
   doc.line(20, 42, 190, 42);
   
+  // Generate AI insights
+  const insights = generateAIInsights(auditEvents);
+  
+  // Add AI Insights section
+  doc.setFontSize(14);
+  doc.setTextColor(0, 0, 0);
+  doc.text('AI-Generated Insights', 20, 52);
+  
+  // Add insights
+  let yPos = 62;
+  doc.setFontSize(10);
+  insights.forEach((insight, index) => {
+    // Check if we need a new page
+    if (yPos > 270) {
+      doc.addPage();
+      yPos = 20;
+    }
+    
+    // Format and display insight with bullet point
+    const insightLines = doc.splitTextToSize(`• ${insight}`, 160);
+    doc.text(insightLines, 25, yPos);
+    yPos += (insightLines.length * 5) + 5;
+  });
+  
+  // Add horizontal line after insights
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.2);
+  doc.line(20, yPos, 190, yPos);
+  yPos += 10;
+  
   // Add report summary information
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
-  doc.text('Audit Summary', 20, 52);
+  doc.text('Audit Summary', 20, yPos);
+  yPos += 10;
   
   // Calculate statistics
   const totalEvents = auditEvents.length;
@@ -44,24 +156,30 @@ export const generateAuditReport = async (
   
   // Add summary details
   doc.setFontSize(10);
-  doc.text(`Total Events: ${totalEvents}`, 25, 62);
-  doc.text(`System Events: ${systemEvents}`, 25, 69);
-  doc.text(`User Events: ${userEvents}`, 25, 76);
-  doc.text(`Completed Tasks: ${completed}`, 25, 83);
-  doc.text(`In-Progress Tasks: ${inProgress}`, 25, 90);
-  doc.text(`Pending Tasks: ${pending}`, 25, 97);
+  doc.text(`Total Events: ${totalEvents}`, 25, yPos);
+  yPos += 7;
+  doc.text(`System Events: ${systemEvents}`, 25, yPos);
+  yPos += 7;
+  doc.text(`User Events: ${userEvents}`, 25, yPos);
+  yPos += 7;
+  doc.text(`Completed Tasks: ${completed}`, 25, yPos);
+  yPos += 7;
+  doc.text(`In-Progress Tasks: ${inProgress}`, 25, yPos);
+  yPos += 7;
+  doc.text(`Pending Tasks: ${pending}`, 25, yPos);
+  yPos += 10;
   
   // Add horizontal line
   doc.setDrawColor(200, 200, 200);
   doc.setLineWidth(0.2);
-  doc.line(20, 105, 190, 105);
+  doc.line(20, yPos, 190, yPos);
+  yPos += 10;
   
   // Event details heading
   doc.setFontSize(14);
   doc.setTextColor(0, 0, 0);
-  doc.text('Detailed Audit Events', 20, 115);
-  
-  let yPos = 125;
+  doc.text('Detailed Audit Events', 20, yPos);
+  yPos += 10;
   
   // Sort events by timestamp in descending order (newest first)
   const sortedEvents = [...auditEvents].sort((a, b) => 
@@ -129,6 +247,7 @@ export const generateAuditReport = async (
     doc.setFontSize(8);
     doc.setTextColor(100, 100, 100);
     doc.text(`Page ${i} of ${pageCount}`, 100, 290, { align: 'center' });
+    doc.text(`AI-Enhanced Compliance Report`, 100, 284, { align: 'center' });
   }
   
   // Generate the PDF as a blob
@@ -140,5 +259,5 @@ export const getAuditReportFileName = (documentName: string): string => {
   const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   const sanitizedDocName = documentName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
   
-  return `compliance-audit-${sanitizedDocName}-${formattedDate}.pdf`;
+  return `ai-enhanced-audit-${sanitizedDocName}-${formattedDate}.pdf`;
 };

@@ -7,12 +7,13 @@ import { Download, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { getHistoricalReports } from '@/utils/historyService';
 import { ComplianceReport } from '@/utils/types';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const AuditReports: React.FC = () => {
   const [reports, setReports] = useState<ComplianceReport[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     // Load reports from history service
@@ -25,9 +26,14 @@ const AuditReports: React.FC = () => {
   );
 
   const viewAudit = (documentName: string) => {
-    // Fix the navigation to prevent blinking - only use navigate with replace
-    const url = `/history?document=${encodeURIComponent(documentName)}&tab=audit`;
-    navigate(url, { replace: true });
+    // Use location state to prevent blinking during navigation
+    navigate({
+      pathname: '/history',
+      search: `?document=${encodeURIComponent(documentName)}&tab=audit`
+    }, { 
+      replace: true,
+      state: { preventBlink: true }
+    });
   };
 
   return (
@@ -37,7 +43,7 @@ const AuditReports: React.FC = () => {
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>Document Audit Trail Reports</CardTitle>
-          <CardDescription>View and download audit trails for all analyzed documents</CardDescription>
+          <CardDescription>View and download AI-enhanced audit trails for all analyzed documents</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center mb-4">
