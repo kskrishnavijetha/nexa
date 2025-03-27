@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { AuditEvent } from '../types';
 import { useAuditEvents } from './useAuditEvents';
 
-export function useAuditEventManager(documentName: string) {
+export function useAuditEventManager(documentName: string, initialEvents?: AuditEvent[]) {
   const [isLoading, setIsLoading] = useState(true);
   
   // Initialize audit events using the hook
@@ -12,7 +12,7 @@ export function useAuditEventManager(documentName: string) {
     auditEvents,
     updateAuditEvents,
     setLastActivity
-  } = useAuditEvents({ documentName });
+  } = useAuditEvents({ documentName, initialEvents });
 
   // Set loading state after initial audit events are loaded
   useEffect(() => {

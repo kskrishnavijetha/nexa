@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { AuditEvent } from '../types';
@@ -10,17 +11,20 @@ import {
 
 interface UseAuditEventsProps {
   documentName: string;
+  initialEvents?: AuditEvent[];
 }
 
-export function useAuditEvents({ documentName }: UseAuditEventsProps) {
-  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
+export function useAuditEvents({ documentName, initialEvents }: UseAuditEventsProps) {
+  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>(initialEvents || []);
   const [lastActivity, setLastActivity] = useState<Date>(new Date());
 
-  // Initialize auditEvents
+  // Initialize auditEvents if not provided
   useEffect(() => {
-    setAuditEvents(generateMockAuditTrail(documentName));
-    setLastActivity(new Date());
-  }, [documentName]);
+    if (!initialEvents || initialEvents.length === 0) {
+      setAuditEvents(generateMockAuditTrail(documentName));
+      setLastActivity(new Date());
+    }
+  }, [documentName, initialEvents]);
 
   // Real-time updates simulation
   useEffect(() => {
@@ -49,14 +53,17 @@ export function useAuditEvents({ documentName }: UseAuditEventsProps) {
 
   // Trigger an immediate real-time event when the component mounts
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const newEvent = generateInitialRealTimeEvent(documentName);
-      setAuditEvents(prev => [newEvent, ...prev]);
-      toast.info('Real-time audit trail activated');
-    }, 2000); // Show after 2 seconds
+    // Only add event if we're using generated events (not initial events)
+    if (!initialEvents || initialEvents.length === 0) {
+      const timer = setTimeout(() => {
+        const newEvent = generateInitialRealTimeEvent(documentName);
+        setAuditEvents(prev => [newEvent, ...prev]);
+        toast.info('Real-time audit trail activated');
+      }, 2000); // Show after 2 seconds
 
-    return () => clearTimeout(timer);
-  }, [documentName]);
+      return () => clearTimeout(timer);
+    }
+  }, [documentName, initialEvents]);
 
   const updateAuditEvents = (updatedEvents: AuditEvent[]) => {
     setAuditEvents(updatedEvents);

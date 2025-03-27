@@ -3,22 +3,26 @@ import React from 'react';
 import AuditTrailContext from './context/AuditTrailContext';
 import { useAuditEventManager } from './hooks/useAuditEventManager';
 import { useAuditReport } from './hooks/useAuditReport';
+import { AuditEvent } from './types';
 
 interface AuditTrailProviderProps {
   documentName: string;
   children: React.ReactNode;
+  initialEvents?: AuditEvent[];
 }
 
 export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
   documentName,
   children,
+  initialEvents,
 }) => {
   const {
     auditEvents,
     isLoading,
     addAuditEvent,
-    updateTaskStatus
-  } = useAuditEventManager(documentName);
+    updateTaskStatus,
+    updateAuditEvents
+  } = useAuditEventManager(documentName, initialEvents);
 
   const {
     isGeneratingReport,
@@ -31,7 +35,8 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
     isGeneratingReport,
     downloadAuditReport,
     addAuditEvent,
-    updateTaskStatus
+    updateTaskStatus,
+    updateAuditEvents
   };
 
   return (

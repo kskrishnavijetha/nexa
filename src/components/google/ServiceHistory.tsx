@@ -2,12 +2,62 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { FileText, AlertTriangle, Calendar } from 'lucide-react';
+import { FileText, AlertTriangle, Calendar, Download } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
+import { toast } from 'sonner';
+import { useAuditTrail } from '@/components/audit/AuditTrailProvider';
+import { Button } from '@/components/ui/button';
 
 const ServiceHistory: React.FC = () => {
   const { scanHistory } = useServiceHistoryStore();
+
+  const handleDownloadAuditReport = async (documentName: string) => {
+    try {
+      // Create a temporary AuditTrailProvider context for this document
+      const auditTrailContext = document.createElement('div');
+      const auditTrailProvider = document.createElement('div');
+      auditTrailProvider.setAttribute('data-document-name', documentName);
+      auditTrailContext.appendChild(auditTrailProvider);
+      document.body.appendChild(auditTrailContext);
+      
+      // Use the utility function from auditReportService directly
+      const { generateAuditReport, getAuditReportFileName } = await import('@/utils/auditReportService');
+      
+      // We don't have the actual audit events for this doc, so create minimal mock data
+      const mockAuditEvent = {
+        id: `audit-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        action: `Downloaded service scan report`,
+        documentName,
+        user: 'System',
+        status: 'completed' as const,
+        comments: []
+      };
+      
+      // Generate and download the report
+      const reportBlob = await generateAuditReport(documentName, [mockAuditEvent]);
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(reportBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = getAuditReportFileName(documentName);
+      
+      // Append to body, click and clean up
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the temporary context
+      document.body.removeChild(auditTrailContext);
+      
+      toast.success(`Audit report for "${documentName}" downloaded successfully`);
+    } catch (error) {
+      console.error('Error generating audit report:', error);
+      toast.error('Failed to generate audit report');
+    }
+  };
 
   if (scanHistory.length === 0) {
     return (
@@ -59,7 +109,14 @@ const ServiceHistory: React.FC = () => {
                   </Badge>
                 </TableCell>
                 <TableCell className="font-medium">
-                  {item.documentName || 'General Scan'}
+                  <Button 
+                    variant="link" 
+                    className="p-0 h-auto text-left text-blue-600 hover:text-blue-800 hover:underline flex items-center"
+                    onClick={() => handleDownloadAuditReport(item.documentName || 'Document Scan')}
+                  >
+                    {item.documentName || 'General Scan'}
+                    <Download className="ml-1 h-3 w-3" />
+                  </Button>
                 </TableCell>
                 <TableCell>
                   {new Date(item.scanDate).toLocaleString()}

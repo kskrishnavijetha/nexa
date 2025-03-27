@@ -9,6 +9,7 @@ interface AuditTrailContextProps {
   downloadAuditReport: () => Promise<void>;
   addAuditEvent: (event: Omit<AuditEvent, 'id' | 'timestamp'>) => void;
   updateTaskStatus: (eventId: string, status: 'pending' | 'in-progress' | 'completed') => void;
+  updateAuditEvents?: (events: AuditEvent[]) => void;
 }
 
 const AuditTrailContext = createContext<AuditTrailContextProps | null>(null);
