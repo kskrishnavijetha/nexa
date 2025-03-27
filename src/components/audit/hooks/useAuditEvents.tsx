@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Clock, Eye, Check, Users } from 'lucide-react';
+import { Clock, Eye, Check, Users, FileCheck, AlertTriangle, Shield, Settings, FileText } from 'lucide-react';
 import { AuditEvent } from '../types';
 import { generateMockAuditTrail } from '../auditUtils';
 
@@ -26,25 +27,35 @@ export function useAuditEvents({ documentName }: UseAuditEventsProps) {
       const icons = [
         <Eye className="h-4 w-4 text-gray-500" key="eye" />,
         <Check className="h-4 w-4 text-green-500" key="check" />,
-        <Users className="h-4 w-4 text-orange-500" key="users" />
+        <Users className="h-4 w-4 text-orange-500" key="users" />,
+        <FileCheck className="h-4 w-4 text-blue-500" key="filecheck" />,
+        <AlertTriangle className="h-4 w-4 text-yellow-500" key="alert" />,
+        <Shield className="h-4 w-4 text-purple-500" key="shield" />,
+        <Settings className="h-4 w-4 text-gray-600" key="settings" />
       ];
       
       const actions = [
-        'Document reviewed',
-        'Changes suggested',
-        'Compliance check performed',
-        'Remediation task updated',
-        'Security scan completed',
-        'Audit log exported'
+        'Document reviewed for compliance with GDPR Article 13',
+        'Data privacy impact assessment performed',
+        'Security vulnerability scan completed',
+        'Cross-department compliance review conducted',
+        'Remediation tasks updated for identified issues',
+        'Quarterly compliance audit performed',
+        'Document encryption status verified',
+        'Access permissions updated per security policy',
+        'Data retention compliance verified',
+        'Sensitive data classification updated'
       ];
       
       const users = [
         'System', 
         'Compliance Officer', 
         'Legal Advisor', 
-        'Developer',
         'Security Analyst',
-        'Data Protection Officer'
+        'Data Protection Officer',
+        'IT Security Manager',
+        'Regulatory Affairs Specialist',
+        'External Auditor'
       ];
 
       const newEvent: AuditEvent = {
@@ -84,7 +95,7 @@ export function useAuditEvents({ documentName }: UseAuditEventsProps) {
       const now = new Date();
       const newEvent: AuditEvent = {
         id: `initial-${Date.now()}`,
-        action: 'Real-time monitoring started',
+        action: 'Real-time compliance monitoring initiated',
         documentName,
         timestamp: now.toISOString(),
         user: 'System',
@@ -120,7 +131,7 @@ export const getAuditEventsForDocument = async (documentName: string): Promise<A
     {
       id: 'audit-1',
       timestamp: new Date().toISOString(),
-      action: 'Document uploaded',
+      action: 'Document uploaded for compliance analysis',
       documentName,
       user: 'System',
       status: 'completed',
@@ -129,7 +140,7 @@ export const getAuditEventsForDocument = async (documentName: string): Promise<A
     {
       id: 'audit-2',
       timestamp: new Date(Date.now() - 3600000).toISOString(),
-      action: 'Initial compliance scan completed',
+      action: 'Initial automated compliance scan completed with 94% GDPR adherence',
       documentName,
       user: 'System',
       status: 'completed',
@@ -138,27 +149,97 @@ export const getAuditEventsForDocument = async (documentName: string): Promise<A
     {
       id: 'audit-3',
       timestamp: new Date(Date.now() - 7200000).toISOString(),
-      action: 'GDPR compliance check performed',
+      action: 'GDPR Article 13 & 14 compliance verification performed',
       documentName,
-      user: 'kshAnmukhakrishna',
+      user: 'Data Protection Officer',
       status: 'completed',
-      comments: [],
+      comments: [{
+        id: 'comment-1',
+        user: 'Data Protection Officer',
+        text: 'All required privacy notice elements present and clearly articulated.',
+        timestamp: new Date(Date.now() - 7200000 + 600000).toISOString()
+      }],
     },
     {
       id: 'audit-4',
       timestamp: new Date(Date.now() - 10800000).toISOString(),
-      action: 'Document sections reviewed',
+      action: 'Document sections reviewed for HIPAA Security Rule compliance',
       documentName,
-      user: 'kshAnmukhakrishna',
+      user: 'Compliance Officer',
       status: 'in-progress',
-      comments: [],
+      comments: [{
+        id: 'comment-2',
+        user: 'Compliance Officer',
+        text: 'Section 4.2 needs additional details on PHI handling procedures.',
+        timestamp: new Date(Date.now() - 10800000 + 1200000).toISOString()
+      }],
     },
     {
       id: 'audit-5',
       timestamp: new Date(Date.now() - 14400000).toISOString(),
-      action: 'Compliance improvement suggestions generated',
+      action: 'Data protection impact assessment initiated',
       documentName,
       user: 'System',
+      status: 'completed',
+      comments: [],
+    },
+    {
+      id: 'audit-6',
+      timestamp: new Date(Date.now() - 18000000).toISOString(),
+      action: 'Cross-border data transfer compliance evaluated against SCCs',
+      documentName,
+      user: 'Legal Advisor',
+      status: 'completed',
+      comments: [{
+        id: 'comment-3',
+        user: 'Legal Advisor',
+        text: 'Transfer mechanisms properly documented and Standard Contractual Clauses implemented correctly.',
+        timestamp: new Date(Date.now() - 18000000 + 900000).toISOString()
+      }],
+    },
+    {
+      id: 'audit-7',
+      timestamp: new Date(Date.now() - 21600000).toISOString(),
+      action: 'Security vulnerability assessment performed',
+      documentName,
+      user: 'Security Analyst',
+      status: 'completed',
+      comments: [{
+        id: 'comment-4',
+        user: 'Security Analyst',
+        text: 'No critical vulnerabilities detected. Two medium-severity findings documented in section 7.',
+        timestamp: new Date(Date.now() - 21600000 + 1800000).toISOString()
+      }],
+    },
+    {
+      id: 'audit-8',
+      timestamp: new Date(Date.now() - 25200000).toISOString(),
+      action: 'Document classification updated to "Confidential - Regulated Data"',
+      documentName,
+      user: 'Data Protection Officer',
+      status: 'completed',
+      comments: [],
+    },
+    {
+      id: 'audit-9',
+      timestamp: new Date(Date.now() - 28800000).toISOString(),
+      action: 'Access control policy compliance verification',
+      documentName,
+      user: 'IT Security Manager',
+      status: 'completed',
+      comments: [{
+        id: 'comment-5',
+        user: 'IT Security Manager',
+        text: 'Role-based access controls properly implemented according to least privilege principle.',
+        timestamp: new Date(Date.now() - 28800000 + 600000).toISOString()
+      }],
+    },
+    {
+      id: 'audit-10',
+      timestamp: new Date(Date.now() - 32400000).toISOString(),
+      action: 'Data retention schedule updated per regulatory requirements',
+      documentName,
+      user: 'Compliance Officer',
       status: 'completed',
       comments: [],
     }
