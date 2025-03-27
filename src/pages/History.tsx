@@ -20,6 +20,7 @@ const History: React.FC = () => {
   
   const location = useLocation();
   const navigate = useNavigate();
+  const locationState = location.state as { preventBlink?: boolean; from?: string } | null;
 
   // Parse URL parameters
   useEffect(() => {
@@ -34,21 +35,39 @@ const History: React.FC = () => {
     if (tabParam && (tabParam === 'reports' || tabParam === 'audit')) {
       setActiveTab(tabParam);
     }
-  }, [location]);
+  }, [location.search]);
 
-  // Update URL when selections change
+  // Update URL when selections change, but only if not handling a "preventBlink" state transition
   const updateUrl = useCallback(() => {
+    // Skip URL updates during preventBlink navigation to avoid the blinking issue
+    if (locationState?.preventBlink) {
+      return;
+    }
+    
     const params = new URLSearchParams();
     if (selectedDocument) {
       params.set('document', selectedDocument);
     }
     params.set('tab', activeTab);
-    navigate(`/history?${params.toString()}`, { replace: true });
-  }, [selectedDocument, activeTab, navigate]);
+    
+    navigate(`/history?${params.toString()}`, { 
+      replace: true,
+      state: null // Clear the state
+    });
+  }, [selectedDocument, activeTab, navigate, locationState]);
 
+  // Only update URL when state changes naturally (not from URL)
   useEffect(() => {
-    updateUrl();
-  }, [selectedDocument, activeTab, updateUrl]);
+    if (!locationState?.preventBlink) {
+      updateUrl();
+    } else if (locationState.from === 'audit-reports') {
+      // If we came from audit-reports, clear the preventBlink state after initial render
+      navigate(location.pathname + location.search, {
+        replace: true,
+        state: null
+      });
+    }
+  }, [selectedDocument, activeTab, updateUrl, locationState, navigate, location.pathname, location.search]);
 
   useEffect(() => {
     // Load reports from history service

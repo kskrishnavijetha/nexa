@@ -8,10 +8,14 @@ import { Input } from '@/components/ui/input';
 import { getHistoricalReports } from '@/utils/historyService';
 import { ComplianceReport } from '@/utils/types';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'sonner';
+import { generateAuditReport, getAuditReportFileName } from '@/utils/auditReportService';
+import { useAuditTrail } from '@/components/audit/AuditTrailProvider';
 
 const AuditReports: React.FC = () => {
   const [reports, setReports] = useState<ComplianceReport[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [generatingReport, setGeneratingReport] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -26,14 +30,43 @@ const AuditReports: React.FC = () => {
   );
 
   const viewAudit = (documentName: string) => {
-    // Use location state to prevent blinking during navigation
+    // Use state to prevent navigation blinking
     navigate({
       pathname: '/history',
       search: `?document=${encodeURIComponent(documentName)}&tab=audit`
     }, { 
-      replace: true,
-      state: { preventBlink: true }
+      state: { preventBlink: true, from: 'audit-reports' }
     });
+  };
+
+  const downloadAuditReport = async (documentName: string) => {
+    try {
+      setGeneratingReport(documentName);
+      toast.info(`Generating AI-enhanced audit report for ${documentName}...`);
+      
+      // Get audit events for the document
+      // Note: In a real app, this would be fetched from a backend API
+      const { getAuditEventsForDocument } = require('@/components/audit/hooks/useAuditEvents');
+      const auditEvents = await getAuditEventsForDocument(documentName);
+      
+      // Generate PDF report
+      const pdfBlob = await generateAuditReport(documentName, auditEvents);
+      
+      // Create download link
+      const url = URL.createObjectURL(pdfBlob);
+      const downloadLink = document.createElement('a');
+      downloadLink.href = url;
+      downloadLink.download = getAuditReportFileName(documentName);
+      downloadLink.click();
+      
+      URL.revokeObjectURL(url);
+      toast.success(`Audit report downloaded for ${documentName}`);
+    } catch (error) {
+      console.error('Error generating report:', error);
+      toast.error(`Failed to generate report: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setGeneratingReport(null);
+    }
   };
 
   return (
@@ -78,10 +111,18 @@ const AuditReports: React.FC = () => {
                     }>
                       {report.overallScore}%
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right space-x-2">
                       <Button variant="outline" size="sm" onClick={() => viewAudit(report.documentName)}>
-                        <Download className="mr-2 h-4 w-4" />
                         View Audit
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => downloadAuditReport(report.documentName)}
+                        disabled={generatingReport === report.documentName}
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        {generatingReport === report.documentName ? 'Generating...' : 'Download Report'}
                       </Button>
                     </TableCell>
                   </TableRow>
