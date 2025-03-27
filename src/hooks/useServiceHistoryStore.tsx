@@ -22,6 +22,8 @@ export const useServiceHistoryStore = () => {
           itemsScanned: 23,
           violationsFound: 2,
           report: {
+            id: 'report-101',
+            documentId: 'doc-101',
             documentName: 'XYZ Manufacturing Quality.pdf',
             timestamp: new Date('2025-03-27T15:25:06').toISOString(),
             overallScore: 78,
@@ -29,8 +31,8 @@ export const useServiceHistoryStore = () => {
             hipaaScore: 72,
             soc2Score: 80,
             risks: [
-              { severity: 'medium', regulation: 'GDPR', description: 'Missing data retention policy: Document does not specify data retention period.' },
-              { severity: 'low', regulation: 'SOC2', description: 'Access control: Insufficient detail on access permissions.' }
+              { id: 'risk-101', severity: 'medium', regulation: 'GDPR', description: 'Missing data retention policy: Document does not specify data retention period.' },
+              { id: 'risk-102', severity: 'low', regulation: 'SOC2', description: 'Access control: Insufficient detail on access permissions.' }
             ],
             summary: 'Manufacturing quality documentation with minor compliance issues in data retention and access control specifications.'
           }
@@ -43,6 +45,8 @@ export const useServiceHistoryStore = () => {
           itemsScanned: 55,
           violationsFound: 0,
           report: {
+            id: 'report-102',
+            documentId: 'doc-102',
             documentName: 'XYZ University Student Privacy.pdf',
             timestamp: new Date('2025-03-27T15:22:21').toISOString(),
             overallScore: 96,
@@ -61,6 +65,8 @@ export const useServiceHistoryStore = () => {
           itemsScanned: 44,
           violationsFound: 4,
           report: {
+            id: 'report-103',
+            documentId: 'doc-103',
             documentName: 'XYZ Bank Anti.pdf',
             timestamp: new Date('2025-03-27T15:20:54').toISOString(),
             overallScore: 65,
@@ -68,10 +74,10 @@ export const useServiceHistoryStore = () => {
             hipaaScore: 70,
             soc2Score: 64,
             risks: [
-              { severity: 'high', regulation: 'GDPR', description: 'Data breach notification: No clear process for notifying users of data breaches.' },
-              { severity: 'medium', regulation: 'GDPR', description: 'Cross-border data transfer: Missing safeguards for international data transfers.' },
-              { severity: 'medium', regulation: 'SOC2', description: 'Monitoring controls: Insufficient regular monitoring processes.' },
-              { severity: 'low', regulation: 'HIPAA', description: 'Documentation: Minor inconsistencies in documentation format.' }
+              { id: 'risk-201', severity: 'high', regulation: 'GDPR', description: 'Data breach notification: No clear process for notifying users of data breaches.' },
+              { id: 'risk-202', severity: 'medium', regulation: 'GDPR', description: 'Cross-border data transfer: Missing safeguards for international data transfers.' },
+              { id: 'risk-203', severity: 'medium', regulation: 'SOC2', description: 'Monitoring controls: Insufficient regular monitoring processes.' },
+              { id: 'risk-204', severity: 'low', regulation: 'HIPAA', description: 'Documentation: Minor inconsistencies in documentation format.' }
             ],
             summary: 'Anti-money laundering documentation with several compliance issues, particularly around data breach notification and cross-border transfers.'
           }

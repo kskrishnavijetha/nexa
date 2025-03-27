@@ -2,6 +2,13 @@
 import { LucideIcon } from 'lucide-react';
 import { ComplianceReport } from '@/utils/types';
 
+export interface Comment {
+  id: string;
+  user: string;
+  text: string;
+  timestamp: string;
+}
+
 export interface AuditComment {
   id: string;
   user: string;
