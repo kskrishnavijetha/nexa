@@ -110,3 +110,60 @@ export function useAuditEvents({ documentName }: UseAuditEventsProps) {
     setLastActivity
   };
 }
+
+export const getAuditEventsForDocument = async (documentName: string): Promise<AuditEvent[]> => {
+  // Simulate fetching audit events for a specific document
+  // In a real application, this would call an API endpoint
+  
+  // Create some sample audit events if none exist yet
+  const sampleEvents: AuditEvent[] = [
+    {
+      id: 'audit-1',
+      timestamp: new Date().toISOString(),
+      action: 'Document uploaded',
+      documentName,
+      user: 'System',
+      status: 'completed',
+      comments: [],
+    },
+    {
+      id: 'audit-2',
+      timestamp: new Date(Date.now() - 3600000).toISOString(),
+      action: 'Initial compliance scan completed',
+      documentName,
+      user: 'System',
+      status: 'completed',
+      comments: [],
+    },
+    {
+      id: 'audit-3',
+      timestamp: new Date(Date.now() - 7200000).toISOString(),
+      action: 'GDPR compliance check performed',
+      documentName,
+      user: 'kshAnmukhakrishna',
+      status: 'completed',
+      comments: [],
+    },
+    {
+      id: 'audit-4',
+      timestamp: new Date(Date.now() - 10800000).toISOString(),
+      action: 'Document sections reviewed',
+      documentName,
+      user: 'kshAnmukhakrishna',
+      status: 'in-progress',
+      comments: [],
+    },
+    {
+      id: 'audit-5',
+      timestamp: new Date(Date.now() - 14400000).toISOString(),
+      action: 'Compliance improvement suggestions generated',
+      documentName,
+      user: 'System',
+      status: 'completed',
+      comments: [],
+    }
+  ];
+  
+  // Return the sample events
+  return Promise.resolve(sampleEvents);
+};

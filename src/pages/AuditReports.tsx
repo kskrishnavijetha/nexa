@@ -10,7 +10,7 @@ import { ComplianceReport } from '@/utils/types';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { generateAuditReport, getAuditReportFileName } from '@/utils/auditReportService';
-import { useAuditTrail } from '@/components/audit/AuditTrailProvider';
+import { getAuditEventsForDocument } from '@/components/audit/hooks/useAuditEvents';
 
 const AuditReports: React.FC = () => {
   const [reports, setReports] = useState<ComplianceReport[]>([]);
@@ -46,7 +46,6 @@ const AuditReports: React.FC = () => {
       
       // Get audit events for the document
       // Note: In a real app, this would be fetched from a backend API
-      const { getAuditEventsForDocument } = require('@/components/audit/hooks/useAuditEvents');
       const auditEvents = await getAuditEventsForDocument(documentName);
       
       // Generate PDF report
@@ -60,7 +59,7 @@ const AuditReports: React.FC = () => {
       downloadLink.click();
       
       URL.revokeObjectURL(url);
-      toast.success(`Audit report downloaded for ${documentName}`);
+      toast.success(`Audit report downloaded successfully for ${documentName}`);
     } catch (error) {
       console.error('Error generating report:', error);
       toast.error(`Failed to generate report: ${error instanceof Error ? error.message : 'Unknown error'}`);
