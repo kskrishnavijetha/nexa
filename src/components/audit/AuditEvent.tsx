@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { AuditEvent as AuditEventType } from './types';
-import EventHeader from './EventHeader';
 import StatusBadge from './StatusBadge';
 
 interface AuditEventProps {
@@ -18,7 +17,7 @@ const AuditEvent: React.FC<AuditEventProps> = ({
       <div className="absolute left-0 p-1 bg-white rounded-full border border-gray-200">
         {event.icon}
       </div>
-      <div className={`bg-gray-50 p-3 rounded border border-gray-100 ${event.id.startsWith('auto-') || event.id.startsWith('status-') ? 'animate-pulse-once' : ''}`}>
+      <div className="bg-gray-50 p-3 rounded border border-gray-100">
         <div className="flex justify-between items-start">
           <div className="flex flex-col">
             <div className="flex items-center gap-2">

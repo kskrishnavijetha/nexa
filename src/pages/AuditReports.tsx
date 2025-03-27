@@ -25,9 +25,9 @@ const AuditReports: React.FC = () => {
   );
 
   const viewAudit = (documentName: string) => {
-    // Use replaceState to prevent blinking 
-    window.history.replaceState(null, '', `/history?document=${encodeURIComponent(documentName)}&tab=audit`);
-    navigate(`/history?document=${encodeURIComponent(documentName)}&tab=audit`, { replace: true });
+    // Fix the navigation to prevent blinking - only use navigate with replace
+    const url = `/history?document=${encodeURIComponent(documentName)}&tab=audit`;
+    navigate(url, { replace: true });
   };
 
   return (

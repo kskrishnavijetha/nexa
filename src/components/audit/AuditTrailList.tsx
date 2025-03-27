@@ -5,7 +5,27 @@ import AuditEvent from './AuditEvent';
 import { formatTimestamp } from './auditUtils';
 
 const AuditTrailList: React.FC = () => {
-  const { auditEvents } = useAuditTrail();
+  const { auditEvents, isLoading } = useAuditTrail();
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-8">
+        <div className="animate-pulse flex flex-col gap-4 w-full">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-20 bg-gray-100 rounded-md"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (auditEvents.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">No audit events found for this document.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">
