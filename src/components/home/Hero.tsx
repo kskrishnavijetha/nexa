@@ -10,7 +10,7 @@ const Hero: React.FC = () => {
   const { user } = useAuth();
   
   return (
-    <div className="text-center">
+    <div className="text-center py-16">
       <p className="text-sm font-medium text-primary mb-2">Trusted by 1000+ companies</p>
       <h1 className="font-bold mb-2 text-5xl md:text-6xl text-gray-900">
         🚀 CompliZen
@@ -34,9 +34,8 @@ const Hero: React.FC = () => {
             if (user) {
               navigate('/dashboard');
             } else {
-              navigate('/auth/signup');
+              navigate('/sign-up');
             }
-            console.log("Get Started clicked");
           }}
         >
           {user ? 'Go to Dashboard' : 'Get Started Now'}
