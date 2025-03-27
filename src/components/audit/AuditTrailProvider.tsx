@@ -1,25 +1,23 @@
 
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { AuditEvent } from './types';
-import { useAuditEvents } from './hooks/useAuditEvents';
-import { useComments } from './hooks/useComments';
-import { useTaskStatus } from './hooks/useTaskStatus';
-import { generateAuditReport, getAuditReportFileName } from '@/utils/auditReportService';
 import { toast } from 'sonner';
+import { generateAuditReport, getAuditReportFileName } from '@/utils/auditReportService';
 
-interface AuditTrailContextType {
+interface AuditTrailContextProps {
   auditEvents: AuditEvent[];
-  newComment: { [key: string]: string };
-  expandedEvent: string | null;
+  isLoading: boolean;
   isGeneratingReport: boolean;
-  handleAddComment: (eventId: string) => void;
-  handleCommentChange: (eventId: string, value: string) => void;
-  toggleEventExpansion: (eventId: string) => void;
-  updateTaskStatus: (eventId: string, status: 'pending' | 'in-progress' | 'completed') => void;
   downloadAuditReport: () => Promise<void>;
+  addAuditEvent: (event: Omit<AuditEvent, 'id' | 'timestamp'>) => void;
 }
 
-const AuditTrailContext = createContext<AuditTrailContextType | undefined>(undefined);
+const AuditTrailContext = createContext<AuditTrailContextProps | null>(null);
+
+interface AuditTrailProviderProps {
+  documentName: string;
+  children: React.ReactNode;
+}
 
 export const useAuditTrail = () => {
   const context = useContext(AuditTrailContext);
@@ -29,96 +27,135 @@ export const useAuditTrail = () => {
   return context;
 };
 
-interface AuditTrailProviderProps {
-  children: React.ReactNode;
-  documentName: string;
-}
-
-export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({ children, documentName }) => {
+export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
+  documentName,
+  children,
+}) => {
+  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
-  const {
-    auditEvents,
-    updateAuditEvents,
-    addSystemResponse,
-    setLastActivity
-  } = useAuditEvents({ documentName });
+  // Fetch audit events for the document
+  useEffect(() => {
+    const fetchAuditEvents = async () => {
+      try {
+        // In a real app, this would be an API call to fetch data
+        // This is a mock implementation
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        
+        const mockEvents: AuditEvent[] = [
+          {
+            id: '1',
+            eventType: 'system',
+            text: 'Document uploaded for compliance analysis',
+            user: 'System',
+            timestamp: new Date(Date.now() - 3600000 * 24).toISOString(),
+            status: 'completed',
+          },
+          {
+            id: '2',
+            eventType: 'user',
+            text: 'Started GDPR compliance check',
+            user: 'john.doe@example.com',
+            timestamp: new Date(Date.now() - 3600000 * 23).toISOString(),
+            status: 'in_progress',
+          },
+          {
+            id: '3',
+            eventType: 'system',
+            text: 'Automatic scan detected 3 potential compliance issues',
+            user: 'System',
+            timestamp: new Date(Date.now() - 3600000 * 22).toISOString(),
+            status: 'completed',
+            comments: [
+              {
+                id: '1',
+                text: 'Verified these issues, they need to be addressed',
+                user: 'sarah.smith@example.com',
+                timestamp: new Date(Date.now() - 3600000 * 21).toISOString(),
+              },
+            ],
+          },
+          {
+            id: '4',
+            eventType: 'user',
+            text: 'Updated document with required privacy clauses',
+            user: 'john.doe@example.com',
+            timestamp: new Date(Date.now() - 3600000 * 20).toISOString(),
+            status: 'completed',
+          },
+          {
+            id: '5',
+            eventType: 'system',
+            text: 'Final compliance check completed',
+            user: 'System',
+            timestamp: new Date(Date.now() - 3600000 * 10).toISOString(),
+            status: 'completed',
+          },
+        ];
+        
+        setAuditEvents(mockEvents);
+      } catch (error) {
+        console.error('Error fetching audit events:', error);
+        toast.error('Failed to load audit events');
+      } finally {
+        setIsLoading(false);
+      }
+    };
 
-  const {
-    newComment,
-    expandedEvent,
-    handleAddComment,
-    handleCommentChange,
-    toggleEventExpansion
-  } = useComments({
-    auditEvents,
-    updateAuditEvents,
-    addSystemResponse,
-    setLastActivity
-  });
+    fetchAuditEvents();
+  }, [documentName]);
 
-  const { updateTaskStatus } = useTaskStatus({
-    auditEvents,
-    updateAuditEvents,
-    documentName,
-    setLastActivity
-  });
+  const addAuditEvent = useCallback((event: Omit<AuditEvent, 'id' | 'timestamp'>) => {
+    const newEvent: AuditEvent = {
+      id: `audit-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      eventType: event.eventType || 'system',
+      text: event.text,
+      user: event.user || 'System',
+      status: event.status || 'completed',
+      comments: event.comments || [],
+    };
 
-  const downloadAuditReport = async () => {
-    if (auditEvents.length === 0) {
-      toast.error("No audit events to generate a report");
-      return;
-    }
+    setAuditEvents((prev) => [newEvent, ...prev]);
+    toast.success(`Audit trail updated: ${event.text}`);
+  }, []);
 
+  const downloadAuditReport = useCallback(async () => {
     try {
       setIsGeneratingReport(true);
-      
-      // Generate the report
-      const pdfBlob = await generateAuditReport(documentName, auditEvents);
+      const reportBlob = await generateAuditReport(documentName, auditEvents);
       
       // Create a download link
-      const url = URL.createObjectURL(pdfBlob);
+      const url = window.URL.createObjectURL(reportBlob);
       const link = document.createElement('a');
       link.href = url;
       link.download = getAuditReportFileName(documentName);
       
-      // Trigger the download
+      // Append to body, click and clean up
       document.body.appendChild(link);
       link.click();
-      
-      // Clean up
       document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(url), 100);
       
-      toast.success("Audit report downloaded successfully");
-      
-      // Add an audit event for the report download
-      addSystemResponse({
-        message: "Audit report was downloaded",
-        status: "completed"
-      });
+      toast.success('Audit report downloaded successfully');
     } catch (error) {
-      console.error("Failed to generate audit report:", error);
-      toast.error("Failed to generate audit report");
+      console.error('Error generating audit report:', error);
+      toast.error('Failed to generate audit report');
     } finally {
       setIsGeneratingReport(false);
     }
-  };
+  }, [auditEvents, documentName]);
 
-  const contextValue: AuditTrailContextType = {
+  const value = {
     auditEvents,
-    newComment,
-    expandedEvent,
+    isLoading,
     isGeneratingReport,
-    handleAddComment,
-    handleCommentChange,
-    toggleEventExpansion,
-    updateTaskStatus,
-    downloadAuditReport
+    downloadAuditReport,
+    addAuditEvent,
   };
 
   return (
-    <AuditTrailContext.Provider value={contextValue}>
+    <AuditTrailContext.Provider value={value}>
       {children}
     </AuditTrailContext.Provider>
   );

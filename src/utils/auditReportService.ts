@@ -51,17 +51,18 @@ export const generateAuditReport = async (
     // Add event details
     const timestamp = new Date(event.timestamp).toLocaleString();
     
-    // Set color based on event type
-    if (event.type === 'system') {
+    // Set color based on event type (assuming event.eventType exists)
+    const eventType = event.eventType || 'default';
+    if (eventType === 'system') {
       doc.setTextColor(0, 102, 204);
-    } else if (event.type === 'user') {
+    } else if (eventType === 'user') {
       doc.setTextColor(0, 153, 51);
     } else {
       doc.setTextColor(0, 0, 0);
     }
     
     doc.setFontSize(12);
-    doc.text(`Event #${index + 1}: ${event.type.toUpperCase()}`, 20, yPos);
+    doc.text(`Event #${index + 1}: ${eventType.toUpperCase()}`, 20, yPos);
     yPos += 7;
     
     // Reset color
@@ -75,7 +76,8 @@ export const generateAuditReport = async (
     yPos += 7;
     
     // Add message with word wrapping
-    const messageLines = doc.splitTextToSize(`Message: ${event.message}`, 160);
+    const eventMessage = event.text || '';
+    const messageLines = doc.splitTextToSize(`Message: ${eventMessage}`, 160);
     doc.text(messageLines, 25, yPos);
     yPos += (messageLines.length * 5) + 2;
     
