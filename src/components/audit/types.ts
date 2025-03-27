@@ -18,3 +18,12 @@ export interface AuditEvent {
   comments?: Comment[];
   icon?: ReactNode;
 }
+
+export interface ServiceScanHistory {
+  serviceId: string;
+  serviceName: string;
+  scanDate: string;
+  itemsScanned: number;
+  violationsFound: number;
+  documentName?: string;
+}

@@ -2,10 +2,17 @@
 import { Industry, Region } from '@/utils/types';
 import { SupportedLanguage } from '@/utils/language';
 
-// Define type for cloud service
 export type GoogleService = 'drive' | 'gmail' | 'docs';
 
-// Define the structure for scan violations
+export interface GoogleServicesScannerProps {
+  industry?: Industry;
+  region?: Region;
+  language?: SupportedLanguage;
+  file?: File | null;
+  persistedConnectedServices?: GoogleService[];
+  onServicesUpdate?: (services: GoogleService[]) => void;
+}
+
 export interface ScanViolation {
   title: string;
   description: string;
@@ -14,14 +21,12 @@ export interface ScanViolation {
   location: string;
 }
 
-// Define the structure for scan results
 export interface ScanResults {
   violations: ScanViolation[];
 }
 
-export interface GoogleServicesScannerProps {
-  industry?: Industry;
-  region?: Region;
-  language: SupportedLanguage;
-  file?: File | null;
+export interface UploadedFileInfo {
+  name: string;
+  type: string;
+  size: number;
 }

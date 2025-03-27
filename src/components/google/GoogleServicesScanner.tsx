@@ -7,12 +7,15 @@ import GoogleScannerStatus from './GoogleScannerStatus';
 import CloudServicesCard from './CloudServicesCard';
 import ScanResultsComponent from './ScanResults';
 import { toast } from 'sonner';
+import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
 
 const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({ 
   industry, 
   region, 
   language,
-  file
+  file,
+  persistedConnectedServices = [],
+  onServicesUpdate
 }) => {
   // Use custom hooks for state and handlers
   const {
@@ -23,7 +26,8 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     handleConnectDrive,
     handleConnectGmail,
     handleConnectDocs,
-    handleDisconnect
+    handleDisconnect,
+    setConnectedServices
   } = useGoogleServiceConnections();
 
   const {
@@ -34,6 +38,22 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     violationsFound,
     handleScan
   } = useServiceScanner();
+
+  const { addScanHistory } = useServiceHistoryStore();
+  
+  // Initialize connected services from persisted state
+  useEffect(() => {
+    if (persistedConnectedServices.length > 0 && connectedServices.length === 0) {
+      setConnectedServices(persistedConnectedServices);
+    }
+  }, [persistedConnectedServices, connectedServices.length, setConnectedServices]);
+
+  // Update parent component when services change
+  useEffect(() => {
+    if (onServicesUpdate) {
+      onServicesUpdate(connectedServices);
+    }
+  }, [connectedServices, onServicesUpdate]);
   
   const anyServiceConnected = connectedServices.length > 0;
   
@@ -57,6 +77,19 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     }
     
     handleScan(connectedServices, industry, language, region);
+
+    // Add to scan history for each connected service
+    connectedServices.forEach(service => {
+      addScanHistory({
+        serviceId: service,
+        serviceName: service === 'drive' ? 'Google Drive' : 
+                    service === 'gmail' ? 'Gmail' : 'Google Docs',
+        scanDate: new Date().toISOString(),
+        itemsScanned: Math.floor(Math.random() * 50) + 10, // Placeholder for demo
+        violationsFound: Math.floor(Math.random() * 5), // Placeholder for demo
+        documentName: file?.name || `Scan ${new Date().toLocaleTimeString()}`
+      });
+    });
   };
 
   // Show guidance if no services are connected

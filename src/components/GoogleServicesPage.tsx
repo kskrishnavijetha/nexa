@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Industry, Region } from '@/utils/types';
 import { SupportedLanguage } from '@/utils/language';
@@ -8,7 +8,9 @@ import AuditTrail from './audit/AuditTrail';
 import GoogleServicesScanner from './google/GoogleServicesScanner';
 import GoogleScannerConfig from './google/GoogleScannerConfig';
 import GoogleScannerSettings from './google/GoogleScannerSettings';
+import ServiceHistory from './google/ServiceHistory';
 import { toast } from 'sonner';
+import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
 
 const GoogleServicesPage: React.FC = () => {
   const [industry, setIndustry] = useState<Industry | undefined>(undefined);
@@ -16,6 +18,25 @@ const GoogleServicesPage: React.FC = () => {
   const [language, setLanguage] = useState<SupportedLanguage>('en');
   const [activeTab, setActiveTab] = useState('scanner');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [persistedConnectedServices, setPersistedConnectedServices] = useState<string[]>([]);
+
+  // Listen for Google authorization response
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const authCode = params.get('code');
+    const error = params.get('error');
+    
+    if (authCode) {
+      // Successfully authorized
+      toast.success('Google authorization successful!');
+      // Clear URL parameters without refreshing
+      window.history.replaceState({}, document.title, window.location.pathname);
+    } else if (error) {
+      // Authorization failed
+      toast.error('Google authorization failed. Please try again.');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, []);
 
   const handleIndustryChange = (newIndustry: Industry) => {
     setIndustry(newIndustry);
@@ -34,6 +55,14 @@ const GoogleServicesPage: React.FC = () => {
     toast.success(`File selected: ${file.name}`);
   };
 
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
+
+  const handleServicesUpdate = (services: string[]) => {
+    setPersistedConnectedServices(services);
+  };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-8">Cloud Services Compliance</h1>
@@ -50,7 +79,7 @@ const GoogleServicesPage: React.FC = () => {
         />
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+      <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-8">
         <TabsList>
           <TabsTrigger value="scanner" className="flex items-center gap-2">
             <CloudLightning className="h-4 w-4" />
@@ -72,11 +101,16 @@ const GoogleServicesPage: React.FC = () => {
             language={language}
             region={region}
             file={selectedFile}
+            persistedConnectedServices={persistedConnectedServices}
+            onServicesUpdate={handleServicesUpdate}
           />
         </TabsContent>
         
         <TabsContent value="history" className="mt-6">
-          <AuditTrail documentName="Cloud Services Scanner" />
+          <div className="grid grid-cols-1 gap-6">
+            <ServiceHistory />
+            <AuditTrail documentName="Cloud Services Scanner" />
+          </div>
         </TabsContent>
         
         <TabsContent value="settings" className="mt-6">

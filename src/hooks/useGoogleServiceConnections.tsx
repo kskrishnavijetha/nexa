@@ -20,7 +20,7 @@ export function useGoogleServiceConnections() {
       // For demo purposes, simulate successful connection
       const result = await connectGoogleService('drive-1');
       if (result.data && result.data.connected) {
-        setConnectedServices(prev => [...prev, 'drive']);
+        setConnectedServices(prev => [...prev.filter(s => s !== 'drive'), 'drive']);
         toast.success('Google Drive connected successfully');
       }
     } catch (error) {
@@ -37,7 +37,7 @@ export function useGoogleServiceConnections() {
       // Mock authentication
       const result = await connectGoogleService('gmail-1');
       if (result.data && result.data.connected) {
-        setConnectedServices(prev => [...prev, 'gmail']);
+        setConnectedServices(prev => [...prev.filter(s => s !== 'gmail'), 'gmail']);
         toast.success('Gmail connected successfully');
       }
     } catch (error) {
@@ -54,7 +54,7 @@ export function useGoogleServiceConnections() {
       // Mock authentication
       const result = await connectGoogleService('docs-1');
       if (result.data && result.data.connected) {
-        setConnectedServices(prev => [...prev, 'docs']);
+        setConnectedServices(prev => [...prev.filter(s => s !== 'docs'), 'docs']);
         toast.success('Google Docs connected successfully');
       }
     } catch (error) {
