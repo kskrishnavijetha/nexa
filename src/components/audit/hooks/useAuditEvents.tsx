@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
-import { Clock, Eye, Check, Users, UserCheck } from 'lucide-react';
-import { AuditEvent, Comment } from '../types';
+import { Clock, Eye, Check, Users } from 'lucide-react';
+import { AuditEvent } from '../types';
 import { generateMockAuditTrail } from '../auditUtils';
 
 interface UseAuditEventsProps {
@@ -18,7 +18,7 @@ export function useAuditEvents({ documentName }: UseAuditEventsProps) {
     setLastActivity(new Date());
   }, [documentName]);
 
-  // Real-time updates simulation - enhanced for more frequent updates
+  // Real-time updates simulation
   useEffect(() => {
     // Create a function that will add a new event occasionally
     const addRealTimeEvent = () => {
@@ -62,7 +62,7 @@ export function useAuditEvents({ documentName }: UseAuditEventsProps) {
       toast.info(`New activity: ${newEvent.action} by ${newEvent.user}`);
     };
 
-    // Set up interval for real-time updates - more frequent updates (5-15 seconds)
+    // Set up interval for real-time updates
     const timeSinceLastActivity = new Date().getTime() - lastActivity.getTime();
     
     // Keep updates flowing for 30 minutes after last activity
@@ -107,7 +107,7 @@ export function useAuditEvents({ documentName }: UseAuditEventsProps) {
   const addSystemResponse = (eventId: string) => {
     setTimeout(() => {
       if (Math.random() > 0.5) {
-        const systemResponse: Comment = {
+        const systemResponse = {
           id: `c${Date.now()}`,
           user: 'System',
           text: 'This comment has been recorded in the audit log and notified to relevant stakeholders.',

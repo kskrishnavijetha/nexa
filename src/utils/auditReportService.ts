@@ -51,8 +51,9 @@ export const generateAuditReport = async (
     // Add event details
     const timestamp = new Date(event.timestamp).toLocaleString();
     
-    // Set color based on event type (assuming event.eventType exists)
-    const eventType = event.eventType || 'default';
+    // Set color based on event type 
+    const eventType = event.user === 'System' ? 'system' : 'user';
+    
     if (eventType === 'system') {
       doc.setTextColor(0, 102, 204);
     } else if (eventType === 'user') {
@@ -75,11 +76,11 @@ export const generateAuditReport = async (
     doc.text(`User: ${event.user || 'System'}`, 25, yPos);
     yPos += 7;
     
-    // Add message with word wrapping
-    const eventMessage = event.text || '';
-    const messageLines = doc.splitTextToSize(`Message: ${eventMessage}`, 160);
-    doc.text(messageLines, 25, yPos);
-    yPos += (messageLines.length * 5) + 2;
+    // Add action with word wrapping
+    const eventAction = event.action || '';
+    const actionLines = doc.splitTextToSize(`Action: ${eventAction}`, 160);
+    doc.text(actionLines, 25, yPos);
+    yPos += (actionLines.length * 5) + 2;
     
     // Add status if available
     if (event.status) {

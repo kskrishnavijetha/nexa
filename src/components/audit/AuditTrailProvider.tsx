@@ -3,6 +3,9 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { AuditEvent } from './types';
 import { toast } from 'sonner';
 import { generateAuditReport, getAuditReportFileName } from '@/utils/auditReportService';
+import { useComments } from './hooks/useComments';
+import { useAuditEvents } from './hooks/useAuditEvents';
+import { useTaskStatus } from './hooks/useTaskStatus';
 
 interface AuditTrailContextProps {
   auditEvents: AuditEvent[];
@@ -10,6 +13,12 @@ interface AuditTrailContextProps {
   isGeneratingReport: boolean;
   downloadAuditReport: () => Promise<void>;
   addAuditEvent: (event: Omit<AuditEvent, 'id' | 'timestamp'>) => void;
+  newComment: { [key: string]: string };
+  expandedEvent: string | null;
+  handleAddComment: (eventId: string) => void;
+  handleCommentChange: (eventId: string, value: string) => void;
+  toggleEventExpansion: (eventId: string) => void;
+  updateTaskStatus: (eventId: string, status: 'pending' | 'in-progress' | 'completed') => void;
 }
 
 const AuditTrailContext = createContext<AuditTrailContextProps | null>(null);
@@ -31,95 +40,63 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
   documentName,
   children,
 }) => {
-  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
+  const [lastActivity, setLastActivity] = useState<Date>(new Date());
 
-  // Fetch audit events for the document
+  // Initialize audit events using the hook
+  const {
+    auditEvents,
+    updateAuditEvents,
+    addSystemResponse,
+    setLastActivity: updateLastActivity
+  } = useAuditEvents({ documentName });
+
+  // Comments management
+  const {
+    newComment,
+    expandedEvent,
+    handleAddComment,
+    handleCommentChange,
+    toggleEventExpansion
+  } = useComments({
+    auditEvents,
+    updateAuditEvents,
+    addSystemResponse,
+    setLastActivity: updateLastActivity
+  });
+
+  // Task status management
+  const { updateTaskStatus } = useTaskStatus({
+    auditEvents,
+    updateAuditEvents,
+    documentName,
+    setLastActivity: updateLastActivity
+  });
+
+  // Set loading state after initial audit events are loaded
   useEffect(() => {
-    const fetchAuditEvents = async () => {
-      try {
-        // In a real app, this would be an API call to fetch data
-        // This is a mock implementation
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        
-        const mockEvents: AuditEvent[] = [
-          {
-            id: '1',
-            eventType: 'system',
-            text: 'Document uploaded for compliance analysis',
-            user: 'System',
-            timestamp: new Date(Date.now() - 3600000 * 24).toISOString(),
-            status: 'completed',
-          },
-          {
-            id: '2',
-            eventType: 'user',
-            text: 'Started GDPR compliance check',
-            user: 'john.doe@example.com',
-            timestamp: new Date(Date.now() - 3600000 * 23).toISOString(),
-            status: 'in_progress',
-          },
-          {
-            id: '3',
-            eventType: 'system',
-            text: 'Automatic scan detected 3 potential compliance issues',
-            user: 'System',
-            timestamp: new Date(Date.now() - 3600000 * 22).toISOString(),
-            status: 'completed',
-            comments: [
-              {
-                id: '1',
-                text: 'Verified these issues, they need to be addressed',
-                user: 'sarah.smith@example.com',
-                timestamp: new Date(Date.now() - 3600000 * 21).toISOString(),
-              },
-            ],
-          },
-          {
-            id: '4',
-            eventType: 'user',
-            text: 'Updated document with required privacy clauses',
-            user: 'john.doe@example.com',
-            timestamp: new Date(Date.now() - 3600000 * 20).toISOString(),
-            status: 'completed',
-          },
-          {
-            id: '5',
-            eventType: 'system',
-            text: 'Final compliance check completed',
-            user: 'System',
-            timestamp: new Date(Date.now() - 3600000 * 10).toISOString(),
-            status: 'completed',
-          },
-        ];
-        
-        setAuditEvents(mockEvents);
-      } catch (error) {
-        console.error('Error fetching audit events:', error);
-        toast.error('Failed to load audit events');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchAuditEvents();
-  }, [documentName]);
+    if (auditEvents.length > 0) {
+      setIsLoading(false);
+    }
+  }, [auditEvents]);
 
   const addAuditEvent = useCallback((event: Omit<AuditEvent, 'id' | 'timestamp'>) => {
     const newEvent: AuditEvent = {
       id: `audit-${Date.now()}`,
       timestamp: new Date().toISOString(),
-      eventType: event.eventType || 'system',
-      text: event.text,
+      action: event.action,
+      documentName: event.documentName || documentName,
       user: event.user || 'System',
       status: event.status || 'completed',
       comments: event.comments || [],
+      icon: event.icon
     };
 
-    setAuditEvents((prev) => [newEvent, ...prev]);
-    toast.success(`Audit trail updated: ${event.text}`);
-  }, []);
+    updateAuditEvents([newEvent, ...auditEvents]);
+    updateLastActivity(new Date());
+    toast.success(`Audit trail updated: ${event.action}`);
+  }, [auditEvents, documentName, updateAuditEvents, updateLastActivity]);
 
   const downloadAuditReport = useCallback(async () => {
     try {
@@ -152,6 +129,12 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
     isGeneratingReport,
     downloadAuditReport,
     addAuditEvent,
+    newComment,
+    expandedEvent,
+    handleAddComment,
+    handleCommentChange,
+    toggleEventExpansion,
+    updateTaskStatus
   };
 
   return (

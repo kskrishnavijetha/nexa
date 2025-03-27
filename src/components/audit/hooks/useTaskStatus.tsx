@@ -38,6 +38,7 @@ export function useTaskStatus({
       user: 'Current User',
       icon: <UserCheck className="h-4 w-4 text-blue-500" />,
       status: 'completed',
+      comments: []
     };
     
     updateAuditEvents([statusChangeEvent, ...updatedEvents]);

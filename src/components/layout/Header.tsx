@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Book, User, LogOut, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -16,7 +16,14 @@ import {
 
 const Header: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  
+  // Handle sign out with navigation
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
   
   // This item will be shown to all users
   const publicNavItems = [
@@ -76,7 +83,7 @@ const Header: React.FC = () => {
                   <Link to="/payment" className="w-full cursor-pointer">Subscription</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => signOut()} className="text-red-500 cursor-pointer">
+                <DropdownMenuItem onClick={handleSignOut} className="text-red-500 cursor-pointer">
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign out
                 </DropdownMenuItem>
@@ -84,12 +91,12 @@ const Header: React.FC = () => {
             </DropdownMenu>
           ) : (
             <>
-              <Link to="/auth/signin">
+              <Link to="/sign-in">
                 <Button variant="outline">
                   Sign In
                 </Button>
               </Link>
-              <Link to="/auth/signup">
+              <Link to="/sign-up">
                 <Button>
                   Sign Up
                 </Button>
