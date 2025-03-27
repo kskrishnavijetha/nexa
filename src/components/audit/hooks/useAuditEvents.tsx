@@ -104,35 +104,9 @@ export function useAuditEvents({ documentName }: UseAuditEventsProps) {
     setAuditEvents(updatedEvents);
   };
 
-  const addSystemResponse = (eventId: string) => {
-    setTimeout(() => {
-      if (Math.random() > 0.5) {
-        const systemResponse = {
-          id: `c${Date.now()}`,
-          user: 'System',
-          text: 'This comment has been recorded in the audit log and notified to relevant stakeholders.',
-          timestamp: new Date().toISOString()
-        };
-        
-        setAuditEvents(current => current.map(event => {
-          if (event.id === eventId) {
-            return {
-              ...event,
-              comments: event.comments ? [...event.comments, systemResponse] : [systemResponse]
-            };
-          }
-          return event;
-        }));
-        
-        toast.info('System notification added to the audit trail');
-      }
-    }, 3000);
-  };
-
   return {
     auditEvents,
     updateAuditEvents,
-    addSystemResponse,
     setLastActivity
   };
 }

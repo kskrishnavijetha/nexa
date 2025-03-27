@@ -26,4 +26,5 @@ export interface ServiceScanHistory {
   itemsScanned: number;
   violationsFound: number;
   documentName?: string;
+  reportUrl?: string;
 }

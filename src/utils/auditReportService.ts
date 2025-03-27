@@ -29,11 +29,34 @@ export const generateAuditReport = async (
   doc.setLineWidth(0.5);
   doc.line(20, 45, 190, 45);
   
+  // Add report summary information
+  doc.setFontSize(12);
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Total Events: ${auditEvents.length}`, 20, 55);
+  
+  // Calculate statistics
+  const systemEvents = auditEvents.filter(event => event.user === 'System').length;
+  const userEvents = auditEvents.length - systemEvents;
+  const completed = auditEvents.filter(event => event.status === 'completed').length;
+  const inProgress = auditEvents.filter(event => event.status === 'in-progress').length;
+  const pending = auditEvents.filter(event => event.status === 'pending').length;
+  
+  doc.text(`System Events: ${systemEvents}`, 20, 65);
+  doc.text(`User Events: ${userEvents}`, 20, 75);
+  doc.text(`Completed Tasks: ${completed}`, 20, 85);
+  doc.text(`In-Progress Tasks: ${inProgress}`, 20, 95);
+  doc.text(`Pending Tasks: ${pending}`, 20, 105);
+  
+  // Add horizontal line
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.2);
+  doc.line(20, 115, 190, 115);
+  
   // Set normal font for content
   doc.setFontSize(10);
   doc.setTextColor(0, 0, 0);
   
-  let yPos = 55;
+  let yPos = 125;
   
   // Sort events by timestamp in descending order
   const sortedEvents = [...auditEvents].sort((a, b) => 
@@ -86,18 +109,6 @@ export const generateAuditReport = async (
     if (event.status) {
       doc.text(`Status: ${event.status}`, 25, yPos);
       yPos += 7;
-    }
-    
-    // Add comments if available
-    if (event.comments && event.comments.length > 0) {
-      doc.text('Comments:', 25, yPos);
-      yPos += 7;
-      
-      event.comments.forEach(comment => {
-        const commentLines = doc.splitTextToSize(`- ${comment.text} (${comment.user}, ${new Date(comment.timestamp).toLocaleString()})`, 155);
-        doc.text(commentLines, 30, yPos);
-        yPos += (commentLines.length * 5) + 2;
-      });
     }
     
     // Add separator unless it's the last event

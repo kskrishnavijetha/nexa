@@ -5,15 +5,7 @@ import AuditEvent from './AuditEvent';
 import { formatTimestamp } from './auditUtils';
 
 const AuditTrailList: React.FC = () => {
-  const { 
-    auditEvents, 
-    newComment, 
-    expandedEvent, 
-    handleAddComment, 
-    handleCommentChange, 
-    toggleEventExpansion, 
-    updateTaskStatus 
-  } = useAuditTrail();
+  const { auditEvents } = useAuditTrail();
 
   return (
     <div className="relative">
@@ -23,12 +15,6 @@ const AuditTrailList: React.FC = () => {
           <AuditEvent
             key={event.id}
             event={event}
-            isExpanded={expandedEvent === event.id}
-            newComment={newComment[event.id] || ''}
-            onToggleExpand={toggleEventExpansion}
-            onAddComment={handleAddComment}
-            onUpdateStatus={updateTaskStatus}
-            onCommentChange={handleCommentChange}
             formatTimestamp={formatTimestamp}
           />
         ))}

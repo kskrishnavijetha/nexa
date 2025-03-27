@@ -3,9 +3,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { AuditEvent } from './types';
 import { toast } from 'sonner';
 import { generateAuditReport, getAuditReportFileName } from '@/utils/auditReportService';
-import { useComments } from './hooks/useComments';
 import { useAuditEvents } from './hooks/useAuditEvents';
-import { useTaskStatus } from './hooks/useTaskStatus';
 
 interface AuditTrailContextProps {
   auditEvents: AuditEvent[];
@@ -13,11 +11,6 @@ interface AuditTrailContextProps {
   isGeneratingReport: boolean;
   downloadAuditReport: () => Promise<void>;
   addAuditEvent: (event: Omit<AuditEvent, 'id' | 'timestamp'>) => void;
-  newComment: { [key: string]: string };
-  expandedEvent: string | null;
-  handleAddComment: (eventId: string) => void;
-  handleCommentChange: (eventId: string, value: string) => void;
-  toggleEventExpansion: (eventId: string) => void;
   updateTaskStatus: (eventId: string, status: 'pending' | 'in-progress' | 'completed') => void;
 }
 
@@ -42,37 +35,27 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
-  const [lastActivity, setLastActivity] = useState<Date>(new Date());
 
   // Initialize audit events using the hook
   const {
     auditEvents,
     updateAuditEvents,
-    addSystemResponse,
     setLastActivity: updateLastActivity
   } = useAuditEvents({ documentName });
 
-  // Comments management
-  const {
-    newComment,
-    expandedEvent,
-    handleAddComment,
-    handleCommentChange,
-    toggleEventExpansion
-  } = useComments({
-    auditEvents,
-    updateAuditEvents,
-    addSystemResponse,
-    setLastActivity: updateLastActivity
-  });
-
   // Task status management
-  const { updateTaskStatus } = useTaskStatus({
-    auditEvents,
-    updateAuditEvents,
-    documentName,
-    setLastActivity: updateLastActivity
-  });
+  const updateTaskStatus = useCallback((eventId: string, status: 'pending' | 'in-progress' | 'completed') => {
+    const updatedEvents = auditEvents.map(event => {
+      if (event.id === eventId) {
+        return { ...event, status };
+      }
+      return event;
+    });
+    
+    updateAuditEvents(updatedEvents);
+    updateLastActivity(new Date());
+    toast.success(`Task status updated to: ${status}`);
+  }, [auditEvents, updateAuditEvents, updateLastActivity]);
 
   // Set loading state after initial audit events are loaded
   useEffect(() => {
@@ -89,7 +72,7 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
       documentName: event.documentName || documentName,
       user: event.user || 'System',
       status: event.status || 'completed',
-      comments: event.comments || [],
+      comments: [],
       icon: event.icon
     };
 
@@ -129,11 +112,6 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
     isGeneratingReport,
     downloadAuditReport,
     addAuditEvent,
-    newComment,
-    expandedEvent,
-    handleAddComment,
-    handleCommentChange,
-    toggleEventExpansion,
     updateTaskStatus
   };
 
