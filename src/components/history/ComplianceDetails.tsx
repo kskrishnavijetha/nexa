@@ -10,6 +10,19 @@ interface ComplianceDetailsProps {
 }
 
 const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report }) => {
+  if (!report) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>No Report Selected</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>Please select a document to view details</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>

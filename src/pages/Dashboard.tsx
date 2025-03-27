@@ -21,6 +21,7 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     // Load reports from history service
     const historicalReports = getHistoricalReports();
+    console.log('Dashboard loaded reports:', historicalReports.length);
     setScans(historicalReports);
   }, []);
 
@@ -39,6 +40,7 @@ const Dashboard: React.FC = () => {
   });
 
   const handlePreviewReport = (report: ComplianceReport) => {
+    console.log('Previewing report:', report.documentName);
     setSelectedReport(report);
     setPreviewOpen(true);
   };
@@ -92,10 +94,17 @@ const Dashboard: React.FC = () => {
           <CardTitle>Compliance Scan Results</CardTitle>
         </CardHeader>
         <CardContent>
-          <ComplianceScanTable 
-            scans={filteredScans} 
-            onPreview={handlePreviewReport} 
-          />
+          {filteredScans.length === 0 ? (
+            <div className="text-center p-8">
+              <p className="text-slate-500">No compliance reports found that match your filters.</p>
+              <p className="text-sm mt-2 text-slate-400">Upload and analyze documents to see them here.</p>
+            </div>
+          ) : (
+            <ComplianceScanTable 
+              scans={filteredScans} 
+              onPreview={handlePreviewReport} 
+            />
+          )}
         </CardContent>
       </Card>
 

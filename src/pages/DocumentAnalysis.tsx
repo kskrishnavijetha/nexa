@@ -16,6 +16,7 @@ const DocumentAnalysis = () => {
     
     // Save the report to history for viewing in the history page
     addReportToHistory(reportData);
+    console.log('Report saved to history in DocumentAnalysis:', reportData.documentName);
     toast.success('Report added to history');
   };
 

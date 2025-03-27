@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 import { uploadDocument } from '@/utils/fileUploadService';
 import { requestComplianceCheck } from '@/utils/complianceService';
 import { ComplianceReport, Industry, Region } from '@/utils/types';
-import { addReportToHistory } from '@/utils/historyService';
 
 export const useDocumentUpload = (onReportGenerated: (report: ComplianceReport) => void) => {
   const [file, setFile] = useState<File | null>(null);
@@ -58,10 +57,8 @@ export const useDocumentUpload = (onReportGenerated: (report: ComplianceReport) 
       }
       
       if (complianceResult.data) {
-        // Add to history
-        addReportToHistory(complianceResult.data);
-        
-        toast.success('Document analyzed successfully and added to history');
+        toast.success('Document analyzed successfully');
+        // Let the parent component handle adding to history
         onReportGenerated(complianceResult.data);
       }
     } catch (error) {
