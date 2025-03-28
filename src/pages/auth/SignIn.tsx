@@ -19,17 +19,24 @@ const SignIn: React.FC = () => {
 
   // Redirect if already logged in, but only if we're not already redirecting
   useEffect(() => {
-    if (user && !isRedirecting) {
+    if (user && !isRedirecting && !loading) {
       console.log('User already logged in, redirecting to dashboard');
       setIsRedirecting(true);
+      
+      // Check if there's a saved redirect path
+      const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
+      
+      // Clear the saved path
+      sessionStorage.removeItem('redirectAfterLogin');
+      
       // Use a timeout to prevent UI flickering
       const redirectTimer = setTimeout(() => {
-        navigate('/dashboard', { replace: true });
-      }, 100);
+        navigate(redirectPath, { replace: true });
+      }, 300);
       
       return () => clearTimeout(redirectTimer);
     }
-  }, [user, navigate, isRedirecting]);
+  }, [user, navigate, isRedirecting, loading]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,6 +73,7 @@ const SignIn: React.FC = () => {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2">Preparing your dashboard...</span>
       </div>
     );
   }

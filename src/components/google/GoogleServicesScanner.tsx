@@ -45,6 +45,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   
   // Update the user ID in the store when the user changes
   useEffect(() => {
+    console.log('GoogleServicesScanner: Setting user ID in history store:', user?.id);
     setUserId(user?.id || null);
   }, [user, setUserId]);
   
@@ -87,7 +88,8 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     handleScan(connectedServices, industry, language, region);
 
     // Only add to scan history if user is authenticated
-    if (user) {
+    if (user && user.id) {
+      console.log(`Adding scan history for user ${user.id}`);
       // Add to scan history for each connected service
       connectedServices.forEach(service => {
         addScanHistory({

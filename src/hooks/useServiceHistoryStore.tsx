@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { ComplianceReport } from '@/utils/types';
@@ -23,7 +22,7 @@ interface ServiceHistoryState {
 
 // Helper function to generate a storage key based on user ID
 const getStorageKey = (userId: string | null) => {
-  if (!userId) return 'compliZen_serviceHistory';
+  if (!userId) return 'compliZen_serviceHistory_guest';
   return `compliZen_serviceHistory_${userId}`;
 };
 
@@ -39,7 +38,32 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
         // If user ID is changing, clear the history
         if (currentUserId !== id) {
           console.log(`User ID changed from ${currentUserId} to ${id}, resetting history`);
+          
+          // Clear the history in localStorage for the previous user
+          if (currentUserId) {
+            const prevKey = getStorageKey(currentUserId);
+            localStorage.removeItem(prevKey);
+          }
+          
           set({ scanHistory: [], userId: id });
+          
+          // Load history for the new user if available
+          if (id) {
+            const newKey = getStorageKey(id);
+            const savedHistory = localStorage.getItem(newKey);
+            
+            if (savedHistory) {
+              try {
+                const parsedHistory = JSON.parse(savedHistory);
+                if (parsedHistory.state && Array.isArray(parsedHistory.state.scanHistory)) {
+                  set({ scanHistory: parsedHistory.state.scanHistory });
+                  console.log(`Loaded ${parsedHistory.state.scanHistory.length} history items for user ${id}`);
+                }
+              } catch (e) {
+                console.error('Error parsing history:', e);
+              }
+            }
+          }
         } else {
           set({ userId: id });
         }
@@ -67,29 +91,45 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
     {
       name: 'compliZen_serviceHistory',
       // Use a dynamic storage key based on user ID
-      getStorage: (userID) => ({
+      getStorage: () => ({
         getItem: (name) => {
-          const userId = JSON.parse(localStorage.getItem('compliZen_userId') || 'null');
-          const key = getStorageKey(userId);
-          return localStorage.getItem(key) || null;
+          const state = JSON.parse(localStorage.getItem(name) || '{"state":{"userId":null}}');
+          const userId = state.state.userId;
+          
+          // If we have a userId, use a user-specific key
+          if (userId) {
+            const key = getStorageKey(userId);
+            return localStorage.getItem(key) || null;
+          }
+          
+          // Otherwise, use the default key
+          return localStorage.getItem(name) || null;
         },
         setItem: (name, value) => {
           const state = JSON.parse(value);
           const userId = state.state.userId;
           
-          // Save the user ID separately for later retrieval
+          // If we have a userId, use a user-specific key
           if (userId) {
-            localStorage.setItem('compliZen_userId', JSON.stringify(userId));
+            const key = getStorageKey(userId);
+            localStorage.setItem(key, value);
           }
           
-          const key = getStorageKey(userId);
-          localStorage.setItem(key, value);
+          // Always update the main store with at least the userId
+          const mainStore = { state: { userId: state.state.userId } };
+          localStorage.setItem(name, JSON.stringify(mainStore));
         },
         removeItem: (name) => {
-          const userId = JSON.parse(localStorage.getItem('compliZen_userId') || 'null');
-          const key = getStorageKey(userId);
-          localStorage.removeItem(key);
-          localStorage.removeItem('compliZen_userId');
+          const state = JSON.parse(localStorage.getItem(name) || '{"state":{"userId":null}}');
+          const userId = state.state.userId;
+          
+          // If we have a userId, remove the user-specific key
+          if (userId) {
+            const key = getStorageKey(userId);
+            localStorage.removeItem(key);
+          }
+          
+          localStorage.removeItem(name);
         },
       }),
     }

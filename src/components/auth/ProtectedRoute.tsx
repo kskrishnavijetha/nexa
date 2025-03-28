@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 
@@ -11,6 +11,7 @@ interface ProtectedRouteProps {
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isRedirecting, setIsRedirecting] = useState(false);
   
   useEffect(() => {
@@ -19,14 +20,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       console.log('ProtectedRoute: No authenticated user, redirecting to sign-in');
       setIsRedirecting(true);
       
+      // Store the attempted URL for redirect after login
+      if (location.pathname !== '/sign-in') {
+        sessionStorage.setItem('redirectAfterLogin', location.pathname);
+      }
+      
       // Use setTimeout to prevent UI flickering from immediate redirects
       const redirectTimer = setTimeout(() => {
         navigate('/sign-in', { replace: true });
-      }, 100);
+      }, 300);
       
       return () => clearTimeout(redirectTimer);
     }
-  }, [user, loading, navigate, isRedirecting]);
+  }, [user, loading, navigate, isRedirecting, location]);
 
   // Show loading state when authenticating or redirecting
   if (loading || isRedirecting) {
@@ -37,11 +43,16 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  // Additional explicit check to ensure redirection works
+  // If not authenticated and not redirecting yet, show loading instead of flashing content
   if (!user) {
-    return <Navigate to="/sign-in" replace />;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="animate-spin h-8 w-8 text-primary" />
+      </div>
+    );
   }
 
+  // User is authenticated, render the protected content
   return <>{children}</>;
 };
 
