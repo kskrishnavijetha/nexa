@@ -29,18 +29,18 @@ const getStorageKey = (userId: string | null) => {
 // Custom storage implementation to handle user-specific storage
 const createUserStorage = () => {
   return {
-    getItem: (name: string) => {
+    getItem: (name: string): string | null => {
       const state = JSON.parse(localStorage.getItem(name) || '{"state":{"userId":null}}');
       const userId = state.state.userId;
       
       // If we have a userId, use a user-specific key
       if (userId) {
         const key = getStorageKey(userId);
-        return localStorage.getItem(key) || null;
+        return localStorage.getItem(key);
       }
       
       // Otherwise, use the default key
-      return localStorage.getItem(name) || null;
+      return localStorage.getItem(name);
     },
     setItem: (name: string, value: string) => {
       const state = JSON.parse(value);
