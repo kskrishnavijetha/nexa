@@ -23,6 +23,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       // Store the attempted URL for redirect after login
       if (location.pathname !== '/sign-in') {
         sessionStorage.setItem('redirectAfterLogin', location.pathname);
+        console.log('Storing redirect path:', location.pathname);
       }
       
       // Use setTimeout to prevent UI flickering from immediate redirects
@@ -39,6 +40,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="animate-spin h-8 w-8 text-primary" />
+        <span className="ml-2">Preparing your dashboard...</span>
       </div>
     );
   }
@@ -48,6 +50,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="animate-spin h-8 w-8 text-primary" />
+        <span className="ml-2">Authenticating...</span>
       </div>
     );
   }

@@ -30,37 +30,39 @@ const getStorageKey = (userId: string | null) => {
 const createUserStorage = (): PersistStorage<ServiceHistoryState> => {
   return {
     getItem: (name: string): StorageValue<ServiceHistoryState> | null => {
-      const stateStr = localStorage.getItem(name);
-      if (!stateStr) return null;
-      
       try {
-        const state = JSON.parse(stateStr);
-        const userId = state.state.userId;
+        const stateStr = localStorage.getItem(name);
+        if (!stateStr) return null;
+        
+        const parsedState = JSON.parse(stateStr);
+        const userId = parsedState.state.userId;
         
         // If we have a userId, use a user-specific key
         if (userId) {
           const key = getStorageKey(userId);
           const userStateStr = localStorage.getItem(key);
+          
           // Handle the case where user-specific storage doesn't exist
           if (!userStateStr) return null;
           
           // Parse and return as the correct type
-          return JSON.parse(userStateStr) as StorageValue<ServiceHistoryState>;
+          return JSON.parse(userStateStr);
         }
         
         // Otherwise, use the default key (already parsed)
-        return JSON.parse(stateStr) as StorageValue<ServiceHistoryState>;
+        return parsedState;
       } catch (e) {
         console.error('Error parsing state during getItem:', e);
         return null;
       }
     },
+    
     setItem: (name: string, value: StorageValue<ServiceHistoryState>): void => {
       try {
         // Convert value to string for localStorage
         const valueStr = JSON.stringify(value);
-        const state = JSON.parse(valueStr);
-        const userId = state.state.userId;
+        const parsedState = JSON.parse(valueStr);
+        const userId = parsedState.state.userId;
         
         // If we have a userId, use a user-specific key
         if (userId) {
@@ -69,30 +71,33 @@ const createUserStorage = (): PersistStorage<ServiceHistoryState> => {
         }
         
         // Always update the main store with at least the userId
-        const mainStore = { state: { userId: state.state.userId } };
+        const mainStore = { state: { userId: parsedState.state.userId } };
         localStorage.setItem(name, JSON.stringify(mainStore));
       } catch (e) {
         console.error('Error stringifying state during setItem:', e);
       }
     },
+    
     removeItem: (name: string): void => {
-      const stateStr = localStorage.getItem(name);
-      if (stateStr) {
-        try {
-          const state = JSON.parse(stateStr);
-          const userId = state.state.userId;
+      try {
+        const stateStr = localStorage.getItem(name);
+        if (stateStr) {
+          const parsedState = JSON.parse(stateStr);
+          const userId = parsedState.state?.userId;
           
           // If we have a userId, remove the user-specific key
           if (userId) {
             const key = getStorageKey(userId);
             localStorage.removeItem(key);
           }
-        } catch (e) {
-          console.error('Error parsing state during removeItem:', e);
         }
+        
+        localStorage.removeItem(name);
+      } catch (e) {
+        console.error('Error parsing state during removeItem:', e);
+        // Still attempt to remove the item even if parsing failed
+        localStorage.removeItem(name);
       }
-      
-      localStorage.removeItem(name);
     }
   };
 };
