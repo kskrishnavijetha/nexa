@@ -15,15 +15,29 @@ let historicalReports: ComplianceReport[] = [...mockScansWithUserIds];
  * Add a new report to the history
  */
 export const addReportToHistory = (report: ComplianceReport): void => {
+  // Ensure report has a userId
+  const reportToAdd = {
+    ...report,
+    userId: report.userId || null // Ensure the userId field exists
+  };
+  
   // Check if report already exists (prevent duplicates)
-  const exists = historicalReports.some(r => r.documentId === report.documentId);
+  const exists = historicalReports.some(r => r.documentId === reportToAdd.documentId);
   
   if (!exists) {
     // Add to beginning of array to show newest first
-    historicalReports = [report, ...historicalReports];
-    console.log('Report added to history:', report.documentName);
+    historicalReports = [reportToAdd, ...historicalReports];
+    console.log('Report added to history:', reportToAdd.documentName, 'for user:', reportToAdd.userId);
   } else {
-    console.log('Report already exists in history:', report.documentName);
+    // Update the existing report if it exists but might need a userId update
+    const index = historicalReports.findIndex(r => r.documentId === reportToAdd.documentId);
+    if (index !== -1) {
+      historicalReports[index] = {
+        ...historicalReports[index],
+        userId: reportToAdd.userId || historicalReports[index].userId
+      };
+      console.log('Updated existing report in history:', reportToAdd.documentName);
+    }
   }
 };
 

@@ -46,7 +46,9 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   // Update the user ID in the store when the user changes
   useEffect(() => {
     console.log('GoogleServicesScanner: Setting user ID in history store:', user?.id);
-    setUserId(user?.id || null);
+    if (user && user.id) {
+      setUserId(user.id);
+    }
   }, [user, setUserId]);
   
   // Initialize connected services from persisted state
@@ -92,6 +94,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
       console.log(`Adding scan history for user ${user.id}`);
       // Add to scan history for each connected service
       connectedServices.forEach(service => {
+        const documentName = file?.name || `${service.charAt(0).toUpperCase() + service.slice(1)} Scan ${new Date().toLocaleTimeString()}`;
         addScanHistory({
           serviceId: service,
           serviceName: service === 'drive' ? 'Google Drive' : 
@@ -99,11 +102,12 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
           scanDate: new Date().toISOString(),
           itemsScanned: Math.floor(Math.random() * 50) + 10, // Placeholder for demo
           violationsFound: Math.floor(Math.random() * 5), // Placeholder for demo
-          documentName: file?.name || `Scan ${new Date().toLocaleTimeString()}`
+          documentName: documentName
         });
       });
     } else {
       console.log('User not authenticated, skipping scan history addition');
+      toast.warning('Sign in to save scan history', { duration: 3000 });
     }
   };
 

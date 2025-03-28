@@ -6,17 +6,24 @@ import DocumentHeader from '@/components/document-analysis/DocumentHeader';
 import DocumentUploader from '@/components/document-uploader/DocumentUploader';
 import AnalysisResults from '@/components/document-analysis/AnalysisResults';
 import { addReportToHistory } from '@/utils/historyService';
+import { useAuth } from '@/contexts/AuthContext';
 
 const DocumentAnalysis = () => {
   const [report, setReport] = useState<ComplianceReport | null>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const { user } = useAuth();
 
   const handleReportGenerated = (reportData: ComplianceReport) => {
-    setReport(reportData);
+    // Add user ID to the report if available
+    const reportWithUser = user?.id 
+      ? { ...reportData, userId: user.id }
+      : reportData;
+    
+    setReport(reportWithUser);
     
     // Save the report to history for viewing in the history page
-    addReportToHistory(reportData);
-    console.log('Report saved to history in DocumentAnalysis:', reportData.documentName);
+    addReportToHistory(reportWithUser);
+    console.log('Report saved to history in DocumentAnalysis:', reportWithUser.documentName);
     toast.success('Report added to history');
   };
 
@@ -43,7 +50,7 @@ const DocumentAnalysis = () => {
         link.click();
         
         document.body.removeChild(link);
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
+        setTimeout(() => URL.revoObjectURL(blobUrl), 100);
         
         toast.success('PDF report downloaded successfully');
       }
