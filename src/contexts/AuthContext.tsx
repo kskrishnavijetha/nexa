@@ -3,6 +3,7 @@ import React, { createContext, useState, useEffect, useContext } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   session: Session | null;
@@ -30,10 +31,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         if (event === 'SIGNED_IN') {
           toast.success('Signed in successfully!');
-          // Don't use navigate here - we'll handle navigation in the components
         } else if (event === 'SIGNED_OUT') {
           toast.info('Signed out');
-          // Don't use navigate here - we'll let components handle navigation
+          // Clear any user-specific data from localStorage on sign out
+          clearUserData();
         }
       }
     );
@@ -49,6 +50,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       subscription.unsubscribe();
     };
   }, []);
+
+  // Helper function to clear user data from localStorage
+  const clearUserData = () => {
+    const keys = Object.keys(localStorage);
+    const userDataKeys = keys.filter(key => key.startsWith('compliZen_'));
+    userDataKeys.forEach(key => {
+      localStorage.removeItem(key);
+    });
+  };
 
   const signUp = async (email: string, password: string) => {
     const { error } = await supabase.auth.signUp({
@@ -73,7 +83,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error signing out:', error);
+      toast.error('Failed to sign out. Please try again.');
+    } else {
+      // Clear user-specific data from localStorage
+      clearUserData();
+    }
   };
 
   const value = {
