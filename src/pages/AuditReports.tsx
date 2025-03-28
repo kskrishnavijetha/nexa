@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -11,6 +10,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { generateAuditReport, getAuditReportFileName } from '@/utils/auditReportService';
 import { getAuditEventsForDocument } from '@/components/audit/hooks/useAuditEvents';
+import { useAuth } from '@/contexts/AuthContext';
 
 const AuditReports: React.FC = () => {
   const [reports, setReports] = useState<ComplianceReport[]>([]);
@@ -18,12 +18,18 @@ const AuditReports: React.FC = () => {
   const [generatingReport, setGeneratingReport] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
 
   useEffect(() => {
     // Load reports from history service
     const historicalReports = getHistoricalReports();
-    setReports(historicalReports);
-  }, []);
+    
+    // Filter reports by current user's ID
+    const userReports = user ? historicalReports.filter(report => report.userId === user.id) : [];
+    console.log(`Filtered reports for user ${user?.id} in Audit Reports:`, userReports.length);
+    
+    setReports(userReports);
+  }, [user]);
 
   const filteredReports = reports.filter(report => 
     report.documentName.toLowerCase().includes(searchTerm.toLowerCase())

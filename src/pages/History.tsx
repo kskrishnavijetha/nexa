@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ComplianceReport } from '@/utils/types';
@@ -9,6 +8,7 @@ import ComplianceDetails from '@/components/history/ComplianceDetails';
 import RealtimeAnalysisSimulator from '@/components/history/RealtimeAnalysisSimulator';
 import { getHistoricalReports } from '@/utils/historyService';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const History: React.FC = () => {
   const [reports, setReports] = useState<ComplianceReport[]>([]);
@@ -21,8 +21,8 @@ const History: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const locationState = location.state as { preventBlink?: boolean; from?: string } | null;
+  const { user } = useAuth();
 
-  // Parse URL parameters
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const documentParam = params.get('document');
@@ -37,9 +37,7 @@ const History: React.FC = () => {
     }
   }, [location.search]);
 
-  // Update URL when selections change, but only if not handling a "preventBlink" state transition
   const updateUrl = useCallback(() => {
-    // Skip URL updates during preventBlink navigation to avoid the blinking issue
     if (locationState?.preventBlink) {
       return;
     }
@@ -52,16 +50,14 @@ const History: React.FC = () => {
     
     navigate(`/history?${params.toString()}`, { 
       replace: true,
-      state: null // Clear the state
+      state: null
     });
   }, [selectedDocument, activeTab, navigate, locationState]);
 
-  // Only update URL when state changes naturally (not from URL)
   useEffect(() => {
     if (!locationState?.preventBlink) {
       updateUrl();
     } else if (locationState.from === 'audit-reports') {
-      // If we came from audit-reports, clear the preventBlink state after initial render
       navigate(location.pathname + location.search, {
         replace: true,
         state: null
@@ -70,19 +66,21 @@ const History: React.FC = () => {
   }, [selectedDocument, activeTab, updateUrl, locationState, navigate, location.pathname, location.search]);
 
   useEffect(() => {
-    // Load reports from history service
     const historicalReports = getHistoricalReports();
-    console.log('History page loaded reports:', historicalReports.length);
-    setReports(historicalReports);
+    console.log('History page loaded reports (total):', historicalReports.length);
     
-    // Set selected document to the first report if available
-    if (historicalReports.length > 0 && !selectedDocument) {
-      setSelectedDocument(historicalReports[0].documentName);
-      console.log('Selected document set to:', historicalReports[0].documentName);
-    } else if (historicalReports.length === 0) {
-      console.log('No historical reports found');
+    const userReports = user ? historicalReports.filter(report => report.userId === user.id) : [];
+    console.log(`Filtered reports for user ${user?.id}:`, userReports.length);
+    
+    setReports(userReports);
+    
+    if (userReports.length > 0 && !selectedDocument) {
+      setSelectedDocument(userReports[0].documentName);
+      console.log('Selected document set to:', userReports[0].documentName);
+    } else if (userReports.length === 0) {
+      console.log('No historical reports found for this user');
     }
-  }, []);
+  }, [user]);
 
   const handleDocumentSelect = (documentName: string) => {
     console.log('Document selected:', documentName);
@@ -105,11 +103,12 @@ const History: React.FC = () => {
 
   const handleReportsUpdate = (updatedReports: ComplianceReport[]) => {
     console.log('Reports updated, new count:', updatedReports.length);
-    setReports(updatedReports);
     
-    // If we don't have a selected document yet, select the first one
-    if (!selectedDocument && updatedReports.length > 0) {
-      setSelectedDocument(updatedReports[0].documentName);
+    const userReports = user ? updatedReports.filter(report => report.userId === user.id) : [];
+    setReports(userReports);
+    
+    if (!selectedDocument && userReports.length > 0) {
+      setSelectedDocument(userReports[0].documentName);
     }
   };
 

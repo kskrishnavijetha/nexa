@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Download } from 'lucide-react';
@@ -10,6 +9,7 @@ import DocumentPreview from '@/components/document-analysis/DocumentPreview';
 import { generateReportPDF } from '@/utils/reportService';
 import { toast } from 'sonner';
 import { getHistoricalReports } from '@/utils/historyService';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Dashboard: React.FC = () => {
   const [riskFilter, setRiskFilter] = useState<string>('all');
@@ -17,13 +17,19 @@ const Dashboard: React.FC = () => {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const [scans, setScans] = useState<ComplianceReport[]>([]);
+  const { user } = useAuth();
 
   useEffect(() => {
     // Load reports from history service
     const historicalReports = getHistoricalReports();
-    console.log('Dashboard loaded reports:', historicalReports.length);
-    setScans(historicalReports);
-  }, []);
+    console.log('Dashboard loaded reports (total):', historicalReports.length);
+    
+    // Filter reports by current user's ID
+    const userReports = user ? historicalReports.filter(report => report.userId === user.id) : [];
+    console.log(`Filtered reports for user ${user?.id}:`, userReports.length);
+    
+    setScans(userReports);
+  }, [user]);
 
   // Define the function to get worst risk level for filtering
   const getWorstRiskLevel = (scan: ComplianceReport): string => {

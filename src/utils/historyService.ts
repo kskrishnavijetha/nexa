@@ -2,8 +2,14 @@
 import { ComplianceReport } from './types';
 import { mockScans } from './historyMocks';
 
+// Assign random user IDs to mock data to make them work with our new filtering
+const mockScansWithUserIds = mockScans.map(scan => ({
+  ...scan,
+  userId: scan.userId || Math.random().toString(36).substring(2, 15)
+}));
+
 // In-memory storage for reports (in a real app, this would be persisted)
-let historicalReports: ComplianceReport[] = [...mockScans];
+let historicalReports: ComplianceReport[] = [...mockScansWithUserIds];
 
 /**
  * Add a new report to the history
