@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { ServiceScanHistory } from '@/components/audit/types';
 import { ComplianceReport } from '@/utils/types';
@@ -100,9 +101,6 @@ const getInitialHistory = (userId: string | undefined): ServiceScanHistory[] => 
   return [];
 };
 
-// Initialize serviceHistory as an empty array, will be populated in the hook
-let serviceHistory: ServiceScanHistory[] = [];
-
 export const useServiceHistoryStore = () => {
   const { user } = useAuth();
   const [history, setHistory] = useState<ServiceScanHistory[]>([]);
@@ -120,35 +118,36 @@ export const useServiceHistoryStore = () => {
   // Load history when user changes
   useEffect(() => {
     // Load history specific to this user
-    serviceHistory = getInitialHistory(user?.id);
-    setHistory(serviceHistory);
-    console.log('Loaded user-specific history for:', user?.id, serviceHistory.length);
+    const userHistory = getInitialHistory(user?.id);
+    setHistory(userHistory);
+    console.log('Loaded user-specific history for:', user?.id, userHistory.length);
   }, [user?.id]);
 
   const addScanHistory = useCallback((scan: ServiceScanHistory) => {
-    const newHistory = [scan, ...serviceHistory];
-    // Limit history to most recent 50 items
-    serviceHistory = newHistory.slice(0, 50);
-    setHistory(serviceHistory);
-    
-    // Save to localStorage with user-specific key
-    saveServiceHistory(serviceHistory);
+    setHistory(prevHistory => {
+      const newHistory = [scan, ...prevHistory];
+      // Limit history to most recent 50 items
+      const updatedHistory = newHistory.slice(0, 50);
+      
+      // Save to localStorage with user-specific key
+      saveServiceHistory(updatedHistory);
+      return updatedHistory;
+    });
   }, [saveServiceHistory]);
 
   const clearHistory = useCallback(() => {
-    serviceHistory = [];
     setHistory([]);
     
     // Clear localStorage for this user
     if (user?.id) {
       localStorage.removeItem(getUserStorageKey(user.id));
     }
-  }, [user?.id, saveServiceHistory]);
+  }, [user?.id]);
 
   const getServiceHistory = useCallback((serviceId?: string) => {
-    if (!serviceId) return serviceHistory;
-    return serviceHistory.filter(item => item.serviceId === serviceId);
-  }, []);
+    if (!serviceId) return history;
+    return history.filter(item => item.serviceId === serviceId);
+  }, [history]);
 
   return {
     scanHistory: history,
