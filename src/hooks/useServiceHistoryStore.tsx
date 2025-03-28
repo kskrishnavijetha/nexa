@@ -8,10 +8,11 @@ const SERVICE_HISTORY_BASE_KEY = 'compliZen_service_history';
 
 // Get user-specific storage key
 const getUserStorageKey = (userId: string | undefined) => {
-  return userId ? `${SERVICE_HISTORY_BASE_KEY}_${userId}` : SERVICE_HISTORY_BASE_KEY;
+  if (!userId) return null; // Return null if no user ID to prevent data leakage
+  return `${SERVICE_HISTORY_BASE_KEY}_${userId}`;
 };
 
-// Mock data for non-authenticated users
+// Mock data for demo purposes only - never shown to real users
 const getMockData = (): ServiceScanHistory[] => {
   return [
     {
@@ -88,59 +89,66 @@ const getMockData = (): ServiceScanHistory[] => {
 export const useServiceHistoryStore = () => {
   const { user } = useAuth();
   const [history, setHistory] = useState<ServiceScanHistory[]>([]);
-  const [lastUserId, setLastUserId] = useState<string | undefined>(undefined);
   
   // Load history when user changes
   useEffect(() => {
-    console.log('User changed, reloading history data', user?.id);
+    console.log('User changed in useServiceHistoryStore, user ID:', user?.id);
     
-    // If the user ID has changed, we need to clear the existing history
-    // This prevents data leakage between users
-    if (lastUserId && user?.id !== lastUserId) {
-      console.log('User ID changed, clearing history data');
-      setHistory([]);
+    // Always reset history first when user changes
+    setHistory([]);
+    
+    // Only load history for authenticated users
+    if (!user?.id) {
+      console.log('No authenticated user, showing mock data for demo');
+      setHistory(getMockData());
+      return;
     }
     
-    // Update the last user ID
-    setLastUserId(user?.id);
-    
-    // Important: Clear existing history first to prevent data leakage
-    if (!user?.id) {
-      console.log('No user logged in, showing mock data');
-      setHistory(getMockData());
+    // Get user-specific storage key
+    const storageKey = getUserStorageKey(user.id);
+    if (!storageKey) {
+      console.log('No storage key available, cannot load history');
       return;
     }
     
     // Try to load user-specific history from localStorage
     try {
-      const storageKey = getUserStorageKey(user.id);
       const storedData = localStorage.getItem(storageKey);
       
       if (storedData) {
         const parsedData = JSON.parse(storedData);
-        console.log(`Loaded history for user ${user.id}, count:`, parsedData.length);
+        console.log(`Loaded ${parsedData.length} history items for user ${user.id}`);
         setHistory(parsedData);
       } else {
-        console.log(`No stored history found for user ${user.id}`);
+        console.log(`No stored history found for user ${user.id}, initializing empty history`);
+        // Initialize with empty array for new users
         setHistory([]);
+        // Save empty array to localStorage
+        localStorage.setItem(storageKey, JSON.stringify([]));
       }
     } catch (error) {
       console.error('Error loading history from localStorage:', error);
       setHistory([]);
     }
-  }, [user?.id]);
+  }, [user?.id]);  // Only re-run when user ID changes
 
   // Save service history to localStorage with user-specific key
   const saveServiceHistory = useCallback((historyData: ServiceScanHistory[]) => {
+    // Only save for authenticated users
+    if (!user?.id) {
+      console.log('Not saving history - no authenticated user');
+      return;
+    }
+    
+    const storageKey = getUserStorageKey(user.id);
+    if (!storageKey) {
+      console.log('No storage key available, cannot save history');
+      return;
+    }
+    
     try {
-      if (!user?.id) {
-        console.log('Not saving history - no authenticated user');
-        return;
-      }
-      
-      const storageKey = getUserStorageKey(user.id);
       localStorage.setItem(storageKey, JSON.stringify(historyData));
-      console.log(`Saved history for user ${user.id}, count: ${historyData.length}`);
+      console.log(`Saved ${historyData.length} history items for user ${user.id}`);
     } catch (error) {
       console.error('Error saving service history to localStorage:', error);
     }
@@ -167,12 +175,14 @@ export const useServiceHistoryStore = () => {
   const clearHistory = useCallback(() => {
     // Only attempt to clear local storage if a user is logged in
     if (user?.id) {
-      try {
-        const storageKey = getUserStorageKey(user.id);
-        localStorage.removeItem(storageKey);
-        console.log(`Cleared history for user ${user.id}`);
-      } catch (error) {
-        console.error('Error clearing service history:', error);
+      const storageKey = getUserStorageKey(user.id);
+      if (storageKey) {
+        try {
+          localStorage.removeItem(storageKey);
+          console.log(`Cleared history for user ${user.id}`);
+        } catch (error) {
+          console.error('Error clearing service history:', error);
+        }
       }
     }
     

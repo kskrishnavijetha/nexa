@@ -16,20 +16,21 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Helper function to clear user data from localStorage - moved outside component
+const clearUserData = () => {
+  console.log('Clearing user data from localStorage');
+  const keys = Object.keys(localStorage);
+  const userDataKeys = keys.filter(key => key.startsWith('compliZen_'));
+  userDataKeys.forEach(key => {
+    localStorage.removeItem(key);
+  });
+};
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
-  // Helper function to clear user data from localStorage
-  const clearUserData = () => {
-    console.log('Clearing user data from localStorage');
-    const keys = Object.keys(localStorage);
-    const userDataKeys = keys.filter(key => key.startsWith('compliZen_'));
-    userDataKeys.forEach(key => {
-      localStorage.removeItem(key);
-    });
-  };
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log('Auth provider initializing...');
@@ -44,7 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('Auth state changed:', event);
         
         if (event === 'SIGNED_IN') {
-          // Clear any existing data first to prevent data leakage
+          // First clear any existing data to prevent data leakage
           clearUserData();
           
           // Then set the new session and user
@@ -60,6 +61,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Clear any user-specific data from localStorage on sign out
           clearUserData();
           
+          // Force navigation to home page
+          navigate('/', { replace: true });
           toast.info('Signed out');
         } else if (event === 'TOKEN_REFRESHED') {
           // Update session with refreshed token
@@ -83,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
   const signUp = async (email: string, password: string) => {
     const { error } = await supabase.auth.signUp({
@@ -99,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
-    // Clear any existing user data before signing in
+    // First clear existing data and reset auth state
     clearUserData();
     setSession(null);
     setUser(null);
@@ -133,6 +136,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
       
+      // Force navigation to home page
+      navigate('/', { replace: true });
       console.log('Signout completed successfully');
     } catch (error) {
       console.error('Exception during sign out:', error);

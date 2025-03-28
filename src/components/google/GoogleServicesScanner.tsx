@@ -8,6 +8,7 @@ import CloudServicesCard from './CloudServicesCard';
 import ScanResultsComponent from './ScanResults';
 import { toast } from 'sonner';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
+import { useAuth } from '@/contexts/AuthContext';
 
 const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({ 
   industry, 
@@ -40,6 +41,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   } = useServiceScanner();
 
   const { addScanHistory } = useServiceHistoryStore();
+  const { user } = useAuth();
   
   // Initialize connected services from persisted state
   useEffect(() => {
@@ -63,7 +65,8 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
       connectedServices,
       industry,
       language,
-      region
+      region,
+      userId: user?.id
     });
     
     if (connectedServices.length === 0) {
@@ -78,18 +81,23 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     
     handleScan(connectedServices, industry, language, region);
 
-    // Add to scan history for each connected service
-    connectedServices.forEach(service => {
-      addScanHistory({
-        serviceId: service,
-        serviceName: service === 'drive' ? 'Google Drive' : 
-                    service === 'gmail' ? 'Gmail' : 'Google Docs',
-        scanDate: new Date().toISOString(),
-        itemsScanned: Math.floor(Math.random() * 50) + 10, // Placeholder for demo
-        violationsFound: Math.floor(Math.random() * 5), // Placeholder for demo
-        documentName: file?.name || `Scan ${new Date().toLocaleTimeString()}`
+    // Only add to scan history if user is authenticated
+    if (user) {
+      // Add to scan history for each connected service
+      connectedServices.forEach(service => {
+        addScanHistory({
+          serviceId: service,
+          serviceName: service === 'drive' ? 'Google Drive' : 
+                      service === 'gmail' ? 'Gmail' : 'Google Docs',
+          scanDate: new Date().toISOString(),
+          itemsScanned: Math.floor(Math.random() * 50) + 10, // Placeholder for demo
+          violationsFound: Math.floor(Math.random() * 5), // Placeholder for demo
+          documentName: file?.name || `Scan ${new Date().toLocaleTimeString()}`
+        });
       });
-    });
+    } else {
+      console.log('User not authenticated, skipping scan history addition');
+    }
   };
 
   // Show guidance if no services are connected

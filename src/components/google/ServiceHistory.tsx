@@ -47,7 +47,7 @@ const ServiceHistory: React.FC = () => {
       <CardHeader>
         <CardTitle className="flex items-center">
           <Calendar className="mr-2 h-5 w-5" />
-          Service Scan History
+          Service Scan History - {user.email}
         </CardTitle>
       </CardHeader>
       <CardContent>
