@@ -1,4 +1,3 @@
-
 import { LucideIcon } from 'lucide-react';
 import { ComplianceReport } from '@/utils/types';
 
@@ -30,9 +29,10 @@ export interface AuditEvent {
 export interface ServiceScanHistory {
   serviceId: string;
   serviceName: string;
-  documentName?: string;
   scanDate: string;
   itemsScanned: number;
   violationsFound: number;
+  documentName?: string;
+  fileName?: string;
   report?: ComplianceReport;
 }

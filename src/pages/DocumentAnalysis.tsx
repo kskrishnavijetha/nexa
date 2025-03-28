@@ -33,8 +33,8 @@ const DocumentAnalysis = () => {
         serviceId: 'document-analysis',
         serviceName: 'Document Analysis',
         scanDate: new Date().toISOString(),
-        itemsScanned: reportWithUser.itemsScanned || 1,
-        violationsFound: (reportWithUser.issues || []).length,
+        itemsScanned: reportWithUser.pageCount || 1,
+        violationsFound: (reportWithUser.risks || []).length,
         documentName: reportWithUser.documentName,
         fileName: reportWithUser.originalFileName || reportWithUser.documentName,
         report: reportWithUser
