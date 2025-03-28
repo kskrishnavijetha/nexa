@@ -12,9 +12,11 @@ import { ComplianceReport } from '@/utils/types';
 import { AuditTrailProvider } from '@/components/audit/AuditTrailProvider';
 import AuditTrailList from '@/components/audit/AuditTrailList';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useAuth } from '@/contexts/AuthContext';
 
 const ServiceHistory: React.FC = () => {
   const { scanHistory } = useServiceHistoryStore();
+  const { user } = useAuth();
   const [previewOpen, setPreviewOpen] = useState(false);
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
@@ -62,6 +64,28 @@ const ServiceHistory: React.FC = () => {
       toast.error('Failed to generate audit report');
     }
   };
+
+  if (!user) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <Calendar className="mr-2 h-5 w-5" />
+            Service Scan History
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <FileText className="h-12 w-12 text-gray-300 mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-1">Please sign in to view your history</h3>
+            <p className="text-sm text-gray-500">
+              Sign in to view and manage your scan history
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (scanHistory.length === 0) {
     return (
