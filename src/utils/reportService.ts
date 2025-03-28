@@ -1,4 +1,3 @@
-
 import { ApiResponse, ComplianceReport } from './types';
 import { SupportedLanguage, translate } from './language';
 import jsPDF from 'jspdf';
@@ -196,12 +195,14 @@ export const generateReportPDF = async (
     const pdfBlob = doc.output('blob');
     
     return {
+      success: true,
       data: pdfBlob,
       status: 200
     };
   } catch (error) {
     console.error('Report generation error:', error);
     return {
+      success: false,
       error: 'Failed to generate the PDF report. Please try again.',
       status: 500
     };

@@ -1,5 +1,5 @@
 
-import { ComplianceReport, Risk } from '../types';
+import { ComplianceReport, Risk, Suggestion } from '../types';
 
 // Generate synthetic historical reports based on real data
 export const generateSyntheticReports = (currentReport: ComplianceReport, count: number = 3): ComplianceReport[] => {
@@ -8,8 +8,25 @@ export const generateSyntheticReports = (currentReport: ComplianceReport, count:
     const timestamp = new Date();
     timestamp.setMonth(timestamp.getMonth() - (i + 1));
     
+    // Create a deep copy of the original report
+    const reportCopy = JSON.parse(JSON.stringify(currentReport));
+    
+    // Format suggestions properly if they are strings
+    const formattedSuggestions = Array.isArray(reportCopy.suggestions) 
+      ? reportCopy.suggestions.map((suggestion: string | Suggestion) => {
+          if (typeof suggestion === 'string') {
+            return { 
+              id: `suggestion-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
+              title: suggestion.substring(0, 50),
+              description: suggestion
+            };
+          }
+          return suggestion;
+        })
+      : [];
+    
     return {
-      ...JSON.parse(JSON.stringify(currentReport)), // Deep copy
+      ...reportCopy,
       documentId: `synthetic-${i}`,
       timestamp: timestamp.toISOString(),
       overallScore: Math.min(100, Math.max(0, Math.round(currentReport.overallScore * randomFactor))),
@@ -19,7 +36,7 @@ export const generateSyntheticReports = (currentReport: ComplianceReport, count:
       pciDssScore: currentReport.pciDssScore 
         ? Math.min(100, Math.max(0, Math.round(currentReport.pciDssScore * randomFactor)))
         : undefined,
-      suggestions: currentReport.suggestions || []
+      suggestions: formattedSuggestions
     };
   });
 };
@@ -48,6 +65,17 @@ export const generateRandomReport = (): ComplianceReport => {
     summary: 'Automatically generated compliance report based on standard patterns',
     industry: 'Technology',
     region: 'Global',
-    suggestions: ['Update privacy policy', 'Conduct staff training']
+    suggestions: [
+      {
+        id: `suggestion-${Date.now()}-1`,
+        title: 'Update privacy policy',
+        description: 'Update privacy policy to comply with latest regulations'
+      },
+      {
+        id: `suggestion-${Date.now()}-2`,
+        title: 'Conduct staff training',
+        description: 'Conduct comprehensive staff training on data privacy and security'
+      }
+    ]
   };
 };

@@ -17,6 +17,7 @@ export const connectGoogleService = async (
     
     if (serviceIndex === -1) {
       return {
+        success: false,
         error: 'Service not found',
         status: 404
       };
@@ -35,12 +36,14 @@ export const connectGoogleService = async (
     mockGoogleConnections[serviceIndex] = updatedConnections[serviceIndex];
     
     return {
+      success: true,
       data: updatedConnections[serviceIndex],
       status: 200
     };
   } catch (error) {
     console.error('Error connecting to Google service:', error);
     return {
+      success: false,
       error: 'Failed to connect to the Google service. Please try again.',
       status: 500
     };
@@ -61,6 +64,7 @@ export const disconnectGoogleService = async (
     
     if (serviceIndex === -1) {
       return {
+        success: false,
         error: 'Service not found',
         status: 404
       };
@@ -79,12 +83,14 @@ export const disconnectGoogleService = async (
     mockGoogleConnections[serviceIndex] = updatedConnections[serviceIndex];
     
     return {
+      success: true,
       data: updatedConnections[serviceIndex],
       status: 200
     };
   } catch (error) {
     console.error('Error disconnecting from Google service:', error);
     return {
+      success: false,
       error: 'Failed to disconnect from the Google service. Please try again.',
       status: 500
     };
@@ -98,12 +104,14 @@ export const getGoogleConnections = async (): Promise<ApiResponse<GoogleServiceC
     await new Promise(resolve => setTimeout(resolve, 500));
     
     return {
+      success: true,
       data: mockGoogleConnections,
       status: 200
     };
   } catch (error) {
     console.error('Error getting Google connections:', error);
     return {
+      success: false,
       error: 'Failed to get Google service connections. Please try again.',
       status: 500
     };
@@ -119,6 +127,7 @@ export const uploadToGoogleDrive = async (
     await new Promise(resolve => setTimeout(resolve, 2000));
     
     return {
+      success: true,
       data: {
         fileId: `file-${Date.now()}`,
         fileName: file.name
@@ -128,6 +137,7 @@ export const uploadToGoogleDrive = async (
   } catch (error) {
     console.error('Error uploading to Google Drive:', error);
     return {
+      success: false,
       error: 'Failed to upload file to Google Drive. Please try again.',
       status: 500
     };
@@ -145,6 +155,7 @@ export const sendGmailEmail = async (
     await new Promise(resolve => setTimeout(resolve, 1500));
     
     return {
+      success: true,
       data: {
         messageId: `msg-${Date.now()}`
       },
@@ -153,6 +164,7 @@ export const sendGmailEmail = async (
   } catch (error) {
     console.error('Error sending Gmail:', error);
     return {
+      success: false,
       error: 'Failed to send email. Please try again.',
       status: 500
     };
@@ -169,6 +181,7 @@ export const createGoogleDoc = async (
     await new Promise(resolve => setTimeout(resolve, 1700));
     
     return {
+      success: true,
       data: {
         docId: `doc-${Date.now()}`,
         docTitle: title
@@ -178,6 +191,7 @@ export const createGoogleDoc = async (
   } catch (error) {
     console.error('Error creating Google Doc:', error);
     return {
+      success: false,
       error: 'Failed to create Google Doc. Please try again.',
       status: 500
     };

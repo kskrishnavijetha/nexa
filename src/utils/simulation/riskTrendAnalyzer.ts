@@ -68,6 +68,7 @@ export function calculateRiskTrends(
         trend: predictedChange,
         impact: impact,
         probability: Math.round(probability * 100), // Convert to percentage as a number
+        predictedChange: predictedChange, // Add this to match the RiskTrend type
         currentSeverity: risk.severity,
         regulation: risk.regulation || 'General',
         description: risk.description

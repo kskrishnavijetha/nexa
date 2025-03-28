@@ -20,6 +20,7 @@ export const scanGoogleService = async (
     
     if (!service) {
       return {
+        success: false,
         error: 'Service not found',
         status: 404
       };
@@ -27,6 +28,7 @@ export const scanGoogleService = async (
     
     if (!service.connected) {
       return {
+        success: false,
         error: 'Service is not connected',
         status: 400
       };
@@ -67,12 +69,14 @@ export const scanGoogleService = async (
     };
     
     return {
+      success: true,
       data: scanResult,
       status: 200
     };
   } catch (error) {
     console.error('Error scanning Google service:', error);
     return {
+      success: false,
       error: 'Failed to scan the Google service. Please try again.',
       status: 500
     };
