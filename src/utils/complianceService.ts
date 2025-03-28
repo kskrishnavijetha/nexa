@@ -1,10 +1,11 @@
 
-import { ApiResponse, ComplianceReport, Industry, Region, INDUSTRY_REGULATIONS, REGION_REGULATIONS } from './types';
-import { generateRisks } from './riskService';
+import { ApiResponse, ComplianceReport, Industry, Region } from './types';
+import { generateRisks } from './risk';
 import { generateSuggestions } from './suggestionService';
 import { generateSummary } from './summaryService';
 import { generateScores } from './scoreService';
 import { SupportedLanguage, getLanguagePreference } from './language';
+import { INDUSTRY_REGULATIONS, REGION_REGULATIONS } from './types';
 
 /**
  * Request a compliance check for an uploaded document
