@@ -40,8 +40,13 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     handleScan
   } = useServiceScanner();
 
-  const { addScanHistory } = useServiceHistoryStore();
+  const { addScanHistory, setUserId } = useServiceHistoryStore();
   const { user } = useAuth();
+  
+  // Update the user ID in the store when the user changes
+  useEffect(() => {
+    setUserId(user?.id || null);
+  }, [user, setUserId]);
   
   // Initialize connected services from persisted state
   useEffect(() => {

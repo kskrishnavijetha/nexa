@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,15 +12,24 @@ const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const navigate = useNavigate();
-  const { signIn, user } = useAuth();
+  const location = useLocation();
+  const { signIn, user, loading } = useAuth();
 
-  // Redirect if already logged in
+  // Redirect if already logged in, but only if we're not already redirecting
   useEffect(() => {
-    if (user) {
-      navigate('/dashboard');
+    if (user && !isRedirecting) {
+      console.log('User already logged in, redirecting to dashboard');
+      setIsRedirecting(true);
+      // Use a timeout to prevent UI flickering
+      const redirectTimer = setTimeout(() => {
+        navigate('/dashboard', { replace: true });
+      }, 100);
+      
+      return () => clearTimeout(redirectTimer);
     }
-  }, [user, navigate]);
+  }, [user, navigate, isRedirecting]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,22 +38,37 @@ const SignIn: React.FC = () => {
       return;
     }
 
+    if (isLoading) return; // Prevent multiple submissions
+    
     setIsLoading(true);
     
     try {
       const { error } = await signIn(email, password);
       
       if (error) {
+        console.error('Sign in error:', error.message);
         toast.error(error.message);
+        setIsLoading(false);
       } else {
-        navigate('/dashboard');
+        // Don't set loading to false here - we're going to redirect which will unmount this component
+        console.log('Sign in successful, waiting for auth state to update');
+        setIsRedirecting(true);
       }
     } catch (error: any) {
+      console.error('Unexpected sign in error:', error);
       toast.error(error.message || 'An error occurred during sign in');
-    } finally {
       setIsLoading(false);
     }
   };
+
+  // If we're in the auth loading state or redirecting, show a simple loading UI
+  if ((loading && user) || isRedirecting) {
+    return (
+      <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
@@ -69,6 +93,7 @@ const SignIn: React.FC = () => {
                 className="mt-1"
                 autoComplete="email"
                 required
+                disabled={isLoading}
               />
             </div>
             
@@ -88,6 +113,7 @@ const SignIn: React.FC = () => {
                 className="mt-1"
                 autoComplete="current-password"
                 required
+                disabled={isLoading}
               />
             </div>
           </div>

@@ -35,22 +35,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     console.log('Auth provider initializing...');
     
-    // Reset state on initial load to prevent stale data
-    setSession(null);
-    setUser(null);
-    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
+      (event, newSession) => {
         console.log('Auth state changed:', event);
         
         if (event === 'SIGNED_IN') {
-          // First clear any existing data to prevent data leakage
-          clearUserData();
-          
-          // Then set the new session and user
+          // Update session and user
           setSession(newSession);
           setUser(newSession?.user ?? null);
+          
+          // Clear any previous user data first
+          clearUserData();
+          
           toast.success('Signed in successfully!');
           
         } else if (event === 'SIGNED_OUT') {
@@ -102,16 +99,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
-    // First clear existing data and reset auth state
-    clearUserData();
-    setSession(null);
-    setUser(null);
+    setLoading(true);
     
-    // Perform sign in
+    // Prevent state flashing during sign in
+    // Don't clear existing data until we have a successful sign in
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
+
+    if (!error) {
+      // Only clear user data on successful sign in
+      clearUserData();
+    } else {
+      // Make sure to stop loading on error
+      setLoading(false);
+    }
 
     return { error };
   };
@@ -123,10 +126,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // First clear user data manually to ensure clean state
       clearUserData();
       
-      // Reset our own state immediately to prevent data leakage
-      setSession(null);
-      setUser(null);
-      
       // Then perform the actual signOut operation
       const { error } = await supabase.auth.signOut();
       
@@ -136,8 +135,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw error;
       }
       
-      // Force navigation to home page
-      navigate('/', { replace: true });
+      // Explicitly set state to null (the listener will also do this but good to be explicit)
+      setSession(null);
+      setUser(null);
+      
       console.log('Signout completed successfully');
     } catch (error) {
       console.error('Exception during sign out:', error);

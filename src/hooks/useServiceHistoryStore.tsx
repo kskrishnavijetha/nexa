@@ -1,203 +1,97 @@
 
-import { useState, useEffect, useCallback } from 'react';
-import { ServiceScanHistory } from '@/components/audit/types';
-import { useAuth } from '@/contexts/AuthContext';
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import { ComplianceReport } from '@/utils/types';
 
-// Base key for localStorage
-const SERVICE_HISTORY_BASE_KEY = 'compliZen_service_history';
+interface ScanHistoryItem {
+  serviceId: string;
+  serviceName: string;
+  scanDate: string;
+  itemsScanned: number;
+  violationsFound: number;
+  documentName?: string;
+  report?: ComplianceReport;
+}
 
-// Get user-specific storage key
-const getUserStorageKey = (userId: string | undefined) => {
-  if (!userId) return null; // Return null if no user ID to prevent data leakage
-  return `${SERVICE_HISTORY_BASE_KEY}_${userId}`;
+interface ServiceHistoryState {
+  scanHistory: ScanHistoryItem[];
+  addScanHistory: (item: ScanHistoryItem) => void;
+  clearHistory: () => void;
+  userId: string | null;
+  setUserId: (id: string | null) => void;
+}
+
+// Helper function to generate a storage key based on user ID
+const getStorageKey = (userId: string | null) => {
+  if (!userId) return 'compliZen_serviceHistory';
+  return `compliZen_serviceHistory_${userId}`;
 };
 
-// Mock data for demo purposes only - never shown to real users
-const getMockData = (): ServiceScanHistory[] => {
-  return [
-    {
-      serviceId: 'drive-1',
-      serviceName: 'Google Drive',
-      documentName: 'XYZ Manufacturing Quality.pdf',
-      scanDate: new Date('2025-03-27T15:25:06').toISOString(),
-      itemsScanned: 23,
-      violationsFound: 2,
-      report: {
-        id: 'report-101',
-        documentId: 'doc-101',
-        documentName: 'XYZ Manufacturing Quality.pdf',
-        timestamp: new Date('2025-03-27T15:25:06').toISOString(),
-        overallScore: 78,
-        gdprScore: 85,
-        hipaaScore: 72,
-        soc2Score: 80,
-        risks: [
-          { id: 'risk-101', severity: 'medium', regulation: 'GDPR', description: 'Missing data retention policy: Document does not specify data retention period.' },
-          { id: 'risk-102', severity: 'low', regulation: 'SOC2', description: 'Access control: Insufficient detail on access permissions.' }
-        ],
-        summary: 'Manufacturing quality documentation with minor compliance issues in data retention and access control specifications.'
-      }
-    },
-    {
-      serviceId: 'drive-1',
-      serviceName: 'Google Drive',
-      documentName: 'XYZ University Student Privacy.pdf',
-      scanDate: new Date('2025-03-27T15:22:21').toISOString(),
-      itemsScanned: 55,
-      violationsFound: 0,
-      report: {
-        id: 'report-102',
-        documentId: 'doc-102',
-        documentName: 'XYZ University Student Privacy.pdf',
-        timestamp: new Date('2025-03-27T15:22:21').toISOString(),
-        overallScore: 96,
-        gdprScore: 98,
-        hipaaScore: 95,
-        soc2Score: 94,
-        risks: [],
-        summary: 'Well-structured student privacy policy fully compliant with relevant regulations.'
-      }
-    },
-    {
-      serviceId: 'drive-1',
-      serviceName: 'Google Drive',
-      documentName: 'XYZ Bank Anti.pdf',
-      scanDate: new Date('2025-03-27T15:20:54').toISOString(),
-      itemsScanned: 44,
-      violationsFound: 4,
-      report: {
-        id: 'report-103',
-        documentId: 'doc-103',
-        documentName: 'XYZ Bank Anti.pdf',
-        timestamp: new Date('2025-03-27T15:20:54').toISOString(),
-        overallScore: 65,
-        gdprScore: 62,
-        hipaaScore: 70,
-        soc2Score: 64,
-        risks: [
-          { id: 'risk-201', severity: 'high', regulation: 'GDPR', description: 'Data breach notification: No clear process for notifying users of data breaches.' },
-          { id: 'risk-202', severity: 'medium', regulation: 'GDPR', description: 'Cross-border data transfer: Missing safeguards for international data transfers.' },
-          { id: 'risk-203', severity: 'medium', regulation: 'SOC2', description: 'Monitoring controls: Insufficient regular monitoring processes.' },
-          { id: 'risk-204', severity: 'low', regulation: 'HIPAA', description: 'Documentation: Minor inconsistencies in documentation format.' }
-        ],
-        summary: 'Anti-money laundering documentation with several compliance issues, particularly around data breach notification and cross-border transfers.'
-      }
-    }
-  ];
-};
-
-export const useServiceHistoryStore = () => {
-  const { user } = useAuth();
-  const [history, setHistory] = useState<ServiceScanHistory[]>([]);
-  
-  // Load history when user changes
-  useEffect(() => {
-    console.log('User changed in useServiceHistoryStore, user ID:', user?.id);
-    
-    // Always reset history first when user changes
-    setHistory([]);
-    
-    // Only load history for authenticated users
-    if (!user?.id) {
-      console.log('No authenticated user, showing mock data for demo');
-      setHistory(getMockData());
-      return;
-    }
-    
-    // Get user-specific storage key
-    const storageKey = getUserStorageKey(user.id);
-    if (!storageKey) {
-      console.log('No storage key available, cannot load history');
-      return;
-    }
-    
-    // Try to load user-specific history from localStorage
-    try {
-      const storedData = localStorage.getItem(storageKey);
+export const useServiceHistoryStore = create<ServiceHistoryState>()(
+  persist(
+    (set, get) => ({
+      scanHistory: [],
+      userId: null,
       
-      if (storedData) {
-        const parsedData = JSON.parse(storedData);
-        console.log(`Loaded ${parsedData.length} history items for user ${user.id}`);
-        setHistory(parsedData);
-      } else {
-        console.log(`No stored history found for user ${user.id}, initializing empty history`);
-        // Initialize with empty array for new users
-        setHistory([]);
-        // Save empty array to localStorage
-        localStorage.setItem(storageKey, JSON.stringify([]));
-      }
-    } catch (error) {
-      console.error('Error loading history from localStorage:', error);
-      setHistory([]);
-    }
-  }, [user?.id]);  // Only re-run when user ID changes
-
-  // Save service history to localStorage with user-specific key
-  const saveServiceHistory = useCallback((historyData: ServiceScanHistory[]) => {
-    // Only save for authenticated users
-    if (!user?.id) {
-      console.log('Not saving history - no authenticated user');
-      return;
-    }
-    
-    const storageKey = getUserStorageKey(user.id);
-    if (!storageKey) {
-      console.log('No storage key available, cannot save history');
-      return;
-    }
-    
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(historyData));
-      console.log(`Saved ${historyData.length} history items for user ${user.id}`);
-    } catch (error) {
-      console.error('Error saving service history to localStorage:', error);
-    }
-  }, [user?.id]);
-
-  const addScanHistory = useCallback((scan: ServiceScanHistory) => {
-    // Don't save scans for non-authenticated users
-    if (!user?.id) {
-      console.log('Not saving scan history - no authenticated user');
-      return;
-    }
-    
-    setHistory(prevHistory => {
-      const newHistory = [scan, ...prevHistory];
-      // Limit history to most recent 50 items
-      const updatedHistory = newHistory.slice(0, 50);
-      
-      // Save to localStorage with user-specific key
-      saveServiceHistory(updatedHistory);
-      return updatedHistory;
-    });
-  }, [saveServiceHistory, user?.id]);
-
-  const clearHistory = useCallback(() => {
-    // Only attempt to clear local storage if a user is logged in
-    if (user?.id) {
-      const storageKey = getUserStorageKey(user.id);
-      if (storageKey) {
-        try {
-          localStorage.removeItem(storageKey);
-          console.log(`Cleared history for user ${user.id}`);
-        } catch (error) {
-          console.error('Error clearing service history:', error);
+      setUserId: (id: string | null) => {
+        const currentUserId = get().userId;
+        
+        // If user ID is changing, clear the history
+        if (currentUserId !== id) {
+          console.log(`User ID changed from ${currentUserId} to ${id}, resetting history`);
+          set({ scanHistory: [], userId: id });
+        } else {
+          set({ userId: id });
         }
-      }
+      },
+      
+      addScanHistory: (item: ScanHistoryItem) => {
+        const userId = get().userId;
+        
+        // Only add history if we have a user ID
+        if (userId) {
+          console.log(`Adding scan history for user ${userId}`, item);
+          set((state) => ({
+            scanHistory: [item, ...state.scanHistory],
+          }));
+        } else {
+          console.warn('Attempted to add scan history without a user ID');
+        }
+      },
+      
+      clearHistory: () => {
+        console.log('Clearing scan history');
+        set({ scanHistory: [] });
+      },
+    }),
+    {
+      name: 'compliZen_serviceHistory',
+      // Use a dynamic storage key based on user ID
+      getStorage: (userID) => ({
+        getItem: (name) => {
+          const userId = JSON.parse(localStorage.getItem('compliZen_userId') || 'null');
+          const key = getStorageKey(userId);
+          return localStorage.getItem(key) || null;
+        },
+        setItem: (name, value) => {
+          const state = JSON.parse(value);
+          const userId = state.state.userId;
+          
+          // Save the user ID separately for later retrieval
+          if (userId) {
+            localStorage.setItem('compliZen_userId', JSON.stringify(userId));
+          }
+          
+          const key = getStorageKey(userId);
+          localStorage.setItem(key, value);
+        },
+        removeItem: (name) => {
+          const userId = JSON.parse(localStorage.getItem('compliZen_userId') || 'null');
+          const key = getStorageKey(userId);
+          localStorage.removeItem(key);
+          localStorage.removeItem('compliZen_userId');
+        },
+      }),
     }
-    
-    setHistory([]);
-  }, [user?.id]);
-
-  const getServiceHistory = useCallback((serviceId?: string) => {
-    if (!serviceId) return history;
-    return history.filter(item => item.serviceId === serviceId);
-  }, [history]);
-
-  return {
-    scanHistory: history,
-    addScanHistory,
-    clearHistory,
-    getServiceHistory
-  };
-};
+  )
+);

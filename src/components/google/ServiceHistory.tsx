@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
@@ -10,11 +10,16 @@ import { AuditTrailDialog } from './service-history/AuditTrailDialog';
 import { ComplianceReport } from '@/utils/types';
 
 const ServiceHistory: React.FC = () => {
-  const { scanHistory } = useServiceHistoryStore();
+  const { scanHistory, setUserId } = useServiceHistoryStore();
   const { user } = useAuth();
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
   const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
+  
+  // Update the user ID in the store when the user changes
+  useEffect(() => {
+    setUserId(user?.id || null);
+  }, [user, setUserId]);
   
   const handleDocumentClick = (document: string, report?: ComplianceReport) => {
     setSelectedDocument(document);
