@@ -24,9 +24,13 @@ const Header: React.FC = () => {
   const handleSignOut = async () => {
     try {
       console.log('Header: Initiating sign out');
+      
+      // Call signOut function from AuthContext
       await signOut();
+      
       console.log('Header: Sign out completed, navigating to home');
-      navigate('/');
+      // Force navigation to home page
+      navigate('/', { replace: true });
     } catch (error) {
       console.error('Header: Error during sign out:', error);
       toast.error('Failed to sign out. Please try again.');

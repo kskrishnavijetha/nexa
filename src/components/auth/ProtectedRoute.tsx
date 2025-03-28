@@ -28,6 +28,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
+  // Additional explicit check to ensure redirection works
   if (!user) {
     return <Navigate to="/sign-in" replace />;
   }

@@ -28,15 +28,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Auth state changed:', event);
-        setSession(session);
-        setUser(session?.user ?? null);
         
-        if (event === 'SIGNED_IN') {
-          toast.success('Signed in successfully!');
-        } else if (event === 'SIGNED_OUT') {
-          toast.info('Signed out');
+        if (event === 'SIGNED_OUT') {
+          // Clear all state first
+          setSession(null);
+          setUser(null);
+          
           // Clear any user-specific data from localStorage on sign out
           clearUserData();
+          
+          toast.info('Signed out');
+        } else {
+          // For all other events, update session and user state
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (event === 'SIGNED_IN') {
+            toast.success('Signed in successfully!');
+          }
         }
       }
     );
@@ -88,9 +97,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     console.log('Signing out...');
+    
     try {
       // First clear user data manually to ensure clean state
       clearUserData();
+      
+      // Reset our own state immediately to prevent data leakage
+      setSession(null);
+      setUser(null);
       
       // Then perform the actual signOut operation
       const { error } = await supabase.auth.signOut();
@@ -100,10 +114,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toast.error('Failed to sign out. Please try again.');
         throw error;
       }
-      
-      // Force reset auth state even if signOut was successful
-      setSession(null);
-      setUser(null);
       
       console.log('Signout completed successfully');
     } catch (error) {
