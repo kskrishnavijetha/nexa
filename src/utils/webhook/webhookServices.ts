@@ -55,12 +55,14 @@ export const getWebhooks = async (): Promise<ApiResponse<Webhook[]>> => {
     await new Promise(resolve => setTimeout(resolve, 500));
     
     return {
+      success: true,
       data: mockWebhooks,
       status: 200
     };
   } catch (error) {
     console.error('Error getting webhooks:', error);
     return {
+      success: false,
       error: 'Failed to get webhooks. Please try again.',
       status: 500
     };
@@ -77,18 +79,21 @@ export const getWebhook = async (webhookId: string): Promise<ApiResponse<Webhook
     
     if (!webhook) {
       return {
+        success: false,
         error: 'Webhook not found',
         status: 404
       };
     }
     
     return {
+      success: true,
       data: webhook,
       status: 200
     };
   } catch (error) {
     console.error('Error getting webhook:', error);
     return {
+      success: false,
       error: 'Failed to get webhook. Please try again.',
       status: 500
     };
@@ -110,12 +115,14 @@ export const createWebhook = async (webhook: Omit<Webhook, 'id' | 'createdAt' | 
     mockWebhooks.push(newWebhook);
     
     return {
+      success: true,
       data: newWebhook,
       status: 201
     };
   } catch (error) {
     console.error('Error creating webhook:', error);
     return {
+      success: false,
       error: 'Failed to create webhook. Please try again.',
       status: 500
     };
@@ -132,6 +139,7 @@ export const updateWebhook = async (webhookId: string, updates: Partial<Omit<Web
     
     if (webhookIndex === -1) {
       return {
+        success: false,
         error: 'Webhook not found',
         status: 404
       };
@@ -143,12 +151,14 @@ export const updateWebhook = async (webhookId: string, updates: Partial<Omit<Web
     };
     
     return {
+      success: true,
       data: mockWebhooks[webhookIndex],
       status: 200
     };
   } catch (error) {
     console.error('Error updating webhook:', error);
     return {
+      success: false,
       error: 'Failed to update webhook. Please try again.',
       status: 500
     };
@@ -165,6 +175,7 @@ export const deleteWebhook = async (webhookId: string): Promise<ApiResponse<void
     
     if (webhookIndex === -1) {
       return {
+        success: false,
         error: 'Webhook not found',
         status: 404
       };
@@ -173,11 +184,13 @@ export const deleteWebhook = async (webhookId: string): Promise<ApiResponse<void
     mockWebhooks.splice(webhookIndex, 1);
     
     return {
+      success: true,
       status: 204
     };
   } catch (error) {
     console.error('Error deleting webhook:', error);
     return {
+      success: false,
       error: 'Failed to delete webhook. Please try again.',
       status: 500
     };
@@ -202,12 +215,14 @@ export const triggerWebhook = async (url: string, payload: WebhookTriggerPayload
     }
     
     return {
+      success: true,
       data: true, // Successfully triggered
       status: 200
     };
   } catch (error) {
     console.error('Error triggering webhook:', error);
     return {
+      success: false,
       error: 'Failed to trigger webhook. Please try again.',
       status: 500
     };
@@ -234,12 +249,14 @@ export const testWebhook = async (url: string): Promise<ApiResponse<boolean>> =>
     console.log(`Testing webhook to ${url} with test payload:`, testPayload);
     
     return {
+      success: true,
       data: true, // Successfully tested
       status: 200
     };
   } catch (error) {
     console.error('Error testing webhook:', error);
     return {
+      success: false,
       error: 'Failed to test webhook. Please try again.',
       status: 500
     };

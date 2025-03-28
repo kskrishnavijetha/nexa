@@ -76,12 +76,14 @@ export const connectZoom = async (
     mockZoomConnection.meetingsCount = Math.floor(Math.random() * 50) + 10; // 10-60 meetings
     
     return {
+      success: true,
       data: mockZoomConnection,
       status: 200
     };
   } catch (error) {
     console.error('Error connecting to Zoom:', error);
     return {
+      success: false,
       error: 'Failed to connect to Zoom. Please try again.',
       status: 500
     };
@@ -100,12 +102,14 @@ export const disconnectZoom = async (): Promise<ApiResponse<ZoomConnection>> => 
     mockZoomConnection.meetingsCount = undefined;
     
     return {
+      success: true,
       data: mockZoomConnection,
       status: 200
     };
   } catch (error) {
     console.error('Error disconnecting from Zoom:', error);
     return {
+      success: false,
       error: 'Failed to disconnect from Zoom. Please try again.',
       status: 500
     };
@@ -120,6 +124,7 @@ export const getZoomMeetings = async (): Promise<ApiResponse<ZoomMeeting[]>> => 
     
     if (!mockZoomConnection.connected) {
       return {
+        success: false,
         error: 'Not connected to Zoom',
         status: 400
       };
@@ -129,12 +134,14 @@ export const getZoomMeetings = async (): Promise<ApiResponse<ZoomMeeting[]>> => 
     const meetings = generateMockMeetings(meetingsCount);
     
     return {
+      success: true,
       data: meetings,
       status: 200
     };
   } catch (error) {
     console.error('Error getting Zoom meetings:', error);
     return {
+      success: false,
       error: 'Failed to get Zoom meetings. Please try again.',
       status: 500
     };
@@ -153,6 +160,7 @@ export const scanZoomMeetings = async (
     
     if (!mockZoomConnection.connected) {
       return {
+        success: false,
         error: 'Not connected to Zoom',
         status: 400
       };
@@ -162,6 +170,7 @@ export const scanZoomMeetings = async (
     const meetingsResponse = await getZoomMeetings();
     if (!meetingsResponse.data) {
       return {
+        success: false,
         error: 'Failed to retrieve Zoom meetings',
         status: 500
       };
@@ -218,12 +227,14 @@ export const scanZoomMeetings = async (
     };
     
     return {
+      success: true,
       data: scanResult,
       status: 200
     };
   } catch (error) {
     console.error('Error scanning Zoom meetings:', error);
     return {
+      success: false,
       error: 'Failed to scan Zoom meetings. Please try again.',
       status: 500
     };
@@ -237,12 +248,14 @@ export const getZoomConnection = async (): Promise<ApiResponse<ZoomConnection>> 
     await new Promise(resolve => setTimeout(resolve, 300));
     
     return {
+      success: true,
       data: mockZoomConnection,
       status: 200
     };
   } catch (error) {
     console.error('Error getting Zoom connection:', error);
     return {
+      success: false,
       error: 'Failed to get Zoom connection status. Please try again.',
       status: 500
     };

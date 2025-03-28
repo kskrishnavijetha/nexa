@@ -58,6 +58,7 @@ export const connectMicrosoftService = async (
     
     if (serviceIndex === -1) {
       return {
+        success: false,
         error: 'Service not found',
         status: 404
       };
@@ -75,12 +76,14 @@ export const connectMicrosoftService = async (
     mockMicrosoftConnections[serviceIndex] = updatedConnections[serviceIndex];
     
     return {
+      success: true,
       data: updatedConnections[serviceIndex],
       status: 200
     };
   } catch (error) {
     console.error('Error connecting to Microsoft service:', error);
     return {
+      success: false,
       error: 'Failed to connect to the Microsoft service. Please try again.',
       status: 500
     };
@@ -101,6 +104,7 @@ export const disconnectMicrosoftService = async (
     
     if (serviceIndex === -1) {
       return {
+        success: false,
         error: 'Service not found',
         status: 404
       };
@@ -118,12 +122,14 @@ export const disconnectMicrosoftService = async (
     mockMicrosoftConnections[serviceIndex] = updatedConnections[serviceIndex];
     
     return {
+      success: true,
       data: updatedConnections[serviceIndex],
       status: 200
     };
   } catch (error) {
     console.error('Error disconnecting from Microsoft service:', error);
     return {
+      success: false,
       error: 'Failed to disconnect from the Microsoft service. Please try again.',
       status: 500
     };
@@ -146,6 +152,7 @@ export const scanMicrosoftService = async (
     
     if (!service) {
       return {
+        success: false,
         error: 'Service not found',
         status: 404
       };
@@ -153,6 +160,7 @@ export const scanMicrosoftService = async (
     
     if (!service.connected) {
       return {
+        success: false,
         error: 'Service is not connected',
         status: 400
       };
@@ -212,12 +220,14 @@ export const scanMicrosoftService = async (
     };
     
     return {
+      success: true,
       data: scanResult,
       status: 200
     };
   } catch (error) {
     console.error('Error scanning Microsoft service:', error);
     return {
+      success: false,
       error: 'Failed to scan the Microsoft service. Please try again.',
       status: 500
     };
@@ -231,12 +241,14 @@ export const getMicrosoftConnections = async (): Promise<ApiResponse<MicrosoftSe
     await new Promise(resolve => setTimeout(resolve, 500));
     
     return {
+      success: true,
       data: mockMicrosoftConnections,
       status: 200
     };
   } catch (error) {
     console.error('Error getting Microsoft connections:', error);
     return {
+      success: false,
       error: 'Failed to get Microsoft service connections. Please try again.',
       status: 500
     };
