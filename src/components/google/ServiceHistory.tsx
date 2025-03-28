@@ -19,7 +19,11 @@ const ServiceHistory: React.FC = () => {
   // Update the user ID in the store when the user changes
   useEffect(() => {
     console.log('ServiceHistory: User changed, updating history store with user ID:', user?.id);
-    setUserId(user?.id || null);
+    if (user) {
+      setUserId(user.id);
+    } else {
+      setUserId(null);
+    }
   }, [user, setUserId]);
   
   const handleDocumentClick = (document: string, report?: ComplianceReport) => {

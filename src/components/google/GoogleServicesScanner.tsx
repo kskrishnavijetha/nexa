@@ -46,8 +46,10 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   // Update the user ID in the store when the user changes
   useEffect(() => {
     console.log('GoogleServicesScanner: Setting user ID in history store:', user?.id);
-    if (user && user.id) {
+    if (user) {
       setUserId(user.id);
+    } else {
+      setUserId(null);
     }
   }, [user, setUserId]);
   
@@ -90,19 +92,23 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     // Pass the required parameters to handleScan
     handleScan(connectedServices, industry, language, region);
 
-    // Only add to scan history if user is authenticated
-    if (user && user.id) {
+    // Add to scan history for each connected service
+    if (user) {
       console.log(`Adding scan history for user ${user.id}`);
       // Add to scan history for each connected service
       connectedServices.forEach(service => {
-        const documentName = file?.name || `${service.charAt(0).toUpperCase() + service.slice(1)} Scan ${new Date().toLocaleTimeString()}`;
+        const timestamp = new Date().toISOString();
+        const documentName = file?.name || 
+          `${service.charAt(0).toUpperCase() + service.slice(1)} Scan ${new Date().toLocaleTimeString()}`;
+        
+        // Add with a unique timestamp to prevent duplicates
         addScanHistory({
           serviceId: service,
           serviceName: service === 'drive' ? 'Google Drive' : 
                       service === 'gmail' ? 'Gmail' : 'Google Docs',
-          scanDate: new Date().toISOString(),
-          itemsScanned: Math.floor(Math.random() * 50) + 10, // Placeholder for demo
-          violationsFound: Math.floor(Math.random() * 5), // Placeholder for demo
+          scanDate: timestamp,
+          itemsScanned: itemsScanned || Math.floor(Math.random() * 50) + 10, // Use actual or placeholder
+          violationsFound: violationsFound || Math.floor(Math.random() * 5), // Use actual or placeholder
           documentName: documentName
         });
       });
