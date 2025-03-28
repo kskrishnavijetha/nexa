@@ -1,4 +1,3 @@
-
 import { ComplianceRisk, RiskSeverity, Region, REGION_REGULATIONS } from './types';
 
 // Industry-specific risk templates
@@ -320,7 +319,6 @@ export function generateRisks(
   
   const risks: ComplianceRisk[] = [];
   
-  // Add GDPR risks if applicable
   if ((regulations.includes('GDPR') || regulations.length === 0) && gdprScore < 90) {
     risks.push({
       id: generateRiskId(),

@@ -24,7 +24,7 @@ export const requestComplianceCheck = async (
     const userLanguage = language || getLanguagePreference();
     
     // Get applicable regulations based on industry
-    const regulations = industry ? INDUSTRY_REGULATIONS[industry] : [];
+    const regulations = industry ? INDUSTRY_REGULATIONS[industry] || [] : [];
     
     // Get regional regulations if a region is specified
     const regionalRegulations = region && REGION_REGULATIONS[region] ? Object.keys(REGION_REGULATIONS[region]) : [];
@@ -51,24 +51,27 @@ export const requestComplianceCheck = async (
     
     // Mock compliance report with real-time values
     const mockReport: ComplianceReport = {
-      id: documentId, // Use documentId as id
       documentId,
       documentName,
-      industry: industry || '',
-      region: region || '',
+      industry: industry || 'technology' as Industry, // Default to technology if no industry specified
+      region: region || 'us' as Region, // Default to US if no region specified
       overallScore,
       gdprScore,
       hipaaScore,
       soc2Score,
       pciDssScore,
+      industryScore: Math.round((industryScores ? Object.values(industryScores).reduce((a, b) => a + b, 0) / Object.values(industryScores).length : 0)),
+      regionalScore: Math.round((regionScores ? Object.values(regionScores).reduce((a, b) => a + b, 0) / Object.values(regionScores).length : 0)),
+      regulationScore: Math.round((gdprScore + hipaaScore + soc2Score + (pciDssScore || 0)) / 4),
       industryScores,
       regionScores,
       regulations,
-      regionalRegulations,
+      regionalRegulations: region && REGION_REGULATIONS[region] ? REGION_REGULATIONS[region] : undefined,
       risks,
       summary,
       suggestions,
       timestamp: new Date().toISOString(),
+      complianceStatus: overallScore >= 80 ? 'compliant' : overallScore >= 60 ? 'partially-compliant' : 'non-compliant'
     };
     
     return {
