@@ -26,6 +26,51 @@ const getStorageKey = (userId: string | null) => {
   return `compliZen_serviceHistory_${userId}`;
 };
 
+// Custom storage implementation to handle user-specific storage
+const createUserStorage = () => {
+  return {
+    getItem: (name: string) => {
+      const state = JSON.parse(localStorage.getItem(name) || '{"state":{"userId":null}}');
+      const userId = state.state.userId;
+      
+      // If we have a userId, use a user-specific key
+      if (userId) {
+        const key = getStorageKey(userId);
+        return localStorage.getItem(key) || null;
+      }
+      
+      // Otherwise, use the default key
+      return localStorage.getItem(name) || null;
+    },
+    setItem: (name: string, value: string) => {
+      const state = JSON.parse(value);
+      const userId = state.state.userId;
+      
+      // If we have a userId, use a user-specific key
+      if (userId) {
+        const key = getStorageKey(userId);
+        localStorage.setItem(key, value);
+      }
+      
+      // Always update the main store with at least the userId
+      const mainStore = { state: { userId: state.state.userId } };
+      localStorage.setItem(name, JSON.stringify(mainStore));
+    },
+    removeItem: (name: string) => {
+      const state = JSON.parse(localStorage.getItem(name) || '{"state":{"userId":null}}');
+      const userId = state.state.userId;
+      
+      // If we have a userId, remove the user-specific key
+      if (userId) {
+        const key = getStorageKey(userId);
+        localStorage.removeItem(key);
+      }
+      
+      localStorage.removeItem(name);
+    }
+  };
+};
+
 export const useServiceHistoryStore = create<ServiceHistoryState>()(
   persist(
     (set, get) => ({
@@ -90,48 +135,8 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
     }),
     {
       name: 'compliZen_serviceHistory',
-      // Use a dynamic storage key based on user ID
-      getStorage: () => ({
-        getItem: (name) => {
-          const state = JSON.parse(localStorage.getItem(name) || '{"state":{"userId":null}}');
-          const userId = state.state.userId;
-          
-          // If we have a userId, use a user-specific key
-          if (userId) {
-            const key = getStorageKey(userId);
-            return localStorage.getItem(key) || null;
-          }
-          
-          // Otherwise, use the default key
-          return localStorage.getItem(name) || null;
-        },
-        setItem: (name, value) => {
-          const state = JSON.parse(value);
-          const userId = state.state.userId;
-          
-          // If we have a userId, use a user-specific key
-          if (userId) {
-            const key = getStorageKey(userId);
-            localStorage.setItem(key, value);
-          }
-          
-          // Always update the main store with at least the userId
-          const mainStore = { state: { userId: state.state.userId } };
-          localStorage.setItem(name, JSON.stringify(mainStore));
-        },
-        removeItem: (name) => {
-          const state = JSON.parse(localStorage.getItem(name) || '{"state":{"userId":null}}');
-          const userId = state.state.userId;
-          
-          // If we have a userId, remove the user-specific key
-          if (userId) {
-            const key = getStorageKey(userId);
-            localStorage.removeItem(key);
-          }
-          
-          localStorage.removeItem(name);
-        },
-      }),
+      // Use the custom storage implementation
+      storage: createUserStorage()
     }
   )
 );
