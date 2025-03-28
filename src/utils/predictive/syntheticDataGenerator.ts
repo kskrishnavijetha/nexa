@@ -1,5 +1,5 @@
 
-import { ComplianceReport } from '../types';
+import { ComplianceReport, Risk } from '../types';
 
 // Generate synthetic historical reports based on real data
 export const generateSyntheticReports = (currentReport: ComplianceReport, count: number = 3): ComplianceReport[] => {
@@ -36,12 +36,16 @@ export const generateRandomReport = (): ComplianceReport => {
     soc2Score: 60 + Math.floor(Math.random() * 40),
     risks: [
       { 
-        id: `risk-${Date.now()}-1`, 
+        id: `risk-${Date.now()}-1`,
+        title: 'Compliance Issue',
         description: 'Automatically detected compliance issue', 
         severity: Math.random() > 0.7 ? 'high' : Math.random() > 0.5 ? 'medium' : 'low', 
-        regulation: Math.random() > 0.6 ? 'GDPR' : Math.random() > 0.3 ? 'HIPAA' : 'SOC 2' 
+        regulation: Math.random() > 0.6 ? 'GDPR' : Math.random() > 0.3 ? 'HIPAA' : 'SOC 2',
+        mitigation: 'Review and implement appropriate compliance measures'
       },
     ],
     summary: 'Automatically generated compliance report based on standard patterns',
+    industry: 'Technology',
+    region: 'Global'
   };
 };

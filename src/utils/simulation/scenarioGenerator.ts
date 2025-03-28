@@ -1,103 +1,129 @@
 
-import { Industry, SimulationScenario } from '../types';
+import { SimulationScenario, Industry } from '../types';
 
 /**
- * Generate a set of simulation scenarios for predictive analysis
+ * Generate simulation scenarios based on industry
  */
-export function generateSimulationScenarios(industry?: Industry): SimulationScenario[] {
-  const defaultImpact = {
-    gdprScore: 0,
-    hipaaScore: 0,
-    soc2Score: 0,
-    pciDssScore: 0,
-    overallScore: 0
-  };
-
-  const scenarios: SimulationScenario[] = [
+export const generateScenarios = (industry: Industry): SimulationScenario[] => {
+  // Base scenarios applicable to all industries
+  const baseScenarios: SimulationScenario[] = [
     {
-      id: 'strict-gdpr',
-      name: 'Enhanced GDPR Requirements',
-      description: 'Simulates stricter GDPR enforcement with additional data protection requirements.',
+      id: 'global-regulation-stricter',
+      name: 'Stricter Global Regulations',
+      description: 'Major global privacy regulations become stricter with higher penalties',
+      industry: 'Global',
+      impactLevel: 'high',
+      impact: 'Significant potential impact on compliance requirements across multiple regulations',
+      scoreImpact: {
+        overall: -15,
+        gdpr: -20,
+        hipaa: -10,
+        soc2: -15,
+        pciDss: -12
+      },
       regulationChanges: [
-        { regulation: 'GDPR', changeType: 'stricter', impactLevel: 'high' }
-      ],
-      impact: defaultImpact
+        { regulation: 'GDPR', changeType: 'stricter', impactLevel: 'high' },
+        { regulation: 'CCPA', changeType: 'stricter', impactLevel: 'medium' }
+      ]
     },
     {
-      id: 'new-hipaa',
-      name: 'Updated HIPAA Security Rules',
-      description: 'Simulates the introduction of enhanced HIPAA security requirements for healthcare providers.',
+      id: 'standard-periodic-audit',
+      name: 'Standard Periodic Audit',
+      description: 'Regular compliance audit with no significant regulatory changes',
+      industry: 'Global',
+      impactLevel: 'low',
+      impact: 'Minimal impact with no major regulatory changes',
+      scoreImpact: {
+        overall: -5,
+        gdpr: -5,
+        hipaa: -5,
+        soc2: -5,
+        pciDss: -5
+      },
       regulationChanges: [
-        { regulation: 'HIPAA', changeType: 'updated', impactLevel: 'medium' }
-      ],
-      impact: defaultImpact
+        { regulation: 'Internal', changeType: 'audit', impactLevel: 'low' }
+      ]
     },
     {
-      id: 'multi-regulation',
-      name: 'Multi-Regulation Compliance Update',
-      description: 'Simulates concurrent updates to multiple compliance frameworks affecting your organization.',
+      id: 'new-regional-regulation',
+      name: 'New Regional Regulation',
+      description: 'A new regional privacy regulation is introduced affecting your operations',
+      industry: 'Global',
+      impactLevel: 'medium',
+      impact: 'Moderate impact requiring several new compliance measures',
+      scoreImpact: {
+        overall: -10,
+        gdpr: -5,
+        hipaa: -5,
+        soc2: -10,
+        pciDss: -5
+      },
       regulationChanges: [
-        { regulation: 'GDPR', changeType: 'updated', impactLevel: 'medium' },
-        { regulation: 'SOC 2', changeType: 'stricter', impactLevel: 'high' },
-        { regulation: 'PCI-DSS', changeType: 'updated', impactLevel: 'low' }
-      ],
-      impact: defaultImpact
+        { regulation: 'Regional', changeType: 'new', impactLevel: 'medium' }
+      ]
     }
   ];
   
-  // Add industry-specific scenarios if an industry is provided
-  if (industry) {
-    switch(industry) {
-      case 'Healthcare':
-        scenarios.push({
-          id: 'healthcare-regulation',
-          name: 'New Healthcare Data Sovereignty Rules',
-          description: 'Simulates new requirements for healthcare data localization and sovereignty.',
-          regulationChanges: [
-            { regulation: 'HIPAA', changeType: 'new', impactLevel: 'high' },
-            { regulation: 'HITECH', changeType: 'updated', impactLevel: 'medium' }
-          ],
-          impact: defaultImpact
-        });
-        break;
-      case 'Financial Services':
-        scenarios.push({
-          id: 'financial-regulation',
-          name: 'Enhanced Financial Security Standards',
-          description: 'Simulates stricter security requirements for financial institutions.',
-          regulationChanges: [
-            { regulation: 'PCI-DSS', changeType: 'stricter', impactLevel: 'high' },
-            { regulation: 'SOX', changeType: 'updated', impactLevel: 'medium' }
-          ],
-          impact: defaultImpact
-        });
-        break;
-      case 'Technology & IT':
-        scenarios.push({
-          id: 'tech-privacy',
-          name: 'New Global Privacy Framework',
-          description: 'Simulates the introduction of a new global privacy standard affecting tech companies.',
-          regulationChanges: [
-            { regulation: 'GDPR', changeType: 'stricter', impactLevel: 'high' },
-            { regulation: 'CCPA', changeType: 'updated', impactLevel: 'medium' },
-            { regulation: 'ISO/IEC 27001', changeType: 'updated', impactLevel: 'medium' }
-          ],
-          impact: defaultImpact
-        });
-        break;
-      default:
-        // Add a generic scenario for other industries
-        scenarios.push({
-          id: 'industry-specific',
-          name: `${industry} Regulatory Update`,
-          description: `Simulates potential regulatory changes specific to the ${industry} industry.`,
-          regulationChanges: [
-            { regulation: 'ISO 9001', changeType: 'updated', impactLevel: 'medium' }
-          ],
-          impact: defaultImpact
-        });
-    }
+  // Industry-specific scenarios
+  if (industry === 'Healthcare') {
+    baseScenarios.push({
+      id: 'healthcare-hipaa-changes',
+      name: 'HIPAA Compliance Changes',
+      description: 'Major updates to HIPAA requirements for patient data protection',
+      industry: 'Healthcare',
+      impactLevel: 'high',
+      impact: 'Significant impact on healthcare data handling procedures',
+      scoreImpact: {
+        overall: -20,
+        gdpr: -5,
+        hipaa: -30,
+        soc2: -10,
+        pciDss: -5
+      },
+      regulationChanges: [
+        { regulation: 'HIPAA', changeType: 'stricter', impactLevel: 'high' }
+      ]
+    });
+  } else if (industry === 'Finance') {
+    baseScenarios.push({
+      id: 'finance-pci-dss-update',
+      name: 'PCI DSS 4.0 Adoption',
+      description: 'Implementation of PCI DSS 4.0 with enhanced security requirements',
+      industry: 'Finance',
+      impactLevel: 'high',
+      impact: 'Major impact on payment card data security systems',
+      scoreImpact: {
+        overall: -15,
+        gdpr: -5,
+        hipaa: 0,
+        soc2: -10,
+        pciDss: -25
+      },
+      regulationChanges: [
+        { regulation: 'PCI DSS', changeType: 'stricter', impactLevel: 'high' }
+      ]
+    });
+  } else if (industry === 'Technology') {
+    baseScenarios.push({
+      id: 'tech-ai-regulations',
+      name: 'New AI Governance Rules',
+      description: 'Introduction of new regulations for AI systems and algorithmic decision-making',
+      industry: 'Technology',
+      impactLevel: 'medium',
+      impact: 'Moderate impact on AI systems and data processing pipelines',
+      scoreImpact: {
+        overall: -12,
+        gdpr: -15,
+        hipaa: -5,
+        soc2: -15,
+        pciDss: -5
+      },
+      regulationChanges: [
+        { regulation: 'AI Governance', changeType: 'new', impactLevel: 'medium' },
+        { regulation: 'GDPR', changeType: 'interpretation', impactLevel: 'medium' }
+      ]
+    });
   }
   
-  return scenarios;
-}
+  return baseScenarios;
+};

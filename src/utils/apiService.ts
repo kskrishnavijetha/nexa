@@ -14,7 +14,15 @@ export * from './slack/slackService';
 export * from './webhook/webhookServices';
 export * from './zoom/zoomServices';
 
-// Define a shared API response interface that includes status
+// Define a shared API response interface
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  status?: number;
+}
+
+// Define a shared API service response interface that includes status
 export interface ApiServiceResponse<T> extends ApiResponse<T> {
   status?: number;
 }

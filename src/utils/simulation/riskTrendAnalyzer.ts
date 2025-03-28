@@ -68,7 +68,7 @@ export function calculateRiskTrends(
         trend: predictedChange,
         impact: impact,
         probability: probability * 100, // Convert to percentage
-        predictedChange,
+        predictedChange: predictedChange,
         currentSeverity: risk.severity,
         regulation: risk.regulation || 'General',
         description: risk.description

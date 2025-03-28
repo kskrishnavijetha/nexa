@@ -13,17 +13,24 @@ const RiskTrendList: React.FC<RiskTrendListProps> = ({ analysis }) => {
   const highImpactTrends = analysis.riskTrends.filter(trend => trend.impact === 'high');
   const mediumImpactTrends = analysis.riskTrends.filter(trend => trend.impact === 'medium');
   const lowImpactTrends = analysis.riskTrends.filter(trend => 
-    trend.impact === 'low' || trend.predictedChange === 'stable');
+    trend.impact === 'low' || trend.trend === 'stable');
 
   // Get badge for risk trend
   const getRiskTrendBadge = (trend: RiskTrend) => {
     return (
       <StatusBadge 
-        status={trend.predictedChange} 
-        trend={trend.predictedChange} 
+        status={mapTrendToStatus(trend.trend)}
+        trend={mapTrendToStatus(trend.trend)}
         showTrend={true} 
       />
     );
+  };
+  
+  // Helper function to map between different trend naming conventions
+  const mapTrendToStatus = (trend: 'increasing' | 'decreasing' | 'stable'): 'increase' | 'decrease' | 'stable' => {
+    if (trend === 'increasing') return 'increase';
+    if (trend === 'decreasing') return 'decrease';
+    return 'stable';
   };
 
   return (

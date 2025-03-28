@@ -54,6 +54,7 @@ export interface ApiResponse<T> {
   success: boolean;
   data?: T;
   error?: string;
+  status?: number;
 }
 
 // Types for industries and regions
@@ -164,4 +165,3 @@ export interface PredictiveAnalysis {
   complianceInsights?: any[];
   lastUpdated?: string;
 }
-
