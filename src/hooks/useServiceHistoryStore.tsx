@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, StorageValue, PersistStorage } from 'zustand/middleware';
 import { ComplianceReport } from '@/utils/types';
 
 interface ScanHistoryItem {
@@ -27,20 +27,24 @@ const getStorageKey = (userId: string | null) => {
 };
 
 // Custom storage implementation to handle user-specific storage
-const createUserStorage = () => {
+const createUserStorage = (): PersistStorage<ServiceHistoryState> => {
   return {
-    getItem: (name: string): string | null => {
-      const state = JSON.parse(localStorage.getItem(name) || '{"state":{"userId":null}}');
+    getItem: (name: string): StorageValue<ServiceHistoryState> | null => {
+      const stateStr = localStorage.getItem(name);
+      if (!stateStr) return null;
+      
+      const state = JSON.parse(stateStr);
       const userId = state.state.userId;
       
       // If we have a userId, use a user-specific key
       if (userId) {
         const key = getStorageKey(userId);
-        return localStorage.getItem(key);
+        const userStateStr = localStorage.getItem(key);
+        return userStateStr as StorageValue<ServiceHistoryState>;
       }
       
       // Otherwise, use the default key
-      return localStorage.getItem(name);
+      return stateStr as StorageValue<ServiceHistoryState>;
     },
     setItem: (name: string, value: string) => {
       const state = JSON.parse(value);
@@ -57,13 +61,20 @@ const createUserStorage = () => {
       localStorage.setItem(name, JSON.stringify(mainStore));
     },
     removeItem: (name: string) => {
-      const state = JSON.parse(localStorage.getItem(name) || '{"state":{"userId":null}}');
-      const userId = state.state.userId;
-      
-      // If we have a userId, remove the user-specific key
-      if (userId) {
-        const key = getStorageKey(userId);
-        localStorage.removeItem(key);
+      const stateStr = localStorage.getItem(name);
+      if (stateStr) {
+        try {
+          const state = JSON.parse(stateStr);
+          const userId = state.state.userId;
+          
+          // If we have a userId, remove the user-specific key
+          if (userId) {
+            const key = getStorageKey(userId);
+            localStorage.removeItem(key);
+          }
+        } catch (e) {
+          console.error('Error parsing state during removeItem:', e);
+        }
       }
       
       localStorage.removeItem(name);
