@@ -21,48 +21,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    console.log('Auth provider initializing...');
-    
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log('Auth state changed:', event);
-        
-        if (event === 'SIGNED_OUT') {
-          // Clear all state first
-          setSession(null);
-          setUser(null);
-          
-          // Clear any user-specific data from localStorage on sign out
-          clearUserData();
-          
-          toast.info('Signed out');
-        } else {
-          // For all other events, update session and user state
-          setSession(session);
-          setUser(session?.user ?? null);
-          
-          if (event === 'SIGNED_IN') {
-            toast.success('Signed in successfully!');
-          }
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log('Initial session check:', session ? 'User is logged in' : 'No session found');
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, []);
-
   // Helper function to clear user data from localStorage
   const clearUserData = () => {
     console.log('Clearing user data from localStorage');
@@ -72,6 +30,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem(key);
     });
   };
+
+  useEffect(() => {
+    console.log('Auth provider initializing...');
+    
+    // Reset state on initial load to prevent stale data
+    setSession(null);
+    setUser(null);
+    
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, newSession) => {
+        console.log('Auth state changed:', event);
+        
+        if (event === 'SIGNED_IN') {
+          // Clear any existing data first to prevent data leakage
+          clearUserData();
+          
+          // Then set the new session and user
+          setSession(newSession);
+          setUser(newSession?.user ?? null);
+          toast.success('Signed in successfully!');
+          
+        } else if (event === 'SIGNED_OUT') {
+          // Clear all state
+          setSession(null);
+          setUser(null);
+          
+          // Clear any user-specific data from localStorage on sign out
+          clearUserData();
+          
+          toast.info('Signed out');
+        } else if (event === 'TOKEN_REFRESHED') {
+          // Update session with refreshed token
+          setSession(newSession);
+        } else {
+          // For all other events, update session and user state
+          setSession(newSession);
+          setUser(newSession?.user ?? null);
+        }
+      }
+    );
+
+    // THEN check for existing session
+    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
+      console.log('Initial session check:', initialSession ? 'User is logged in' : 'No session found');
+      setSession(initialSession);
+      setUser(initialSession?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const signUp = async (email: string, password: string) => {
     const { error } = await supabase.auth.signUp({
@@ -87,6 +99,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signIn = async (email: string, password: string) => {
+    // Clear any existing user data before signing in
+    clearUserData();
+    setSession(null);
+    setUser(null);
+    
+    // Perform sign in
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,

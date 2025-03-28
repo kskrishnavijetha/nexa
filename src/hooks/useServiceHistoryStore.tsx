@@ -88,15 +88,23 @@ const getMockData = (): ServiceScanHistory[] => {
 export const useServiceHistoryStore = () => {
   const { user } = useAuth();
   const [history, setHistory] = useState<ServiceScanHistory[]>([]);
+  const [lastUserId, setLastUserId] = useState<string | undefined>(undefined);
   
   // Load history when user changes
   useEffect(() => {
     console.log('User changed, reloading history data', user?.id);
     
-    // Important: Clear existing history first to prevent data leakage
-    setHistory([]);
+    // If the user ID has changed, we need to clear the existing history
+    // This prevents data leakage between users
+    if (lastUserId && user?.id !== lastUserId) {
+      console.log('User ID changed, clearing history data');
+      setHistory([]);
+    }
     
-    // If no user is logged in, show mock data
+    // Update the last user ID
+    setLastUserId(user?.id);
+    
+    // Important: Clear existing history first to prevent data leakage
     if (!user?.id) {
       console.log('No user logged in, showing mock data');
       setHistory(getMockData());
