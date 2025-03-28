@@ -8,7 +8,7 @@ import { ScanViolation } from './types';
 import { generateReportPDF } from '@/utils/reportService';
 import { toast } from 'sonner';
 import { SupportedLanguage } from '@/utils/language';
-import { Industry } from '@/utils/types';
+import { Industry, Suggestion } from '@/utils/types';
 
 interface ScanResultsProps {
   violations: ScanViolation[];
@@ -40,6 +40,25 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
       // Create a unique document ID
       const docId = `scan-${Date.now()}`;
       
+      // Create suggestions with proper format
+      const suggestionObjects: Suggestion[] = [
+        {
+          id: 'sugg-1',
+          title: 'Review high severity issues immediately',
+          description: 'Review high severity issues immediately'
+        },
+        {
+          id: 'sugg-2',
+          title: 'Implement access controls for sensitive data',
+          description: 'Implement access controls for sensitive data'
+        },
+        {
+          id: 'sugg-3',
+          title: 'Update compliance policies for all connected services',
+          description: 'Update compliance policies for all connected services'
+        }
+      ];
+      
       // Create a mock report structure with the filtered violations data
       const mockReport = {
         id: docId,
@@ -53,20 +72,19 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
         hipaaScore: Math.floor(Math.random() * 30) + 70,
         soc2Score: Math.floor(Math.random() * 30) + 70,
         pciDssScore: Math.floor(Math.random() * 30) + 70,
-        industry: 'technology' as Industry, // Cast to Industry type
+        industry: 'Technology' as Industry,
+        region: 'Global', // Add missing required region field
         risks: filteredViolations.map((v, index) => ({
-          id: `risk-${index + 1}`, // Add a unique ID for each risk
-          severity: v.severity,
-          description: v.title + ": " + v.description,
+          id: `risk-${index + 1}`,
+          title: v.title,
+          severity: v.severity as 'high' | 'medium' | 'low',
+          description: v.description,
+          mitigation: 'Review and address the identified issue',
           regulation: v.service,
           section: v.location
         })),
         summary: `Scan completed with ${filteredViolations.length} potential compliance issues found${serviceFilter ? ` in ${serviceFilter}` : ' across cloud services'}.`,
-        suggestions: [
-          'Review high severity issues immediately',
-          'Implement access controls for sensitive data',
-          'Update compliance policies for all connected services'
-        ]
+        suggestions: suggestionObjects
       };
       
       const result = await generateReportPDF(mockReport, 'en' as SupportedLanguage);

@@ -1,12 +1,10 @@
 
 import { Region, REGION_REGULATIONS, Suggestion } from './types';
 
-// Region-specific suggestions
+// Region-specific suggestion texts
 const REGION_SUGGESTIONS: Record<string, string[]> = {
-  'us': ['Implement CCPA-compliant cookie consent mechanism', 'Develop a clear data subject rights procedure'],
-  'eu': ['Ensure GDPR-compliant data processing agreements are in place', 'Document all data processing activities in a registry'],
   'North America': ['Implement CCPA-compliant cookie consent mechanism', 'Develop a clear data subject rights procedure'],
-  'European Union': ['Ensure GDPR-compliant data processing agreements are in place', 'Document all data processing activities in a registry'],
+  'Europe': ['Ensure GDPR-compliant data processing agreements are in place', 'Document all data processing activities in a registry'],
   'Asia Pacific': ['Appoint a data protection officer', 'Implement cross-border data transfer safeguards'],
   'United Kingdom': ['Conduct a legitimate interest assessment', 'Implement a cookie consent mechanism'],
   'Latin America': ['Establish a data subject rights procedure', 'Document the legal basis for processing'],

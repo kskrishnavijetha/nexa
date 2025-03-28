@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ComplianceReport, PredictiveAnalysis, SimulationScenario } from '@/utils/types';
 import { generateSimulationScenarios, runPredictiveAnalysis } from '@/utils/simulationService';

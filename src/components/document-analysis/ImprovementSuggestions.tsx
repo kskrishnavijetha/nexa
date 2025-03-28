@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ComplianceReport } from '@/utils/types';
+import { ComplianceReport, Suggestion } from '@/utils/types';
 
 interface ImprovementSuggestionsProps {
   report: ComplianceReport;
@@ -17,7 +17,7 @@ const ImprovementSuggestions: React.FC<ImprovementSuggestionsProps> = ({ report 
       <ul className="space-y-2">
         {report.suggestions.map((suggestion, index) => (
           <li key={index} className="bg-blue-50 p-3 rounded border-l-4 border-blue-500">
-            {suggestion}
+            {suggestion.description}
           </li>
         ))}
       </ul>

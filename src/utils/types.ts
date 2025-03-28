@@ -78,14 +78,14 @@ export const INDUSTRY_REGULATIONS: Record<Industry, string[]> = {
   'Energy': ['NERC', 'FERC', 'EPA']
 };
 
-export const REGION_REGULATIONS: Record<Region, string[]> = {
-  'North America': ['HIPAA', 'SOX', 'GLBA', 'CCPA', 'CPRA'],
-  'Europe': ['GDPR', 'ePrivacy', 'NIS2'],
-  'Asia': ['PIPL', 'APPI', 'PDPA'],
-  'Africa': ['POPIA', 'NDPR'],
-  'Australia': ['Privacy Act', 'CDR'],
-  'South America': ['LGPD', 'PDPL'],
-  'Global': ['ISO 27001', 'PCI DSS', 'SOC 2']
+export const REGION_REGULATIONS: Record<Region, Record<string, string>> = {
+  'North America': {'CCPA': 'California Consumer Privacy Act', 'HIPAA': 'Health Insurance Portability and Accountability Act', 'GLBA': 'Gramm-Leach-Bliley Act'},
+  'Europe': {'GDPR': 'General Data Protection Regulation', 'ePrivacy': 'ePrivacy Directive', 'NIS2': 'Network and Information Security Directive'},
+  'Asia': {'PIPL': 'Personal Information Protection Law', 'APPI': 'Act on Protection of Personal Information', 'PDPA': 'Personal Data Protection Act'},
+  'Africa': {'POPIA': 'Protection of Personal Information Act', 'NDPR': 'Nigeria Data Protection Regulation'},
+  'Australia': {'Privacy Act': 'Privacy Act 1988', 'CDR': 'Consumer Data Right'},
+  'South America': {'LGPD': 'Lei Geral de Proteção de Dados', 'PDPL': 'Personal Data Protection Law'},
+  'Global': {'ISO 27001': 'ISO/IEC 27001', 'PCI DSS': 'Payment Card Industry Data Security Standard', 'SOC 2': 'Service Organization Control 2'}
 };
 
 // Predictive analysis types
@@ -97,6 +97,10 @@ export interface RiskTrend {
   trend: 'increasing' | 'decreasing' | 'stable';
   impact: number;
   probability: number;
+  predictedChange: 'increasing' | 'decreasing' | 'stable';
+  currentSeverity: RiskSeverity;
+  regulation: string;
+  description: string;
 }
 
 export interface SimulationScenario {
@@ -112,6 +116,11 @@ export interface SimulationScenario {
     soc2?: number;
     pciDss?: number;
   };
+  regulationChanges: Array<{
+    regulation: string;
+    changeType: string;
+    impactLevel: 'high' | 'medium' | 'low';
+  }>;
 }
 
 export interface PredictiveAnalysis {
@@ -121,12 +130,33 @@ export interface PredictiveAnalysis {
   predictedScore: number;
   scenarioId: string;
   scenarioName: string;
-  risks: RiskTrend[];
-  recommendations: {
-    id: string;
-    title: string;
-    description: string;
-    impact: number;
-    effort: 'high' | 'medium' | 'low';
-  }[];
+  scenarioDescription: string;
+  riskTrends: RiskTrend[];
+  recommendations: string[];
+  regulationChanges: Array<{
+    regulation: string;
+    changeType: string;
+    impactLevel: 'high' | 'medium' | 'low';
+  }>;
+  originalScores: {
+    overall: number;
+    gdpr: number;
+    hipaa: number;
+    soc2: number;
+    pciDss: number;
+  };
+  predictedScores: {
+    overall: number;
+    gdpr: number;
+    hipaa: number;
+    soc2: number;
+    pciDss: number;
+  };
+  scoreDifferences: {
+    overall: number;
+    gdpr: number;
+    hipaa: number;
+    soc2: number;
+    pciDss: number;
+  };
 }

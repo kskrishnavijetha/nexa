@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { PredictiveAnalysis } from '@/utils/types';
 import { CheckCircle2 } from 'lucide-react';
 
 interface RecommendationsListProps {

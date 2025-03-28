@@ -131,7 +131,7 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                   <h3 className="text-lg font-semibold mb-2">Improvement Suggestions</h3>
                   <ul className="list-disc pl-5 space-y-1">
                     {report.suggestions.map((suggestion, index) => (
-                      <li key={index} className="text-gray-700">{suggestion}</li>
+                      <li key={index} className="text-gray-700">{suggestion.description}</li>
                     ))}
                   </ul>
                 </div>

@@ -27,15 +27,15 @@ export const requestComplianceCheck = async (
     const regulations = industry ? INDUSTRY_REGULATIONS[industry] : [];
     
     // Get regional regulations if a region is specified
-    const regionalRegulations = region ? REGION_REGULATIONS[region] : [];
+    const regionalRegulations = region && REGION_REGULATIONS[region] ? Object.keys(REGION_REGULATIONS[region]) : [];
     
     // Generate scores
     const { gdprScore, hipaaScore, soc2Score, pciDssScore, overallScore, industryScores } = generateScores(regulations);
     
     // Generate region-specific scores
     const regionScores: Record<string, number> = {};
-    if (region) {
-      Object.keys(REGION_REGULATIONS[region] || {}).forEach(regKey => {
+    if (region && REGION_REGULATIONS[region]) {
+      Object.keys(REGION_REGULATIONS[region]).forEach(regKey => {
         regionScores[regKey] = Math.floor(Math.random() * 30) + 70; // Random score between 70-100
       });
     }
@@ -64,7 +64,7 @@ export const requestComplianceCheck = async (
       industryScores,
       regionScores,
       regulations,
-      regionalRegulations: region ? REGION_REGULATIONS[region] : undefined,
+      regionalRegulations,
       risks,
       summary,
       suggestions,

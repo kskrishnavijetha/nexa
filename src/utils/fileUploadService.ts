@@ -33,17 +33,17 @@ export const uploadDocument = async (
     const documentId = `doc_${Date.now()}`;
     
     return {
+      success: true,
       data: {
         documentId,
         documentName: file.name
-      },
-      status: 200
+      }
     };
   } catch (error) {
     console.error('Upload error:', error);
     return {
-      error: 'Failed to upload the document. Please try again.',
-      status: 500
+      success: false,
+      error: 'Failed to upload the document. Please try again.'
     };
   }
 };
