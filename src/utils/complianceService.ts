@@ -1,3 +1,4 @@
+
 import { ApiResponse, ComplianceReport, Industry, Region, INDUSTRY_REGULATIONS, REGION_REGULATIONS } from './types';
 import { generateRisks } from './riskService';
 import { generateSuggestions } from './suggestionService';
@@ -26,7 +27,7 @@ export const requestComplianceCheck = async (
     const regulations = industry ? INDUSTRY_REGULATIONS[industry] : [];
     
     // Get regional regulations if a region is specified
-    const regionalRegulations = region ? REGION_REGULATIONS[region] : {};
+    const regionalRegulations = region ? REGION_REGULATIONS[region] : [];
     
     // Generate scores
     const { gdprScore, hipaaScore, soc2Score, pciDssScore, overallScore, industryScores } = generateScores(regulations);
@@ -34,7 +35,7 @@ export const requestComplianceCheck = async (
     // Generate region-specific scores
     const regionScores: Record<string, number> = {};
     if (region) {
-      Object.keys(regionalRegulations).forEach(regKey => {
+      Object.keys(REGION_REGULATIONS[region] || {}).forEach(regKey => {
         regionScores[regKey] = Math.floor(Math.random() * 30) + 70; // Random score between 70-100
       });
     }
@@ -53,8 +54,8 @@ export const requestComplianceCheck = async (
       id: documentId, // Use documentId as id
       documentId,
       documentName,
-      industry,
-      region,
+      industry: industry || '',
+      region: region || '',
       overallScore,
       gdprScore,
       hipaaScore,
@@ -68,18 +69,17 @@ export const requestComplianceCheck = async (
       summary,
       suggestions,
       timestamp: new Date().toISOString(),
-      language: userLanguage
     };
     
     return {
+      success: true,
       data: mockReport,
-      status: 200
     };
   } catch (error) {
     console.error('Compliance check error:', error);
     return {
-      error: 'Failed to analyze the document. Please try again.',
-      status: 500
+      success: false,
+      error: 'Failed to analyze the document. Please try again.'
     };
   }
 };
