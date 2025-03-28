@@ -1,79 +1,77 @@
 
-import { RiskItem, RiskSeverity, SimulationScenario } from '../types';
-import { RiskTrend } from '../types';
+import { Risk, RiskTrend, SimulationScenario, RiskSeverity } from '@/utils/types';
 
 /**
- * Calculate how risks would evolve under the given scenario
+ * Calculate risk trends based on current risks and simulation scenario
  */
-export function calculateRiskTrends(currentRisks: RiskItem[], scenario: SimulationScenario): RiskTrend[] {
+export function calculateRiskTrends(
+  currentRisks: Risk[],
+  scenario: SimulationScenario
+): RiskTrend[] {
+  // Generate risk trends from current risks
   const trends: RiskTrend[] = [];
   
-  // Analyze each current risk
-  currentRisks.forEach((risk) => {
-    // Check if this risk is affected by any regulation changes in the scenario
-    const affectedChange = scenario.regulationChanges.find(change => 
-      change.regulation === risk.regulation);
-    
-    if (affectedChange) {
-      let predictedChange: 'increase' | 'decrease' | 'stable';
-      let impact: 'high' | 'medium' | 'low';
+  // Get affected regulations from scenario
+  const affectedRegulations = scenario.regulationChanges.map(c => c.regulation);
+  
+  // For each current risk, calculate the trend
+  currentRisks.forEach(risk => {
+    // If the risk is related to an affected regulation, or it's a random selection
+    if (
+      (risk.regulation && affectedRegulations.includes(risk.regulation)) ||
+      Math.random() > 0.7
+    ) {
+      // Determine the likely change based on the scenario
+      const relevantChange = scenario.regulationChanges.find(
+        c => c.regulation === risk.regulation
+      );
       
-      // Determine trend direction based on change type
-      if (affectedChange.changeType === 'stricter') {
-        predictedChange = 'increase';
-        impact = affectedChange.impactLevel as 'high' | 'medium' | 'low';
-      } else if (affectedChange.changeType === 'updated') {
-        // For updates, randomly determine if risk increases or decreases
-        predictedChange = Math.random() > 0.6 ? 'increase' : 'decrease';
-        impact = affectedChange.impactLevel as 'high' | 'medium' | 'low';
-      } else if (affectedChange.changeType === 'new') {
-        predictedChange = 'increase';
-        impact = 'high';
+      let predictedChange: 'increasing' | 'decreasing' | 'stable';
+      let probability = 0;
+      
+      if (relevantChange) {
+        if (relevantChange.changeType === 'stricter' || relevantChange.changeType === 'new') {
+          predictedChange = 'increasing';
+          probability = 0.8;
+        } else if (relevantChange.changeType === 'relaxed') {
+          predictedChange = 'decreasing';
+          probability = 0.7;
+        } else {
+          predictedChange = 'stable';
+          probability = 0.5;
+        }
       } else {
-        predictedChange = 'stable';
-        impact = 'low';
+        // Random outcome with bias toward stability for non-directly affected risks
+        const rand = Math.random();
+        if (rand > 0.8) {
+          predictedChange = 'increasing';
+          probability = 0.6;
+        } else if (rand > 0.6) {
+          predictedChange = 'decreasing';
+          probability = 0.6;
+        } else {
+          predictedChange = 'stable';
+          probability = 0.8;
+        }
       }
       
-      // Generate random scores for trend analysis
-      const previousScore = Math.floor(Math.random() * 50) + 30;
-      const scoreDiff = predictedChange === 'increase' ? Math.floor(Math.random() * 20) + 5 : 
-                        predictedChange === 'decrease' ? -Math.floor(Math.random() * 20) - 5 : 
-                        Math.floor(Math.random() * 6) - 3;
-      const predictedScore = Math.max(0, Math.min(100, previousScore + scoreDiff));
-
-      // Determine trend based on score difference
-      const trend = scoreDiff > 3 ? 'increasing' :
-                    scoreDiff < -3 ? 'decreasing' : 'stable';
+      // Calculate impact
+      const impact = risk.severity === 'high' ? 'high' : 
+                     risk.severity === 'medium' ? 'medium' : 'low';
       
+      // Add trend with numeric probability
       trends.push({
-        riskId: risk.id || risk.description, // Use id if available, otherwise description
-        description: risk.description,
-        regulation: risk.regulation,
-        currentSeverity: risk.severity,
+        id: `trend-${risk.id}`,
+        riskId: risk.id,
+        severity: risk.severity,
+        title: risk.title || risk.description.split(': ')[0] || 'Risk',
+        trend: predictedChange,
+        impact: impact,
+        probability: probability * 100, // Convert to percentage
         predictedChange,
-        impact,
-        previousScore,
-        predictedScore,
-        trend
-      });
-    } else {
-      // Risk not directly affected by regulation changes
-      const previousScore = Math.floor(Math.random() * 50) + 30;
-      const minorChange = Math.floor(Math.random() * 6) - 3;
-      const predictedScore = Math.max(0, Math.min(100, previousScore + minorChange));
-      const trend = minorChange > 3 ? 'increasing' :
-                    minorChange < -3 ? 'decreasing' : 'stable';
-      
-      trends.push({
-        riskId: risk.id || risk.description, // Use id if available, otherwise description
-        description: risk.description,
-        regulation: risk.regulation,
         currentSeverity: risk.severity,
-        predictedChange: 'stable',
-        impact: 'low',
-        previousScore,
-        predictedScore,
-        trend
+        regulation: risk.regulation || 'General',
+        description: risk.description
       });
     }
   });

@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { ComplianceReport } from '@/utils/types';
+import { ComplianceReport, Risk } from '@/utils/types';
 import { toast } from 'sonner';
 
 interface RealtimeSimulatorProps {
@@ -39,9 +39,9 @@ const RealtimeAnalysisSimulator = ({
           const report = {...updatedReports[reportIndex]};
           
           report.overallScore = Math.min(100, Math.max(0, report.overallScore + scoreChange));
-          report.gdprScore = Math.min(100, Math.max(0, report.gdprScore + Math.floor(Math.random() * 8) - 3));
-          report.hipaaScore = Math.min(100, Math.max(0, report.hipaaScore + Math.floor(Math.random() * 8) - 3));
-          report.soc2Score = Math.min(100, Math.max(0, report.soc2Score + Math.floor(Math.random() * 8) - 3));
+          report.gdprScore = Math.min(100, Math.max(0, (report.gdprScore || 70) + Math.floor(Math.random() * 8) - 3));
+          report.hipaaScore = Math.min(100, Math.max(0, (report.hipaaScore || 70) + Math.floor(Math.random() * 8) - 3));
+          report.soc2Score = Math.min(100, Math.max(0, (report.soc2Score || 70) + Math.floor(Math.random() * 8) - 3));
           
           updatedReports[reportIndex] = report;
           onReportsUpdate(updatedReports);
@@ -69,6 +69,15 @@ const RealtimeAnalysisSimulator = ({
             // After 5-10 seconds, add the document to reports
             const analysisTime = 5000 + Math.random() * 5000;
             setTimeout(() => {
+              const newRisk: Risk = { 
+                id: `risk-${Date.now()}-1`, 
+                title: 'Compliance Issue',
+                description: 'Automatically detected compliance issue', 
+                severity: Math.random() > 0.7 ? 'high' : Math.random() > 0.5 ? 'medium' : 'low', 
+                regulation: Math.random() > 0.6 ? 'GDPR' : Math.random() > 0.3 ? 'HIPAA' : 'SOC 2',
+                mitigation: 'Update compliance policy and documentation'
+              };
+              
               const newReport: ComplianceReport = {
                 id: `doc-${Date.now()}`,
                 documentId: `doc-${Date.now()}`,
@@ -78,15 +87,11 @@ const RealtimeAnalysisSimulator = ({
                 gdprScore: 60 + Math.floor(Math.random() * 40),
                 hipaaScore: 60 + Math.floor(Math.random() * 40),
                 soc2Score: 60 + Math.floor(Math.random() * 40),
-                risks: [
-                  { 
-                    id: `risk-${Date.now()}-1`, 
-                    description: 'Automatically detected compliance issue', 
-                    severity: Math.random() > 0.7 ? 'high' : Math.random() > 0.5 ? 'medium' : 'low', 
-                    regulation: Math.random() > 0.6 ? 'GDPR' : Math.random() > 0.3 ? 'HIPAA' : 'SOC 2' 
-                  },
-                ],
+                risks: [newRisk],
                 summary: 'Automatically generated compliance report with detected issues',
+                industry: 'Technology',
+                region: 'North America',
+                suggestions: []
               };
               
               onReportsUpdate([newReport, ...reports]);

@@ -13,10 +13,26 @@ export const mockScans: ComplianceReport[] = [
     hipaaScore: 82,
     soc2Score: 88,
     risks: [
-      { id: '101', description: 'Missing data retention policy', severity: 'medium', regulation: 'GDPR' },
-      { id: '102', description: 'Inadequate breach notification procedure', severity: 'low', regulation: 'HIPAA' },
+      { 
+        id: '101', 
+        title: 'Data Retention',
+        description: 'Missing data retention policy', 
+        severity: 'medium', 
+        regulation: 'GDPR',
+        mitigation: 'Implement a clear data retention policy'
+      },
+      { 
+        id: '102', 
+        title: 'Breach Notification',
+        description: 'Inadequate breach notification procedure', 
+        severity: 'low', 
+        regulation: 'HIPAA',
+        mitigation: 'Update breach notification procedures'
+      },
     ],
     summary: 'Generally compliant with minor improvements needed',
+    industry: 'Technology',
+    region: 'North America',
+    suggestions: []
   }
 ];
-

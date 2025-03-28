@@ -95,7 +95,7 @@ export interface RiskTrend {
   severity: RiskSeverity;
   title: string;
   trend: 'increasing' | 'decreasing' | 'stable';
-  impact: number;
+  impact: 'high' | 'medium' | 'low';
   probability: number;
   predictedChange: 'increasing' | 'decreasing' | 'stable';
   currentSeverity: RiskSeverity;
@@ -109,6 +109,7 @@ export interface SimulationScenario {
   description: string;
   industry: Industry;
   impactLevel: 'high' | 'medium' | 'low';
+  impact?: string;
   scoreImpact: {
     overall: number;
     gdpr?: number;
@@ -124,10 +125,10 @@ export interface SimulationScenario {
 }
 
 export interface PredictiveAnalysis {
-  id: string;
+  id?: string;
   timestamp: string;
-  baselineScore: number;
-  predictedScore: number;
+  baselineScore?: number;
+  predictedScore?: number;
   scenarioId: string;
   scenarioName: string;
   scenarioDescription: string;
@@ -159,4 +160,8 @@ export interface PredictiveAnalysis {
     soc2: number;
     pciDss: number;
   };
+  predictedRisks?: any[];
+  complianceInsights?: any[];
+  lastUpdated?: string;
 }
+

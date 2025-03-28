@@ -1,104 +1,116 @@
 
-import { RiskItem, SimulationScenario } from '../types';
+import { Risk, SimulationScenario } from '@/utils/types';
 
 /**
- * Generate predicted risks based on the simulation scenario
+ * Generate predicted risks based on simulation scenario
  */
 export function generatePredictedRisks(
-  currentRisks: RiskItem[], 
+  currentRisks: Risk[],
   scenario: SimulationScenario,
   adjustedScores: any
-): RiskItem[] {
-  // Start with existing risks
-  const predictedRisks: RiskItem[] = [...currentRisks];
+): Risk[] {
+  const predictedRisks: Risk[] = [];
   
-  // For each regulation change, potentially add new risks
+  // Based on regulation changes in the scenario, predict new risks
   scenario.regulationChanges.forEach(change => {
     if (change.changeType === 'stricter' || change.changeType === 'new') {
-      // Define potential new risks based on regulation
-      const potentialNewRisks: Record<string, RiskItem[]> = {
-        'GDPR': [
-          {
-            id: 'gdpr-data-portability',
-            description: 'Insufficient data portability mechanism',
-            severity: 'medium',
-            regulation: 'GDPR',
-            section: 'Article 20'
-          },
-          {
-            id: 'gdpr-cross-border',
-            description: 'Inadequate cross-border data transfer safeguards',
-            severity: 'high',
-            regulation: 'GDPR',
-            section: 'Article 44-50'
-          }
-        ],
-        'HIPAA': [
-          {
-            id: 'hipaa-audit-controls',
-            description: 'Insufficient audit controls for PHI access',
-            severity: 'high',
-            regulation: 'HIPAA',
-            section: '164.312(b)'
-          },
-          {
-            id: 'hipaa-emergency-access',
-            description: 'Inadequate emergency access procedure',
-            severity: 'medium',
-            regulation: 'HIPAA',
-            section: '164.312(a)(2)(ii)'
-          }
-        ],
-        'SOC 2': [
-          {
-            id: 'soc2-change-management',
-            description: 'Weak change management controls',
-            severity: 'medium',
-            regulation: 'SOC 2',
-            section: 'CC8.1'
-          },
-          {
-            id: 'soc2-monitoring',
-            description: 'Insufficient system monitoring',
-            severity: 'high',
-            regulation: 'SOC 2',
-            section: 'CC7.2'
-          }
-        ],
-        'PCI-DSS': [
-          {
-            id: 'pci-network-security',
-            description: 'Inadequate network security controls',
-            severity: 'high',
-            regulation: 'PCI-DSS',
-            section: 'Requirement 1.1.4'
-          },
-          {
-            id: 'pci-crypto-key-management',
-            description: 'Insufficient cryptographic key management',
-            severity: 'medium',
-            regulation: 'PCI-DSS',
-            section: 'Requirement 3.5'
-          }
-        ]
-      };
-      
-      // Add 1-2 new risks if they don't already exist
-      if (potentialNewRisks[change.regulation]) {
-        const newRisks = potentialNewRisks[change.regulation];
-        const numberOfRisksToAdd = Math.floor(Math.random() * 2) + 1;
-        
-        for (let i = 0; i < Math.min(numberOfRisksToAdd, newRisks.length); i++) {
-          const newRisk = newRisks[i];
-          // Check if risk already exists
-          const riskExists = predictedRisks.some(r => 
-            r.description === newRisk.description && r.regulation === newRisk.regulation);
-          
-          if (!riskExists) {
-            predictedRisks.push(newRisk);
-          }
-        }
+      if (change.regulation === 'GDPR') {
+        predictedRisks.push({
+          id: `predicted-gdpr-${Date.now()}`,
+          title: 'Additional GDPR Requirements',
+          description: 'New requirements for data protection impact assessments',
+          severity: 'medium',
+          mitigation: 'Implement DPIA procedures for high-risk processing',
+          regulation: 'GDPR',
+          section: 'Article 35'
+        });
       }
+      
+      if (change.regulation === 'HIPAA') {
+        predictedRisks.push({
+          id: `predicted-hipaa-${Date.now()}`,
+          title: 'Enhanced PHI Protection',
+          description: 'Stricter requirements for protecting PHI in transit',
+          severity: 'high',
+          mitigation: 'Implement end-to-end encryption for all PHI transfers',
+          regulation: 'HIPAA',
+          section: '§164.312'
+        });
+      }
+    }
+    
+    if (change.impactLevel === 'high') {
+      if (change.regulation === 'PCI-DSS') {
+        predictedRisks.push({
+          id: `predicted-pci-${Date.now()}`,
+          title: 'New PCI DSS Compliance',
+          description: 'New requirements for multi-factor authentication',
+          severity: 'high',
+          mitigation: 'Implement MFA for all system access',
+          regulation: 'PCI-DSS',
+          section: 'Requirement 8.4'
+        });
+      }
+      
+      if (change.regulation === 'SOC 2') {
+        predictedRisks.push({
+          id: `predicted-soc2-${Date.now()}`,
+          title: 'SOC 2 Security Updates',
+          description: 'Enhanced monitoring requirements for access events',
+          severity: 'medium',
+          mitigation: 'Implement comprehensive logging and monitoring',
+          regulation: 'SOC 2',
+          section: 'CC7.2'
+        });
+      }
+    }
+    
+    if (adjustedScores.gdprScore < 70) {
+      predictedRisks.push({
+        id: `predicted-score-gdpr-${Date.now()}`,
+        title: 'GDPR Score Risk',
+        description: 'Low GDPR compliance score presents significant risk',
+        severity: 'medium',
+        mitigation: 'Conduct a comprehensive GDPR gap analysis',
+        regulation: 'GDPR',
+        section: 'General'
+      });
+    }
+    
+    if (adjustedScores.hipaaScore < 65) {
+      predictedRisks.push({
+        id: `predicted-score-hipaa-${Date.now()}`,
+        title: 'HIPAA Score Risk',
+        description: 'Declining HIPAA compliance score requires attention',
+        severity: 'high',
+        mitigation: 'Prioritize HIPAA compliance remediation',
+        regulation: 'HIPAA',
+        section: 'General'
+      });
+    }
+    
+    if (adjustedScores.soc2Score < 70) {
+      predictedRisks.push({
+        id: `predicted-score-soc2-${Date.now()}`,
+        title: 'SOC 2 Risk',
+        description: 'Projected SOC 2 compliance issues need addressing',
+        severity: 'high',
+        mitigation: 'Address security controls before audit period',
+        regulation: 'SOC 2',
+        section: 'General'
+      });
+    }
+    
+    if (adjustedScores.pciDssScore < 75) {
+      predictedRisks.push({
+        id: `predicted-score-pci-${Date.now()}`,
+        title: 'PCI Compliance Issue',
+        description: 'PCI DSS compliance score below threshold',
+        severity: 'medium',
+        mitigation: 'Review and update cardholder data environment',
+        regulation: 'PCI-DSS',
+        section: 'General'
+      });
     }
   });
   

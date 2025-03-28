@@ -33,8 +33,8 @@ export const runPredictiveAnalysis = async (
     
     if (!selectedScenario) {
       return {
-        error: 'Scenario not found',
-        status: 404
+        success: false,
+        error: 'Scenario not found'
       };
     }
     
@@ -43,9 +43,9 @@ export const runPredictiveAnalysis = async (
     
     // Adjust scores based on the scenario
     const adjustedScores = calculateAdjustedScores(
-      report.gdprScore,
-      report.hipaaScore,
-      report.soc2Score,
+      report.gdprScore || 0,
+      report.hipaaScore || 0,
+      report.soc2Score || 0,
       report.pciDssScore || 0,
       report.industryScores || {},
       selectedScenario
@@ -59,20 +59,15 @@ export const runPredictiveAnalysis = async (
     
     // Calculate score differences
     const scoreDifferences = {
-      gdpr: adjustedScores.gdprScore - report.gdprScore,
-      hipaa: adjustedScores.hipaaScore - report.hipaaScore,
-      soc2: adjustedScores.soc2Score - report.soc2Score,
+      gdpr: adjustedScores.gdprScore - (report.gdprScore || 0),
+      hipaa: adjustedScores.hipaaScore - (report.hipaaScore || 0),
+      soc2: adjustedScores.soc2Score - (report.soc2Score || 0),
       pciDss: (adjustedScores.pciDssScore || 0) - (report.pciDssScore || 0),
       overall: adjustedScores.overallScore - report.overallScore
     };
     
     // Prepare the predictive analysis result with strictly typed properties
-    const complianceInsights: Array<{
-      title: string;
-      description: string;
-      actionRequired: boolean;
-      priority: 'high' | 'medium' | 'low' | 'critical';
-    }> = [
+    const complianceInsights = [
       {
         title: 'Regulatory Impact Analysis',
         description: `The simulation predicts a ${Math.abs(scoreDifferences.overall)}% ${scoreDifferences.overall >= 0 ? 'improvement' : 'decrease'} in overall compliance.`,
@@ -81,9 +76,9 @@ export const runPredictiveAnalysis = async (
       },
       {
         title: 'Risk Exposure Profile',
-        description: `Based on the simulation, ${riskTrends.filter(t => t.predictedChange === 'increase').length} risks are expected to increase in severity.`,
-        actionRequired: riskTrends.filter(t => t.predictedChange === 'increase').length > 0,
-        priority: riskTrends.filter(t => t.predictedChange === 'increase' && t.impact === 'high').length > 0 ? 'high' : 'medium'
+        description: `Based on the simulation, ${riskTrends.filter(t => t.predictedChange === 'increasing').length} risks are expected to increase in severity.`,
+        actionRequired: riskTrends.filter(t => t.predictedChange === 'increasing').length > 0,
+        priority: riskTrends.filter(t => t.predictedChange === 'increasing' && t.impact === 'high').length > 0 ? 'high' : 'medium'
       }
     ];
     
@@ -99,9 +94,9 @@ export const runPredictiveAnalysis = async (
       scenarioDescription: selectedScenario.description,
       regulationChanges: selectedScenario.regulationChanges,
       originalScores: {
-        gdpr: report.gdprScore,
-        hipaa: report.hipaaScore,
-        soc2: report.soc2Score,
+        gdpr: report.gdprScore || 0,
+        hipaa: report.hipaaScore || 0,
+        soc2: report.soc2Score || 0,
         pciDss: report.pciDssScore || 0,
         overall: report.overallScore
       },
@@ -117,19 +112,19 @@ export const runPredictiveAnalysis = async (
       complianceInsights,
       riskTrends: typedRiskTrends,
       recommendations,
-      lastUpdated: new Date().toISOString(),
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      lastUpdated: new Date().toISOString()
     };
     
     return {
-      data: analysis,
-      status: 200
+      success: true,
+      data: analysis
     };
   } catch (error) {
     console.error('Predictive analysis error:', error);
     return {
-      error: 'Failed to run predictive analysis. Please try again.',
-      status: 500
+      success: false,
+      error: 'Failed to run predictive analysis. Please try again.'
     };
   }
 };

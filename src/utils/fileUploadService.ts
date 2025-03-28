@@ -1,5 +1,5 @@
 
-import { ApiResponse } from './types';
+import { ApiResponse, ApiServiceResponse } from './apiService';
 
 interface UploadResult {
   documentId: string;
