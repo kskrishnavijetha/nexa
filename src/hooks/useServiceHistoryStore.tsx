@@ -10,6 +10,7 @@ interface ScanHistoryItem {
   itemsScanned: number;
   violationsFound: number;
   documentName?: string;
+  fileName?: string;
   report?: ComplianceReport;
 }
 

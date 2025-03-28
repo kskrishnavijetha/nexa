@@ -3,7 +3,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, FileText } from 'lucide-react';
 import { ServiceScanHistory } from '@/components/audit/types';
 import { ComplianceReport } from '@/utils/types';
 
@@ -38,10 +38,11 @@ export const ServiceHistoryTable: React.FC<ServiceHistoryTableProps> = ({
             <TableCell className="font-medium">
               <Button 
                 variant="link" 
-                className="p-0 h-auto text-left text-blue-600 hover:text-blue-800 hover:underline"
+                className="p-0 h-auto text-left text-blue-600 hover:text-blue-800 hover:underline flex items-center"
                 onClick={() => onDocumentClick(item.documentName || 'Document Scan', item.report)}
               >
-                {item.documentName || 'General Scan'}
+                <FileText className="h-4 w-4 mr-2" />
+                {item.fileName || item.documentName || 'General Scan'}
               </Button>
             </TableCell>
             <TableCell>

@@ -1,4 +1,3 @@
-
 import { useEffect } from 'react';
 import { GoogleService, GoogleServicesScannerProps, ScanResults } from './types';
 import { useGoogleServiceConnections } from '@/hooks/useGoogleServiceConnections';
@@ -76,7 +75,8 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
       industry,
       language,
       region,
-      userId: user?.id
+      userId: user?.id,
+      file: file?.name
     });
     
     if (connectedServices.length === 0) {
@@ -109,7 +109,8 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
           scanDate: timestamp,
           itemsScanned: itemsScanned || Math.floor(Math.random() * 50) + 10, // Use actual or placeholder
           violationsFound: violationsFound || Math.floor(Math.random() * 5), // Use actual or placeholder
-          documentName: documentName
+          documentName: documentName,
+          fileName: file?.name || documentName // Add the file name here
         });
       });
     } else {

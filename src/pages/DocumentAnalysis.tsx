@@ -7,11 +7,13 @@ import DocumentUploader from '@/components/document-uploader/DocumentUploader';
 import AnalysisResults from '@/components/document-analysis/AnalysisResults';
 import { addReportToHistory } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
+import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
 
 const DocumentAnalysis = () => {
   const [report, setReport] = useState<ComplianceReport | null>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const { user } = useAuth();
+  const { addScanHistory } = useServiceHistoryStore();
 
   const handleReportGenerated = (reportData: ComplianceReport) => {
     // Add user ID to the report if available
@@ -24,6 +26,21 @@ const DocumentAnalysis = () => {
     // Save the report to history for viewing in the history page
     addReportToHistory(reportWithUser);
     console.log('Report saved to history in DocumentAnalysis:', reportWithUser.documentName);
+    
+    // Also add to the scan history store
+    if (user) {
+      addScanHistory({
+        serviceId: 'document-analysis',
+        serviceName: 'Document Analysis',
+        scanDate: new Date().toISOString(),
+        itemsScanned: reportWithUser.itemsScanned || 1,
+        violationsFound: (reportWithUser.issues || []).length,
+        documentName: reportWithUser.documentName,
+        fileName: reportWithUser.originalFileName || reportWithUser.documentName,
+        report: reportWithUser
+      });
+    }
+    
     toast.success('Report added to history');
   };
 
