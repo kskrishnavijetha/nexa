@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 
@@ -10,6 +10,15 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    // If not loading and no user, redirect to sign-in page
+    if (!loading && !user) {
+      console.log('ProtectedRoute: No authenticated user, redirecting to sign-in');
+      navigate('/sign-in', { replace: true });
+    }
+  }, [user, loading, navigate]);
 
   if (loading) {
     return (

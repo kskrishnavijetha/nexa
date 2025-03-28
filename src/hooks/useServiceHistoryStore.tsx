@@ -91,9 +91,9 @@ export const useServiceHistoryStore = () => {
   
   // Load history when user changes
   useEffect(() => {
-    console.log('User changed, reloading history data');
+    console.log('User changed, reloading history data', user?.id);
     
-    // Clear existing history first
+    // Important: Clear existing history first to prevent data leakage
     setHistory([]);
     
     // If no user is logged in, show mock data
@@ -110,8 +110,8 @@ export const useServiceHistoryStore = () => {
       
       if (storedData) {
         const parsedData = JSON.parse(storedData);
-        setHistory(parsedData);
         console.log(`Loaded history for user ${user.id}, count:`, parsedData.length);
+        setHistory(parsedData);
       } else {
         console.log(`No stored history found for user ${user.id}`);
         setHistory([]);
@@ -160,7 +160,8 @@ export const useServiceHistoryStore = () => {
     // Only attempt to clear local storage if a user is logged in
     if (user?.id) {
       try {
-        localStorage.removeItem(getUserStorageKey(user.id));
+        const storageKey = getUserStorageKey(user.id);
+        localStorage.removeItem(storageKey);
         console.log(`Cleared history for user ${user.id}`);
       } catch (error) {
         console.error('Error clearing service history:', error);

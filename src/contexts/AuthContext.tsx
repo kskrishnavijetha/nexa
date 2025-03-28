@@ -22,6 +22,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log('Auth provider initializing...');
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
@@ -41,6 +43,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     // THEN check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session check:', session ? 'User is logged in' : 'No session found');
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -53,6 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Helper function to clear user data from localStorage
   const clearUserData = () => {
+    console.log('Clearing user data from localStorage');
     const keys = Object.keys(localStorage);
     const userDataKeys = keys.filter(key => key.startsWith('compliZen_'));
     userDataKeys.forEach(key => {
@@ -83,13 +87,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error signing out:', error);
-      toast.error('Failed to sign out. Please try again.');
-    } else {
-      // Clear user-specific data from localStorage
+    console.log('Signing out...');
+    try {
+      // First clear user data manually to ensure clean state
       clearUserData();
+      
+      // Then perform the actual signOut operation
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Error signing out:', error);
+        toast.error('Failed to sign out. Please try again.');
+        throw error;
+      }
+      
+      // Force reset auth state even if signOut was successful
+      setSession(null);
+      setUser(null);
+      
+      console.log('Signout completed successfully');
+    } catch (error) {
+      console.error('Exception during sign out:', error);
+      toast.error('Failed to sign out. Please try again.');
     }
   };
 

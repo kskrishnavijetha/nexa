@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Book, User, LogOut, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { toast } from 'sonner';
 
 const Header: React.FC = () => {
   const location = useLocation();
@@ -21,8 +22,15 @@ const Header: React.FC = () => {
   
   // Handle sign out with navigation
   const handleSignOut = async () => {
-    await signOut();
-    navigate('/');
+    try {
+      console.log('Header: Initiating sign out');
+      await signOut();
+      console.log('Header: Sign out completed, navigating to home');
+      navigate('/');
+    } catch (error) {
+      console.error('Header: Error during sign out:', error);
+      toast.error('Failed to sign out. Please try again.');
+    }
   };
   
   // This item will be shown to all users
