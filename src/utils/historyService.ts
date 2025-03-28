@@ -36,6 +36,20 @@ export const getHistoricalReports = (): ComplianceReport[] => {
 };
 
 /**
+ * Get historical reports for a specific user
+ */
+export const getUserHistoricalReports = (userId: string | null | undefined): ComplianceReport[] => {
+  if (!userId) {
+    console.log('No user ID provided, returning empty list');
+    return [];
+  }
+  
+  const userReports = historicalReports.filter(report => report.userId === userId);
+  console.log(`Fetching reports for user ${userId}, found:`, userReports.length);
+  return userReports;
+};
+
+/**
  * Get a specific report by documentId
  */
 export const getReportById = (documentId: string): ComplianceReport | undefined => {
