@@ -50,7 +50,7 @@ const DocumentAnalysis = () => {
         link.click();
         
         document.body.removeChild(link);
-        setTimeout(() => URL.revoObjectURL(blobUrl), 100);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
         
         toast.success('PDF report downloaded successfully');
       }

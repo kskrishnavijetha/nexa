@@ -87,6 +87,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
       return;
     }
     
+    // Pass the required parameters to handleScan
     handleScan(connectedServices, industry, language, region);
 
     // Only add to scan history if user is authenticated

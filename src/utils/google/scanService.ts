@@ -119,7 +119,7 @@ const generateComplianceReports = async (
       region
     );
     
-    if (reportResponse.data) {
+    if (reportResponse.success && reportResponse.data) {
       reports.push(reportResponse.data);
     }
   }
