@@ -13,6 +13,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [redirectAttempts, setRedirectAttempts] = useState(0);
   
   useEffect(() => {
     // If not loading and no user, redirect to sign-in page
@@ -33,7 +34,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       
       return () => clearTimeout(redirectTimer);
     }
-  }, [user, loading, navigate, isRedirecting, location]);
+    
+    // If we're stuck in a loading state for too long, reset the state
+    if (loading && redirectAttempts < 3) {
+      const timeoutId = setTimeout(() => {
+        setRedirectAttempts(prev => prev + 1);
+        console.log('Still loading, increment attempt count:', redirectAttempts + 1);
+      }, 3000);
+      
+      return () => clearTimeout(timeoutId);
+    }
+    
+    // If we've tried several times and are still loading, force a navigation
+    if (redirectAttempts >= 3 && loading) {
+      console.log('Too many loading attempts, forcing navigation to sign-in');
+      setIsRedirecting(true);
+      navigate('/sign-in', { replace: true });
+    }
+  }, [user, loading, navigate, isRedirecting, location, redirectAttempts]);
 
   // Show loading state when authenticating or redirecting
   if (loading || isRedirecting) {

@@ -30,11 +30,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initializeCount, setInitializeCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     console.log('Auth provider initializing...');
     
+    // If we've been loading for more than 10 seconds, reset the loading state
+    if (loading) {
+      const timeoutId = setTimeout(() => {
+        if (loading) {
+          console.log('Auth loading timeout reached, resetting loading state');
+          setLoading(false);
+        }
+      }, 10000);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [loading]);
+
+  // Separate useEffect for auth state to avoid dependency issues
+  useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
@@ -44,6 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Update session and user
           setSession(newSession);
           setUser(newSession?.user ?? null);
+          setLoading(false);
           
           // Clear any previous user data first
           clearUserData();
@@ -54,6 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           // Clear all state
           setSession(null);
           setUser(null);
+          setLoading(false);
           
           // Clear any user-specific data from localStorage on sign out
           clearUserData();
@@ -64,10 +82,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else if (event === 'TOKEN_REFRESHED') {
           // Update session with refreshed token
           setSession(newSession);
+          setLoading(false);
         } else {
           // For all other events, update session and user state
           setSession(newSession);
           setUser(newSession?.user ?? null);
+          setLoading(false);
         }
       }
     );
@@ -78,6 +98,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(initialSession);
       setUser(initialSession?.user ?? null);
       setLoading(false);
+      
+      setInitializeCount(prev => prev + 1);
+      console.log('Auth initialization complete, count:', initializeCount + 1);
     });
 
     return () => {
@@ -101,28 +124,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string) => {
     setLoading(true);
     
-    // Prevent state flashing during sign in
-    // Don't clear existing data until we have a successful sign in
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      // Prevent state flashing during sign in
+      // Don't clear existing data until we have a successful sign in
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    if (!error) {
-      // Only clear user data on successful sign in
-      clearUserData();
-    } else {
-      // Make sure to stop loading on error
+      if (!error) {
+        // Only clear user data on successful sign in
+        clearUserData();
+      } else {
+        // Make sure to stop loading on error
+        setLoading(false);
+      }
+
+      return { error };
+    } catch (err) {
       setLoading(false);
+      console.error('Error during sign in:', err);
+      return { error: err };
     }
-
-    return { error };
   };
 
   const signOut = async () => {
     console.log('Signing out...');
     
     try {
+      setLoading(true);
+      
       // First clear user data manually to ensure clean state
       clearUserData();
       
@@ -132,17 +163,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) {
         console.error('Error signing out:', error);
         toast.error('Failed to sign out. Please try again.');
+        setLoading(false);
         throw error;
       }
       
       // Explicitly set state to null (the listener will also do this but good to be explicit)
       setSession(null);
       setUser(null);
+      setLoading(false);
       
       console.log('Signout completed successfully');
     } catch (error) {
       console.error('Exception during sign out:', error);
       toast.error('Failed to sign out. Please try again.');
+      setLoading(false);
     }
   };
 

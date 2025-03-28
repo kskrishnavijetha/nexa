@@ -13,9 +13,23 @@ const SignIn: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [loginAttempt, setLoginAttempt] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const { signIn, user, loading } = useAuth();
+
+  // Reset loading state if stuck for more than 10 seconds
+  useEffect(() => {
+    if (isLoading) {
+      const timeoutId = setTimeout(() => {
+        setIsLoading(false);
+        console.log('Sign-in loading timeout reached, resetting loading state');
+        toast.error('Login is taking longer than expected. Please try again.');
+      }, 10000);
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [isLoading]);
 
   // Redirect if already logged in, but only if we're not already redirecting
   useEffect(() => {
@@ -25,6 +39,7 @@ const SignIn: React.FC = () => {
       
       // Check if there's a saved redirect path
       const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
+      console.log('Redirecting to:', redirectPath);
       
       // Clear the saved path
       sessionStorage.removeItem('redirectAfterLogin');
@@ -48,8 +63,10 @@ const SignIn: React.FC = () => {
     if (isLoading) return; // Prevent multiple submissions
     
     setIsLoading(true);
+    setLoginAttempt(prev => prev + 1);
     
     try {
+      console.log(`Login attempt ${loginAttempt + 1} for ${email}`);
       const { error } = await signIn(email, password);
       
       if (error) {
@@ -60,6 +77,14 @@ const SignIn: React.FC = () => {
         // Don't set loading to false here - we're going to redirect which will unmount this component
         console.log('Sign in successful, waiting for auth state to update');
         setIsRedirecting(true);
+        
+        // Fallback: if redirection doesn't happen in 3 seconds, force it
+        setTimeout(() => {
+          if (document.location.pathname === '/sign-in') {
+            console.log('Forcing navigation to dashboard after timeout');
+            navigate('/dashboard', { replace: true });
+          }
+        }, 3000);
       }
     } catch (error: any) {
       console.error('Unexpected sign in error:', error);
