@@ -27,7 +27,7 @@ const RiskTrendList: React.FC<RiskTrendListProps> = ({ analysis }) => {
   };
   
   // Helper function to map between different trend naming conventions
-  const mapTrendToStatus = (trend: 'increasing' | 'decreasing' | 'stable'): 'increase' | 'decrease' | 'stable' => {
+  const mapTrendToStatus = (trend: string): 'increase' | 'decrease' | 'stable' => {
     if (trend === 'increasing') return 'increase';
     if (trend === 'decreasing') return 'decrease';
     return 'stable';

@@ -8,13 +8,14 @@ import {
   PredictiveAnalysis,
   RiskSeverity
 } from './types';
-import { generateSimulationScenarios } from './simulation/scenarioGenerator';
+import { generateScenarios } from './simulation/scenarioGenerator';
 import { calculateRiskTrends } from './simulation/riskTrendAnalyzer';
 import { calculateAdjustedScores } from './simulation/scoreCalculator';
 import { generatePredictedRisks } from './simulation/riskPredictor';
 import { generateRecommendations } from './simulation/recommendationGenerator';
 
-export { generateSimulationScenarios };
+// Export the scenarios generation function with a more consistent name
+export const generateSimulationScenarios = generateScenarios;
 
 /**
  * Run a predictive analysis based on a scenario
@@ -28,7 +29,7 @@ export const runPredictiveAnalysis = async (
     await new Promise(resolve => setTimeout(resolve, 1200));
     
     // Get simulation scenarios
-    const scenarios = generateSimulationScenarios(report.industry);
+    const scenarios = generateScenarios(report.industry);
     const selectedScenario = scenarios.find(s => s.id === scenarioId);
     
     if (!selectedScenario) {
@@ -76,9 +77,9 @@ export const runPredictiveAnalysis = async (
       },
       {
         title: 'Risk Exposure Profile',
-        description: `Based on the simulation, ${riskTrends.filter(t => t.predictedChange === 'increasing').length} risks are expected to increase in severity.`,
-        actionRequired: riskTrends.filter(t => t.predictedChange === 'increasing').length > 0,
-        priority: riskTrends.filter(t => t.predictedChange === 'increasing' && t.impact === 'high').length > 0 ? 'high' : 'medium'
+        description: `Based on the simulation, ${riskTrends.filter(t => t.trend === 'increasing').length} risks are expected to increase in severity.`,
+        actionRequired: riskTrends.filter(t => t.trend === 'increasing').length > 0,
+        priority: riskTrends.filter(t => t.trend === 'increasing' && t.impact === 'high').length > 0 ? 'high' : 'medium'
       }
     ];
     

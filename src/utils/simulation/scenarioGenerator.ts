@@ -13,7 +13,6 @@ export const generateScenarios = (industry: Industry): SimulationScenario[] => {
       description: 'Major global privacy regulations become stricter with higher penalties',
       industry: 'Global',
       impactLevel: 'high',
-      impact: 'Significant potential impact on compliance requirements across multiple regulations',
       scoreImpact: {
         overall: -15,
         gdpr: -20,
@@ -32,7 +31,6 @@ export const generateScenarios = (industry: Industry): SimulationScenario[] => {
       description: 'Regular compliance audit with no significant regulatory changes',
       industry: 'Global',
       impactLevel: 'low',
-      impact: 'Minimal impact with no major regulatory changes',
       scoreImpact: {
         overall: -5,
         gdpr: -5,
@@ -50,7 +48,6 @@ export const generateScenarios = (industry: Industry): SimulationScenario[] => {
       description: 'A new regional privacy regulation is introduced affecting your operations',
       industry: 'Global',
       impactLevel: 'medium',
-      impact: 'Moderate impact requiring several new compliance measures',
       scoreImpact: {
         overall: -10,
         gdpr: -5,
@@ -72,7 +69,6 @@ export const generateScenarios = (industry: Industry): SimulationScenario[] => {
       description: 'Major updates to HIPAA requirements for patient data protection',
       industry: 'Healthcare',
       impactLevel: 'high',
-      impact: 'Significant impact on healthcare data handling procedures',
       scoreImpact: {
         overall: -20,
         gdpr: -5,
@@ -91,7 +87,6 @@ export const generateScenarios = (industry: Industry): SimulationScenario[] => {
       description: 'Implementation of PCI DSS 4.0 with enhanced security requirements',
       industry: 'Finance',
       impactLevel: 'high',
-      impact: 'Major impact on payment card data security systems',
       scoreImpact: {
         overall: -15,
         gdpr: -5,
@@ -110,7 +105,6 @@ export const generateScenarios = (industry: Industry): SimulationScenario[] => {
       description: 'Introduction of new regulations for AI systems and algorithmic decision-making',
       industry: 'Technology',
       impactLevel: 'medium',
-      impact: 'Moderate impact on AI systems and data processing pipelines',
       scoreImpact: {
         overall: -12,
         gdpr: -15,

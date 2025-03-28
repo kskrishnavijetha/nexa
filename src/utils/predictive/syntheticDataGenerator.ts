@@ -18,7 +18,8 @@ export const generateSyntheticReports = (currentReport: ComplianceReport, count:
       soc2Score: Math.min(100, Math.max(0, Math.round(currentReport.soc2Score * randomFactor))),
       pciDssScore: currentReport.pciDssScore 
         ? Math.min(100, Math.max(0, Math.round(currentReport.pciDssScore * randomFactor)))
-        : undefined
+        : undefined,
+      suggestions: currentReport.suggestions || []
     };
   });
 };
@@ -46,6 +47,7 @@ export const generateRandomReport = (): ComplianceReport => {
     ],
     summary: 'Automatically generated compliance report based on standard patterns',
     industry: 'Technology',
-    region: 'Global'
+    region: 'Global',
+    suggestions: ['Update privacy policy', 'Conduct staff training']
   };
 };

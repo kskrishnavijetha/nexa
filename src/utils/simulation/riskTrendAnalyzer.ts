@@ -67,8 +67,7 @@ export function calculateRiskTrends(
         title: risk.title || risk.description.split(': ')[0] || 'Risk',
         trend: predictedChange,
         impact: impact,
-        probability: probability * 100, // Convert to percentage
-        predictedChange: predictedChange,
+        probability: Math.round(probability * 100), // Convert to percentage as a number
         currentSeverity: risk.severity,
         regulation: risk.regulation || 'General',
         description: risk.description
