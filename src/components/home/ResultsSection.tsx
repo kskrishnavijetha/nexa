@@ -1,7 +1,5 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 
 const benefits = [
@@ -20,7 +18,6 @@ const benefits = [
 ];
 
 const ResultsSection: React.FC = () => {
-  const navigate = useNavigate();
   const [expandedItems, setExpandedItems] = useState<number[]>([]);
 
   const toggleItem = (index: number) => {
@@ -31,10 +28,6 @@ const ResultsSection: React.FC = () => {
     );
   };
 
-  const handleTryNow = () => {
-    navigate('/document-analysis');
-  };
-
   return (
     <div className="my-16 bg-primary/5 p-8 rounded-xl">
       <h2 className="text-3xl font-bold mb-4 text-center">📈 Results with CompliZen</h2>
@@ -43,7 +36,7 @@ const ResultsSection: React.FC = () => {
         Our customers achieve significant improvements in their compliance processes. Here's what you can expect:
       </p>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {benefits.map((benefit, index) => (
           <div key={index} className="bg-white p-6 rounded-lg shadow-sm border flex flex-col">
             <div className="flex items-start mb-4">
@@ -63,12 +56,6 @@ const ResultsSection: React.FC = () => {
             </button>
           </div>
         ))}
-      </div>
-      
-      <div className="text-center">
-        <Button onClick={handleTryNow} className="px-8">
-          Try it now
-        </Button>
       </div>
     </div>
   );
