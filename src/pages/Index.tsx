@@ -9,6 +9,7 @@ import IndustriesSection from '@/components/home/IndustriesSection';
 import ResultsSection from '@/components/home/ResultsSection';
 import TrustedBySection from '@/components/home/TrustedBySection';
 import UserGuide from '@/components/home/UserGuide';
+import AIComplianceDemo from '@/components/home/AIComplianceDemo';
 import Layout from '@/components/layout/Layout';
 
 const Index = () => {
@@ -20,6 +21,7 @@ const Index = () => {
         <div className="container mx-auto px-4 py-8">
           <Hero />
           <WhyChooseSection />
+          <AIComplianceDemo />
           <ComplianceFeaturesSection />
           <IndustriesSection />
           <ResultsSection />
