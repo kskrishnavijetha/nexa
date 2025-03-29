@@ -13,21 +13,35 @@ import {
 interface PaymentFormProps {
   onSuccess?: (paymentId: string) => void;
   initialPlan?: string | null;
+  initialBillingCycle?: 'monthly' | 'annually';
 }
 
 // Define pricing tiers
 const pricingTiers = {
   free: { name: 'Free', price: 0, scans: 1, monthly: true },
-  basic: { name: 'Basic', price: 29, scans: 10, monthly: true },
-  pro: { name: 'Pro', price: 99, scans: 50, monthly: true },
-  enterprise: { name: 'Enterprise', price: 299, scans: 'Unlimited', monthly: true },
+  basic: { 
+    name: 'Basic', 
+    price: { monthly: 35, annually: 378 }, // 35 * 12 * 0.9 = 378 (10% discount)
+    scans: 10, 
+  },
+  pro: { 
+    name: 'Pro', 
+    price: { monthly: 110, annually: 1188 }, // 110 * 12 * 0.9 = 1188 (10% discount)
+    scans: 50, 
+  },
+  enterprise: { 
+    name: 'Enterprise', 
+    price: { monthly: 399, annually: 4309 }, // 399 * 12 * 0.9 = 4309.2 rounded to 4309 (10% discount)
+    scans: 'Unlimited', 
+  },
 };
 
-const PayPalButtonContainer = ({ onSuccess, tier, loading, setLoading }: { 
+const PayPalButtonContainer = ({ onSuccess, tier, loading, setLoading, billingCycle }: { 
   onSuccess: (paymentId: string) => void, 
   tier: keyof typeof pricingTiers,
   loading: boolean,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+  billingCycle: 'monthly' | 'annually'
 }) => {
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   
@@ -46,13 +60,18 @@ const PayPalButtonContainer = ({ onSuccess, tier, loading, setLoading }: {
         createPayPalButtons(
           'paypal-button-container',
           tier,
+          billingCycle,
           // On approve handler
           async (data) => {
             setLoading(true);
             try {
               // Call your backend to verify and record the subscription
-              const result = await createSubscription('paypal_subscription', `price_${tier}`);
+              const result = await createSubscription('paypal_subscription', `price_${tier}_${billingCycle}`);
               if (result.success) {
+                const price = typeof pricingTiers[tier].price === 'object' 
+                  ? pricingTiers[tier].price[billingCycle] 
+                  : pricingTiers[tier].price;
+                
                 toast.success(`${pricingTiers[tier].name} plan activated! You now have access to ${pricingTiers[tier].scans} compliance scans per month.`);
                 onSuccess(result.paymentId || data.subscriptionID || 'unknown');
               } else {
@@ -88,7 +107,7 @@ const PayPalButtonContainer = ({ onSuccess, tier, loading, setLoading }: {
         paypalContainerRef.current.innerHTML = '';
       }
     };
-  }, [tier, onSuccess, loading, setLoading]);
+  }, [tier, onSuccess, loading, setLoading, billingCycle]);
   
   // For free tier, use a regular button
   if (tier === 'free') {
@@ -140,8 +159,9 @@ const PayPalButtonContainer = ({ onSuccess, tier, loading, setLoading }: {
   );
 };
 
-const CheckoutForm = ({ onSuccess, initialPlan }: PaymentFormProps) => {
+const CheckoutForm = ({ onSuccess, initialPlan, initialBillingCycle }: PaymentFormProps) => {
   const [selectedTier, setSelectedTier] = useState<keyof typeof pricingTiers>('free');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>(initialBillingCycle || 'monthly');
   const [loading, setLoading] = useState(false);
   const currentSubscription = getSubscription();
   
@@ -154,10 +174,39 @@ const CheckoutForm = ({ onSuccess, initialPlan }: PaymentFormProps) => {
     }
   }, [initialPlan]);
 
+  // Helper function to get price based on billing cycle
+  const getPrice = (tier: keyof typeof pricingTiers) => {
+    const price = pricingTiers[tier].price;
+    if (typeof price === 'object') {
+      return price[billingCycle];
+    }
+    return price;
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Select a Plan</h3>
+        <div className="flex items-center justify-center space-x-2 mb-4">
+          <span className={`text-sm ${billingCycle === 'monthly' ? 'font-semibold' : ''}`}>Monthly</span>
+          <Button
+            variant="outline"
+            size="sm"
+            className={`relative px-8 h-7 ${billingCycle === 'annually' ? 'bg-primary/10' : ''}`}
+            onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annually' : 'monthly')}
+          >
+            <div
+              className={`absolute top-1 bottom-1 left-1 w-6 bg-primary rounded-sm transition-transform ${
+                billingCycle === 'annually' ? 'translate-x-[calc(100%-2px)]' : ''
+              }`}
+            />
+            <span className="sr-only">Toggle</span>
+          </Button>
+          <span className={`text-sm ${billingCycle === 'annually' ? 'font-semibold' : ''}`}>
+            Annually <span className="text-xs text-green-600">(Save 10%)</span>
+          </span>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {Object.entries(pricingTiers).map(([key, tier]) => (
             <div 
@@ -179,7 +228,10 @@ const CheckoutForm = ({ onSuccess, initialPlan }: PaymentFormProps) => {
                 {tier.scans} {typeof tier.scans === 'number' ? 'scans' : ''} per month
               </div>
               <div className="mt-2 font-semibold">
-                {tier.price === 0 ? 'Free' : `$${tier.price}/month`}
+                {getPrice(key as keyof typeof pricingTiers) === 0 
+                  ? 'Free' 
+                  : `$${getPrice(key as keyof typeof pricingTiers)}/${billingCycle === 'monthly' ? 'month' : 'year'}`
+                }
               </div>
             </div>
           ))}
@@ -198,6 +250,7 @@ const CheckoutForm = ({ onSuccess, initialPlan }: PaymentFormProps) => {
           tier={selectedTier}
           loading={loading}
           setLoading={setLoading}
+          billingCycle={billingCycle}
         />
       </div>
 
@@ -212,11 +265,16 @@ const CheckoutForm = ({ onSuccess, initialPlan }: PaymentFormProps) => {
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-muted-foreground">Billing</span>
-          <span>{selectedTier === 'free' ? 'No billing' : 'Monthly'}</span>
+          <span>{selectedTier === 'free' ? 'No billing' : (billingCycle === 'monthly' ? 'Monthly' : 'Annually')}</span>
         </div>
         <div className="flex justify-between font-medium">
           <span>Total</span>
-          <span>{selectedTier === 'free' ? 'Free' : `$${pricingTiers[selectedTier].price}/month`}</span>
+          <span>
+            {getPrice(selectedTier) === 0 
+              ? 'Free' 
+              : `$${getPrice(selectedTier)}/${billingCycle === 'monthly' ? 'month' : 'year'}`
+            }
+          </span>
         </div>
       </div>
     </div>

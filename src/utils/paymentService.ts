@@ -1,3 +1,4 @@
+
 /**
  * Service for handling payment processing
  */
@@ -15,15 +16,16 @@ export interface SubscriptionInfo {
   scansUsed: number;
   scansLimit: number;
   expirationDate: Date;
+  billingCycle?: 'monthly' | 'annually';
 }
 
 // Store the user's current subscription in localStorage
-export const saveSubscription = (plan: string, paymentId: string) => {
+export const saveSubscription = (plan: string, paymentId: string, billingCycle: 'monthly' | 'annually' = 'monthly') => {
   const pricingTiers = {
     free: { scans: 1, days: 30 },
-    basic: { scans: 10, days: 30 },
-    pro: { scans: 50, days: 30 },
-    enterprise: { scans: 999, days: 30 }, // Using 999 to represent unlimited
+    basic: { scans: 10, days: billingCycle === 'monthly' ? 30 : 365 },
+    pro: { scans: 50, days: billingCycle === 'monthly' ? 30 : 365 },
+    enterprise: { scans: 999, days: billingCycle === 'monthly' ? 30 : 365 }, // Using 999 to represent unlimited
   };
   
   const selectedTier = pricingTiers[plan as keyof typeof pricingTiers];
@@ -35,7 +37,8 @@ export const saveSubscription = (plan: string, paymentId: string) => {
     plan: plan,
     scansUsed: 0,
     scansLimit: selectedTier.scans,
-    expirationDate: expirationDate
+    expirationDate: expirationDate,
+    billingCycle: billingCycle
   };
   
   localStorage.setItem('subscription', JSON.stringify(subscription));
@@ -153,8 +156,17 @@ export const createSubscription = async (
 ): Promise<PaymentResult> => {
   // This is a mock implementation. In a real app, you would call your backend.
   try {
+    // Extract billing cycle from priceId if present (e.g., price_basic_annually)
+    let planName = priceId.split('_')[1];
+    let billingCycle: 'monthly' | 'annually' = 'monthly';
+    
+    // Check if there's a billing cycle in the price ID
+    if (priceId.includes('_annually')) {
+      billingCycle = 'annually';
+    }
+    
     // Free tier doesn't need subscription processing
-    if (priceId === 'price_free') {
+    if (planName === 'free') {
       const paymentId = 'free_sub_' + Math.random().toString(36).substring(2, 15);
       
       // Save the free subscription
@@ -166,9 +178,6 @@ export const createSubscription = async (
       };
     }
     
-    // Extract plan name from priceId (e.g., price_basic -> basic)
-    const planName = priceId.split('_')[1];
-    
     // Simulate API latency
     await new Promise(resolve => setTimeout(resolve, 2000));
     
@@ -176,8 +185,8 @@ export const createSubscription = async (
     if (Math.random() > 0.1) {
       const paymentId = 'sub_' + Math.random().toString(36).substring(2, 15);
       
-      // Save the subscription
-      saveSubscription(planName, paymentId);
+      // Save the subscription with billing cycle
+      saveSubscription(planName, paymentId, billingCycle);
       
       return {
         success: true,
@@ -218,9 +227,18 @@ declare global {
 
 // PayPal plan IDs - Replace with your actual plan IDs
 const PAYPAL_PLAN_IDS = {
-  basic: 'P-9HD8411875146223CMUSBMCA',  // Example plan ID - update this with your actual plan ID
-  pro: 'P-3NN72537D3262274CMUSBMDI',    // Example plan ID - update this with your actual plan ID
-  enterprise: 'P-5GJ8318862350144UMUSBMEI'  // Example plan ID - update this with your actual plan ID
+  basic: {
+    monthly: 'P-9HD8411875146223CMUSBMCA',
+    annually: 'P-ANNUAL8411875146223CMUSBMCA'
+  },
+  pro: {
+    monthly: 'P-3NN72537D3262274CMUSBMDI',
+    annually: 'P-ANNUAL72537D3262274CMUSBMDI'
+  },
+  enterprise: {
+    monthly: 'P-5GJ8318862350144UMUSBMEI',
+    annually: 'P-ANNUAL8318862350144UMUSBMEI'
+  }
 };
 
 /**
@@ -229,6 +247,7 @@ const PAYPAL_PLAN_IDS = {
 export const createPayPalButtons = (
   containerId: string,
   plan: string,
+  billingCycle: 'monthly' | 'annually',
   onApprove: (data: any) => void,
   onError: (err: any) => void
 ): void => {
@@ -248,10 +267,10 @@ export const createPayPalButtons = (
     return;
   }
 
-  // Get plan ID based on selected plan
-  const planId = PAYPAL_PLAN_IDS[plan as keyof typeof PAYPAL_PLAN_IDS];
+  // Get plan ID based on selected plan and billing cycle
+  const planId = PAYPAL_PLAN_IDS[plan as keyof typeof PAYPAL_PLAN_IDS]?.[billingCycle];
   if (!planId) {
-    console.error(`No PayPal plan ID found for plan: ${plan}`);
+    console.error(`No PayPal plan ID found for plan: ${plan} (${billingCycle})`);
     return;
   }
 

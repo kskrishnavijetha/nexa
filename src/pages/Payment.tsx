@@ -13,11 +13,17 @@ const Payment = () => {
   const [subscription, setSubscription] = useState(getSubscription());
   const [isRenewal, setIsRenewal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
 
   useEffect(() => {
     // Check if a plan was selected from the pricing page
     if (location.state?.selectedPlan) {
       setSelectedPlan(location.state.selectedPlan);
+    }
+    
+    // Check if billing cycle was selected
+    if (location.state?.billingCycle) {
+      setBillingCycle(location.state.billingCycle);
     }
     
     // Check if user has a subscription but it's expired (renewal case)
@@ -130,7 +136,11 @@ const Payment = () => {
         {(isRenewal || !hasActiveSubscription()) && (
           <div className="flex flex-col md:flex-row gap-8">
             <div className="flex-1">
-              <PaymentForm onSuccess={handlePaymentSuccess} initialPlan={selectedPlan} />
+              <PaymentForm 
+                onSuccess={handlePaymentSuccess} 
+                initialPlan={selectedPlan} 
+                initialBillingCycle={billingCycle}
+              />
             </div>
             <div className="flex-1 bg-muted/30 p-6 rounded-lg">
               <h3 className="text-lg font-medium mb-4">What you get</h3>
@@ -151,7 +161,7 @@ const Payment = () => {
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-primary mb-2">Basic Plan - $29/month</h4>
+                  <h4 className="font-medium text-primary mb-2">Basic Plan - $35/month</h4>
                   <ul className="space-y-2">
                     {basicFeatures.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">
@@ -165,7 +175,7 @@ const Payment = () => {
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-primary mb-2">Pro Plan - $99/month</h4>
+                  <h4 className="font-medium text-primary mb-2">Pro Plan - $110/month</h4>
                   <ul className="space-y-2">
                     {proFeatures.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">
@@ -179,7 +189,7 @@ const Payment = () => {
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-primary mb-2">Enterprise Plan - $299/month</h4>
+                  <h4 className="font-medium text-primary mb-2">Enterprise Plan - $399/month</h4>
                   <ul className="space-y-2">
                     {enterpriseFeatures.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">

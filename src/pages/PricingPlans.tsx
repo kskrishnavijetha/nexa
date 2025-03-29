@@ -1,15 +1,21 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { hasActiveSubscription } from '@/utils/paymentService';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 
 const PricingPlans = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
+
+  // Apply 10% discount for annual billing
+  const annualDiscount = 0.1; // 10% discount
 
   // Feature lists for each tier
   const freeFeatures = [
@@ -43,12 +49,42 @@ const PricingPlans = () => {
     "24/7 priority support"
   ];
 
+  // Updated pricing
+  const pricing = {
+    free: {
+      monthly: 0,
+      annually: 0,
+    },
+    basic: {
+      monthly: 35,
+      annually: Math.round(35 * 12 * (1 - annualDiscount)),
+    },
+    pro: {
+      monthly: 110,
+      annually: Math.round(110 * 12 * (1 - annualDiscount)),
+    },
+    enterprise: {
+      monthly: 399,
+      annually: Math.round(399 * 12 * (1 - annualDiscount)),
+    }
+  };
+
   const handleSelectPlan = (plan: string) => {
     if (!user) {
       navigate('/auth/signup');
     } else {
-      navigate('/payment', { state: { selectedPlan: plan } });
+      navigate('/payment', { 
+        state: { 
+          selectedPlan: plan,
+          billingCycle: billingCycle 
+        }
+      });
     }
+  };
+
+  const formatPrice = (price: number, cycle: 'monthly' | 'annually') => {
+    if (price === 0) return "Free";
+    return `$${price}${cycle === 'monthly' ? '/month' : '/year'}`;
   };
 
   return (
@@ -58,6 +94,20 @@ const PricingPlans = () => {
         <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
           Get started with our free plan or upgrade to premium features for comprehensive compliance coverage.
         </p>
+        
+        <div className="flex items-center justify-center mt-8">
+          <div className="flex items-center space-x-2">
+            <Label htmlFor="billing-cycle" className={billingCycle === 'monthly' ? 'font-semibold' : ''}>Monthly</Label>
+            <Switch 
+              id="billing-cycle" 
+              checked={billingCycle === 'annually'}
+              onCheckedChange={(checked) => setBillingCycle(checked ? 'annually' : 'monthly')}
+            />
+            <Label htmlFor="billing-cycle" className={billingCycle === 'annually' ? 'font-semibold' : ''}>
+              Annually <span className="text-sm text-green-600 font-semibold">(Save 10%)</span>
+            </Label>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
@@ -67,8 +117,7 @@ const PricingPlans = () => {
             <CardTitle>Free</CardTitle>
             <CardDescription>Get started with basic compliance checks</CardDescription>
             <div className="mt-4">
-              <span className="text-3xl font-bold">$0</span>
-              <span className="text-muted-foreground ml-1">/month</span>
+              <span className="text-3xl font-bold">{formatPrice(pricing.free[billingCycle], billingCycle)}</span>
             </div>
           </CardHeader>
           <CardContent className="flex-grow">
@@ -100,8 +149,7 @@ const PricingPlans = () => {
             <CardTitle>Basic</CardTitle>
             <CardDescription>Essential compliance tools for small businesses</CardDescription>
             <div className="mt-4">
-              <span className="text-3xl font-bold">$29</span>
-              <span className="text-muted-foreground ml-1">/month</span>
+              <span className="text-3xl font-bold">{formatPrice(pricing.basic[billingCycle], billingCycle)}</span>
             </div>
           </CardHeader>
           <CardContent className="flex-grow">
@@ -135,8 +183,7 @@ const PricingPlans = () => {
             <CardTitle>Pro</CardTitle>
             <CardDescription>Advanced compliance for growing organizations</CardDescription>
             <div className="mt-4">
-              <span className="text-3xl font-bold">$99</span>
-              <span className="text-muted-foreground ml-1">/month</span>
+              <span className="text-3xl font-bold">{formatPrice(pricing.pro[billingCycle], billingCycle)}</span>
             </div>
           </CardHeader>
           <CardContent className="flex-grow">
@@ -167,8 +214,7 @@ const PricingPlans = () => {
             <CardTitle>Enterprise</CardTitle>
             <CardDescription>Complete compliance solution for large enterprises</CardDescription>
             <div className="mt-4">
-              <span className="text-3xl font-bold">$299</span>
-              <span className="text-muted-foreground ml-1">/month</span>
+              <span className="text-3xl font-bold">{formatPrice(pricing.enterprise[billingCycle], billingCycle)}</span>
             </div>
           </CardHeader>
           <CardContent className="flex-grow">
