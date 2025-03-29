@@ -47,24 +47,37 @@ const Payment = () => {
     }, 2000);
   };
 
-  // All features available for all plans
-  const allFeatures = [
-    "GDPR, HIPAA, and SOC2 compliance checks",
-    "Detailed risk analysis with severity ratings",
-    "AI-powered recommendations",
-    "Comprehensive compliance analysis for all regulations",
-    "Custom compliance templates",
+  // Feature lists for each tier
+  const freeFeatures = [
+    "1 compliance scan per month",
+    "Basic GDPR compliance check",
+    "Basic PDF report",
+    "Community support"
+  ];
+  
+  const basicFeatures = [
+    "10 compliance scans per month",
+    "Basic GDPR, HIPAA, and SOC2 compliance checks",
     "Downloadable PDF reports",
     "Email support"
   ];
   
-  // Scan limits for different plans
-  const scanLimits = {
-    free: "1 scan per month",
-    basic: "10 scans per month",
-    pro: "50 scans per month",
-    enterprise: "Unlimited scans"
-  };
+  const proFeatures = [
+    "50 compliance scans per month",
+    "Advanced compliance analysis for all regulations",
+    "Detailed risk analysis with severity ratings",
+    "AI-powered recommendations",
+    "Priority email support"
+  ];
+  
+  const enterpriseFeatures = [
+    "Unlimited compliance scans",
+    "Comprehensive compliance analysis for all regulations",
+    "Custom compliance templates",
+    "Advanced AI-powered suggestions",
+    "Dedicated account manager",
+    "24/7 priority support"
+  ];
 
   const renderSubscriptionStatus = () => {
     if (!subscription) return null;
@@ -135,9 +148,8 @@ const Payment = () => {
               <div className="space-y-6">
                 <div>
                   <h4 className="font-medium text-primary mb-2">Free Plan</h4>
-                  <div className="text-sm text-primary mb-2">{scanLimits.free}</div>
                   <ul className="space-y-2">
-                    {allFeatures.map((feature, index) => (
+                    {freeFeatures.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <div className="rounded-full bg-primary/10 p-1 mt-0.5">
                           <Check className="h-3 w-3 text-primary" />
@@ -150,9 +162,8 @@ const Payment = () => {
                 
                 <div>
                   <h4 className="font-medium text-primary mb-2">Basic Plan - $35/month</h4>
-                  <div className="text-sm text-primary mb-2">{scanLimits.basic}</div>
                   <ul className="space-y-2">
-                    {allFeatures.map((feature, index) => (
+                    {basicFeatures.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <div className="rounded-full bg-primary/10 p-1 mt-0.5">
                           <Check className="h-3 w-3 text-primary" />
@@ -165,9 +176,8 @@ const Payment = () => {
                 
                 <div>
                   <h4 className="font-medium text-primary mb-2">Pro Plan - $110/month</h4>
-                  <div className="text-sm text-primary mb-2">{scanLimits.pro}</div>
                   <ul className="space-y-2">
-                    {allFeatures.map((feature, index) => (
+                    {proFeatures.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <div className="rounded-full bg-primary/10 p-1 mt-0.5">
                           <Check className="h-3 w-3 text-primary" />
@@ -180,9 +190,8 @@ const Payment = () => {
                 
                 <div>
                   <h4 className="font-medium text-primary mb-2">Enterprise Plan - $399/month</h4>
-                  <div className="text-sm text-primary mb-2">{scanLimits.enterprise}</div>
                   <ul className="space-y-2">
-                    {allFeatures.map((feature, index) => (
+                    {enterpriseFeatures.map((feature, index) => (
                       <li key={index} className="flex items-start gap-2">
                         <div className="rounded-full bg-primary/10 p-1 mt-0.5">
                           <Check className="h-3 w-3 text-primary" />
