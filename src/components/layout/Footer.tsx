@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Book, Mail, Phone, Globe, Shield, FileText } from 'lucide-react';
-import { getPrivacyPolicyPdfUrl } from '@/utils/pdfGuide';
+import { getPrivacyPolicyPdfUrl, getTermsOfServicePdfUrl } from '@/utils/pdfGuide';
 import { toast } from 'sonner';
 
 const Footer: React.FC = () => {
@@ -24,6 +24,25 @@ const Footer: React.FC = () => {
     } catch (error) {
       console.error('Error generating privacy policy PDF', error);
       toast.error('Unable to open privacy policy. Please try again later.');
+    }
+  };
+  
+  const handleTermsOfServiceClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      // Generate the PDF URL
+      const pdfUrl = getTermsOfServicePdfUrl();
+      
+      // Open the PDF in a new tab
+      window.open(pdfUrl, '_blank');
+      
+      // Clean up the URL object after a delay
+      setTimeout(() => {
+        URL.revokeObjectURL(pdfUrl);
+      }, 1000);
+    } catch (error) {
+      console.error('Error generating terms of service PDF', error);
+      toast.error('Unable to open terms of service. Please try again later.');
     }
   };
   
@@ -75,9 +94,13 @@ const Footer: React.FC = () => {
               <FileText className="h-4 w-4 mr-1" />
               Privacy Policy
             </a>
-            <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <a 
+              href="#" 
+              onClick={handleTermsOfServiceClick} 
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
               Terms of Service
-            </Link>
+            </a>
             <Link to="/cookies" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Cookie Policy
             </Link>
