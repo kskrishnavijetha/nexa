@@ -1,6 +1,5 @@
 
 // Main API service file that exports all service modules
-export * from './types';
 export * from './fileUploadService';
 export * from './complianceService';
 export * from './reportService';
@@ -14,15 +13,18 @@ export * from './slack/slackService';
 export * from './webhook/webhookServices';
 export * from './zoom/zoomServices';
 
-// Define a shared API response interface
-export interface ApiResponse<T> {
-  success: boolean;
-  data?: T;
-  error?: string;
-  status?: number;
-}
+// Explicitly import and re-export types to avoid conflicts
+import { 
+  ComplianceReport, Industry, ComplianceRisk, RiskSeverity, 
+  Region, ApiResponse as TypesApiResponse
+} from './types';
 
-// Define a shared API service response interface that includes status
-export interface ApiServiceResponse<T> extends ApiResponse<T> {
+export { 
+  ComplianceReport, Industry, ComplianceRisk, RiskSeverity, 
+  Region, TypesApiResponse as ApiResponse 
+};
+
+// Define a shared API service response interface
+export interface ApiServiceResponse<T> extends TypesApiResponse<T> {
   status?: number;
 }

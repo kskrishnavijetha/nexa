@@ -89,12 +89,12 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
   // Add industry-specific scenarios if an industry is specified
   if (industry) {
     // Financial services specific scenarios
-    if (industry === 'finance' || industry === 'Financial Services') {
+    if (industry === 'Finance & Banking') {
       baseScenarios.push({
         id: 'financial-reg-update',
         name: 'Financial Services Compliance Update',
         description: 'Simulates updates to financial services compliance requirements',
-        industry: 'Financial Services',
+        industry: 'Finance & Banking',
         actions: [
           'Update transaction monitoring',
           'Enhance KYC processes',
@@ -121,7 +121,7 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
     }
     
     // Healthcare specific scenarios
-    if (industry === 'healthcare' || industry === 'Healthcare') {
+    if (industry === 'Healthcare' || industry === 'Pharmaceutical & Life Sciences') {
       baseScenarios.push({
         id: 'healthcare-hipaa-update',
         name: 'HIPAA Regulatory Changes',
@@ -147,12 +147,12 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
     }
     
     // Technology specific scenarios
-    if (industry === 'technology' || industry === 'Technology' || industry === 'Technology & IT') {
+    if (industry === 'Cloud & SaaS') {
       baseScenarios.push({
         id: 'tech-data-regulations',
         name: 'Technology Data Protection Updates',
         description: 'Simulates new data protection requirements for technology companies',
-        industry: 'Technology',
+        industry: 'Cloud & SaaS',
         actions: [
           'Update data handling processes',
           'Enhance API security',

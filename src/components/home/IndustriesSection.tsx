@@ -11,7 +11,7 @@ const industries = [
     ]
   },
   {
-    name: "Healthcare & Life Sciences",
+    name: "Healthcare",
     features: [
       "AI-driven HIPAA & FDA regulatory compliance",
       "Medical data security & risk checks",
@@ -27,7 +27,7 @@ const industries = [
     ]
   },
   {
-    name: "SaaS & Tech Startups",
+    name: "Cloud & SaaS",
     features: [
       "SOC 2 & ISO 27001 readiness",
       "GDPR & CCPA compliance automation",

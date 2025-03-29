@@ -1,4 +1,3 @@
-
 import { ComplianceReport } from '../types';
 import { RiskTrend } from './types';
 
@@ -64,20 +63,20 @@ export const generateRiskTrends = (reports: ComplianceReport[]): RiskTrend[] => 
     
     // Determine trend
     const scoreDiff = currentScore - previousScore;
-    let trend: 'increasing' | 'stable' | 'decreasing';
+    let trend: 'increase' | 'decrease' | 'stable';
     
     if (Math.abs(scoreDiff) < 3) {
       trend = 'stable';
     } else if (scoreDiff > 0) {
-      trend = 'increasing';
+      trend = 'increase';
     } else {
-      trend = 'decreasing';
+      trend = 'decrease';
     }
     
     // Determine predictedChange based on the trend
     const predictedChange: 'increase' | 'decrease' | 'stable' = 
-      trend === 'increasing' ? 'increase' : 
-      trend === 'decreasing' ? 'decrease' : 'stable';
+      trend === 'increase' ? 'increase' : 
+      trend === 'decrease' ? 'decrease' : 'stable';
     
     // Create a complete RiskTrend object with all required properties
     return {

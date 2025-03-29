@@ -1,161 +1,117 @@
-
-import { 
-  ComplianceReport, 
-  ApiResponse,
-  Industry, 
-  SimulationScenario,
-  RiskTrend,
-  PredictiveAnalysis,
-  RiskSeverity,
-  RiskItem,
-  ComplianceInsight,
-  Risk
-} from './types';
-import { generateScenarios } from './simulation/scenarioGenerator';
-import { calculateRiskTrends } from './simulation/riskTrendAnalyzer';
-import { calculateAdjustedScores } from './simulation/scoreCalculator';
-import { generatePredictedRisks } from './simulation/riskPredictor';
-import { generateRecommendations } from './simulation/recommendationGenerator';
-
-// Export the scenarios generation function with a more consistent name
-export const generateSimulationScenarios = generateScenarios;
+import { Risk, SimulationScenario, RiskItem } from '@/utils/types';
 
 /**
- * Run a predictive analysis based on a scenario
+ * Generate predicted risks based on simulation scenario
  */
-export const runPredictiveAnalysis = async (
-  report: ComplianceReport,
-  scenarioId: string
-): Promise<ApiResponse<PredictiveAnalysis>> => {
-  try {
-    // Simulate API latency
-    await new Promise(resolve => setTimeout(resolve, 1200));
-    
-    // Get simulation scenarios
-    const scenarios = generateScenarios(report.industry);
-    const selectedScenario = scenarios.find(s => s.id === scenarioId);
-    
-    if (!selectedScenario) {
-      return {
-        success: false,
-        error: 'Scenario not found'
-      };
+export function generatePredictedRisks(
+  currentRisks: RiskItem[],
+  scenario: SimulationScenario,
+  adjustedScores: any
+): Risk[] {
+  const predictedRisks: Risk[] = [];
+  
+  // Based on regulation changes in the scenario, predict new risks
+  scenario.regulationChanges.forEach(change => {
+    if (change.changeType === 'stricter' || change.changeType === 'new') {
+      if (change.regulation === 'GDPR') {
+        predictedRisks.push({
+          id: `predicted-gdpr-${Date.now()}`,
+          title: 'Additional GDPR Requirements',
+          description: 'New requirements for data protection impact assessments',
+          severity: 'medium',
+          mitigation: 'Implement DPIA procedures for high-risk processing',
+          regulation: 'GDPR',
+          section: 'Article 35'
+        });
+      }
+      
+      if (change.regulation === 'HIPAA') {
+        predictedRisks.push({
+          id: `predicted-hipaa-${Date.now()}`,
+          title: 'Enhanced PHI Protection',
+          description: 'Stricter requirements for protecting PHI in transit',
+          severity: 'high',
+          mitigation: 'Implement end-to-end encryption for all PHI transfers',
+          regulation: 'HIPAA',
+          section: '§164.312'
+        });
+      }
     }
     
-    // Calculate risk trends and impact
-    const riskTrends = calculateRiskTrends(report.risks, selectedScenario);
-    
-    // Adjust scores based on the scenario
-    const adjustedScores = calculateAdjustedScores(
-      report.gdprScore || 0,
-      report.hipaaScore || 0,
-      report.soc2Score || 0,
-      report.pciDssScore || 0,
-      report.industryScores || {},
-      selectedScenario
-    );
-    
-    // Generate predicted risks - convert Risk[] to RiskItem[]
-    const predictedRisksInputs: RiskItem[] = report.risks.map(risk => ({
-      id: risk.id || `risk-${Math.random().toString(36).substring(2, 9)}`,
-      title: risk.title,
-      name: risk.title,
-      description: risk.description,
-      severity: risk.severity,
-      regulation: risk.regulation,
-      likelihood: 0.5,
-      section: risk.section,
-      mitigation: risk.mitigation
-    }));
-    
-    // Generate predicted risks using the RiskItem inputs
-    const predictedRisks = generatePredictedRisks(predictedRisksInputs, selectedScenario, adjustedScores);
-    
-    // Generate recommendations to mitigate predicted risks
-    const recommendations = generateRecommendations(predictedRisks, selectedScenario);
-    
-    // Calculate score differences
-    const scoreDifferences = {
-      gdpr: adjustedScores.gdprScore - (report.gdprScore || 0),
-      hipaa: adjustedScores.hipaaScore - (report.hipaaScore || 0),
-      soc2: adjustedScores.soc2Score - (report.soc2Score || 0),
-      pciDss: (adjustedScores.pciDssScore || 0) - (report.pciDssScore || 0),
-      overall: adjustedScores.overallScore - report.overallScore
-    };
-    
-    // Prepare the predictive analysis result with strictly typed properties
-    const complianceInsights: ComplianceInsight[] = [
-      {
-        title: 'Regulatory Impact Analysis',
-        description: `The simulation predicts a ${Math.abs(scoreDifferences.overall)}% ${scoreDifferences.overall >= 0 ? 'improvement' : 'decrease'} in overall compliance.`,
-        actionRequired: scoreDifferences.overall < 0,
-        priority: scoreDifferences.overall < -10 ? 'high' : scoreDifferences.overall < -5 ? 'medium' : 'low'
-      },
-      {
-        title: 'Risk Exposure Profile',
-        description: `Based on the simulation, ${riskTrends.filter(t => t.trend === 'increase').length} risks are expected to increase in severity.`,
-        actionRequired: riskTrends.filter(t => t.trend === 'increase').length > 0,
-        priority: riskTrends.filter(t => t.trend === 'increase' && t.impact === 'high').length > 0 ? 'high' : 'medium'
+    if (change.impactLevel === 'high') {
+      if (change.regulation === 'PCI-DSS') {
+        predictedRisks.push({
+          id: `predicted-pci-${Date.now()}`,
+          title: 'New PCI DSS Compliance',
+          description: 'New requirements for multi-factor authentication',
+          severity: 'high',
+          mitigation: 'Implement MFA for all system access',
+          regulation: 'PCI-DSS',
+          section: 'Requirement 8.4'
+        });
       }
-    ];
+      
+      if (change.regulation === 'SOC 2') {
+        predictedRisks.push({
+          id: `predicted-soc2-${Date.now()}`,
+          title: 'SOC 2 Security Updates',
+          description: 'Enhanced monitoring requirements for access events',
+          severity: 'medium',
+          mitigation: 'Implement comprehensive logging and monitoring',
+          regulation: 'SOC 2',
+          section: 'CC7.2'
+        });
+      }
+    }
     
-    // Convert riskTrends from simulation/riskTrendAnalyzer to the correct type if needed
-    const typedRiskTrends: RiskTrend[] = riskTrends.map(trend => ({
-      ...trend,
-      currentSeverity: trend.currentSeverity as RiskSeverity
-    }));
+    if (adjustedScores.gdprScore < 70) {
+      predictedRisks.push({
+        id: `predicted-score-gdpr-${Date.now()}`,
+        title: 'GDPR Score Risk',
+        description: 'Low GDPR compliance score presents significant risk',
+        severity: 'medium',
+        mitigation: 'Conduct a comprehensive GDPR gap analysis',
+        regulation: 'GDPR',
+        section: 'General'
+      });
+    }
     
-    // Convert predictedRisks to RiskItem[] for the analysis object
-    const typedPredictedRisks: RiskItem[] = predictedRisks.map(risk => ({
-      id: risk.id || `risk-item-${Math.random().toString(36).substring(2, 9)}`,
-      title: risk.title,
-      name: risk.title || risk.description.split(': ')[0],
-      description: risk.description,
-      severity: risk.severity,
-      regulation: risk.regulation,
-      likelihood: 0.5,
-      section: risk.section,
-      mitigation: risk.mitigation
-    }));
+    if (adjustedScores.hipaaScore < 65) {
+      predictedRisks.push({
+        id: `predicted-score-hipaa-${Date.now()}`,
+        title: 'HIPAA Score Risk',
+        description: 'Declining HIPAA compliance score requires attention',
+        severity: 'high',
+        mitigation: 'Prioritize HIPAA compliance remediation',
+        regulation: 'HIPAA',
+        section: 'General'
+      });
+    }
     
-    const analysis: PredictiveAnalysis = {
-      scenarioId,
-      scenarioName: selectedScenario.name,
-      scenarioDescription: selectedScenario.description,
-      regulationChanges: selectedScenario.regulationChanges,
-      originalScores: {
-        gdpr: report.gdprScore || 0,
-        hipaa: report.hipaaScore || 0,
-        soc2: report.soc2Score || 0,
-        pciDss: report.pciDssScore || 0,
-        overall: report.overallScore
-      },
-      predictedScores: {
-        gdpr: adjustedScores.gdprScore,
-        hipaa: adjustedScores.hipaaScore,
-        soc2: adjustedScores.soc2Score,
-        pciDss: adjustedScores.pciDssScore || 0,
-        overall: adjustedScores.overallScore
-      },
-      scoreDifferences,
-      predictedRisks: typedPredictedRisks,
-      complianceInsights,
-      riskTrends: typedRiskTrends,
-      recommendedActions: recommendations,
-      timestamp: new Date().toISOString(),
-      lastUpdated: new Date().toISOString(),
-      riskPredictions: []
-    };
+    if (adjustedScores.soc2Score < 70) {
+      predictedRisks.push({
+        id: `predicted-score-soc2-${Date.now()}`,
+        title: 'SOC 2 Risk',
+        description: 'Projected SOC 2 compliance issues need addressing',
+        severity: 'high',
+        mitigation: 'Address security controls before audit period',
+        regulation: 'SOC 2',
+        section: 'General'
+      });
+    }
     
-    return {
-      success: true,
-      data: analysis
-    };
-  } catch (error) {
-    console.error('Predictive analysis error:', error);
-    return {
-      success: false,
-      error: 'Failed to run predictive analysis. Please try again.'
-    };
-  }
-};
+    if (adjustedScores.pciDssScore < 75) {
+      predictedRisks.push({
+        id: `predicted-score-pci-${Date.now()}`,
+        title: 'PCI Compliance Issue',
+        description: 'PCI DSS compliance score below threshold',
+        severity: 'medium',
+        mitigation: 'Review and update cardholder data environment',
+        regulation: 'PCI-DSS',
+        section: 'General'
+      });
+    }
+  });
+  
+  return predictedRisks;
+}

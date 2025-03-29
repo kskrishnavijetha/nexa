@@ -99,17 +99,19 @@ export interface Vulnerability {
 }
 
 export type Industry =
-  | 'finance'
-  | 'healthcare'
-  | 'education'
-  | 'technology'
-  | 'retail'
-  | 'government'
-  | 'Technology'
+  | 'Finance & Banking'
   | 'Healthcare'
-  | 'Financial Services'
-  | 'Technology & IT'
-  | 'Global'; // Add Global to fix industry type errors
+  | 'Cloud & SaaS'
+  | 'E-commerce & Retail'
+  | 'Government & Defense'
+  | 'Energy & Utilities'
+  | 'Telecommunications'
+  | 'Manufacturing & IoT'
+  | 'Education & EdTech'
+  | 'Legal & Consulting'
+  | 'Insurance'
+  | 'Pharmaceutical & Life Sciences'
+  | 'Global';
 
 export type Region =
   | 'us'
@@ -244,15 +246,18 @@ export interface RiskPrediction {
 
 // Industry regulations mapping
 export const INDUSTRY_REGULATIONS: Record<string, string[]> = {
-  'finance': ['GDPR', 'SOC 2', 'PCI-DSS', 'ISO/IEC 27001'],
-  'healthcare': ['HIPAA', 'GDPR', 'ISO/IEC 27001'],
-  'education': ['FERPA', 'GDPR', 'COPPA'],
-  'technology': ['GDPR', 'SOC 2', 'ISO/IEC 27001'],
-  'retail': ['PCI-DSS', 'GDPR', 'CCPA'],
-  'government': ['FISMA', 'GDPR', 'ISO/IEC 27001'],
-  'Technology': ['GDPR', 'SOC 2', 'ISO/IEC 27001'],
+  'Finance & Banking': ['GDPR', 'SOC 2', 'PCI-DSS', 'ISO/IEC 27001'],
   'Healthcare': ['HIPAA', 'GDPR', 'ISO/IEC 27001'],
-  'Financial Services': ['GDPR', 'SOC 2', 'PCI-DSS', 'ISO/IEC 27001'],
+  'Cloud & SaaS': ['GDPR', 'SOC 2', 'ISO/IEC 27001'],
+  'E-commerce & Retail': ['PCI-DSS', 'GDPR', 'CCPA'],
+  'Government & Defense': ['FISMA', 'GDPR', 'ISO/IEC 27001'],
+  'Energy & Utilities': ['NERC CIP', 'GDPR', 'ISO/IEC 27001'],
+  'Telecommunications': ['GDPR', 'ISO/IEC 27001', 'CPNI'],
+  'Manufacturing & IoT': ['GDPR', 'ISO/IEC 27001', 'IEC 62443'],
+  'Education & EdTech': ['FERPA', 'GDPR', 'COPPA'],
+  'Legal & Consulting': ['GDPR', 'ISO/IEC 27001', 'CCPA'],
+  'Insurance': ['GDPR', 'SOC 2', 'NYDFS'],
+  'Pharmaceutical & Life Sciences': ['HIPAA', 'GDPR', 'GxP', 'FDA CFR Part 11'],
   'Global': ['GDPR', 'ISO/IEC 27001', 'PCI-DSS']
 };
 
