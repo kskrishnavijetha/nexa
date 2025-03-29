@@ -1,11 +1,11 @@
 
-import { Risk, SimulationScenario } from '@/utils/types';
+import { Risk, SimulationScenario, RiskItem } from '@/utils/types';
 
 /**
  * Generate predicted risks based on simulation scenario
  */
 export function generatePredictedRisks(
-  currentRisks: Risk[],
+  currentRisks: RiskItem[],
   scenario: SimulationScenario,
   adjustedScores: any
 ): Risk[] {

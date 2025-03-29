@@ -239,7 +239,7 @@ export interface RiskPrediction {
   probability: number;
   impact?: 'high' | 'medium' | 'low';
   regulation: string;
-  trend?: 'increase' | 'decrease' | 'stable';
+  trend?: 'increasing' | 'decreasing' | 'stable';
 }
 
 // Industry regulations mapping

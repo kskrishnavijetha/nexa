@@ -50,11 +50,11 @@ export const predictRisks = (
         report.risks.some(r => r.description === risk.description && r.regulation === risk.regulation)
       ).length;
       
-      let trend: 'increase' | 'stable' | 'decrease';
+      let trend: 'increasing' | 'stable' | 'decreasing';
       if (recentOccurrences > (recentReports.length / 2)) {
-        trend = 'increase';
+        trend = 'increasing';
       } else if (recentOccurrences === 0) {
-        trend = 'decrease';
+        trend = 'decreasing';
       } else {
         trend = 'stable';
       }

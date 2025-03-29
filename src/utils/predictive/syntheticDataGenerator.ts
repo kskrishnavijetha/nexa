@@ -27,16 +27,22 @@ export const generateSyntheticReports = (currentReport: ComplianceReport, count:
     
     return {
       ...reportCopy,
+      id: `synthetic-${i}`, // Ensuring id exists
       documentId: `synthetic-${i}`,
       timestamp: timestamp.toISOString(),
       overallScore: Math.min(100, Math.max(0, Math.round(currentReport.overallScore * randomFactor))),
       gdprScore: Math.min(100, Math.max(0, Math.round(currentReport.gdprScore * randomFactor))),
       hipaaScore: Math.min(100, Math.max(0, Math.round(currentReport.hipaaScore * randomFactor))),
       soc2Score: Math.min(100, Math.max(0, Math.round(currentReport.soc2Score * randomFactor))),
+      industryScore: Math.min(100, Math.max(0, Math.round(currentReport.industryScore * randomFactor))),
+      regionalScore: Math.min(100, Math.max(0, Math.round(currentReport.regionalScore * randomFactor))),
+      regulationScore: Math.min(100, Math.max(0, Math.round(currentReport.regulationScore * randomFactor))),
       pciDssScore: currentReport.pciDssScore 
         ? Math.min(100, Math.max(0, Math.round(currentReport.pciDssScore * randomFactor)))
         : undefined,
-      suggestions: formattedSuggestions
+      suggestions: formattedSuggestions,
+      complianceStatus: currentReport.complianceStatus || 'partially-compliant',
+      regulations: currentReport.regulations || [],
     };
   });
 };

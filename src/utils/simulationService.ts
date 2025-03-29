@@ -8,7 +8,8 @@ import {
   PredictiveAnalysis,
   RiskSeverity,
   RiskItem,
-  ComplianceInsight
+  ComplianceInsight,
+  Risk
 } from './types';
 import { generateScenarios } from './simulation/scenarioGenerator';
 import { calculateRiskTrends } from './simulation/riskTrendAnalyzer';
@@ -55,7 +56,7 @@ export const runPredictiveAnalysis = async (
     );
     
     // Generate predicted risks - convert Risk[] to RiskItem[]
-    const predictedRisksInputs = report.risks.map(risk => ({
+    const predictedRisksInputs: RiskItem[] = report.risks.map(risk => ({
       id: risk.id || `risk-${Math.random().toString(36).substring(2, 9)}`,
       title: risk.title,
       name: risk.title,
@@ -65,8 +66,9 @@ export const runPredictiveAnalysis = async (
       likelihood: 0.5,
       section: risk.section,
       mitigation: risk.mitigation
-    } as RiskItem));
+    }));
     
+    // Generate predicted risks using the RiskItem inputs
     const predictedRisks = generatePredictedRisks(predictedRisksInputs, selectedScenario, adjustedScores);
     
     // Generate recommendations to mitigate predicted risks
@@ -103,6 +105,19 @@ export const runPredictiveAnalysis = async (
       currentSeverity: trend.currentSeverity as RiskSeverity
     }));
     
+    // Convert predictedRisks to RiskItem[] for the analysis object
+    const typedPredictedRisks: RiskItem[] = predictedRisks.map(risk => ({
+      id: risk.id || `risk-item-${Math.random().toString(36).substring(2, 9)}`,
+      title: risk.title,
+      name: risk.title || risk.description.split(': ')[0],
+      description: risk.description,
+      severity: risk.severity,
+      regulation: risk.regulation,
+      likelihood: 0.5,
+      section: risk.section,
+      mitigation: risk.mitigation
+    }));
+    
     const analysis: PredictiveAnalysis = {
       scenarioId,
       scenarioName: selectedScenario.name,
@@ -123,7 +138,7 @@ export const runPredictiveAnalysis = async (
         overall: adjustedScores.overallScore
       },
       scoreDifferences,
-      predictedRisks,
+      predictedRisks: typedPredictedRisks,
       complianceInsights,
       riskTrends: typedRiskTrends,
       recommendedActions: recommendations,

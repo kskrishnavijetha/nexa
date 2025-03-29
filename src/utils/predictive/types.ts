@@ -68,5 +68,5 @@ export interface RiskTrend {
   impact: 'high' | 'medium' | 'low';
   previousScore: number;
   predictedScore: number;
-  trend: 'increasing' | 'stable' | 'decreasing';
+  trend: 'increase' | 'decrease' | 'stable';
 }
