@@ -145,7 +145,7 @@ const History: React.FC = () => {
       if (reportToDelete) {
         const deleted = deleteReportFromHistory(reportToDelete.documentId, user.id);
         if (deleted) {
-          toast.success(`Document "${selectedDocument}" has been deleted`);
+          toast.success(`Document "${selectedDocument}" has been permanently deleted`);
           loadReports();
           
           if (reports.length > 1) {
@@ -245,15 +245,15 @@ const History: React.FC = () => {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Document</AlertDialogTitle>
+            <AlertDialogTitle>Delete Document Permanently</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{selectedDocument}"? This action cannot be undone.
+              Are you sure you want to permanently delete "{selectedDocument}"? This action cannot be undone and all associated data will be lost.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-              Delete
+              Delete Permanently
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

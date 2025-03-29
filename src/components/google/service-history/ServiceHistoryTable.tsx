@@ -1,63 +1,72 @@
 
 import React from 'react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, FileText } from 'lucide-react';
-import { ServiceScanHistory } from '@/components/audit/types';
+import { Eye, Trash2 } from 'lucide-react';
 import { ComplianceReport } from '@/utils/types';
 
 interface ServiceHistoryTableProps {
-  scanHistory: ServiceScanHistory[];
+  scanHistory: ComplianceReport[];
   onDocumentClick: (documentName: string, report?: ComplianceReport) => void;
+  onDeleteClick?: (documentId: string, documentName: string) => void;
 }
 
 export const ServiceHistoryTable: React.FC<ServiceHistoryTableProps> = ({ 
   scanHistory,
-  onDocumentClick
+  onDocumentClick,
+  onDeleteClick
 }) => {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Service</TableHead>
-          <TableHead>Document/Content</TableHead>
-          <TableHead>Scan Date</TableHead>
-          <TableHead>Items Scanned</TableHead>
-          <TableHead>Violations</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {scanHistory.map((item, index) => (
-          <TableRow key={`${item.serviceId}-${index}-${item.scanDate}`}>
-            <TableCell>
-              <Badge variant="outline" className="font-medium">
-                {item.serviceName}
-              </Badge>
-            </TableCell>
-            <TableCell className="font-medium">
-              <Button 
-                variant="link" 
-                className="p-0 h-auto text-left text-blue-600 hover:text-blue-800 hover:underline flex items-center"
-                onClick={() => onDocumentClick(item.documentName || 'Document Scan', item.report)}
-              >
-                <FileText className="h-4 w-4 mr-2" />
-                {item.fileName || item.documentName || 'General Scan'}
-              </Button>
-            </TableCell>
-            <TableCell>
-              {new Date(item.scanDate).toLocaleString()}
-            </TableCell>
-            <TableCell>{item.itemsScanned}</TableCell>
-            <TableCell>
-              <span className="flex items-center">
-                {item.violationsFound > 0 && <AlertTriangle className="h-4 w-4 text-amber-500 mr-1" />}
-                {item.violationsFound}
-              </span>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead>
+          <tr className="border-b border-gray-200">
+            <th className="py-2 px-4 text-left text-sm font-medium text-gray-500">Document</th>
+            <th className="py-2 px-4 text-left text-sm font-medium text-gray-500">Date</th>
+            <th className="py-2 px-4 text-left text-sm font-medium text-gray-500">Score</th>
+            <th className="py-2 px-4 text-left text-sm font-medium text-gray-500">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {scanHistory.map((scan) => (
+            <tr key={scan.id} className="border-b border-gray-200 hover:bg-gray-50">
+              <td className="py-3 px-4">
+                <div className="font-medium text-sm">{scan.documentName}</div>
+              </td>
+              <td className="py-3 px-4 text-sm">
+                {new Date(scan.timestamp).toLocaleDateString()}
+              </td>
+              <td className="py-3 px-4 text-sm">
+                {scan.overallScore}%
+              </td>
+              <td className="py-3 px-4">
+                <div className="flex space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-blue-600 hover:text-blue-800"
+                    onClick={() => onDocumentClick(scan.documentName, scan)}
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    View
+                  </Button>
+                  
+                  {onDeleteClick && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-red-600 hover:text-red-800"
+                      onClick={() => onDeleteClick(scan.documentId, scan.documentName)}
+                      title="Delete permanently"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 };

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Eye, ChevronRight, Trash2 } from 'lucide-react';
@@ -53,7 +54,7 @@ const ComplianceScanTable: React.FC<ComplianceScanTableProps> = ({
     if (reportToDelete) {
       const deleted = deleteReportFromHistory(reportToDelete.documentId);
       if (deleted) {
-        toast.success(`Document "${reportToDelete.documentName}" has been deleted`);
+        toast.success(`Document "${reportToDelete.documentName}" has been permanently deleted`);
         if (onDelete) {
           onDelete(reportToDelete.documentId);
         }
@@ -133,6 +134,7 @@ const ComplianceScanTable: React.FC<ComplianceScanTableProps> = ({
                         size="sm" 
                         className="text-red-600 hover:text-red-800"
                         onClick={(e) => handleDeleteClick(e, scan)}
+                        title="Delete permanently"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -155,15 +157,15 @@ const ComplianceScanTable: React.FC<ComplianceScanTableProps> = ({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Document</AlertDialogTitle>
+            <AlertDialogTitle>Delete Document Permanently</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{reportToDelete?.documentName}"? This action cannot be undone.
+              Are you sure you want to delete "{reportToDelete?.documentName}"? This action cannot be undone and the document will be permanently deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-              Delete
+              Delete Permanently
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
