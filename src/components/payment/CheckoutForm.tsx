@@ -8,13 +8,13 @@ import PaymentSummary from './PaymentSummary';
 import { getPrice } from '@/utils/pricingData';
 
 interface CheckoutFormProps {
-  onSuccess: (paymentId: string) => void;
+  onSuccess?: (paymentId: string) => void;  // Changed from required to optional with '?'
   initialPlan?: string | null;
   initialBillingCycle?: 'monthly' | 'annually';
 }
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ 
-  onSuccess, 
+  onSuccess = () => {}, // Add a default empty function 
   initialPlan, 
   initialBillingCycle 
 }) => {

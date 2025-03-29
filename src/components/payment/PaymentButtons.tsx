@@ -10,7 +10,7 @@ import {
 import { toast } from 'sonner';
 
 interface PaymentButtonsProps {
-  onSuccess: (paymentId: string) => void;
+  onSuccess?: (paymentId: string) => void;  // Changed to optional
   tier: string;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -18,7 +18,7 @@ interface PaymentButtonsProps {
 }
 
 const PaymentButtons: React.FC<PaymentButtonsProps> = ({
-  onSuccess,
+  onSuccess = () => {},  // Added default empty function
   tier,
   loading,
   setLoading,
