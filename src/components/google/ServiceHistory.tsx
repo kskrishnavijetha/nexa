@@ -23,14 +23,14 @@ import { deleteReportFromHistory } from '@/utils/historyService';
 import { getUserHistoricalReports } from '@/utils/historyService';
 
 const ServiceHistory: React.FC = () => {
-  const { userId, setUserId } = useServiceHistoryStore();
+  const { userId, setUserId, scanHistory } = useServiceHistoryStore();
   const { user } = useAuth();
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
   const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState<{id: string, name: string} | null>(null);
-  const [scanHistory, setScanHistory] = useState<ComplianceReport[]>([]);
+  const [reports, setReports] = useState<ComplianceReport[]>([]);
   
   // Update the user ID in the store when the user changes
   useEffect(() => {
@@ -38,11 +38,11 @@ const ServiceHistory: React.FC = () => {
     if (user) {
       setUserId(user.id);
       // Fetch user's historical reports
-      const reports = getUserHistoricalReports(user.id);
-      setScanHistory(reports);
+      const userReports = getUserHistoricalReports(user.id);
+      setReports(userReports);
     } else {
       setUserId(null);
-      setScanHistory([]);
+      setReports([]);
     }
   }, [user, setUserId]);
   
@@ -62,8 +62,8 @@ const ServiceHistory: React.FC = () => {
       const deleted = deleteReportFromHistory(documentToDelete.id, user.id);
       if (deleted) {
         toast.success(`Document "${documentToDelete.name}" has been permanently deleted from history`);
-        // Refresh the scanHistory
-        setScanHistory(getUserHistoricalReports(user.id));
+        // Refresh the reports
+        setReports(getUserHistoricalReports(user.id));
       } else {
         toast.error("Failed to delete document");
       }
@@ -83,7 +83,7 @@ const ServiceHistory: React.FC = () => {
   }
 
   // Render empty state for no scan history
-  if (scanHistory.length === 0) {
+  if (reports.length === 0) {
     return (
       <EmptyState 
         title="No scan history yet"
@@ -102,7 +102,7 @@ const ServiceHistory: React.FC = () => {
       </CardHeader>
       <CardContent>
         <ServiceHistoryTable 
-          scanHistory={scanHistory} 
+          scanHistory={reports} 
           onDocumentClick={handleDocumentClick} 
           onDeleteClick={handleDeleteClick}
         />
