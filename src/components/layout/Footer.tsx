@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Book, Mail, Phone, Globe, Shield, FileText } from 'lucide-react';
-import { getPrivacyPolicyPdfUrl, getTermsOfServicePdfUrl } from '@/utils/pdfGuide';
+import { getPrivacyPolicyPdfUrl, getTermsOfServicePdfUrl, getCookiePolicyPdfUrl } from '@/utils/pdfGuide';
 import { toast } from 'sonner';
 
 const Footer: React.FC = () => {
@@ -11,13 +10,8 @@ const Footer: React.FC = () => {
   const handlePrivacyPolicyClick = (e: React.MouseEvent) => {
     e.preventDefault();
     try {
-      // Generate the PDF URL
       const pdfUrl = getPrivacyPolicyPdfUrl();
-      
-      // Open the PDF in a new tab
       window.open(pdfUrl, '_blank');
-      
-      // Clean up the URL object after a delay
       setTimeout(() => {
         URL.revokeObjectURL(pdfUrl);
       }, 1000);
@@ -30,19 +24,28 @@ const Footer: React.FC = () => {
   const handleTermsOfServiceClick = (e: React.MouseEvent) => {
     e.preventDefault();
     try {
-      // Generate the PDF URL
       const pdfUrl = getTermsOfServicePdfUrl();
-      
-      // Open the PDF in a new tab
       window.open(pdfUrl, '_blank');
-      
-      // Clean up the URL object after a delay
       setTimeout(() => {
         URL.revokeObjectURL(pdfUrl);
       }, 1000);
     } catch (error) {
       console.error('Error generating terms of service PDF', error);
       toast.error('Unable to open terms of service. Please try again later.');
+    }
+  };
+  
+  const handleCookiePolicyClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      const pdfUrl = getCookiePolicyPdfUrl();
+      window.open(pdfUrl, '_blank');
+      setTimeout(() => {
+        URL.revokeObjectURL(pdfUrl);
+      }, 1000);
+    } catch (error) {
+      console.error('Error generating cookie policy PDF', error);
+      toast.error('Unable to open cookie policy. Please try again later.');
     }
   };
   
@@ -101,9 +104,13 @@ const Footer: React.FC = () => {
             >
               Terms of Service
             </a>
-            <Link to="/cookies" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <a 
+              href="#" 
+              onClick={handleCookiePolicyClick} 
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
               Cookie Policy
-            </Link>
+            </a>
           </div>
         </div>
       </div>
