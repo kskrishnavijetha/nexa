@@ -5,6 +5,7 @@ import PaymentForm from '@/components/PaymentForm';
 import { getSubscription, hasActiveSubscription } from '@/utils/paymentService';
 import SubscriptionStatus from '@/components/payment/SubscriptionStatus';
 import FeatureSummary from '@/components/payment/FeatureSummary';
+import PaymentPageHeader from '@/components/payment/PaymentPageHeader';
 import { toast } from 'sonner';
 
 const Payment = () => {
