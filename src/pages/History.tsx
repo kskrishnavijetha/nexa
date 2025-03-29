@@ -6,9 +6,22 @@ import HistoryHeader from '@/components/history/HistoryHeader';
 import DocumentSelector from '@/components/history/DocumentSelector';
 import ComplianceDetails from '@/components/history/ComplianceDetails';
 import RealtimeAnalysisSimulator from '@/components/history/RealtimeAnalysisSimulator';
-import { getHistoricalReports } from '@/utils/historyService';
+import { getHistoricalReports, deleteReportFromHistory } from '@/utils/historyService';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const History: React.FC = () => {
   const [reports, setReports] = useState<ComplianceReport[]>([]);
@@ -17,6 +30,7 @@ const History: React.FC = () => {
   const [realTimeEnabled, setRealTimeEnabled] = useState<boolean>(true);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [analyzingDocument, setAnalyzingDocument] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -65,7 +79,7 @@ const History: React.FC = () => {
     }
   }, [selectedDocument, activeTab, updateUrl, locationState, navigate, location.pathname, location.search]);
 
-  useEffect(() => {
+  const loadReports = useCallback(() => {
     const historicalReports = getHistoricalReports();
     console.log('History page loaded reports (total):', historicalReports.length);
     
@@ -79,8 +93,13 @@ const History: React.FC = () => {
       console.log('Selected document set to:', userReports[0].documentName);
     } else if (userReports.length === 0) {
       console.log('No historical reports found for this user');
+      setSelectedDocument(null);
     }
-  }, [user]);
+  }, [user, selectedDocument]);
+
+  useEffect(() => {
+    loadReports();
+  }, [loadReports]);
 
   const handleDocumentSelect = (documentName: string) => {
     console.log('Document selected:', documentName);
@@ -114,6 +133,34 @@ const History: React.FC = () => {
 
   const handleTabChange = (value: string) => {
     setActiveTab(value);
+  };
+
+  const handleDeleteCurrentDocument = () => {
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (selectedDocument && user) {
+      const reportToDelete = reports.find(r => r.documentName === selectedDocument);
+      if (reportToDelete) {
+        const deleted = deleteReportFromHistory(reportToDelete.documentId, user.id);
+        if (deleted) {
+          toast.success(`Document "${selectedDocument}" has been deleted`);
+          loadReports();
+          
+          if (reports.length > 1) {
+            const newSelectedIndex = reports.findIndex(r => r.documentName === selectedDocument);
+            const newSelected = reports[newSelectedIndex === 0 ? 1 : newSelectedIndex - 1];
+            setSelectedDocument(newSelected.documentName);
+          } else {
+            setSelectedDocument(null);
+          }
+        } else {
+          toast.error("Failed to delete document");
+        }
+      }
+    }
+    setDeleteDialogOpen(false);
   };
 
   const selectedReport = getSelectedReport();
@@ -154,12 +201,25 @@ const History: React.FC = () => {
             <div className="flex flex-col gap-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-semibold">Document Reports</h2>
-                <DocumentSelector 
-                  selectedDocument={selectedDocument}
-                  reports={reports}
-                  onSelectDocument={handleDocumentSelect}
-                  analyzingDocument={analyzingDocument}
-                />
+                <div className="flex items-center gap-4">
+                  {selectedDocument && (
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      className="text-red-600 hover:text-red-800 hover:bg-red-50"
+                      onClick={handleDeleteCurrentDocument}
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete Document
+                    </Button>
+                  )}
+                  <DocumentSelector 
+                    selectedDocument={selectedDocument}
+                    reports={reports}
+                    onSelectDocument={handleDocumentSelect}
+                    analyzingDocument={analyzingDocument}
+                  />
+                </div>
               </div>
               
               {selectedReport ? (
@@ -181,6 +241,23 @@ const History: React.FC = () => {
           </TabsContent>
         </Tabs>
       )}
+      
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Document</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{selectedDocument}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -2,25 +2,37 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Download, Search } from 'lucide-react';
+import { Download, Search, Trash2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { getHistoricalReports } from '@/utils/historyService';
+import { getHistoricalReports, deleteReportFromHistory } from '@/utils/historyService';
 import { ComplianceReport } from '@/utils/types';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { generateAuditReport, getAuditReportFileName } from '@/utils/auditReportService';
 import { getAuditEventsForDocument } from '@/components/audit/hooks/useAuditEvents';
 import { useAuth } from '@/contexts/AuthContext';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const AuditReports: React.FC = () => {
   const [reports, setReports] = useState<ComplianceReport[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [generatingReport, setGeneratingReport] = useState<string | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState<ComplianceReport | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
 
-  useEffect(() => {
+  const loadReports = () => {
     // Load reports from history service
     const historicalReports = getHistoricalReports();
     
@@ -29,6 +41,10 @@ const AuditReports: React.FC = () => {
     console.log(`Filtered reports for user ${user?.id} in Audit Reports:`, userReports.length);
     
     setReports(userReports);
+  };
+
+  useEffect(() => {
+    loadReports();
   }, [user]);
 
   const filteredReports = reports.filter(report => 
@@ -72,6 +88,25 @@ const AuditReports: React.FC = () => {
     } finally {
       setGeneratingReport(null);
     }
+  };
+
+  const handleDeleteClick = (report: ComplianceReport) => {
+    setReportToDelete(report);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (reportToDelete && user) {
+      const deleted = deleteReportFromHistory(reportToDelete.documentId, user.id);
+      if (deleted) {
+        toast.success(`Document "${reportToDelete.documentName}" has been deleted`);
+        loadReports();
+      } else {
+        toast.error("Failed to delete document");
+      }
+    }
+    setDeleteDialogOpen(false);
+    setReportToDelete(null);
   };
 
   return (
@@ -129,6 +164,15 @@ const AuditReports: React.FC = () => {
                         <Download className="mr-2 h-4 w-4" />
                         {generatingReport === report.documentName ? 'Generating...' : 'Download Report'}
                       </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="text-red-600 hover:text-red-800 hover:bg-red-50" 
+                        onClick={() => handleDeleteClick(report)}
+                      >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Delete
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -141,6 +185,23 @@ const AuditReports: React.FC = () => {
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Document</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{reportToDelete?.documentName}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

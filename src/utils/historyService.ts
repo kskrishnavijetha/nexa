@@ -73,8 +73,21 @@ export const getReportById = (documentId: string): ComplianceReport | undefined 
 /**
  * Delete a report from history
  */
-export const deleteReportFromHistory = (documentId: string): void => {
-  historicalReports = historicalReports.filter(report => report.documentId !== documentId);
+export const deleteReportFromHistory = (documentId: string, userId?: string | null): boolean => {
+  const initialLength = historicalReports.length;
+  
+  if (userId) {
+    // Only delete if the report belongs to this user
+    historicalReports = historicalReports.filter(report => 
+      !(report.documentId === documentId && report.userId === userId)
+    );
+  } else {
+    // Delete any report with matching documentId
+    historicalReports = historicalReports.filter(report => report.documentId !== documentId);
+  }
+  
+  // Return true if a report was deleted
+  return initialLength > historicalReports.length;
 };
 
 /**

@@ -19,7 +19,7 @@ const Dashboard: React.FC = () => {
   const [scans, setScans] = useState<ComplianceReport[]>([]);
   const { user } = useAuth();
 
-  useEffect(() => {
+  const loadReports = () => {
     // Load reports from history service
     const historicalReports = getHistoricalReports();
     console.log('Dashboard loaded reports (total):', historicalReports.length);
@@ -29,6 +29,10 @@ const Dashboard: React.FC = () => {
     console.log(`Filtered reports for user ${user?.id}:`, userReports.length);
     
     setScans(userReports);
+  };
+
+  useEffect(() => {
+    loadReports();
   }, [user]);
 
   // Define the function to get worst risk level for filtering
@@ -86,6 +90,11 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleDocumentDeleted = (documentId: string) => {
+    // Refresh reports list
+    loadReports();
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6 text-left">Compliance Dashboard</h1>
@@ -108,7 +117,8 @@ const Dashboard: React.FC = () => {
           ) : (
             <ComplianceScanTable 
               scans={filteredScans} 
-              onPreview={handlePreviewReport} 
+              onPreview={handlePreviewReport}
+              onDelete={handleDocumentDeleted}
             />
           )}
         </CardContent>
