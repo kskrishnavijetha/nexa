@@ -1,5 +1,6 @@
 
 import { Risk, SimulationScenario, RiskItem, PredictiveAnalysis, RegulationChange, RiskTrend } from '@/utils/types';
+import { generateScenarios } from './simulation/scenarioGenerator';
 
 /**
  * Generate predicted risks based on simulation scenario
@@ -243,4 +244,5 @@ function generateRiskTrends(currentRisks: any[], regulationChanges: RegulationCh
   return trends;
 }
 
+// Export the generateScenarios function from scenarioGenerator
 export { generateScenarios } from './simulation/scenarioGenerator';
