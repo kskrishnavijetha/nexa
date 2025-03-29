@@ -241,17 +241,6 @@ export const generateUserGuide = (): Blob => {
   pdf.text('- Pro: 50 scans per month with advanced features and integrations', 20, integrationsYPos + 40);
   pdf.text('- Enterprise: Unlimited scans with all features and priority support', 20, integrationsYPos + 50);
   
-  // Support Section
-  integrationsYPos += 70;
-  pdf.setFontSize(16);
-  pdf.text('Getting Support', 20, integrationsYPos);
-  
-  pdf.setFontSize(12);
-  pdf.text('If you need assistance, you can:', 20, integrationsYPos + 10);
-  pdf.text('- Visit our comprehensive knowledge base', 20, integrationsYPos + 20);
-  pdf.text('- Contact our support team via email at support@complizen.com', 20, integrationsYPos + 30);
-  pdf.text('- Schedule a demo with one of our compliance experts', 20, integrationsYPos + 40);
-  
   // Return the PDF as a blob
   return pdf.output('blob');
 };
