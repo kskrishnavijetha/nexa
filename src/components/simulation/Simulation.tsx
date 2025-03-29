@@ -1,7 +1,7 @@
+
 import React, { useState } from 'react';
 import { ComplianceReport, PredictiveAnalysis, SimulationScenario } from '@/utils/types';
-import { generateScenarios } from '@/utils/simulation/scenarioGenerator';
-import { runSimulationAnalysis } from '@/utils/simulationService';
+import { generateScenarios, runSimulationAnalysis } from '@/utils/simulationService';
 import ScenarioSelector from './ScenarioSelector';
 import SimulationResults from './SimulationResults';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

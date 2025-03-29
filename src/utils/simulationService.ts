@@ -1,4 +1,5 @@
-import { Risk, SimulationScenario, RiskItem } from '@/utils/types';
+
+import { Risk, SimulationScenario, RiskItem, PredictiveAnalysis, RegulationChange, RiskTrend } from '@/utils/types';
 
 /**
  * Generate predicted risks based on simulation scenario
@@ -114,6 +115,132 @@ export function generatePredictedRisks(
   });
   
   return predictedRisks;
+}
+
+/**
+ * Run a simulation analysis for a compliance report
+ * @param report The current compliance report
+ * @param scenarioId The scenario ID to simulate
+ * @returns A predictive analysis result
+ */
+export async function runSimulationAnalysis(report: any, scenarioId: string): Promise<{ error?: string; data?: PredictiveAnalysis }> {
+  try {
+    // Get the scenario based on ID
+    const scenarios = generateScenarios(report.industry);
+    const scenario = scenarios.find(s => s.id === scenarioId);
+    
+    if (!scenario) {
+      return { error: 'Invalid scenario ID' };
+    }
+    
+    // Calculate predicted scores based on the scenario
+    const originalScores = {
+      gdpr: report.gdprScore || 0,
+      hipaa: report.hipaaScore || 0,
+      soc2: report.soc2Score || 0,
+      pciDss: report.pciDssScore || 0,
+      overall: report.overallScore || 0
+    };
+    
+    // Calculate predicted scores (simplified version)
+    const predictedScores = {
+      gdpr: Math.min(100, originalScores.gdpr + (scenario.predictedImprovements.gdprScore || 0)),
+      hipaa: Math.min(100, originalScores.hipaa + (scenario.predictedImprovements.hipaaScore || 0)),
+      soc2: Math.min(100, originalScores.soc2 + (scenario.predictedImprovements.soc2Score || 0)),
+      pciDss: Math.min(100, originalScores.pciDss + (scenario.predictedImprovements.pciDssScore || 0)),
+      overall: Math.min(100, originalScores.overall + scenario.predictedImprovements.overallScore)
+    };
+    
+    // Calculate score differences
+    const scoreDifferences = {
+      gdpr: predictedScores.gdpr - originalScores.gdpr,
+      hipaa: predictedScores.hipaa - originalScores.hipaa,
+      soc2: predictedScores.soc2 - originalScores.soc2,
+      pciDss: predictedScores.pciDss - originalScores.pciDss,
+      overall: predictedScores.overall - originalScores.overall
+    };
+    
+    // Generate risk trends based on the scenario
+    const riskTrends: RiskTrend[] = generateRiskTrends(report.risks, scenario.regulationChanges);
+    
+    // Generate recommended actions
+    const recommendedActions = scenario.actions.map(action => action);
+    
+    // Build the predictive analysis result
+    const result: PredictiveAnalysis = {
+      scenarioId: scenario.id,
+      scenarioName: scenario.name,
+      scenarioDescription: scenario.description,
+      regulationChanges: scenario.regulationChanges,
+      originalScores,
+      predictedScores,
+      scoreDifferences,
+      riskTrends,
+      recommendedActions,
+      riskPredictions: [],
+      complianceForecasts: {
+        overallScore: predictedScores.overall,
+        gdprScore: predictedScores.gdpr,
+        hipaaScore: predictedScores.hipaa,
+        soc2Score: predictedScores.soc2,
+        pciDssScore: predictedScores.pciDss
+      },
+      timestamp: new Date().toISOString()
+    };
+    
+    return { data: result };
+  } catch (error) {
+    console.error('Simulation analysis error:', error);
+    return { error: 'Error running simulation analysis' };
+  }
+}
+
+/**
+ * Generate risk trends based on regulation changes
+ */
+function generateRiskTrends(currentRisks: any[], regulationChanges: RegulationChange[]): RiskTrend[] {
+  const trends: RiskTrend[] = [];
+  
+  // Add trends for each regulation change
+  regulationChanges.forEach(change => {
+    // Find existing risks for this regulation
+    const relatedRisks = currentRisks.filter(risk => risk.regulation === change.regulation);
+    
+    if (relatedRisks.length > 0) {
+      // For existing risks, create trends
+      relatedRisks.slice(0, 2).forEach(risk => {
+        trends.push({
+          riskId: risk.id || `risk-${Date.now()}`,
+          description: risk.description || 'Compliance risk',
+          regulation: risk.regulation,
+          currentSeverity: risk.severity,
+          predictedChange: change.changeType === 'stricter' ? 'increase' : 
+                           change.changeType === 'relaxed' ? 'decrease' : 'stable',
+          impact: change.impactLevel,
+          previousScore: 65,
+          predictedScore: change.changeType === 'stricter' ? 80 : 
+                          change.changeType === 'relaxed' ? 45 : 65,
+          trend: change.changeType === 'stricter' ? 'increase' : 
+                 change.changeType === 'relaxed' ? 'decrease' : 'stable'
+        });
+      });
+    } else {
+      // Add a generic trend for this regulation
+      trends.push({
+        riskId: `new-risk-${Date.now()}`,
+        description: `${change.regulation} compliance requirements`,
+        regulation: change.regulation,
+        currentSeverity: 'medium',
+        predictedChange: change.changeType === 'new' || change.changeType === 'stricter' ? 'increase' : 'stable',
+        impact: change.impactLevel,
+        previousScore: 50,
+        predictedScore: 75,
+        trend: change.changeType === 'new' || change.changeType === 'stricter' ? 'increase' : 'stable'
+      });
+    }
+  });
+  
+  return trends;
 }
 
 export { generateScenarios } from './simulation/scenarioGenerator';
