@@ -1,10 +1,31 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Book, Mail, Phone, Globe, Shield } from 'lucide-react';
+import { Book, Mail, Phone, Globe, Shield, FileText } from 'lucide-react';
+import { getPrivacyPolicyPdfUrl } from '@/utils/pdfGuide';
+import { toast } from 'sonner';
 
 const Footer: React.FC = () => {
   const currentYear = new Date().getFullYear();
+  
+  const handlePrivacyPolicyClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    try {
+      // Generate the PDF URL
+      const pdfUrl = getPrivacyPolicyPdfUrl();
+      
+      // Open the PDF in a new tab
+      window.open(pdfUrl, '_blank');
+      
+      // Clean up the URL object after a delay
+      setTimeout(() => {
+        URL.revokeObjectURL(pdfUrl);
+      }, 1000);
+    } catch (error) {
+      console.error('Error generating privacy policy PDF', error);
+      toast.error('Unable to open privacy policy. Please try again later.');
+    }
+  };
   
   return (
     <footer className="bg-slate-50 border-t">
@@ -46,9 +67,14 @@ const Footer: React.FC = () => {
           </div>
           
           <div className="flex space-x-6">
-            <Link to="/privacy" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <a 
+              href="#" 
+              onClick={handlePrivacyPolicyClick} 
+              className="flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <FileText className="h-4 w-4 mr-1" />
               Privacy Policy
-            </Link>
+            </a>
             <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Terms of Service
             </Link>
