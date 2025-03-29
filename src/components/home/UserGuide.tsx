@@ -35,32 +35,32 @@ const UserGuide: React.FC = () => {
     <div className="my-16">
       <Card className="bg-gradient-to-r from-primary/5 to-secondary/5">
         <CardHeader>
-          <CardTitle className="text-2xl">📚 CompliZen User Guide</CardTitle>
+          <CardTitle className="text-2xl">📚 CompliZen Comprehensive User Guide</CardTitle>
           <CardDescription>
-            Download our comprehensive user guide to learn how to use all the features of CompliZen
+            Download our detailed user guide with industry-specific features and regional regulations
           </CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-muted-foreground mb-4">
-            Our user guide includes detailed explanations of all features, step-by-step tutorials,
-            integration guides, and best practices for compliance management.
+            Our comprehensive user guide includes detailed explanations of all features, industry-specific 
+            compliance requirements, region-specific regulations, and best practices for compliance management.
           </p>
           <ul className="space-y-2 mb-6">
             <li className="flex items-start">
               <span className="mr-2 text-primary">✓</span>
-              <span>Learn how to use AI-powered compliance scanning</span>
+              <span>Detailed features for each industry (Finance, Healthcare, Cloud & SaaS, etc.)</span>
             </li>
             <li className="flex items-start">
               <span className="mr-2 text-primary">✓</span>
-              <span>Understand risk assessment and mitigation tools</span>
+              <span>Region-specific regulations (US, EU, UK, APAC) and compliance tools</span>
             </li>
             <li className="flex items-start">
               <span className="mr-2 text-primary">✓</span>
-              <span>Set up integrations with cloud services</span>
+              <span>Step-by-step implementation guides for each regulation</span>
             </li>
             <li className="flex items-start">
               <span className="mr-2 text-primary">✓</span>
-              <span>Configure automated compliance reporting</span>
+              <span>Integration setup instructions for all supported platforms</span>
             </li>
           </ul>
         </CardContent>
@@ -72,7 +72,7 @@ const UserGuide: React.FC = () => {
             className="gap-2"
           >
             <FileDown className="h-5 w-5" />
-            {isGenerating ? 'Generating PDF...' : 'Download User Guide (PDF)'}
+            {isGenerating ? 'Generating PDF...' : 'Download Comprehensive Guide (PDF)'}
           </Button>
         </CardFooter>
       </Card>
