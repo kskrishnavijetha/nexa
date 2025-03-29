@@ -4,7 +4,7 @@ import React from 'react';
 const benefits = [
   "Reduce Compliance Costs by 50%",
   "Cut Manual Work by 90%",
-  "Achieve Faster Compliance in Days, Not Months"
+  "Achieve Faster Compliance in Minutes, Not Days and Months"
 ];
 
 const ResultsSection: React.FC = () => {
