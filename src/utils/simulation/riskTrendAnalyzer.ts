@@ -26,15 +26,15 @@ export function calculateRiskTrends(
         c => c.regulation === risk.regulation
       );
       
-      let predictedChange: 'increasing' | 'decreasing' | 'stable';
+      let predictedChange: 'increase' | 'decrease' | 'stable';
       let probability = 0;
       
       if (relevantChange) {
         if (relevantChange.changeType === 'stricter' || relevantChange.changeType === 'new') {
-          predictedChange = 'increasing';
+          predictedChange = 'increase';
           probability = 0.8;
         } else if (relevantChange.changeType === 'relaxed') {
-          predictedChange = 'decreasing';
+          predictedChange = 'decrease';
           probability = 0.7;
         } else {
           predictedChange = 'stable';
@@ -44,10 +44,10 @@ export function calculateRiskTrends(
         // Random outcome with bias toward stability for non-directly affected risks
         const rand = Math.random();
         if (rand > 0.8) {
-          predictedChange = 'increasing';
+          predictedChange = 'increase';
           probability = 0.6;
         } else if (rand > 0.6) {
-          predictedChange = 'decreasing';
+          predictedChange = 'decrease';
           probability = 0.6;
         } else {
           predictedChange = 'stable';
@@ -59,19 +59,21 @@ export function calculateRiskTrends(
       const impact = risk.severity === 'high' ? 'high' : 
                      risk.severity === 'medium' ? 'medium' : 'low';
       
-      // Add trend with numeric probability
+      // Add trend with numeric probability and use correct trend values
       trends.push({
         id: `trend-${risk.id}`,
-        riskId: risk.id,
+        riskId: risk.id || '',
         severity: risk.severity,
         title: risk.title || risk.description.split(': ')[0] || 'Risk',
-        trend: predictedChange,
+        trend: predictedChange, // Changed from 'increasing'/'decreasing'/'stable' to 'increase'/'decrease'/'stable'
         impact: impact,
         probability: Math.round(probability * 100), // Convert to percentage as a number
         predictedChange: predictedChange, // Add this to match the RiskTrend type
         currentSeverity: risk.severity,
         regulation: risk.regulation || 'General',
-        description: risk.description
+        description: risk.description,
+        previousScore: 0, // Added missing required properties
+        predictedScore: 0  // Added missing required properties
       });
     }
   });

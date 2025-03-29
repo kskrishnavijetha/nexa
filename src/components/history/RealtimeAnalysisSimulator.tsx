@@ -87,10 +87,15 @@ const RealtimeAnalysisSimulator = ({
                 gdprScore: 60 + Math.floor(Math.random() * 40),
                 hipaaScore: 60 + Math.floor(Math.random() * 40),
                 soc2Score: 60 + Math.floor(Math.random() * 40),
+                industryScore: 60 + Math.floor(Math.random() * 40), // Added required field
+                regionalScore: 60 + Math.floor(Math.random() * 40), // Added required field
+                regulationScore: 60 + Math.floor(Math.random() * 40), // Added required field
                 risks: [newRisk],
                 summary: 'Automatically generated compliance report with detected issues',
                 industry: 'Technology',
                 region: 'North America',
+                complianceStatus: 'partially-compliant', // Added required field
+                regulations: ['GDPR', 'HIPAA'], // Added required field
                 suggestions: []
               };
               
