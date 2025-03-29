@@ -1,4 +1,3 @@
-
 import { ComplianceReport } from '@/utils/types';
 
 // Real production data would be fetched from an API
@@ -34,7 +33,7 @@ export const mockScans: ComplianceReport[] = [
       },
     ],
     summary: 'Generally compliant with minor improvements needed',
-    industry: 'Technology',
+    industry: 'Cloud & SaaS',
     region: 'North America',
     complianceStatus: 'partially-compliant',
     regulations: ['GDPR', 'HIPAA'],

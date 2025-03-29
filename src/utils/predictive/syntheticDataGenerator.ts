@@ -1,4 +1,3 @@
-
 import { ComplianceReport, Risk, Suggestion } from '../types';
 
 // Generate synthetic historical reports based on real data
@@ -72,7 +71,7 @@ export const generateRandomReport = (): ComplianceReport => {
       },
     ],
     summary: 'Automatically generated compliance report based on standard patterns',
-    industry: 'Technology',
+    industry: 'Cloud & SaaS',
     region: 'Global',
     complianceStatus: 'partially-compliant',
     regulations: ['GDPR', 'HIPAA'],

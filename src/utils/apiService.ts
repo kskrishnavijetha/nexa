@@ -19,7 +19,7 @@ import {
   Region, ApiResponse as TypesApiResponse
 } from './types';
 
-export { 
+export type { 
   ComplianceReport, Industry, ComplianceRisk, RiskSeverity, 
   Region, TypesApiResponse as ApiResponse 
 };

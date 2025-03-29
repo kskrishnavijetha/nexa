@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ComplianceReport } from '@/utils/types';
@@ -151,7 +150,7 @@ const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
           </TabsContent>
 
           <TabsContent value="trends">
-            <TrendAnalysis trends={analyticsResult.riskTrends} />
+            <TrendAnalysis riskTrends={analyticsResult.riskTrends} />
           </TabsContent>
 
           <TabsContent value="actions">

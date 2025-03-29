@@ -115,3 +115,5 @@ export function generatePredictedRisks(
   
   return predictedRisks;
 }
+
+export { generateScenarios } from './simulation/scenarioGenerator';

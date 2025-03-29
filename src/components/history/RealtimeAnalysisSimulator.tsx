@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { ComplianceReport, Risk } from '@/utils/types';
 import { toast } from 'sonner';
@@ -91,7 +90,7 @@ const RealtimeAnalysisSimulator = ({
                 regulationScore: 60 + Math.floor(Math.random() * 40),
                 risks: [newRisk],
                 summary: 'Automatically generated compliance report with detected issues',
-                industry: 'Technology',
+                industry: 'Cloud & SaaS',
                 region: 'North America',
                 complianceStatus: 'partially-compliant',
                 regulations: ['GDPR', 'HIPAA'],

@@ -1,4 +1,3 @@
-
 import { Industry, Region } from './types';
 import { SupportedLanguage, translate } from './languageService';
 
@@ -132,9 +131,9 @@ function getIndustrySpecificInsight(industry: Industry, language: SupportedLangu
   switch (industry) {
     case 'Healthcare':
       return 'Pay special attention to patient data protection and medical record handling requirements.';
-    case 'Financial Services':
+    case 'Finance & Banking':
       return 'Focus on financial data security and transaction integrity requirements.';
-    case 'Technology & IT':
+    case 'Cloud & SaaS':
       return 'Consider data processing agreements and security controls for digital services.';
     default:
       return '';

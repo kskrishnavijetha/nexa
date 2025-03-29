@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RiskTrend } from '@/utils/types';
-import { ArrowDown, ArrowUp, TrendingDown, TrendingFlat, TrendingUp } from 'lucide-react';
+import { ArrowDown, ArrowUp, TrendingDown, TrendingUp } from 'lucide-react';
 
 interface TrendAnalysisProps {
   riskTrends: RiskTrend[];
@@ -14,7 +15,7 @@ const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ riskTrends }) => {
     } else if (trend === 'decrease' || trend === 'decreasing') {
       return <TrendingDown className="text-green-500 h-5 w-5" />;
     } else {
-      return <TrendingFlat className="text-amber-500 h-5 w-5" />;
+      return <ArrowUp className="text-amber-500 h-5 w-5" />; // Replaced TrendingFlat with ArrowUp
     }
   };
 

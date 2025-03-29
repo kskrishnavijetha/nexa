@@ -1,7 +1,7 @@
-
 import React, { useState } from 'react';
 import { ComplianceReport, PredictiveAnalysis, SimulationScenario } from '@/utils/types';
-import { generateSimulationScenarios, runPredictiveAnalysis } from '@/utils/simulationService';
+import { generateScenarios } from '@/utils/simulation/scenarioGenerator';
+import { runSimulationAnalysis } from '@/utils/simulationService';
 import ScenarioSelector from './ScenarioSelector';
 import SimulationResults from './SimulationResults';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,7 +22,7 @@ const Simulation: React.FC<SimulationProps> = ({ report }) => {
   const [showConfiguration, setShowConfiguration] = useState(false);
   
   // Get scenarios based on industry
-  const scenarios = generateSimulationScenarios(report.industry);
+  const scenarios = generateScenarios(report.industry);
   
   const handleSelectScenario = (scenarioId: string) => {
     if (isLoading) return;
@@ -41,7 +41,7 @@ const Simulation: React.FC<SimulationProps> = ({ report }) => {
     setIsLoading(true);
     
     try {
-      const response = await runPredictiveAnalysis(report, scenarioId);
+      const response = await runSimulationAnalysis(report, scenarioId);
       
       if (response.error) {
         toast.error(response.error);
@@ -94,7 +94,6 @@ const Simulation: React.FC<SimulationProps> = ({ report }) => {
               onSelectScenario={handleSelectScenario}
               isLoading={isLoading}
               selectedScenarioId={selectedScenarioId}
-              // Remove the Run Simulation button from ScenarioSelector
               hideRunButton={showConfiguration}
             />
             

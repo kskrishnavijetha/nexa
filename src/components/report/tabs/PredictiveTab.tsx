@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ComplianceReport } from '@/utils/apiService';
 import ComplianceInsights from '@/components/predictive/ComplianceInsights';
@@ -69,7 +70,7 @@ const PredictiveTab: React.FC<PredictiveTabProps> = ({ report }) => {
       currentSeverity: 'medium',
       previousScore: 85,
       predictedScore: 90,
-      predictedChange: 'increase', // Changed from numeric 5 to string 'increase'
+      predictedChange: 'increase',
       trend: 'increase',
       impact: 'high'
     },
@@ -80,7 +81,7 @@ const PredictiveTab: React.FC<PredictiveTabProps> = ({ report }) => {
       currentSeverity: 'medium',
       previousScore: 78,
       predictedScore: 82,
-      predictedChange: 'increase', // Changed from numeric 4 to string 'increase'
+      predictedChange: 'increase',
       trend: 'increase',
       impact: 'medium'
     },
@@ -91,7 +92,7 @@ const PredictiveTab: React.FC<PredictiveTabProps> = ({ report }) => {
       currentSeverity: 'low',
       previousScore: 92,
       predictedScore: 88,
-      predictedChange: 'decrease', // Changed from numeric -4 to string 'decrease'
+      predictedChange: 'decrease',
       trend: 'decrease',
       impact: 'high'
     }
@@ -120,7 +121,7 @@ const PredictiveTab: React.FC<PredictiveTabProps> = ({ report }) => {
         </TabsContent>
         
         <TabsContent value="trends">
-          <TrendAnalysis trends={mockTrends} />
+          <TrendAnalysis riskTrends={mockTrends} />
         </TabsContent>
       </Tabs>
     </div>
