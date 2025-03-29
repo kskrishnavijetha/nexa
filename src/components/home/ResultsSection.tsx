@@ -1,23 +1,74 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, ChevronUp, CheckCircle } from 'lucide-react';
 
 const benefits = [
-  "Reduce Compliance Costs by 50%",
-  "Cut Manual Work by 90%",
-  "Achieve Faster Compliance in Minutes, Not Days and Months"
+  {
+    title: "Reduce Compliance Costs by 50%",
+    details: "Our AI-powered platform analyzes your compliance processes and identifies cost-saving opportunities, resulting in an average 50% reduction in compliance-related expenses."
+  },
+  {
+    title: "Cut Manual Work by 90%",
+    details: "Automate document review, risk assessment, and compliance monitoring tasks that previously required hours of manual effort, freeing your team to focus on strategic initiatives."
+  },
+  {
+    title: "Achieve Faster Compliance in Minutes, Not Days and Months",
+    details: "Real-time scanning and analysis allows you to assess compliance status instantly, dramatically reducing the time required to identify and address potential issues."
+  }
 ];
 
 const ResultsSection: React.FC = () => {
+  const navigate = useNavigate();
+  const [expandedItems, setExpandedItems] = useState<number[]>([]);
+
+  const toggleItem = (index: number) => {
+    setExpandedItems(prev => 
+      prev.includes(index) 
+        ? prev.filter(i => i !== index) 
+        : [...prev, index]
+    );
+  };
+
+  const handleTryNow = () => {
+    navigate('/document-analysis');
+  };
+
   return (
-    <div className="my-16 bg-primary/5 p-8 rounded-xl text-center">
-      <h2 className="text-3xl font-bold mb-8">📈 Results with CompliZen</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="my-16 bg-primary/5 p-8 rounded-xl">
+      <h2 className="text-3xl font-bold mb-4 text-center">📈 Results with CompliZen</h2>
+      
+      <p className="text-center text-gray-600 mb-8">
+        Our customers achieve significant improvements in their compliance processes. Here's what you can expect:
+      </p>
+      
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         {benefits.map((benefit, index) => (
-          <div key={index} className="bg-white p-6 rounded-lg shadow-sm border">
-            <div className="text-4xl text-primary mb-4">✔️</div>
-            <p className="text-xl font-medium">{benefit}</p>
+          <div key={index} className="bg-white p-6 rounded-lg shadow-sm border flex flex-col">
+            <div className="flex items-start mb-4">
+              <CheckCircle className="text-primary shrink-0 mt-1" size={24} />
+              <h3 className="text-xl font-medium ml-3">{benefit.title}</h3>
+            </div>
+            
+            {expandedItems.includes(index) && (
+              <p className="text-gray-600 mt-2 mb-4">{benefit.details}</p>
+            )}
+            
+            <button 
+              onClick={() => toggleItem(index)}
+              className="text-primary flex items-center mt-auto self-start hover:underline"
+            >
+              Learn more {expandedItems.includes(index) ? <ChevronUp size={16} className="ml-1" /> : <ChevronDown size={16} className="ml-1" />}
+            </button>
           </div>
         ))}
+      </div>
+      
+      <div className="text-center">
+        <Button onClick={handleTryNow} className="px-8">
+          Try it now
+        </Button>
       </div>
     </div>
   );
