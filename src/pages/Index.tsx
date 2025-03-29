@@ -8,7 +8,6 @@ import ComplianceFeaturesSection from '@/components/home/ComplianceFeaturesSecti
 import IndustriesSection from '@/components/home/IndustriesSection';
 import ResultsSection from '@/components/home/ResultsSection';
 import TrustedBySection from '@/components/home/TrustedBySection';
-import ContactForm from '@/components/ContactForm';
 import Layout from '@/components/layout/Layout';
 
 const Index = () => {
@@ -25,7 +24,6 @@ const Index = () => {
           <ResultsSection />
           <TrustedBySection />
           <Features />
-          <ContactForm />
         </div>
       </div>
     </Layout>
