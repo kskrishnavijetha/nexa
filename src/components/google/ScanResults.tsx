@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { AlertTriangle, Check, FileText, Download } from 'lucide-react';
@@ -82,16 +83,16 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
         hipaaScore: Math.floor(Math.random() * 30) + 70,
         soc2Score: Math.floor(Math.random() * 30) + 70,
         pciDssScore: Math.floor(Math.random() * 30) + 70,
-        industryScore: Math.floor(Math.random() * 30) + 70, // Added required field
-        regionalScore: Math.floor(Math.random() * 30) + 70, // Added required field
-        regulationScore: Math.floor(Math.random() * 30) + 70, // Added required field
+        industryScore: Math.floor(Math.random() * 30) + 70,
+        regionalScore: Math.floor(Math.random() * 30) + 70,
+        regulationScore: Math.floor(Math.random() * 30) + 70,
         industry: 'Technology' as Industry,
-        region: 'Global' as Region, // Used the Region type
+        region: 'Global' as Region,
         risks: risks,
         summary: `Scan completed with ${filteredViolations.length} potential compliance issues found${serviceFilter ? ` in ${serviceFilter}` : ' across cloud services'}.`,
         suggestions: suggestionObjects,
-        complianceStatus: 'partially-compliant', // Added required field
-        regulations: ['GDPR', 'ISO/IEC 27001'] // Added required field
+        complianceStatus: 'partially-compliant' as 'compliant' | 'non-compliant' | 'partially-compliant',
+        regulations: ['GDPR', 'ISO/IEC 27001']
       };
       
       const result = await generateReportPDF(mockReport, 'en' as SupportedLanguage);

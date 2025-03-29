@@ -65,15 +65,15 @@ export function calculateRiskTrends(
         riskId: risk.id || '',
         severity: risk.severity,
         title: risk.title || risk.description.split(': ')[0] || 'Risk',
-        trend: predictedChange, // Changed from 'increasing'/'decreasing'/'stable' to 'increase'/'decrease'/'stable'
+        trend: predictedChange,
         impact: impact,
         probability: Math.round(probability * 100), // Convert to percentage as a number
-        predictedChange: predictedChange, // Add this to match the RiskTrend type
+        predictedChange: predictedChange,
         currentSeverity: risk.severity,
         regulation: risk.regulation || 'General',
         description: risk.description,
-        previousScore: 0, // Added missing required properties
-        predictedScore: 0  // Added missing required properties
+        previousScore: 0,
+        predictedScore: 0
       });
     }
   });

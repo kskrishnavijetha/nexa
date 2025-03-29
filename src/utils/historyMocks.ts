@@ -12,9 +12,9 @@ export const mockScans: ComplianceReport[] = [
     gdprScore: 90,
     hipaaScore: 82,
     soc2Score: 88,
-    industryScore: 85, // Added required field
-    regionalScore: 87, // Added required field
-    regulationScore: 84, // Added required field
+    industryScore: 85,
+    regionalScore: 87,
+    regulationScore: 84,
     risks: [
       { 
         id: '101', 
@@ -36,8 +36,8 @@ export const mockScans: ComplianceReport[] = [
     summary: 'Generally compliant with minor improvements needed',
     industry: 'Technology',
     region: 'North America',
-    complianceStatus: 'partially-compliant', // Added required field
-    regulations: ['GDPR', 'HIPAA'], // Added required field
+    complianceStatus: 'partially-compliant',
+    regulations: ['GDPR', 'HIPAA'],
     suggestions: []
   }
 ];

@@ -79,7 +79,6 @@ const RealtimeAnalysisSimulator = ({
               };
               
               const newReport: ComplianceReport = {
-                id: `doc-${Date.now()}`,
                 documentId: `doc-${Date.now()}`,
                 documentName: newDocName,
                 timestamp: new Date().toISOString(),
@@ -87,15 +86,15 @@ const RealtimeAnalysisSimulator = ({
                 gdprScore: 60 + Math.floor(Math.random() * 40),
                 hipaaScore: 60 + Math.floor(Math.random() * 40),
                 soc2Score: 60 + Math.floor(Math.random() * 40),
-                industryScore: 60 + Math.floor(Math.random() * 40), // Added required field
-                regionalScore: 60 + Math.floor(Math.random() * 40), // Added required field
-                regulationScore: 60 + Math.floor(Math.random() * 40), // Added required field
+                industryScore: 60 + Math.floor(Math.random() * 40),
+                regionalScore: 60 + Math.floor(Math.random() * 40),
+                regulationScore: 60 + Math.floor(Math.random() * 40),
                 risks: [newRisk],
                 summary: 'Automatically generated compliance report with detected issues',
                 industry: 'Technology',
                 region: 'North America',
-                complianceStatus: 'partially-compliant', // Added required field
-                regulations: ['GDPR', 'HIPAA'], // Added required field
+                complianceStatus: 'partially-compliant',
+                regulations: ['GDPR', 'HIPAA'],
                 suggestions: []
               };
               

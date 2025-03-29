@@ -52,6 +52,9 @@ export const generateRandomReport = (): ComplianceReport => {
     gdprScore: 60 + Math.floor(Math.random() * 40),
     hipaaScore: 60 + Math.floor(Math.random() * 40),
     soc2Score: 60 + Math.floor(Math.random() * 40),
+    industryScore: 60 + Math.floor(Math.random() * 40),
+    regionalScore: 60 + Math.floor(Math.random() * 40),
+    regulationScore: 60 + Math.floor(Math.random() * 40),
     risks: [
       { 
         id: `risk-${Date.now()}-1`,
@@ -65,6 +68,8 @@ export const generateRandomReport = (): ComplianceReport => {
     summary: 'Automatically generated compliance report based on standard patterns',
     industry: 'Technology',
     region: 'Global',
+    complianceStatus: 'partially-compliant',
+    regulations: ['GDPR', 'HIPAA'],
     suggestions: [
       {
         id: `suggestion-${Date.now()}-1`,

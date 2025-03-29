@@ -6,7 +6,9 @@ import {
   SimulationScenario,
   RiskTrend,
   PredictiveAnalysis,
-  RiskSeverity
+  RiskSeverity,
+  RiskItem,
+  ComplianceInsight
 } from './types';
 import { generateScenarios } from './simulation/scenarioGenerator';
 import { calculateRiskTrends } from './simulation/riskTrendAnalyzer';
@@ -52,8 +54,20 @@ export const runPredictiveAnalysis = async (
       selectedScenario
     );
     
-    // Generate predicted risks
-    const predictedRisks = generatePredictedRisks(report.risks, selectedScenario, adjustedScores);
+    // Generate predicted risks - convert Risk[] to RiskItem[]
+    const predictedRisksInputs = report.risks.map(risk => ({
+      id: risk.id || `risk-${Math.random().toString(36).substring(2, 9)}`,
+      title: risk.title,
+      name: risk.title,
+      description: risk.description,
+      severity: risk.severity,
+      regulation: risk.regulation,
+      likelihood: 0.5,
+      section: risk.section,
+      mitigation: risk.mitigation
+    } as RiskItem));
+    
+    const predictedRisks = generatePredictedRisks(predictedRisksInputs, selectedScenario, adjustedScores);
     
     // Generate recommendations to mitigate predicted risks
     const recommendations = generateRecommendations(predictedRisks, selectedScenario);
@@ -68,7 +82,7 @@ export const runPredictiveAnalysis = async (
     };
     
     // Prepare the predictive analysis result with strictly typed properties
-    const complianceInsights = [
+    const complianceInsights: ComplianceInsight[] = [
       {
         title: 'Regulatory Impact Analysis',
         description: `The simulation predicts a ${Math.abs(scoreDifferences.overall)}% ${scoreDifferences.overall >= 0 ? 'improvement' : 'decrease'} in overall compliance.`,
@@ -77,9 +91,9 @@ export const runPredictiveAnalysis = async (
       },
       {
         title: 'Risk Exposure Profile',
-        description: `Based on the simulation, ${riskTrends.filter(t => t.trend === 'increasing').length} risks are expected to increase in severity.`,
-        actionRequired: riskTrends.filter(t => t.trend === 'increasing').length > 0,
-        priority: riskTrends.filter(t => t.trend === 'increasing' && t.impact === 'high').length > 0 ? 'high' : 'medium'
+        description: `Based on the simulation, ${riskTrends.filter(t => t.trend === 'increase').length} risks are expected to increase in severity.`,
+        actionRequired: riskTrends.filter(t => t.trend === 'increase').length > 0,
+        priority: riskTrends.filter(t => t.trend === 'increase' && t.impact === 'high').length > 0 ? 'high' : 'medium'
       }
     ];
     
@@ -112,9 +126,10 @@ export const runPredictiveAnalysis = async (
       predictedRisks,
       complianceInsights,
       riskTrends: typedRiskTrends,
-      recommendations,
+      recommendedActions: recommendations,
       timestamp: new Date().toISOString(),
-      lastUpdated: new Date().toISOString()
+      lastUpdated: new Date().toISOString(),
+      riskPredictions: []
     };
     
     return {

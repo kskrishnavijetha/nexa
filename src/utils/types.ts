@@ -1,4 +1,3 @@
-
 export interface ComplianceReport {
   id?: string; // Add optional id field
   documentId: string;
@@ -62,11 +61,14 @@ export interface Risk {
 // Add RiskItem interface needed by predictive analysis
 export interface RiskItem {
   id: string;
-  name: string;
+  title?: string;
+  name?: string;
   description: string;
   severity: RiskSeverity;
   regulation: string;
-  likelihood: number;
+  likelihood?: number;
+  section?: string;
+  mitigation?: string;
 }
 
 export interface Issue {

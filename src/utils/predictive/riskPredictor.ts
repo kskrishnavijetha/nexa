@@ -10,8 +10,20 @@ export const predictRisks = (
   // In a real implementation, this would use actual ML algorithms
   // For now, we'll use a simplified approach based on frequency analysis
   
-  // Extract all risks from historical reports
-  const allRisks: RiskItem[] = reports.flatMap(report => report.risks);
+  // Extract all risks from historical reports and convert to RiskItem
+  const allRisks: RiskItem[] = reports.flatMap(report => 
+    report.risks.map(risk => ({
+      id: risk.id || `risk-${Math.random().toString(36).substring(2, 9)}`,
+      title: risk.title,
+      name: risk.title, // Adding name from title to satisfy RiskItem
+      description: risk.description,
+      severity: risk.severity,
+      regulation: risk.regulation,
+      likelihood: 0.5, // Default likelihood since it's not in ComplianceRisk
+      section: risk.section,
+      mitigation: risk.mitigation
+    }))
+  );
   
   // Count occurrences of each risk by description
   const riskCounts: Record<string, { count: number, items: RiskItem[] }> = {};
@@ -38,11 +50,11 @@ export const predictRisks = (
         report.risks.some(r => r.description === risk.description && r.regulation === risk.regulation)
       ).length;
       
-      let trend: 'increasing' | 'stable' | 'decreasing';
+      let trend: 'increase' | 'stable' | 'decrease';
       if (recentOccurrences > (recentReports.length / 2)) {
-        trend = 'increasing';
+        trend = 'increase';
       } else if (recentOccurrences === 0) {
-        trend = 'decreasing';
+        trend = 'decrease';
       } else {
         trend = 'stable';
       }
