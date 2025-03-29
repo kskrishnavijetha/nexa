@@ -239,16 +239,6 @@ const PricingPlans = () => {
           </CardFooter>
         </Card>
       </div>
-
-      <div className="bg-muted p-6 rounded-lg max-w-3xl mx-auto">
-        <h2 className="text-xl font-semibold mb-4">Need a custom solution?</h2>
-        <p className="mb-4">
-          For organizations with specific compliance needs, we offer custom enterprise solutions with tailored features, dedicated support, and flexible pricing.
-        </p>
-        <Button variant="outline" onClick={() => navigate('/contact')}>
-          Contact Sales
-        </Button>
-      </div>
     </div>
   );
 };
