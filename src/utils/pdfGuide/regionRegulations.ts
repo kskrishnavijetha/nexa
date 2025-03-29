@@ -11,12 +11,14 @@ export const addRegionalRegulations = (pdf: jsPDF): void => {
   
   // Title
   pdf.setFontSize(FONT_SIZES.SUB_SECTION);
-  pdf.setTextColor(...COLORS.PRIMARY);
+  const primaryColor = COLORS.PRIMARY;
+  pdf.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   pdf.text('Regional Regulations and Compliance Features', 20, 20);
   
   // United States
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.setTextColor(...COLORS.TEXT);
+  const textColor = COLORS.TEXT;
+  pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
   pdf.text('United States', 20, 40);
   pdf.setFontSize(FONT_SIZES.BODY);
   pdf.text('Key Regulations:', 20, 50);
@@ -47,7 +49,7 @@ export const addRegionalRegulations = (pdf: jsPDF): void => {
   // UK
   pdf.addPage();
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.setTextColor(...COLORS.TEXT);
+  pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
   pdf.text('United Kingdom', 20, 20);
   pdf.setFontSize(FONT_SIZES.BODY);
   pdf.text('Key Regulations:', 20, 30);

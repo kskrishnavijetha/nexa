@@ -21,17 +21,20 @@ export const generateUserGuide = (): Blob => {
   
   // Set font size and styles
   pdf.setFontSize(FONT_SIZES.TITLE);
-  pdf.setTextColor(...COLORS.PRIMARY);
+  const primaryColor = COLORS.PRIMARY;
+  pdf.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   
   // Title
   pdf.text('CompliZen User Guide', 20, PDF_POSITIONS.TITLE_Y);
   pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.setTextColor(...COLORS.SECONDARY);
+  const secondaryColor = COLORS.SECONDARY;
+  pdf.setTextColor(secondaryColor[0], secondaryColor[1], secondaryColor[2]);
   pdf.text(`Generated: ${new Date().toLocaleDateString()}`, 20, PDF_POSITIONS.DATE_Y);
   
   // Introduction
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.setTextColor(...COLORS.TEXT);
+  const textColor = COLORS.TEXT;
+  pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
   pdf.text('Introduction', 20, PDF_POSITIONS.INTRO_TITLE_Y);
   pdf.setFontSize(FONT_SIZES.BODY);
   pdf.text('Welcome to CompliZen - your AI-powered compliance automation platform. This guide', 20, PDF_POSITIONS.INTRO_TEXT_1_Y);

@@ -19,11 +19,11 @@ export const FONT_SIZES = {
   SUB_SECTION: 20,
 };
 
-// Colors
+// Colors as tuples to enable proper spreading
 export const COLORS = {
-  PRIMARY: [0, 51, 102],
-  SECONDARY: [100, 100, 100],
-  TEXT: [0, 0, 0],
+  PRIMARY: [0, 51, 102] as [number, number, number],
+  SECONDARY: [100, 100, 100] as [number, number, number],
+  TEXT: [0, 0, 0] as [number, number, number],
 };
 
 // Features list

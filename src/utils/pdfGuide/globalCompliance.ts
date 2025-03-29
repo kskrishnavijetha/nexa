@@ -11,12 +11,14 @@ export const addGlobalComplianceFramework = (pdf: jsPDF): void => {
   
   // Title
   pdf.setFontSize(FONT_SIZES.SUB_SECTION);
-  pdf.setTextColor(...COLORS.PRIMARY);
+  const primaryColor = COLORS.PRIMARY;
+  pdf.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   pdf.text('Global Compliance Framework', 20, 20);
   
   // Content
   pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.setTextColor(...COLORS.TEXT);
+  const textColor = COLORS.TEXT;
+  pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
   pdf.text('CompliZen offers a unified global compliance framework that helps organizations', 20, 40);
   pdf.text('comply with regulations across multiple jurisdictions simultaneously:', 20, 50);
   
