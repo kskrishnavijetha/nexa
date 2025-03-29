@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { FileDown } from 'lucide-react';
-import { getPdfDownloadUrl } from '@/utils/pdfGuideGenerator';
+import { getPdfDownloadUrl } from '@/utils/pdfGuide';
 
 const UserGuide: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
