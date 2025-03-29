@@ -5,13 +5,15 @@
 
 // Export from subscriptionService
 export {
-  SubscriptionInfo,
   saveSubscription,
   getSubscription,
   hasActiveSubscription,
   hasScansRemaining,
   recordScanUsage
 } from './payment/subscriptionService';
+
+// Export type separately to avoid TypeScript isolatedModules error
+export type { SubscriptionInfo } from './payment/subscriptionService';
 
 // Export from paypalService
 export {
@@ -21,8 +23,10 @@ export {
 
 // Export from paymentProcessor
 export {
-  PaymentResult,
   processOneTimePayment,
   createSubscription,
   fetchPaymentMethods
 } from './payment/paymentProcessor';
+
+// Export type separately to avoid TypeScript isolatedModules error
+export type { PaymentResult } from './payment/paymentProcessor';

@@ -1,15 +1,8 @@
-
 /**
  * Service for PayPal payment processing
  */
 import { saveSubscription } from './subscriptionService';
-
-export interface PaymentResult {
-  success: boolean;
-  paymentId?: string;
-  error?: string;
-  expirationDate?: Date;
-}
+import type { PaymentResult } from './paymentProcessor';
 
 // PayPal client ID
 const PAYPAL_CLIENT_ID = 'AbjWpZd-uPzFyoPALjqopkA1ptAxkfpmqfYgirEXeXpprFfM-YlimFqVzVYJP_69pzxqCmxSv_RHY7P1';
