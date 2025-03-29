@@ -88,13 +88,7 @@ export const generatePrivacyPolicyPdf = (): Blob => {
   pdf.text('We may update our Privacy Policy from time to time. We will notify you of any changes by', 20, 136);
   pdf.text('posting the new Privacy Policy on this page and updating the "Last Updated" date.', 20, 144);
   
-  pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.text('8. Contact Us', 20, 159);
-  
-  pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.text('If you have any questions about this Privacy Policy, please contact us at:', 20, 169);
-  pdf.text('• Email: privacy@complizen.com', 20, 177);
-  pdf.text('• Address: CompliZen Privacy Office, 123 Compliance Way, Legal City, LC 12345', 20, 185);
+  // Removed the "8. Contact Us" section as requested
   
   // Add footer with page numbers
   addFooter(pdf);
