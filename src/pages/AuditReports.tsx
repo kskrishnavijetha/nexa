@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -99,7 +100,7 @@ const AuditReports: React.FC = () => {
     if (reportToDelete && user) {
       const deleted = deleteReportFromHistory(reportToDelete.documentId, user.id);
       if (deleted) {
-        toast.success(`Document "${reportToDelete.documentName}" has been deleted`);
+        toast.success(`Document "${reportToDelete.documentName}" has been deleted from audit reports`);
         loadReports();
       } else {
         toast.error("Failed to delete document");

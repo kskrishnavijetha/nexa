@@ -20,23 +20,29 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from 'sonner';
 import { deleteReportFromHistory } from '@/utils/historyService';
+import { getUserHistoricalReports } from '@/utils/historyService';
 
 const ServiceHistory: React.FC = () => {
-  const { scanHistory, setUserId } = useServiceHistoryStore();
+  const { userId, setUserId } = useServiceHistoryStore();
   const { user } = useAuth();
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
   const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState<{id: string, name: string} | null>(null);
+  const [scanHistory, setScanHistory] = useState<ComplianceReport[]>([]);
   
   // Update the user ID in the store when the user changes
   useEffect(() => {
     console.log('ServiceHistory: User changed, updating history store with user ID:', user?.id);
     if (user) {
       setUserId(user.id);
+      // Fetch user's historical reports
+      const reports = getUserHistoricalReports(user.id);
+      setScanHistory(reports);
     } else {
       setUserId(null);
+      setScanHistory([]);
     }
   }, [user, setUserId]);
   
@@ -55,15 +61,15 @@ const ServiceHistory: React.FC = () => {
     if (documentToDelete && user) {
       const deleted = deleteReportFromHistory(documentToDelete.id, user.id);
       if (deleted) {
-        toast.success(`Document "${documentToDelete.name}" has been permanently deleted`);
-        // Reset the document to delete
-        setDocumentToDelete(null);
-        // Refresh the scanHistory here if needed
+        toast.success(`Document "${documentToDelete.name}" has been permanently deleted from history`);
+        // Refresh the scanHistory
+        setScanHistory(getUserHistoricalReports(user.id));
       } else {
         toast.error("Failed to delete document");
       }
     }
     setDeleteDialogOpen(false);
+    setDocumentToDelete(null);
   };
 
   // Render empty state for non-authenticated users
@@ -116,7 +122,7 @@ const ServiceHistory: React.FC = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Document Permanently</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to permanently delete "{documentToDelete?.name}"? This action cannot be undone.
+              Are you sure you want to permanently delete "{documentToDelete?.name}" from your history? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

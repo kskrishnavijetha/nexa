@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Download } from 'lucide-react';
@@ -8,7 +9,7 @@ import ComplianceScanTable from '@/components/dashboard/ComplianceScanTable';
 import DocumentPreview from '@/components/document-analysis/DocumentPreview';
 import { generateReportPDF } from '@/utils/reportService';
 import { toast } from 'sonner';
-import { getHistoricalReports } from '@/utils/historyService';
+import { getHistoricalReports, deleteReportFromHistory } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
 
 const Dashboard: React.FC = () => {
@@ -91,8 +92,16 @@ const Dashboard: React.FC = () => {
   };
 
   const handleDocumentDeleted = (documentId: string) => {
-    // Refresh reports list
-    loadReports();
+    if (user) {
+      const deleted = deleteReportFromHistory(documentId, user.id);
+      if (deleted) {
+        toast.success(`Document has been deleted from dashboard`);
+        // Refresh reports list
+        loadReports();
+      } else {
+        toast.error("Failed to delete document");
+      }
+    }
   };
 
   return (

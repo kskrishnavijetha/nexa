@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ComplianceReport } from '@/utils/types';
@@ -145,7 +146,7 @@ const History: React.FC = () => {
       if (reportToDelete) {
         const deleted = deleteReportFromHistory(reportToDelete.documentId, user.id);
         if (deleted) {
-          toast.success(`Document "${selectedDocument}" has been permanently deleted`);
+          toast.success(`Document "${selectedDocument}" has been permanently deleted from history`);
           loadReports();
           
           if (reports.length > 1) {
