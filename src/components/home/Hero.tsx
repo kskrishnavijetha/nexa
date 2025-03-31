@@ -12,9 +12,16 @@ const Hero: React.FC = () => {
   return (
     <div className="text-center py-16">
       <p className="text-sm font-medium text-primary mb-2">Trusted by 1000+ companies</p>
-      <h1 className="font-bold mb-2 text-5xl md:text-6xl text-gray-900">
-        🚀 CompliZen
-      </h1>
+      <div className="flex justify-center items-center mb-2">
+        <img 
+          src="/public/lovable-uploads/b96b3f45-8a1a-40d5-b884-1142753be402.png" 
+          alt="CompliZen Logo" 
+          className="h-16 w-16 mr-2" 
+        />
+        <h1 className="font-bold text-5xl md:text-6xl text-gray-900">
+          CompliZen
+        </h1>
+      </div>
       <h2 className="text-2xl md:text-3xl font-semibold text-primary mb-4">
         AI-Powered Compliance Automation
       </h2>

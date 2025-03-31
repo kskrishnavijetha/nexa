@@ -30,7 +30,14 @@ const ResultsSection: React.FC = () => {
 
   return (
     <div className="my-16 bg-primary/5 p-8 rounded-xl">
-      <h2 className="text-3xl font-bold mb-4 text-center">📈 Results with CompliZen</h2>
+      <div className="flex items-center justify-center mb-4">
+        <img 
+          src="/public/lovable-uploads/b96b3f45-8a1a-40d5-b884-1142753be402.png" 
+          alt="CompliZen Logo" 
+          className="h-8 w-8 mr-2" 
+        />
+        <h2 className="text-3xl font-bold">Results with CompliZen</h2>
+      </div>
       
       <p className="text-center text-gray-600 mb-8">
         Our customers achieve significant improvements in their compliance processes. Here's what you can expect:
