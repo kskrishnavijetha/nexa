@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Book, Mail, Phone, Globe, Shield, FileText } from 'lucide-react';
+import { Book, Mail, Globe, Shield, FileText } from 'lucide-react';
 import { getPrivacyPolicyPdfUrl, getTermsOfServicePdfUrl, getCookiePolicyPdfUrl } from '@/utils/pdfGuide';
 import { toast } from 'sonner';
 
@@ -68,15 +68,11 @@ const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li className="flex items-center text-sm text-muted-foreground">
                 <Mail className="h-4 w-4 mr-2" />
-                <span>contact@complizen.com</span>
-              </li>
-              <li className="flex items-center text-sm text-muted-foreground">
-                <Phone className="h-4 w-4 mr-2" />
-                <span>+1 (555) 123-4567</span>
+                <span>contact@complizen.live</span>
               </li>
               <li className="flex items-center text-sm text-muted-foreground">
                 <Globe className="h-4 w-4 mr-2" />
-                <span>www.complizen.com</span>
+                <span>www.complizen.live</span>
               </li>
             </ul>
           </div>
