@@ -52,6 +52,7 @@ const Header: React.FC = () => {
               src="/public/lovable-uploads/b96b3f45-8a1a-40d5-b884-1142753be402.png" 
               alt="CompliZen Logo" 
               className="h-8 w-8" 
+              style={{ backgroundColor: 'transparent' }}
             />
             <span className="font-bold text-xl">CompliZen</span>
           </Link>

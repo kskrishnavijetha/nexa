@@ -26,7 +26,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 <img 
                   src="/public/lovable-uploads/b96b3f45-8a1a-40d5-b884-1142753be402.png" 
                   alt="CompliZen Logo" 
-                  className="h-6 w-6" 
+                  className="h-6 w-6"
+                  style={{ backgroundColor: 'transparent' }}
                 />
                 <div>
                   <h2 className="font-semibold text-xl">CompliZen</h2>

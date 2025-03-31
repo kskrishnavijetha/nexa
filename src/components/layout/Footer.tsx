@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Globe, Shield, FileText } from 'lucide-react';
+import { Mail, Globe, Shield, FileText, Linkedin, Twitter } from 'lucide-react';
 import { getPrivacyPolicyPdfUrl, getTermsOfServicePdfUrl, getCookiePolicyPdfUrl } from '@/utils/pdfGuide';
 import { toast } from 'sonner';
 
@@ -66,6 +66,14 @@ const Footer: React.FC = () => {
             <p className="text-sm text-muted-foreground">
               Automate your compliance monitoring with AI. Stay compliant with GDPR, HIPAA, SOC 2, and PCI-DSS regulations effortlessly.
             </p>
+            <div className="flex space-x-4 pt-2">
+              <a href="https://twitter.com/complizen" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-700 transition-colors">
+                <Twitter className="h-5 w-5" />
+              </a>
+              <a href="https://linkedin.com/company/complizen" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-700 transition-colors">
+                <Linkedin className="h-5 w-5" />
+              </a>
+            </div>
           </div>
           
           <div>

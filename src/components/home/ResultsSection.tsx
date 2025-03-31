@@ -34,7 +34,8 @@ const ResultsSection: React.FC = () => {
         <img 
           src="/public/lovable-uploads/b96b3f45-8a1a-40d5-b884-1142753be402.png" 
           alt="CompliZen Logo" 
-          className="h-8 w-8 mr-2" 
+          className="h-8 w-8 mr-2"
+          style={{ backgroundColor: 'transparent' }}
         />
         <h2 className="text-3xl font-bold">Results with CompliZen</h2>
       </div>

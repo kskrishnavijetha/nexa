@@ -16,7 +16,8 @@ const Hero: React.FC = () => {
         <img 
           src="/public/lovable-uploads/b96b3f45-8a1a-40d5-b884-1142753be402.png" 
           alt="CompliZen Logo" 
-          className="h-16 w-16 mr-2" 
+          className="h-16 w-16 mr-2"
+          style={{ backgroundColor: 'transparent' }}
         />
         <h1 className="font-bold text-5xl md:text-6xl text-gray-900">
           CompliZen
