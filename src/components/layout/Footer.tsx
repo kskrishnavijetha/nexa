@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Globe, Shield, FileText, Linkedin, Twitter } from 'lucide-react';
+import { Mail, Globe, Shield, FileText, Linkedin, X } from 'lucide-react';
 import { getPrivacyPolicyPdfUrl, getTermsOfServicePdfUrl, getCookiePolicyPdfUrl } from '@/utils/pdfGuide';
 import { toast } from 'sonner';
 
@@ -60,6 +60,7 @@ const Footer: React.FC = () => {
                 src="/public/lovable-uploads/b96b3f45-8a1a-40d5-b884-1142753be402.png" 
                 alt="CompliZen Logo" 
                 className="h-6 w-6" 
+                style={{ backgroundColor: 'transparent' }}
               />
               <span className="font-bold text-xl">CompliZen</span>
             </div>
@@ -67,8 +68,8 @@ const Footer: React.FC = () => {
               Automate your compliance monitoring with AI. Stay compliant with GDPR, HIPAA, SOC 2, and PCI-DSS regulations effortlessly.
             </p>
             <div className="flex space-x-4 pt-2">
-              <a href="https://twitter.com/complizen" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-700 transition-colors">
-                <Twitter className="h-5 w-5" />
+              <a href="https://x.com/complizen171521" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-700 transition-colors">
+                <X className="h-5 w-5" />
               </a>
               <a href="https://linkedin.com/company/complizen" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-700 transition-colors">
                 <Linkedin className="h-5 w-5" />
@@ -78,14 +79,22 @@ const Footer: React.FC = () => {
           
           <div>
             <h3 className="font-medium text-lg mb-4">Contact</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               <li className="flex items-center text-sm text-muted-foreground">
                 <Mail className="h-4 w-4 mr-2" />
-                <span>contact@complizen.live</span>
+                <a href="mailto:contact@complizen.live" className="hover:text-primary transition-colors">contact@complizen.live</a>
               </li>
               <li className="flex items-center text-sm text-muted-foreground">
                 <Globe className="h-4 w-4 mr-2" />
-                <span>www.complizen.live</span>
+                <a href="https://www.complizen.live" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">www.complizen.live</a>
+              </li>
+              <li className="flex items-center text-sm text-muted-foreground">
+                <X className="h-4 w-4 mr-2" />
+                <a href="https://x.com/complizen171521" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">@complizen171521</a>
+              </li>
+              <li className="flex items-center text-sm text-muted-foreground">
+                <Linkedin className="h-4 w-4 mr-2" />
+                <a href="https://linkedin.com/company/complizen" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">CompliZen</a>
               </li>
             </ul>
           </div>
