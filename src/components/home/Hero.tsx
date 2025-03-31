@@ -15,13 +15,10 @@ const Hero: React.FC = () => {
       <div className="flex justify-center items-center mb-2">
         <img 
           src="/public/lovable-uploads/b96b3f45-8a1a-40d5-b884-1142753be402.png" 
-          alt="CompliZen Logo" 
-          className="h-16 w-16 mr-2"
+          alt="Logo" 
+          className="h-16 w-16"
           style={{ backgroundColor: 'transparent' }}
         />
-        <h1 className="font-bold text-5xl md:text-6xl text-gray-900">
-          CompliZen
-        </h1>
       </div>
       <h2 className="text-2xl md:text-3xl font-semibold text-primary mb-4">
         AI-Powered Compliance Automation

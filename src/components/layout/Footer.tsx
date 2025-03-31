@@ -55,14 +55,13 @@ const Footer: React.FC = () => {
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-4">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center">
               <img 
                 src="/public/lovable-uploads/b96b3f45-8a1a-40d5-b884-1142753be402.png" 
-                alt="CompliZen Logo" 
+                alt="Logo" 
                 className="h-6 w-6" 
                 style={{ backgroundColor: 'transparent' }}
               />
-              <span className="font-bold text-xl">CompliZen</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Automate your compliance monitoring with AI. Stay compliant with GDPR, HIPAA, SOC 2, and PCI-DSS regulations effortlessly.

@@ -33,11 +33,11 @@ const ResultsSection: React.FC = () => {
       <div className="flex items-center justify-center mb-4">
         <img 
           src="/public/lovable-uploads/b96b3f45-8a1a-40d5-b884-1142753be402.png" 
-          alt="CompliZen Logo" 
+          alt="Logo" 
           className="h-8 w-8 mr-2"
           style={{ backgroundColor: 'transparent' }}
         />
-        <h2 className="text-3xl font-bold">Results with CompliZen</h2>
+        <h2 className="text-3xl font-bold">Results</h2>
       </div>
       
       <p className="text-center text-gray-600 mb-8">
