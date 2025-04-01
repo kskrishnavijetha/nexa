@@ -65,7 +65,61 @@ const ScoreComparisonChart: React.FC<ScoreComparisonChartProps> = ({ analysis })
       });
     }
     
+    // Add industry-specific regulations if they exist in the analysis data
+    const specificRegulations = [
+      'sox', 'glba', 'hitech', 'fedramp', 'ccpa', 'ferpa', 'coppa', 'fisma', 
+      'nerc', 'itar', 'cmmc', 'iso27001', 'iso9001', 'iso13485'
+    ];
+    
+    specificRegulations.forEach(reg => {
+      if (
+        analysis.originalScores && 
+        analysis.predictedScores && 
+        (analysis.originalScores[reg as keyof typeof analysis.originalScores] > 0 || 
+         analysis.predictedScores[reg as keyof typeof analysis.predictedScores] > 0)
+      ) {
+        const original = analysis.originalScores[reg as keyof typeof analysis.originalScores] as number || 0;
+        const predicted = analysis.predictedScores[reg as keyof typeof analysis.predictedScores] as number || 0;
+        const difference = predicted - original;
+        
+        const displayName = getRegulationDisplayName(reg);
+        
+        data.push({
+          name: displayName,
+          original: original,
+          predicted: predicted,
+          difference: difference,
+        });
+      }
+    });
+    
     return data;
+  };
+
+  // Helper function to convert regulation codes to proper display names
+  const getRegulationDisplayName = (code: string): string => {
+    const displayNames: Record<string, string> = {
+      'gdpr': 'GDPR',
+      'hipaa': 'HIPAA',
+      'soc2': 'SOC 2',
+      'pciDss': 'PCI DSS',
+      'sox': 'SOX',
+      'glba': 'GLBA',
+      'hitech': 'HITECH',
+      'fedramp': 'FedRAMP',
+      'ccpa': 'CCPA',
+      'ferpa': 'FERPA',
+      'coppa': 'COPPA',
+      'fisma': 'FISMA',
+      'nerc': 'NERC CIP',
+      'itar': 'ITAR',
+      'cmmc': 'CMMC',
+      'iso27001': 'ISO 27001',
+      'iso9001': 'ISO 9001',
+      'iso13485': 'ISO 13485'
+    };
+    
+    return displayNames[code] || code.toUpperCase();
   };
 
   const chartData = generateChartData();
