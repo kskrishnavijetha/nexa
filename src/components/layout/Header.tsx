@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { User as UserIcon, LogOut, CreditCard } from 'lucide-react';
@@ -20,16 +19,13 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   
-  // Handle sign out with navigation
   const handleSignOut = async () => {
     try {
       console.log('Header: Initiating sign out');
       
-      // Call signOut function from AuthContext
       await signOut();
       
       console.log('Header: Sign out completed, navigating to home');
-      // Force navigation to home page
       navigate('/', { replace: true });
     } catch (error) {
       console.error('Header: Error during sign out:', error);
@@ -37,7 +33,6 @@ const Header: React.FC = () => {
     }
   };
   
-  // This item will be shown to all users
   const publicNavItems = [
     { name: 'Home', path: '/' },
     { name: 'Pricing', path: '/pricing' },
@@ -48,12 +43,15 @@ const Header: React.FC = () => {
       <div className="container flex h-16 items-center">
         <div className="mr-8 flex items-center">
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/lovable-uploads/02ec954b-2d1e-4c5c-bfbd-f06f37b0329d.png" alt="Nexabloom Logo" className="h-8 w-8" />
+            <img 
+              src="/lovable-uploads/02ec954b-2d1e-4c5c-bfbd-f06f37b0329d.png" 
+              alt="Nexabloom Logo" 
+              className="h-8 w-8 object-contain" 
+            />
             <span className="font-bold text-xl">Nexabloom</span>
           </Link>
         </div>
         
-        {/* Only show these nav items to non-authenticated users */}
         {!user && (
           <nav className="flex-1">
             <ul className="hidden md:flex space-x-4">

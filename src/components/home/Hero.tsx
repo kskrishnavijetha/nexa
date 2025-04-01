@@ -13,7 +13,11 @@ const Hero: React.FC = () => {
     <div className="text-center py-16">
       <p className="text-sm font-medium text-primary mb-2">Trusted by 1000+ companies</p>
       <div className="flex items-center justify-center mb-4">
-        <img src="/lovable-uploads/02ec954b-2d1e-4c5c-bfbd-f06f37b0329d.png" alt="Nexabloom Logo" className="h-16 w-16" />
+        <img 
+          src="/lovable-uploads/02ec954b-2d1e-4c5c-bfbd-f06f37b0329d.png" 
+          alt="Nexabloom Logo" 
+          className="h-16 w-16 object-contain" 
+        />
         <h1 className="font-bold text-5xl md:text-6xl text-gray-900 ml-2">
           Nexabloom
         </h1>
