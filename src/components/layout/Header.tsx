@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { User, LogOut, CreditCard } from 'lucide-react';
+import { Book, User, LogOut, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -48,12 +48,8 @@ const Header: React.FC = () => {
       <div className="container flex h-16 items-center">
         <div className="mr-8 flex items-center">
           <Link to="/" className="flex items-center space-x-2">
-            <img 
-              src="/lovable-uploads/99e74280-b77b-41bd-9689-2961ef6f9ac6.png" 
-              alt="Nexabloom Logo" 
-              className="h-8 w-8" 
-            />
-            <span className="font-bold text-xl text-[#1EAEDB]">Nexabloom</span>
+            <Book className="h-6 w-6" />
+            <span className="font-bold text-xl">Nexabloom</span>
           </Link>
         </div>
         
@@ -68,7 +64,7 @@ const Header: React.FC = () => {
                     className={cn(
                       "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
                       location.pathname === item.path 
-                        ? "bg-[#1EAEDB] text-primary-foreground" 
+                        ? "bg-primary text-primary-foreground" 
                         : "text-foreground/60 hover:text-foreground hover:bg-muted"
                     )}
                   >
@@ -99,7 +95,7 @@ const Header: React.FC = () => {
                   <Link to="/payment" className="w-full cursor-pointer">Subscription</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="text-[#1EAEDB] cursor-pointer">
+                <DropdownMenuItem onClick={handleSignOut} className="text-red-500 cursor-pointer">
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign out
                 </DropdownMenuItem>
@@ -113,7 +109,7 @@ const Header: React.FC = () => {
                 </Button>
               </Link>
               <Link to="/sign-up">
-                <Button className="bg-[#1EAEDB] hover:bg-[#33C3F0]">
+                <Button>
                   Sign Up
                 </Button>
               </Link>
