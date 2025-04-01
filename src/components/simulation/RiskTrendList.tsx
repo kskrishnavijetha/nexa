@@ -9,6 +9,45 @@ interface RiskTrendListProps {
 }
 
 const RiskTrendList: React.FC<RiskTrendListProps> = ({ analysis }) => {
+  // Helper function to format regulation names
+  const formatRegulationName = (regulation: string): string => {
+    const displayNames: Record<string, string> = {
+      'GDPR': 'GDPR',
+      'HIPAA': 'HIPAA',
+      'SOC 2': 'SOC 2',
+      'PCI-DSS': 'PCI DSS',
+      'SOX': 'SOX',
+      'GLBA': 'GLBA',
+      'HITECH': 'HITECH',
+      'FedRAMP': 'FedRAMP',
+      'CCPA': 'CCPA',
+      'FERPA': 'FERPA',
+      'COPPA': 'COPPA',
+      'FISMA': 'FISMA',
+      'NERC': 'NERC CIP',
+      'ITAR': 'ITAR',
+      'CMMC': 'CMMC',
+      'ISO/IEC 27001': 'ISO 27001',
+      'ISO 9001': 'ISO 9001',
+      'ISO 13485': 'ISO 13485',
+      'FDA CFR Part 11': 'FDA CFR Part 11',
+      'NYDFS': 'NYDFS',
+      'FCC': 'FCC Regulations',
+      'CPRA': 'CPRA',
+      'FERC': 'FERC',
+      'ISO 14001': 'ISO 14001',
+      'FTC Act': 'FTC Act',
+      'FDA': 'FDA Regulations',
+      'EMA': 'EMA Regulations',
+      'C-TPAT': 'C-TPAT',
+      'RoHS': 'RoHS',
+      'ISO 26262': 'ISO 26262',
+      'TS 16949': 'TS 16949'
+    };
+    
+    return displayNames[regulation] || regulation;
+  };
+
   if (!analysis.riskTrends || analysis.riskTrends.length === 0) {
     return (
       <div className="text-center p-4">
@@ -63,7 +102,7 @@ const RiskTrendList: React.FC<RiskTrendListProps> = ({ analysis }) => {
           </div>
           
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span className="font-medium text-primary/80">{trend.regulation}</span>
+            <span className="font-medium text-primary/80">{formatRegulationName(trend.regulation)}</span>
             <span className="text-foreground/70 font-medium">
               Impact: {trend.impact.charAt(0).toUpperCase() + trend.impact.slice(1)}
             </span>

@@ -28,7 +28,7 @@ const ScoreComparisonChart: React.FC<ScoreComparisonChartProps> = ({ analysis })
       }
     ];
     
-    // Add all regulatory frameworks that have data
+    // Add all major regulatory frameworks that have data
     if (analysis.originalScores?.gdpr > 0 || analysis.predictedScores?.gdpr > 0) {
       data.push({
         name: 'GDPR',
@@ -68,7 +68,8 @@ const ScoreComparisonChart: React.FC<ScoreComparisonChartProps> = ({ analysis })
     // Add industry-specific regulations if they exist in the analysis data
     const specificRegulations = [
       'sox', 'glba', 'hitech', 'fedramp', 'ccpa', 'ferpa', 'coppa', 'fisma', 
-      'nerc', 'itar', 'cmmc', 'iso27001', 'iso9001', 'iso13485'
+      'nerc', 'itar', 'cmmc', 'iso27001', 'iso9001', 'iso13485', 'fcc', 'cpra',
+      'ferc', 'iso14001', 'ftc', 'fda', 'ema', 'ctpat', 'rohs', 'iso26262', 'ts16949'
     ];
     
     specificRegulations.forEach(reg => {
@@ -116,7 +117,18 @@ const ScoreComparisonChart: React.FC<ScoreComparisonChartProps> = ({ analysis })
       'cmmc': 'CMMC',
       'iso27001': 'ISO 27001',
       'iso9001': 'ISO 9001',
-      'iso13485': 'ISO 13485'
+      'iso13485': 'ISO 13485',
+      'fcc': 'FCC Regulations',
+      'cpra': 'CPRA',
+      'ferc': 'FERC',
+      'iso14001': 'ISO 14001',
+      'ftc': 'FTC Act',
+      'fda': 'FDA Regulations',
+      'ema': 'EMA Regulations',
+      'ctpat': 'C-TPAT',
+      'rohs': 'RoHS',
+      'iso26262': 'ISO 26262',
+      'ts16949': 'TS 16949'
     };
     
     return displayNames[code] || code.toUpperCase();
