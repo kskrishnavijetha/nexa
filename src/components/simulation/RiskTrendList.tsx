@@ -1,110 +1,75 @@
 
 import React from 'react';
-import { PredictiveAnalysis, RiskTrend } from '@/utils/types';
-import StatusBadge from '../audit/StatusBadge';
-import { TrendingUp, TrendingDown, Check } from 'lucide-react';
+import { PredictiveAnalysis } from '@/utils/types';
+import { ArrowDown, ArrowUp, Minus, AlertTriangle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 interface RiskTrendListProps {
   analysis: PredictiveAnalysis;
 }
 
 const RiskTrendList: React.FC<RiskTrendListProps> = ({ analysis }) => {
-  // Group risk trends by impact
-  const highImpactTrends = analysis.riskTrends.filter(trend => trend.impact === 'high');
-  const mediumImpactTrends = analysis.riskTrends.filter(trend => trend.impact === 'medium');
-  const lowImpactTrends = analysis.riskTrends.filter(trend => 
-    trend.impact === 'low' || trend.trend === 'stable');
-
-  // Get badge for risk trend
-  const getRiskTrendBadge = (trend: RiskTrend) => {
+  if (!analysis.riskTrends || analysis.riskTrends.length === 0) {
     return (
-      <StatusBadge 
-        status={mapTrendToStatus(trend.trend)}
-        trend={mapTrendToStatus(trend.trend)}
-        showTrend={true} 
-      />
+      <div className="text-center p-4">
+        <p className="text-muted-foreground">No risk trends available for this scenario</p>
+      </div>
     );
-  };
-  
-  // Helper function to map between different trend naming conventions
-  const mapTrendToStatus = (trend: string): 'increase' | 'decrease' | 'stable' => {
-    if (trend === 'increasing') return 'increase';
-    if (trend === 'decreasing') return 'decrease';
-    return 'stable';
-  };
+  }
 
   return (
-    <div className="max-h-96 overflow-y-auto">
-      {highImpactTrends.length > 0 && (
-        <div className="mb-4">
-          <h4 className="text-sm font-medium flex items-center">
-            <TrendingUp className="h-4 w-4 text-red-500 mr-1" />
-            High Impact Changes
-          </h4>
-          <div className="space-y-2 mt-2">
-            {highImpactTrends.map((trend, index) => (
-              <div key={index} className="p-2 bg-red-50 rounded border border-red-100">
-                <div className="flex justify-between">
-                  <span className="text-xs font-medium">{trend.description}</span>
-                  {getRiskTrendBadge(trend)}
-                </div>
-                <div className="text-xs text-slate-500 mt-1">
-                  {trend.regulation} - Currently: {trend.currentSeverity}
-                </div>
-              </div>
-            ))}
+    <div className="space-y-4 max-h-72 overflow-y-auto pr-2">
+      {analysis.riskTrends.map((trend, index) => (
+        <div 
+          key={index} 
+          className="p-3 border rounded-md bg-background/50"
+        >
+          <div className="flex items-start justify-between mb-1">
+            <div className="flex items-center space-x-2">
+              <AlertTriangle 
+                className={`h-4 w-4 ${
+                  trend.currentSeverity === 'high' 
+                    ? 'text-red-500' 
+                    : trend.currentSeverity === 'medium' 
+                      ? 'text-amber-500' 
+                      : 'text-blue-500'
+                }`} 
+              />
+              <span className="font-medium text-sm line-clamp-1">{trend.description}</span>
+            </div>
+            <Badge 
+              variant="outline" 
+              className={`text-xs ${
+                trend.trend === 'increase' 
+                  ? 'text-red-500 border-red-200 bg-red-50 dark:bg-red-950/30' 
+                  : trend.trend === 'decrease' 
+                    ? 'text-green-500 border-green-200 bg-green-50 dark:bg-green-950/30' 
+                    : 'text-blue-500 border-blue-200 bg-blue-50 dark:bg-blue-950/30'
+              }`}
+            >
+              {trend.trend === 'increase' ? (
+                <ArrowUp className="h-3 w-3 mr-1" />
+              ) : trend.trend === 'decrease' ? (
+                <ArrowDown className="h-3 w-3 mr-1" />
+              ) : (
+                <Minus className="h-3 w-3 mr-1" />
+              )}
+              {trend.trend === 'increase' 
+                ? 'Increasing' 
+                : trend.trend === 'decrease' 
+                  ? 'Decreasing' 
+                  : 'Stable'}
+            </Badge>
+          </div>
+          
+          <div className="flex justify-between text-xs text-muted-foreground">
+            <span>{trend.regulation}</span>
+            <span className="text-foreground/70 font-medium">
+              Impact: {trend.impact.charAt(0).toUpperCase() + trend.impact.slice(1)}
+            </span>
           </div>
         </div>
-      )}
-
-      {mediumImpactTrends.length > 0 && (
-        <div className="mb-4">
-          <h4 className="text-sm font-medium flex items-center">
-            <TrendingDown className="h-4 w-4 text-amber-500 mr-1" />
-            Medium Impact Changes
-          </h4>
-          <div className="space-y-2 mt-2">
-            {mediumImpactTrends.map((trend, index) => (
-              <div key={index} className="p-2 bg-amber-50 rounded border border-amber-100">
-                <div className="flex justify-between">
-                  <span className="text-xs font-medium">{trend.description}</span>
-                  {getRiskTrendBadge(trend)}
-                </div>
-                <div className="text-xs text-slate-500 mt-1">
-                  {trend.regulation} - Currently: {trend.currentSeverity}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {lowImpactTrends.length > 0 && (
-        <div>
-          <h4 className="text-sm font-medium flex items-center">
-            <Check className="h-4 w-4 text-green-500 mr-1" />
-            Low/No Impact
-          </h4>
-          <div className="space-y-2 mt-2">
-            {lowImpactTrends.slice(0, 3).map((trend, index) => (
-              <div key={index} className="p-2 bg-slate-50 rounded border border-slate-100">
-                <div className="flex justify-between">
-                  <span className="text-xs font-medium">{trend.description}</span>
-                  {getRiskTrendBadge(trend)}
-                </div>
-                <div className="text-xs text-slate-500 mt-1">
-                  {trend.regulation} - Currently: {trend.currentSeverity}
-                </div>
-              </div>
-            ))}
-            {lowImpactTrends.length > 3 && (
-              <div className="text-xs text-center text-slate-500">
-                +{lowImpactTrends.length - 3} more low impact items
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      ))}
     </div>
   );
 };
