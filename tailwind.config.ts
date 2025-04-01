@@ -52,6 +52,10 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        nexabloom: {
+          blue: "#1A8DE0",
+          darkBlue: "#0E6CBD",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

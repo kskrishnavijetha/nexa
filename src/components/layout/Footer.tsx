@@ -56,7 +56,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <Book className="h-6 w-6" />
+              <img src="/lovable-uploads/98b02f48-a016-4320-8250-41f72b8497ca.png" alt="Nexabloom Logo" className="h-6 w-6" />
               <span className="font-bold text-xl">Nexabloom</span>
             </div>
             <p className="text-sm text-muted-foreground">
