@@ -67,10 +67,10 @@ const Footer: React.FC = () => {
               Automate your compliance monitoring with AI. Stay compliant with GDPR, HIPAA, SOC 2, and PCI-DSS regulations effortlessly.
             </p>
             <div className="flex space-x-4 pt-2">
-              <a href="https://x.com/complizen171521" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-700 transition-colors">
+              <a href="https://x.com/nexabloom171521" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-700 transition-colors">
                 <X className="h-5 w-5" />
               </a>
-              <a href="https://linkedin.com/company/complizen" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-700 transition-colors">
+              <a href="https://linkedin.com/company/nexabloom" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-700 transition-colors">
                 <Linkedin className="h-5 w-5" />
               </a>
             </div>
@@ -81,19 +81,19 @@ const Footer: React.FC = () => {
             <ul className="space-y-3">
               <li className="flex items-center text-sm text-muted-foreground">
                 <Mail className="h-4 w-4 mr-2" />
-                <a href="mailto:contact@complizen.live" className="hover:text-primary transition-colors">contact@complizen.live</a>
+                <a href="mailto:contact@nexabloom.live" className="hover:text-primary transition-colors">contact@nexabloom.live</a>
               </li>
               <li className="flex items-center text-sm text-muted-foreground">
                 <Globe className="h-4 w-4 mr-2" />
-                <a href="https://www.complizen.live" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">www.complizen.live</a>
+                <a href="https://www.nexabloom.live" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">www.nexabloom.live</a>
               </li>
               <li className="flex items-center text-sm text-muted-foreground">
                 <X className="h-4 w-4 mr-2" />
-                <a href="https://x.com/complizen171521" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">@complizen171521</a>
+                <a href="https://x.com/nexabloom171521" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">@nexabloom171521</a>
               </li>
               <li className="flex items-center text-sm text-muted-foreground">
                 <Linkedin className="h-4 w-4 mr-2" />
-                <a href="https://linkedin.com/company/complizen" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">CompliZen</a>
+                <a href="https://linkedin.com/company/nexabloom" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Nexabloom</a>
               </li>
             </ul>
           </div>
@@ -102,7 +102,7 @@ const Footer: React.FC = () => {
         <div className="mt-12 pt-8 border-t flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center mb-4 md:mb-0">
             <Shield className="h-4 w-4 mr-2" />
-            <span className="text-sm text-muted-foreground">© {currentYear} CompliZen. All rights reserved.</span>
+            <span className="text-sm text-muted-foreground">© {currentYear} Nexabloom. All rights reserved.</span>
           </div>
           
           <div className="flex space-x-6">
