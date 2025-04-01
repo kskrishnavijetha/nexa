@@ -42,7 +42,7 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
             set({ scanHistory: [], userId: id });
             
             // Try to load user-specific history
-            const userHistoryKey = `nexabloom_serviceHistory_${id}`;
+            const userHistoryKey = `compliZen_serviceHistory_${id}`;
             const savedHistory = localStorage.getItem(userHistoryKey);
             
             if (savedHistory) {
@@ -88,7 +88,7 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
             const newHistory = [item, ...state.scanHistory];
             
             // Also save directly to localStorage for this specific user
-            const userHistoryKey = `nexabloom_serviceHistory_${userId}`;
+            const userHistoryKey = `compliZen_serviceHistory_${userId}`;
             try {
               localStorage.setItem(
                 userHistoryKey, 
@@ -111,7 +111,7 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
         
         // Clear from localStorage if we have a user ID
         if (userId) {
-          const userHistoryKey = `nexabloom_serviceHistory_${userId}`;
+          const userHistoryKey = `compliZen_serviceHistory_${userId}`;
           localStorage.removeItem(userHistoryKey);
         }
         
@@ -119,7 +119,7 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
       },
     }),
     {
-      name: 'nexabloom_serviceHistory',
+      name: 'compliZen_serviceHistory',
       partialize: (state) => ({ 
         userId: state.userId 
       }),

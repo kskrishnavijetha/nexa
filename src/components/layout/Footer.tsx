@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Globe, Shield, FileText, Linkedin, X } from 'lucide-react';
+import { Book, Mail, Phone, Globe, Shield, FileText } from 'lucide-react';
 import { getPrivacyPolicyPdfUrl, getTermsOfServicePdfUrl, getCookiePolicyPdfUrl } from '@/utils/pdfGuide';
 import { toast } from 'sonner';
 
@@ -55,45 +54,29 @@ const Footer: React.FC = () => {
       <div className="container py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-4">
-            <div className="flex items-center">
-              <img 
-                src="/public/lovable-uploads/b96b3f45-8a1a-40d5-b884-1142753be402.png" 
-                alt="Logo" 
-                className="h-6 w-6" 
-                style={{ backgroundColor: 'transparent' }}
-              />
+            <div className="flex items-center space-x-2">
+              <Book className="h-6 w-6" />
+              <span className="font-bold text-xl">CompliZen</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Automate your compliance monitoring with AI. Stay compliant with GDPR, HIPAA, SOC 2, and PCI-DSS regulations effortlessly.
             </p>
-            <div className="flex space-x-4 pt-2">
-              <a href="https://x.com/nexabloom171521" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-700 transition-colors">
-                <X className="h-5 w-5" />
-              </a>
-              <a href="https://linkedin.com/company/nexabloom" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-gray-700 transition-colors">
-                <Linkedin className="h-5 w-5" />
-              </a>
-            </div>
           </div>
           
           <div>
             <h3 className="font-medium text-lg mb-4">Contact</h3>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               <li className="flex items-center text-sm text-muted-foreground">
                 <Mail className="h-4 w-4 mr-2" />
-                <a href="mailto:contact@nexabloom.live" className="hover:text-primary transition-colors">contact@nexabloom.live</a>
+                <span>contact@complizen.com</span>
+              </li>
+              <li className="flex items-center text-sm text-muted-foreground">
+                <Phone className="h-4 w-4 mr-2" />
+                <span>+1 (555) 123-4567</span>
               </li>
               <li className="flex items-center text-sm text-muted-foreground">
                 <Globe className="h-4 w-4 mr-2" />
-                <a href="https://www.nexabloom.live" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">www.nexabloom.live</a>
-              </li>
-              <li className="flex items-center text-sm text-muted-foreground">
-                <X className="h-4 w-4 mr-2" />
-                <a href="https://x.com/nexabloom171521" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">@nexabloom171521</a>
-              </li>
-              <li className="flex items-center text-sm text-muted-foreground">
-                <Linkedin className="h-4 w-4 mr-2" />
-                <a href="https://linkedin.com/company/nexabloom" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">Nexabloom</a>
+                <span>www.complizen.com</span>
               </li>
             </ul>
           </div>
@@ -102,7 +85,7 @@ const Footer: React.FC = () => {
         <div className="mt-12 pt-8 border-t flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center mb-4 md:mb-0">
             <Shield className="h-4 w-4 mr-2" />
-            <span className="text-sm text-muted-foreground">© {currentYear} Nexabloom. All rights reserved.</span>
+            <span className="text-sm text-muted-foreground">© {currentYear} CompliZen. All rights reserved.</span>
           </div>
           
           <div className="flex space-x-6">

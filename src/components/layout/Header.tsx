@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { User, LogOut, CreditCard } from 'lucide-react';
+import { Book, User, LogOut, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -47,13 +47,9 @@ const Header: React.FC = () => {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
         <div className="mr-8 flex items-center">
-          <Link to="/" className="flex items-center">
-            <img 
-              src="/public/lovable-uploads/b96b3f45-8a1a-40d5-b884-1142753be402.png" 
-              alt="Logo" 
-              className="h-8 w-8" 
-              style={{ backgroundColor: 'transparent' }}
-            />
+          <Link to="/" className="flex items-center space-x-2">
+            <Book className="h-6 w-6" />
+            <span className="font-bold text-xl">CompliZen</span>
           </Link>
         </div>
         

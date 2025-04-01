@@ -1,3 +1,4 @@
+
 import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
@@ -21,16 +22,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <div className="flex min-h-screen w-full">
           <Sidebar>
             <SidebarHeader className="border-b">
-              <div className="px-2 py-4 flex items-center">
-                <img 
-                  src="/public/lovable-uploads/b96b3f45-8a1a-40d5-b884-1142753be402.png" 
-                  alt="Logo" 
-                  className="h-8 w-8"
-                  style={{ backgroundColor: 'transparent' }}
-                />
-                <div className="ml-2">
-                  <p className="text-sm text-muted-foreground">Document Analysis Platform</p>
-                </div>
+              <div className="px-2 py-4">
+                <h2 className="font-semibold text-xl">CompliZen</h2>
+                <p className="text-sm text-muted-foreground">Document Analysis Platform</p>
               </div>
             </SidebarHeader>
             <SidebarContent>
