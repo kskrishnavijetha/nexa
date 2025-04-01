@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Book, User as UserIcon, LogOut, CreditCard } from 'lucide-react';
+import { User as UserIcon, LogOut, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -48,7 +48,7 @@ const Header: React.FC = () => {
       <div className="container flex h-16 items-center">
         <div className="mr-8 flex items-center">
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/lovable-uploads/98b02f48-a016-4320-8250-41f72b8497ca.png" alt="Nexabloom Logo" className="h-8 w-8" />
+            <img src="/lovable-uploads/02ec954b-2d1e-4c5c-bfbd-f06f37b0329d.png" alt="Nexabloom Logo" className="h-8 w-8" />
             <span className="font-bold text-xl">Nexabloom</span>
           </Link>
         </div>
