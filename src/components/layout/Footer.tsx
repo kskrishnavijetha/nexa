@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Book, Mail, Phone, Globe, Shield, FileText } from 'lucide-react';
+import { Mail, Phone, Globe, Shield, FileText } from 'lucide-react';
 import { getPrivacyPolicyPdfUrl, getTermsOfServicePdfUrl, getCookiePolicyPdfUrl } from '@/utils/pdfGuide';
 import { toast } from 'sonner';
 
@@ -56,8 +56,12 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <Book className="h-6 w-6" />
-              <span className="font-bold text-xl">Nexabloom</span>
+              <img 
+                src="/lovable-uploads/99e74280-b77b-41bd-9689-2961ef6f9ac6.png" 
+                alt="Nexabloom Logo" 
+                className="h-8 w-8" 
+              />
+              <span className="font-bold text-xl text-[#1EAEDB]">Nexabloom</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Automate your compliance monitoring with AI. Stay compliant with GDPR, HIPAA, SOC 2, and PCI-DSS regulations effortlessly.
@@ -68,15 +72,15 @@ const Footer: React.FC = () => {
             <h3 className="font-medium text-lg mb-4">Contact</h3>
             <ul className="space-y-2">
               <li className="flex items-center text-sm text-muted-foreground">
-                <Mail className="h-4 w-4 mr-2" />
+                <Mail className="h-4 w-4 mr-2 text-[#1EAEDB]" />
                 <span>contact@nexabloom.com</span>
               </li>
               <li className="flex items-center text-sm text-muted-foreground">
-                <Phone className="h-4 w-4 mr-2" />
+                <Phone className="h-4 w-4 mr-2 text-[#1EAEDB]" />
                 <span>+1 (555) 123-4567</span>
               </li>
               <li className="flex items-center text-sm text-muted-foreground">
-                <Globe className="h-4 w-4 mr-2" />
+                <Globe className="h-4 w-4 mr-2 text-[#1EAEDB]" />
                 <span>www.nexabloom.com</span>
               </li>
             </ul>
@@ -85,7 +89,7 @@ const Footer: React.FC = () => {
         
         <div className="mt-12 pt-8 border-t flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center mb-4 md:mb-0">
-            <Shield className="h-4 w-4 mr-2" />
+            <Shield className="h-4 w-4 mr-2 text-[#1EAEDB]" />
             <span className="text-sm text-muted-foreground">© {currentYear} Nexabloom. All rights reserved.</span>
           </div>
           
@@ -93,22 +97,22 @@ const Footer: React.FC = () => {
             <a 
               href="#" 
               onClick={handlePrivacyPolicyClick} 
-              className="flex items-center text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center text-sm text-muted-foreground hover:text-[#1EAEDB] transition-colors"
             >
-              <FileText className="h-4 w-4 mr-1" />
+              <FileText className="h-4 w-4 mr-1 text-[#1EAEDB]" />
               Privacy Policy
             </a>
             <a 
               href="#" 
               onClick={handleTermsOfServiceClick} 
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground hover:text-[#1EAEDB] transition-colors"
             >
               Terms of Service
             </a>
             <a 
               href="#" 
               onClick={handleCookiePolicyClick} 
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+              className="text-sm text-muted-foreground hover:text-[#1EAEDB] transition-colors"
             >
               Cookie Policy
             </a>

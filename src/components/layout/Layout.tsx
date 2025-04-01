@@ -23,8 +23,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Sidebar>
             <SidebarHeader className="border-b">
               <div className="px-2 py-4">
-                <h2 className="font-semibold text-xl">Nexabloom</h2>
-                <p className="text-sm text-muted-foreground">Document Analysis Platform</p>
+                <div className="flex items-center gap-2">
+                  <img 
+                    src="/lovable-uploads/99e74280-b77b-41bd-9689-2961ef6f9ac6.png" 
+                    alt="Nexabloom Logo" 
+                    className="h-8 w-8" 
+                  />
+                  <div>
+                    <h2 className="font-semibold text-xl">Nexabloom</h2>
+                    <p className="text-sm text-muted-foreground">Document Analysis Platform</p>
+                  </div>
+                </div>
               </div>
             </SidebarHeader>
             <SidebarContent>
