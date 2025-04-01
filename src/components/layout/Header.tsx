@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Book, User, LogOut, CreditCard } from 'lucide-react';
+import { User, LogOut, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -48,8 +48,8 @@ const Header: React.FC = () => {
       <div className="container flex h-16 items-center">
         <div className="mr-8 flex items-center">
           <Link to="/" className="flex items-center space-x-2">
-            <Book className="h-6 w-6" />
-            <span className="font-bold text-xl">Nexabloom</span>
+            <img src="/lovable-uploads/e0bfc800-f6a5-40e8-9efb-903c0cf66887.png" alt="Nexabloom Logo" className="h-8 w-8" />
+            <span className="font-bold text-xl text-[#1EAEDB]">Nexabloom</span>
           </Link>
         </div>
         
@@ -64,7 +64,7 @@ const Header: React.FC = () => {
                     className={cn(
                       "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
                       location.pathname === item.path 
-                        ? "bg-primary text-primary-foreground" 
+                        ? "bg-[#1EAEDB] text-white" 
                         : "text-foreground/60 hover:text-foreground hover:bg-muted"
                     )}
                   >
@@ -109,7 +109,7 @@ const Header: React.FC = () => {
                 </Button>
               </Link>
               <Link to="/sign-up">
-                <Button>
+                <Button className="bg-[#1EAEDB] hover:bg-[#33C3F0] text-white">
                   Sign Up
                 </Button>
               </Link>
