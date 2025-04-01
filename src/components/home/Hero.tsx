@@ -11,18 +11,11 @@ const Hero: React.FC = () => {
   
   return (
     <div className="text-center py-16">
-      <p className="text-sm font-medium text-[#1EAEDB] mb-2">Trusted by 1000+ companies</p>
-      <div className="flex justify-center items-center mb-4">
-        <img 
-          src="/lovable-uploads/e0bfc800-f6a5-40e8-9efb-903c0cf66887.png" 
-          alt="Nexabloom Logo" 
-          className="h-16 w-16 mr-3"
-        />
-        <h1 className="font-bold text-5xl md:text-6xl text-[#1EAEDB]">
-          Nexabloom
-        </h1>
-      </div>
-      <h2 className="text-2xl md:text-3xl font-semibold text-[#33C3F0] mb-4">
+      <p className="text-sm font-medium text-primary mb-2">Trusted by 1000+ companies</p>
+      <h1 className="font-bold mb-2 text-5xl md:text-6xl text-gray-900">
+        🚀 Nexabloom
+      </h1>
+      <h2 className="text-2xl md:text-3xl font-semibold text-primary mb-4">
         AI-Powered Compliance Automation
       </h2>
       <p className="text-xl md:text-2xl font-bold text-gray-800 mb-4">
@@ -36,7 +29,7 @@ const Hero: React.FC = () => {
       <div className="flex justify-center mb-12">
         <Button 
           size="lg" 
-          className="px-8 py-6 text-lg bg-[#1EAEDB] hover:bg-[#33C3F0]"
+          className="px-8 py-6 text-lg bg-[#8B5CF6] hover:bg-[#7c4af0]"
           onClick={() => {
             if (user) {
               navigate('/dashboard');
