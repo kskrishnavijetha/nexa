@@ -39,7 +39,7 @@ const industries = [
 const IndustriesSection: React.FC = () => {
   return (
     <div className="my-16">
-      <h2 className="text-3xl font-bold mb-8 text-center">💼 Who Is CompliZen For?</h2>
+      <h2 className="text-3xl font-bold mb-8 text-center">💼 Who Is Nexabloom For?</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {industries.map((industry, index) => (
           <div key={index} className="bg-white p-6 rounded-lg shadow-sm border">

@@ -17,7 +17,7 @@ const UserGuide: React.FC = () => {
       // Create an anchor element and trigger the download
       const a = document.createElement('a');
       a.href = pdfUrl;
-      a.download = 'CompliZen_User_Guide.pdf';
+      a.download = 'Nexabloom_User_Guide.pdf';
       document.body.appendChild(a);
       a.click();
       
@@ -35,7 +35,7 @@ const UserGuide: React.FC = () => {
     <div className="my-16">
       <Card className="bg-gradient-to-r from-primary/5 to-secondary/5">
         <CardHeader>
-          <CardTitle className="text-2xl">📚 CompliZen Comprehensive User Guide</CardTitle>
+          <CardTitle className="text-2xl">📚 Nexabloom Comprehensive User Guide</CardTitle>
           <CardDescription>
             Download our detailed user guide with industry-specific features and regional regulations
           </CardDescription>
