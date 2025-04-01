@@ -107,7 +107,7 @@ const SignIn: React.FC = () => {
     <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
         <div className="text-center">
-          <h1 className="text-2xl font-bold">Sign In to CompliZen</h1>
+          <h1 className="text-2xl font-bold">Sign In to Nexabloom</h1>
           <p className="mt-2 text-sm text-gray-600">
             Enter your credentials to access your account
           </p>

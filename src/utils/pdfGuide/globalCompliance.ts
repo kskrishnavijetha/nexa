@@ -19,7 +19,7 @@ export const addGlobalComplianceFramework = (pdf: jsPDF): void => {
   pdf.setFontSize(FONT_SIZES.BODY);
   const textColor = COLORS.TEXT;
   pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
-  pdf.text('CompliZen offers a unified global compliance framework that helps organizations', 20, 40);
+  pdf.text('Nexabloom offers a unified global compliance framework that helps organizations', 20, 40);
   pdf.text('comply with regulations across multiple jurisdictions simultaneously:', 20, 50);
   
   let globalYPos = 70;

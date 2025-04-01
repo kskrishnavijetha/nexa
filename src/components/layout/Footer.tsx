@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Book, Mail, Phone, Globe, Shield, FileText } from 'lucide-react';
@@ -56,7 +57,7 @@ const Footer: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
               <Book className="h-6 w-6" />
-              <span className="font-bold text-xl">CompliZen</span>
+              <span className="font-bold text-xl">Nexabloom</span>
             </div>
             <p className="text-sm text-muted-foreground">
               Automate your compliance monitoring with AI. Stay compliant with GDPR, HIPAA, SOC 2, and PCI-DSS regulations effortlessly.
@@ -68,7 +69,7 @@ const Footer: React.FC = () => {
             <ul className="space-y-2">
               <li className="flex items-center text-sm text-muted-foreground">
                 <Mail className="h-4 w-4 mr-2" />
-                <span>contact@complizen.com</span>
+                <span>contact@nexabloom.com</span>
               </li>
               <li className="flex items-center text-sm text-muted-foreground">
                 <Phone className="h-4 w-4 mr-2" />
@@ -76,7 +77,7 @@ const Footer: React.FC = () => {
               </li>
               <li className="flex items-center text-sm text-muted-foreground">
                 <Globe className="h-4 w-4 mr-2" />
-                <span>www.complizen.com</span>
+                <span>www.nexabloom.com</span>
               </li>
             </ul>
           </div>
@@ -85,7 +86,7 @@ const Footer: React.FC = () => {
         <div className="mt-12 pt-8 border-t flex flex-col md:flex-row justify-between items-center">
           <div className="flex items-center mb-4 md:mb-0">
             <Shield className="h-4 w-4 mr-2" />
-            <span className="text-sm text-muted-foreground">© {currentYear} CompliZen. All rights reserved.</span>
+            <span className="text-sm text-muted-foreground">© {currentYear} Nexabloom. All rights reserved.</span>
           </div>
           
           <div className="flex space-x-6">

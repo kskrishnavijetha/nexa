@@ -30,7 +30,7 @@ const ResultsSection: React.FC = () => {
 
   return (
     <div className="my-16 bg-primary/5 p-8 rounded-xl">
-      <h2 className="text-3xl font-bold mb-4 text-center">📈 Results with CompliZen</h2>
+      <h2 className="text-3xl font-bold mb-4 text-center">📈 Results with Nexabloom</h2>
       
       <p className="text-center text-gray-600 mb-8">
         Our customers achieve significant improvements in their compliance processes. Here's what you can expect:

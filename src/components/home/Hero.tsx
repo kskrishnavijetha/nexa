@@ -13,7 +13,7 @@ const Hero: React.FC = () => {
     <div className="text-center py-16">
       <p className="text-sm font-medium text-primary mb-2">Trusted by 1000+ companies</p>
       <h1 className="font-bold mb-2 text-5xl md:text-6xl text-gray-900">
-        🚀 CompliZen
+        🚀 Nexabloom
       </h1>
       <h2 className="text-2xl md:text-3xl font-semibold text-primary mb-4">
         AI-Powered Compliance Automation

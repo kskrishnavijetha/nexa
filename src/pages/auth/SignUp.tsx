@@ -59,7 +59,7 @@ const SignUp: React.FC = () => {
         <div className="text-center">
           <h1 className="text-2xl font-bold">Create Your Account</h1>
           <p className="mt-2 text-sm text-gray-600">
-            Join CompliZen and streamline your compliance processes
+            Join Nexabloom and streamline your compliance processes
           </p>
         </div>
         

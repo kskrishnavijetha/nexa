@@ -12,7 +12,7 @@ const keyFeatures = [
 const WhyChooseSection: React.FC = () => {
   return (
     <div className="my-16 text-center">
-      <h2 className="text-3xl font-bold mb-8">🔍 Why Choose CompliZen?</h2>
+      <h2 className="text-3xl font-bold mb-8">🔍 Why Choose Nexabloom?</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {keyFeatures.map((feature, index) => (
           <div key={index} className="bg-white p-6 rounded-lg shadow-sm border flex items-start">
