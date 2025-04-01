@@ -11,6 +11,7 @@ import {
   YAxis,
   Legend,
   ReferenceLine,
+  Label,
 } from 'recharts';
 import { Brain } from 'lucide-react';
 
@@ -168,8 +169,8 @@ const ScoreComparisonChart: React.FC<ScoreComparisonChartProps> = ({ analysis })
             if (value === 'predicted') return 'AI-Predicted';
             return 'Difference';
           }} />
-          <ReferenceLine y={complianceThreshold} stroke="#ff6b6b" strokeDasharray="3 3" >
-            <label position="right" value="Compliance Threshold" fill="#ff6b6b" />
+          <ReferenceLine y={complianceThreshold} stroke="#ff6b6b" strokeDasharray="3 3">
+            <Label value="Compliance Threshold" position="right" fill="#ff6b6b" />
           </ReferenceLine>
           <Bar dataKey="original" name="original" fill="#94a3b8" barSize={20} />
           <Bar dataKey="predicted" name="predicted" fill="#2563eb" barSize={20} />
