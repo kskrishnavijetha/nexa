@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Book, Mail, Phone, Globe, Shield, FileText } from 'lucide-react';
+import { Mail, Phone, Globe, Shield, FileText } from 'lucide-react';
 import { getPrivacyPolicyPdfUrl, getTermsOfServicePdfUrl, getCookiePolicyPdfUrl } from '@/utils/pdfGuide';
 import { toast } from 'sonner';
 
@@ -56,7 +56,7 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <Book className="h-6 w-6" />
+              <img src="/logo.png" alt="Nexabloom Logo" className="h-6 w-6" />
               <span className="font-bold text-xl">Nexabloom</span>
             </div>
             <p className="text-sm text-muted-foreground">
