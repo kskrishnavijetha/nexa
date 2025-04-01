@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { PredictiveAnalysis } from '@/utils/types';
-import { ArrowDown, ArrowUp, Minus, AlertTriangle } from 'lucide-react';
+import { ArrowDown, ArrowUp, Minus, AlertTriangle, Brain } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface RiskTrendListProps {
@@ -58,6 +58,11 @@ const RiskTrendList: React.FC<RiskTrendListProps> = ({ analysis }) => {
 
   return (
     <div className="space-y-4 max-h-72 overflow-y-auto pr-2">
+      <div className="text-sm text-muted-foreground mb-2 flex items-center">
+        <Brain className="h-4 w-4 mr-1 text-blue-500" />
+        <span>AI-powered risk trend analysis</span>
+      </div>
+      
       {analysis.riskTrends.map((trend, index) => (
         <div 
           key={index} 

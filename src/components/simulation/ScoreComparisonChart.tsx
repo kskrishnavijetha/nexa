@@ -10,7 +10,9 @@ import {
   XAxis,
   YAxis,
   Legend,
+  ReferenceLine,
 } from 'recharts';
+import { Brain } from 'lucide-react';
 
 interface ScoreComparisonChartProps {
   analysis: PredictiveAnalysis;
@@ -136,8 +138,15 @@ const ScoreComparisonChart: React.FC<ScoreComparisonChartProps> = ({ analysis })
 
   const chartData = generateChartData();
 
+  // Find the threshold for compliance
+  const complianceThreshold = 75; // Typical compliance threshold
+
   return (
     <div className="h-72">
+      <div className="flex items-center text-xs text-muted-foreground mb-2">
+        <Brain className="h-4 w-4 mr-1 text-blue-500" />
+        <span>AI-powered score prediction and comparison</span>
+      </div>
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={chartData}
@@ -149,16 +158,19 @@ const ScoreComparisonChart: React.FC<ScoreComparisonChartProps> = ({ analysis })
           <Tooltip 
             formatter={(value: number, name: string) => {
               if (name === 'original') return [`${value}`, 'Current Score'];
-              if (name === 'predicted') return [`${value}`, 'Predicted Score'];
+              if (name === 'predicted') return [`${value}`, 'AI-Predicted Score'];
               return [`${value > 0 ? '+' : ''}${value}`, 'Difference'];
             }}
-            labelFormatter={(label) => `${label} Score`}
+            labelFormatter={(label) => `${label} Compliance Score`}
           />
           <Legend formatter={(value) => {
             if (value === 'original') return 'Current';
-            if (value === 'predicted') return 'Predicted';
+            if (value === 'predicted') return 'AI-Predicted';
             return 'Difference';
           }} />
+          <ReferenceLine y={complianceThreshold} stroke="#ff6b6b" strokeDasharray="3 3" >
+            <label position="right" value="Compliance Threshold" fill="#ff6b6b" />
+          </ReferenceLine>
           <Bar dataKey="original" name="original" fill="#94a3b8" barSize={20} />
           <Bar dataKey="predicted" name="predicted" fill="#2563eb" barSize={20} />
         </BarChart>
