@@ -23,7 +23,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Sidebar>
             <SidebarHeader className="border-b">
               <div className="px-2 py-4">
-                <h2 className="font-semibold text-xl">CompliZen</h2>
+                <h2 className="font-semibold text-xl">Nexabloom</h2>
                 <p className="text-sm text-muted-foreground">Document Analysis Platform</p>
               </div>
             </SidebarHeader>
