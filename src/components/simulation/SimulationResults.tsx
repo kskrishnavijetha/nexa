@@ -42,7 +42,7 @@ const SimulationResults: React.FC<SimulationResultsProps> = ({ analysis, onReset
           <CardTitle className="text-base">Recommended Actions</CardTitle>
         </CardHeader>
         <CardContent>
-          <RecommendationsList recommendations={analysis.recommendedActions} />
+          <RecommendationsList recommendations={analysis.recommendedActions || []} />
         </CardContent>
       </Card>
     </div>

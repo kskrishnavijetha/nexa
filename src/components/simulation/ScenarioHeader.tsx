@@ -2,7 +2,7 @@
 import React from 'react';
 import { PredictiveAnalysis } from '@/utils/types';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Info } from 'lucide-react';
+import { AlertTriangle, Info, BarChart3 } from 'lucide-react';
 
 interface ScenarioHeaderProps {
   analysis: PredictiveAnalysis;
@@ -14,7 +14,7 @@ const ScenarioHeader: React.FC<ScenarioHeaderProps> = ({ analysis }) => {
       <div className="flex items-start justify-between mb-2">
         <h3 className="font-semibold text-xl">{analysis.scenarioName}</h3>
         <div className="flex flex-wrap gap-2">
-          {analysis.regulationChanges.map((change, index) => (
+          {analysis.regulationChanges && analysis.regulationChanges.map((change, index) => (
             <Badge
               key={index}
               variant="outline"
@@ -42,11 +42,20 @@ const ScenarioHeader: React.FC<ScenarioHeaderProps> = ({ analysis }) => {
           <p className="text-muted-foreground">
             This simulation predicts how your compliance posture would change if the selected
             regulatory scenario becomes reality. Overall score is predicted to{' '}
-            {analysis.scoreDifferences.overall > 0 ? 'increase' : 'decrease'} by{' '}
-            {Math.abs(analysis.scoreDifferences.overall)} points.
+            {analysis.scoreDifferences && analysis.scoreDifferences.overall > 0 ? 'increase' : 'decrease'} by{' '}
+            {analysis.scoreDifferences && Math.abs(analysis.scoreDifferences.overall)} points.
           </p>
         </div>
       </div>
+      
+      {analysis.scoreDifferences && analysis.scoreDifferences.overall !== 0 && (
+        <div className="mt-3 flex items-center justify-end">
+          <Badge className={`${analysis.scoreDifferences.overall > 0 ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'}`}>
+            <BarChart3 className="h-3 w-3 mr-1" />
+            {analysis.scoreDifferences.overall > 0 ? '+' : ''}{analysis.scoreDifferences.overall} points
+          </Badge>
+        </div>
+      )}
     </div>
   );
 };

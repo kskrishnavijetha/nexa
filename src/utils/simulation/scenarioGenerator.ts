@@ -118,6 +118,29 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
           soc2Score: 10
         }
       });
+      
+      // Add NYDFS specific scenario
+      baseScenarios.push({
+        id: 'nydfs-update',
+        name: 'NYDFS 23 NYCRR 500 Update',
+        description: 'Simulates changes to NY Department of Financial Services cybersecurity regulations',
+        industry: 'Finance & Banking',
+        actions: [
+          'Update cybersecurity program',
+          'Enhance incident response plan',
+          'Implement multi-factor authentication'
+        ],
+        regulationChanges: [
+          {
+            regulation: 'NYDFS',
+            changeType: 'stricter',
+            impactLevel: 'high'
+          }
+        ],
+        predictedImprovements: {
+          overallScore: 14
+        }
+      });
     }
     
     // Healthcare specific scenarios
@@ -144,6 +167,31 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
           hipaaScore: 22
         }
       });
+      
+      // Add FDA compliance scenario for Pharmaceuticals
+      if (industry === 'Pharmaceutical & Life Sciences') {
+        baseScenarios.push({
+          id: 'fda-compliance-update',
+          name: 'FDA CFR Part 11 Updates',
+          description: 'Simulates changes to FDA electronic records regulations',
+          industry: 'Pharmaceutical & Life Sciences',
+          actions: [
+            'Enhance electronic signature validation',
+            'Update audit trail procedures',
+            'Implement system validation protocols'
+          ],
+          regulationChanges: [
+            {
+              regulation: 'FDA CFR Part 11',
+              changeType: 'updated',
+              impactLevel: 'high'
+            }
+          ],
+          predictedImprovements: {
+            overallScore: 16
+          }
+        });
+      }
     }
     
     // Technology specific scenarios
@@ -174,6 +222,78 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
           overallScore: 14,
           gdprScore: 12,
           soc2Score: 20
+        }
+      });
+      
+      // Add ISO 27001 scenario for Cloud providers
+      baseScenarios.push({
+        id: 'iso-27001-update',
+        name: 'ISO 27001 Certification Requirements',
+        description: 'Simulates updated ISO 27001 certification requirements for cloud providers',
+        industry: 'Cloud & SaaS',
+        actions: [
+          'Update information security management system',
+          'Enhance risk assessment methodology',
+          'Implement continuous monitoring'
+        ],
+        regulationChanges: [
+          {
+            regulation: 'ISO/IEC 27001',
+            changeType: 'updated',
+            impactLevel: 'medium'
+          }
+        ],
+        predictedImprovements: {
+          overallScore: 13
+        }
+      });
+    }
+    
+    // E-commerce & Retail scenarios
+    if (industry === 'E-commerce & Retail') {
+      baseScenarios.push({
+        id: 'ccpa-update',
+        name: 'CCPA/CPRA Enforcement Changes',
+        description: 'Simulates stricter enforcement of California privacy regulations',
+        industry: 'E-commerce & Retail',
+        actions: [
+          'Update privacy notices',
+          'Enhance data subject request handling',
+          'Implement right to deletion processes'
+        ],
+        regulationChanges: [
+          {
+            regulation: 'CCPA',
+            changeType: 'stricter',
+            impactLevel: 'high'
+          }
+        ],
+        predictedImprovements: {
+          overallScore: 15
+        }
+      });
+      
+      // Add PCI DSS scenario for retailers
+      baseScenarios.push({
+        id: 'pci-dss-4-update',
+        name: 'PCI DSS 4.0 Transition',
+        description: 'Simulates transition to PCI DSS 4.0 requirements',
+        industry: 'E-commerce & Retail',
+        actions: [
+          'Implement customized approach documentation',
+          'Enhance authentication requirements',
+          'Update encryption protocols'
+        ],
+        regulationChanges: [
+          {
+            regulation: 'PCI-DSS',
+            changeType: 'updated',
+            impactLevel: 'high'
+          }
+        ],
+        predictedImprovements: {
+          overallScore: 16,
+          pciDssScore: 25
         }
       });
     }

@@ -63,7 +63,7 @@ const RiskTrendList: React.FC<RiskTrendListProps> = ({ analysis }) => {
           </div>
           
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>{trend.regulation}</span>
+            <span className="font-medium text-primary/80">{trend.regulation}</span>
             <span className="text-foreground/70 font-medium">
               Impact: {trend.impact.charAt(0).toUpperCase() + trend.impact.slice(1)}
             </span>

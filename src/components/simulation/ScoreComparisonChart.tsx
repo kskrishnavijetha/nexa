@@ -9,6 +9,7 @@ import {
   Tooltip,
   XAxis,
   YAxis,
+  Legend,
 } from 'recharts';
 
 interface ScoreComparisonChartProps {
@@ -16,55 +17,84 @@ interface ScoreComparisonChartProps {
 }
 
 const ScoreComparisonChart: React.FC<ScoreComparisonChartProps> = ({ analysis }) => {
-  const chartData = [
-    {
-      name: 'Overall',
-      original: analysis.originalScores.overall,
-      predicted: analysis.predictedScores.overall,
-      difference: analysis.scoreDifferences.overall,
-    },
-    {
-      name: 'GDPR',
-      original: analysis.originalScores.gdpr,
-      predicted: analysis.predictedScores.gdpr,
-      difference: analysis.scoreDifferences.gdpr,
-    },
-    {
-      name: 'HIPAA',
-      original: analysis.originalScores.hipaa,
-      predicted: analysis.predictedScores.hipaa,
-      difference: analysis.scoreDifferences.hipaa,
-    },
-    {
-      name: 'SOC 2',
-      original: analysis.originalScores.soc2,
-      predicted: analysis.predictedScores.soc2,
-      difference: analysis.scoreDifferences.soc2,
-    },
-    {
-      name: 'PCI DSS',
-      original: analysis.originalScores.pciDss,
-      predicted: analysis.predictedScores.pciDss,
-      difference: analysis.scoreDifferences.pciDss,
-    },
-  ];
+  // Create chart data from all available regulations
+  const generateChartData = () => {
+    const data = [
+      {
+        name: 'Overall',
+        original: analysis.originalScores?.overall || 0,
+        predicted: analysis.predictedScores?.overall || 0,
+        difference: analysis.scoreDifferences?.overall || 0,
+      }
+    ];
+    
+    // Add all regulatory frameworks that have data
+    if (analysis.originalScores?.gdpr > 0 || analysis.predictedScores?.gdpr > 0) {
+      data.push({
+        name: 'GDPR',
+        original: analysis.originalScores?.gdpr || 0,
+        predicted: analysis.predictedScores?.gdpr || 0,
+        difference: analysis.scoreDifferences?.gdpr || 0,
+      });
+    }
+    
+    if (analysis.originalScores?.hipaa > 0 || analysis.predictedScores?.hipaa > 0) {
+      data.push({
+        name: 'HIPAA',
+        original: analysis.originalScores?.hipaa || 0,
+        predicted: analysis.predictedScores?.hipaa || 0,
+        difference: analysis.scoreDifferences?.hipaa || 0,
+      });
+    }
+    
+    if (analysis.originalScores?.soc2 > 0 || analysis.predictedScores?.soc2 > 0) {
+      data.push({
+        name: 'SOC 2',
+        original: analysis.originalScores?.soc2 || 0,
+        predicted: analysis.predictedScores?.soc2 || 0,
+        difference: analysis.scoreDifferences?.soc2 || 0,
+      });
+    }
+    
+    if (analysis.originalScores?.pciDss > 0 || analysis.predictedScores?.pciDss > 0) {
+      data.push({
+        name: 'PCI DSS',
+        original: analysis.originalScores?.pciDss || 0,
+        predicted: analysis.predictedScores?.pciDss || 0,
+        difference: analysis.scoreDifferences?.pciDss || 0,
+      });
+    }
+    
+    return data;
+  };
+
+  const chartData = generateChartData();
 
   return (
     <div className="h-72">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
-          data={chartData.filter(item => item.original > 0 || item.predicted > 0)} // Only show scores that have values
+          data={chartData}
           margin={{ top: 20, right: 30, left: 5, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
           <XAxis dataKey="name" />
           <YAxis domain={[0, 100]} />
           <Tooltip 
-            formatter={(value: number) => [`${value}`, 'Score']}
+            formatter={(value: number, name: string) => {
+              if (name === 'original') return [`${value}`, 'Current Score'];
+              if (name === 'predicted') return [`${value}`, 'Predicted Score'];
+              return [`${value > 0 ? '+' : ''}${value}`, 'Difference'];
+            }}
             labelFormatter={(label) => `${label} Score`}
           />
-          <Bar dataKey="original" name="Current" fill="#94a3b8" barSize={20} />
-          <Bar dataKey="predicted" name="Predicted" fill="#2563eb" barSize={20} />
+          <Legend formatter={(value) => {
+            if (value === 'original') return 'Current';
+            if (value === 'predicted') return 'Predicted';
+            return 'Difference';
+          }} />
+          <Bar dataKey="original" name="original" fill="#94a3b8" barSize={20} />
+          <Bar dataKey="predicted" name="predicted" fill="#2563eb" barSize={20} />
         </BarChart>
       </ResponsiveContainer>
     </div>
