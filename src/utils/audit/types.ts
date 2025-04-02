@@ -1,16 +1,34 @@
 
-import { AuditEvent } from '@/components/audit/types';
+export interface AIInsight {
+  text: string;
+  type: 'info' | 'warning' | 'success';
+  title?: string;
+  actionRequired?: boolean;
+}
 
 export interface AuditReportStatistics {
   totalEvents: number;
-  systemEvents: number;
   userEvents: number;
+  systemEvents: number;
   completed: number;
   inProgress: number;
   pending: number;
 }
 
-export interface AIInsight {
-  text: string;
-  type?: 'observation' | 'recommendation' | 'warning';
+export interface ComplianceFinding {
+  category: string;
+  status: 'Pass' | 'Failed' | 'Warning' | 'N/A';
+  criticality: 'High' | 'Medium' | 'Low' | 'Critical';
+  details: string;
+}
+
+export interface CriticalRisk {
+  description: string;
+  impact: string;
+}
+
+export interface ComplianceRecommendation {
+  title: string;
+  description: string;
+  priority: 'Critical' | 'High' | 'Medium' | 'Low';
 }
