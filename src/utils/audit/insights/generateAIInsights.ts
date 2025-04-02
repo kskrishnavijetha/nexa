@@ -130,6 +130,102 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       });
       break;
       
+    case 'Energy & Utilities':
+      insights.push({
+        title: 'Critical Infrastructure Protection',
+        text: 'NERC CIP compliance gaps identified in operational technology security controls.',
+        type: 'warning'
+      });
+      insights.push({
+        title: 'Smart Grid Security',
+        text: 'Enhance network segmentation for industrial control systems to prevent lateral movement.',
+        type: 'recommendation'
+      });
+      break;
+      
+    case 'Telecommunications':
+      insights.push({
+        title: 'Customer Data Privacy',
+        text: 'CPNI protection measures need enhancement to meet current FCC requirements.',
+        type: 'warning'
+      });
+      insights.push({
+        title: 'Network Infrastructure Security',
+        text: 'Implement additional security monitoring for critical network infrastructure components.',
+        type: 'recommendation'
+      });
+      break;
+      
+    case 'Manufacturing & IoT':
+      insights.push({
+        title: 'ICS Security Controls',
+        text: 'Industrial Control System security monitoring needs enhancement to detect advanced threats.',
+        type: 'warning'
+      });
+      insights.push({
+        title: 'IoT Device Management',
+        text: 'Implement comprehensive IoT device inventory and vulnerability management program.',
+        type: 'recommendation'
+      });
+      break;
+      
+    case 'Education & EdTech':
+      insights.push({
+        title: 'Student Data Privacy',
+        text: 'FERPA compliance gaps identified in student record access controls.',
+        type: 'warning'
+      });
+      insights.push({
+        title: 'Learning Management Security',
+        text: 'Enhance authentication controls for learning management systems to prevent unauthorized access.',
+        type: 'recommendation'
+      });
+      break;
+      
+    case 'Legal & Consulting':
+      insights.push({
+        title: 'Client Confidentiality',
+        text: 'Document access patterns indicate potential need for enhanced access controls.',
+        type: 'warning'
+      });
+      insights.push({
+        title: 'Matter Management Security',
+        text: 'Implement data loss prevention controls for sensitive client information.',
+        type: 'recommendation'
+      });
+      break;
+      
+    case 'Insurance':
+      insights.push({
+        title: 'Claims Data Protection',
+        text: 'Claims processing systems show potential privacy control weaknesses.',
+        type: 'warning'
+      });
+      insights.push({
+        title: 'Regulatory Compliance',
+        text: 'Enhance controls to meet NYDFS Cybersecurity Regulation requirements for nonpublic information.',
+        type: 'recommendation'
+      });
+      break;
+      
+    case 'Pharmaceutical & Life Sciences':
+      insights.push({
+        title: 'Clinical Data Integrity',
+        text: 'Audit trail analysis indicates potential gaps in 21 CFR Part 11 compliance for clinical systems.',
+        type: 'warning'
+      });
+      insights.push({
+        title: 'GxP Compliance',
+        text: 'Implement enhanced data integrity controls for laboratory information management systems.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'Research Data Protection',
+        text: 'Strengthen access controls and encryption for sensitive research and development data.',
+        type: 'recommendation'
+      });
+      break;
+      
     default:
       // No industry-specific insights needed, use general ones
       break;

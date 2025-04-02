@@ -354,6 +354,56 @@ export const INDUSTRY_RISKS: Record<string, ComplianceRisk[]> = {
       regulation: 'SOC 2',
       mitigation: 'Establish vendor assessment program'
     }
+  ],
+  'FDA CFR Part 11': [
+    {
+      id: 'fda-ind-1',
+      title: 'Electronic Records Validation',
+      description: 'Inadequate validation of electronic record systems',
+      severity: 'high',
+      regulation: 'FDA CFR Part 11',
+      mitigation: 'Implement comprehensive system validation procedures'
+    }
+  ],
+  'GxP': [
+    {
+      id: 'gxp-ind-1',
+      title: 'Data Integrity Risk',
+      description: 'Potential data integrity issues in regulated processes',
+      severity: 'high',
+      regulation: 'GxP',
+      mitigation: 'Implement ALCOA+ principles across all systems'
+    }
+  ],
+  'NERC CIP': [
+    {
+      id: 'nerc-ind-1',
+      title: 'Critical Infrastructure Access Control',
+      description: 'Insufficient access controls for critical cyber assets',
+      severity: 'critical',
+      regulation: 'NERC CIP',
+      mitigation: 'Implement strict access control and monitoring'
+    }
+  ],
+  'FERPA': [
+    {
+      id: 'ferpa-ind-1',
+      title: 'Student Records Access Controls',
+      description: 'Inadequate controls for student educational records',
+      severity: 'high',
+      regulation: 'FERPA',
+      mitigation: 'Implement proper access controls and audit logging'
+    }
+  ],
+  'NYDFS': [
+    {
+      id: 'nydfs-ind-1',
+      title: 'Third-Party Risk Management',
+      description: 'Insufficient vendor risk assessment procedures',
+      severity: 'high',
+      regulation: 'NYDFS',
+      mitigation: 'Implement comprehensive vendor risk management program'
+    }
   ]
 };
 

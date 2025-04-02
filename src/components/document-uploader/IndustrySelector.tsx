@@ -33,6 +33,9 @@ const IndustrySelector: React.FC<IndustrySelectorProps> = ({
           ))}
         </SelectContent>
       </Select>
+      <p className="text-xs text-muted-foreground mt-1">
+        Industry selection determines applicable regulations and compliance requirements
+      </p>
     </div>
   );
 };

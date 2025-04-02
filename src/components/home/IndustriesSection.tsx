@@ -19,6 +19,14 @@ const industries = [
     ]
   },
   {
+    name: "Pharmaceutical & Life Sciences",
+    features: [
+      "FDA CFR Part 11 & GxP compliance",
+      "Clinical data integrity monitoring",
+      "Research data protection analysis"
+    ]
+  },
+  {
     name: "E-commerce & Retail",
     features: [
       "PCI-DSS compliance for online payments",
@@ -32,6 +40,30 @@ const industries = [
       "SOC 2 & ISO 27001 readiness",
       "GDPR & CCPA compliance automation",
       "Cloud security & risk management"
+    ]
+  },
+  {
+    name: "Government & Defense",
+    features: [
+      "FISMA compliance automation",
+      "Classified information handling",
+      "Records management compliance"
+    ]
+  },
+  {
+    name: "Energy & Utilities",
+    features: [
+      "NERC CIP compliance automation",
+      "Critical infrastructure protection",
+      "Environmental compliance monitoring"
+    ]
+  },
+  {
+    name: "Telecommunications",
+    features: [
+      "FCC compliance automation",
+      "CPNI protection assessment",
+      "Network security monitoring"
     ]
   }
 ];
