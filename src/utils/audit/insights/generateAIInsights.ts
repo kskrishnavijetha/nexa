@@ -11,6 +11,7 @@ import { analyzeCriticalAssets } from './analyzers/criticalAssetAnalyzer';
 import { analyzeRemediationNeeds } from './analyzers/remediationAnalyzer';
 import { generateFallbackInsights } from './generators/fallbackInsightGenerator';
 import { Industry } from '@/utils/types';
+import { mapToIndustryType } from '../industryUtils';
 
 /**
  * Generate AI-enhanced insights from audit events with more detailed analysis
@@ -54,28 +55,7 @@ export const generateAIInsights = (
  * Extract the industry from document name
  */
 const extractIndustryFromDocument = (documentName?: string): Industry | undefined => {
-  if (!documentName) return undefined;
-  
-  const lowerName = documentName.toLowerCase();
-  
-  // Check for industry keywords in the document name
-  if (lowerName.includes('health') || lowerName.includes('medical') || lowerName.includes('hospital')) {
-    return 'healthcare';
-  }
-  if (lowerName.includes('bank') || lowerName.includes('finance') || lowerName.includes('payment')) {
-    return 'finance';
-  }
-  if (lowerName.includes('retail') || lowerName.includes('ecommerce') || lowerName.includes('shop')) {
-    return 'retail';
-  }
-  if (lowerName.includes('tech') || lowerName.includes('software') || lowerName.includes('cloud')) {
-    return 'technology';
-  }
-  if (lowerName.includes('gov') || lowerName.includes('public')) {
-    return 'government';
-  }
-  
-  return undefined;
+  return mapToIndustryType(documentName);
 };
 
 /**
@@ -85,7 +65,7 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
   const insights: AIInsight[] = [];
   
   switch (industry) {
-    case 'healthcare':
+    case 'Healthcare':
       insights.push({
         title: 'HIPAA Compliance Insight',
         text: 'Patient data access patterns suggest potential privacy control improvements needed.',
@@ -98,7 +78,7 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       });
       break;
       
-    case 'finance':
+    case 'Finance':
       insights.push({
         title: 'Financial Transaction Monitoring',
         text: 'Suspicious transaction pattern detection should be enhanced for better fraud prevention.',
@@ -111,7 +91,7 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       });
       break;
       
-    case 'retail':
+    case 'Retail':
       insights.push({
         title: 'Customer Data Protection',
         text: 'Consider implementing enhanced customer PII protection measures for loyalty program data.',
@@ -124,7 +104,7 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       });
       break;
       
-    case 'technology':
+    case 'Technology':
       insights.push({
         title: 'API Access Controls',
         text: 'Implement stricter rate limiting and authentication for API endpoints to prevent abuse.',
@@ -137,7 +117,7 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       });
       break;
       
-    case 'government':
+    case 'Government':
       insights.push({
         title: 'Records Management',
         text: 'Implement NARA-compliant records retention schedules for all document categories.',

@@ -2,6 +2,7 @@ import { jsPDF } from "jspdf";
 import { AuditEvent } from '@/components/audit/types';
 import { Industry } from '@/utils/types';
 import { INDUSTRY_REGULATIONS } from '@/utils/types';
+import { mapToIndustryType } from '../industryUtils';
 
 /**
  * Add executive summary section to the PDF document
@@ -106,24 +107,5 @@ const determineComplianceFrameworks = (auditEvents: AuditEvent[], industry?: Ind
  * Extract the industry from document name or audit events
  */
 const extractIndustryFromDocument = (documentName: string): Industry | undefined => {
-  const lowerName = documentName.toLowerCase();
-  
-  // Check for industry keywords in the document name
-  if (lowerName.includes('health') || lowerName.includes('medical') || lowerName.includes('hospital')) {
-    return 'healthcare';
-  }
-  if (lowerName.includes('bank') || lowerName.includes('finance') || lowerName.includes('payment')) {
-    return 'finance';
-  }
-  if (lowerName.includes('retail') || lowerName.includes('ecommerce') || lowerName.includes('shop')) {
-    return 'retail';
-  }
-  if (lowerName.includes('tech') || lowerName.includes('software') || lowerName.includes('cloud')) {
-    return 'technology';
-  }
-  if (lowerName.includes('gov') || lowerName.includes('public')) {
-    return 'government';
-  }
-  
-  return undefined;
+  return mapToIndustryType(documentName);
 };

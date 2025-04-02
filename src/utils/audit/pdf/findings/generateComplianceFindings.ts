@@ -1,6 +1,6 @@
-
 import { AuditReportStatistics, ComplianceFinding } from '../../types';
 import { Industry } from '@/utils/types';
+import { mapToIndustryType } from '../../industryUtils';
 
 /**
  * Generate compliance findings based on audit statistics and industry
@@ -25,28 +25,7 @@ export const generateComplianceFindings = (
  * Extract the industry from document name
  */
 const extractIndustryFromDocument = (documentName?: string): Industry | undefined => {
-  if (!documentName) return undefined;
-  
-  const lowerName = documentName.toLowerCase();
-  
-  // Check for industry keywords in the document name
-  if (lowerName.includes('health') || lowerName.includes('medical') || lowerName.includes('hospital')) {
-    return 'healthcare';
-  }
-  if (lowerName.includes('bank') || lowerName.includes('finance') || lowerName.includes('payment')) {
-    return 'finance';
-  }
-  if (lowerName.includes('retail') || lowerName.includes('ecommerce') || lowerName.includes('shop')) {
-    return 'retail';
-  }
-  if (lowerName.includes('tech') || lowerName.includes('software') || lowerName.includes('cloud')) {
-    return 'technology';
-  }
-  if (lowerName.includes('gov') || lowerName.includes('public')) {
-    return 'government';
-  }
-  
-  return undefined;
+  return mapToIndustryType(documentName);
 };
 
 /**
@@ -303,15 +282,15 @@ const generateGovernmentFindings = (stats: AuditReportStatistics): ComplianceFin
  */
 const generateIndustryFindings = (stats: AuditReportStatistics, industry: Industry): ComplianceFinding[] => {
   switch (industry) {
-    case 'healthcare':
+    case 'Healthcare':
       return generateHealthcareFindings(stats);
-    case 'finance':
+    case 'Finance':
       return generateFinanceFindings(stats);
-    case 'retail':
+    case 'Retail':
       return generateRetailFindings(stats);
-    case 'technology':
+    case 'Technology':
       return generateTechnologyFindings(stats);
-    case 'government':
+    case 'Government':
       return generateGovernmentFindings(stats);
     default:
       return generateDefaultFindings(stats);
