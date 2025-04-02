@@ -1,0 +1,2 @@
+
+export { createFindingsTable } from './createFindingsTable';
