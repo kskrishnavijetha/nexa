@@ -19,6 +19,12 @@ export const addInsightsSection = (doc: jsPDF, insights: AIInsight[], startY: nu
   
   // Add critical risks section if there are any
   if (criticalRisks.length > 0) {
+    // Check if we need a new page
+    if (yPos > 250) {
+      doc.addPage();
+      yPos = 20;
+    }
+    
     doc.setFontSize(12);
     doc.setTextColor(128, 0, 0);
     doc.text('Critical Risks Detected:', 25, yPos);
@@ -29,8 +35,18 @@ export const addInsightsSection = (doc: jsPDF, insights: AIInsight[], startY: nu
     doc.setTextColor(0, 0, 0);
     
     criticalRisks.forEach(risk => {
-      doc.text(`- ${risk.description}`, 30, yPos);
-      yPos += 7;
+      // Check if we need a new page
+      if (yPos > 270) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      // Properly handle text wrapping for risk descriptions
+      const riskLines = doc.splitTextToSize(risk.description, 160);
+      doc.text(riskLines, 30, yPos);
+      
+      // Adjust y-position based on number of lines
+      yPos += Math.max(7, riskLines.length * 5);
     });
     
     yPos += 3;
@@ -40,6 +56,12 @@ export const addInsightsSection = (doc: jsPDF, insights: AIInsight[], startY: nu
   const recommendations = generateRecommendations(insights);
   
   // Add recommendations section
+  // Check if we need a new page
+  if (yPos > 250) {
+    doc.addPage();
+    yPos = 20;
+  }
+  
   doc.setFontSize(12);
   doc.setTextColor(0, 51, 102);
   doc.text('Recommendations:', 25, yPos);
@@ -50,8 +72,18 @@ export const addInsightsSection = (doc: jsPDF, insights: AIInsight[], startY: nu
   doc.setTextColor(0, 0, 0);
   
   recommendations.forEach(rec => {
-    doc.text(`- ${rec.description}`, 30, yPos);
-    yPos += 7;
+    // Check if we need a new page
+    if (yPos > 270) {
+      doc.addPage();
+      yPos = 20;
+    }
+    
+    // Properly handle text wrapping for recommendations
+    const recLines = doc.splitTextToSize(rec.description, 160);
+    doc.text(recLines, 30, yPos);
+    
+    // Adjust y-position based on number of lines
+    yPos += Math.max(7, recLines.length * 5);
   });
   
   yPos += 5;

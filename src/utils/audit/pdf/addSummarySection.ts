@@ -30,24 +30,31 @@ export const addSummarySection = (doc: jsPDF, stats: AuditReportStatistics, star
   doc.setFontSize(10);
   doc.setTextColor(0, 0, 0);
   yPos += 10;
-  doc.text(`Total Events: ${stats.totalEvents}`, 25, yPos);
-  yPos += 7;
-  doc.text(`System Events: ${stats.systemEvents}`, 25, yPos);
-  yPos += 7;
-  doc.text(`User Events: ${stats.userEvents}`, 25, yPos);
-  yPos += 7;
-  doc.text(`Completed Tasks: ${stats.completed}`, 25, yPos);
-  yPos += 7;
-  doc.text(`In-Progress Tasks: ${stats.inProgress}`, 25, yPos);
-  yPos += 7;
-  doc.text(`Pending Tasks: ${stats.pending}`, 25, yPos);
-  yPos += 10;
+  
+  // Use text arrays for each line to ensure proper rendering
+  const textLines = [
+    `Total Events: ${stats.totalEvents}`,
+    `System Events: ${stats.systemEvents}`,
+    `User Events: ${stats.userEvents}`,
+    `Completed Tasks: ${stats.completed}`,
+    `In-Progress Tasks: ${stats.inProgress}`,
+    `Pending Tasks: ${stats.pending}`
+  ];
+  
+  // Add each line with consistent spacing
+  textLines.forEach(line => {
+    doc.text(line, 25, yPos);
+    yPos += 7;
+  });
+  
+  yPos += 3;
   
   // Add compliance score
   doc.setFontSize(12);
   doc.setTextColor(0, 102, 51);
   const score = calculateComplianceScore(findings);
   const status = score >= 80 ? 'Pass' : 'Fail';
+  
   doc.text(`Final Compliance Score: ${score}% (${score >= 80 ? 'Compliant' : 'Non-Compliant'})`, 25, yPos);
   yPos += 7;
   doc.text(`Overall Status: ${status}`, 25, yPos);
@@ -139,6 +146,12 @@ const createFindingsTable = (doc: jsPDF, findings: ComplianceFinding[], startY: 
   
   // Add each finding row
   findings.forEach(finding => {
+    // Check if we need a new page
+    if (yPos > 270) {
+      doc.addPage();
+      yPos = 20;
+    }
+    
     doc.setTextColor(0, 0, 0);
     doc.text(finding.category, 20, yPos);
     
@@ -171,12 +184,13 @@ const createFindingsTable = (doc: jsPDF, findings: ComplianceFinding[], startY: 
     // Details in normal color
     doc.setTextColor(0, 0, 0);
     
-    // Wrap details text if needed
+    // Wrap details text if needed - ensure wrapping works correctly
     const detailsText = doc.splitTextToSize(finding.details, 40);
     doc.text(detailsText, 150, yPos);
     
-    // Adjust yPos based on length of wrapped text
-    yPos += Math.max(7, detailsText.length * 5);
+    // Adjust yPos based on length of wrapped text - ensure enough space
+    const textHeight = Math.max(7, detailsText.length * 5);
+    yPos += textHeight;
   });
   
   // Draw table bottom line
