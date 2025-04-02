@@ -1,7 +1,7 @@
 
 import { AuditReportStatistics, ComplianceFinding } from '../../types';
 import { Industry } from '@/utils/types';
-import { mapToIndustryType } from '../../industryUtils';
+import { mapToIndustryType, extractIndustryFromContent } from '../../industryUtils';
 import { generateDefaultFindings } from './baseFindings';
 import { generateIndustryFindings } from './industryFindings';
 
@@ -10,23 +10,42 @@ import { generateIndustryFindings } from './industryFindings';
  */
 export const generateComplianceFindings = (
   stats: AuditReportStatistics,
-  documentName?: string
+  documentName?: string,
+  documentContent?: string
 ): ComplianceFinding[] => {
   // Extract industry from document name if available
-  const industry = extractIndustryFromDocument(documentName);
+  let industry = extractIndustryFromDocument(documentName);
+  
+  // If industry still not determined and we have document content, try extracting from content
+  if (!industry && documentContent) {
+    industry = extractIndustryFromContent(documentContent);
+  }
   
   // Generate industry-specific findings
   if (industry) {
+    console.log(`Generating findings for industry: ${industry}`);
     return generateIndustryFindings(stats, industry);
   }
   
   // Default findings when no industry is identified
+  console.log('No industry identified, using default findings');
   return generateDefaultFindings(stats);
 };
 
 /**
- * Extract the industry from document name
+ * Extract the industry from document name with improved detection
  */
 const extractIndustryFromDocument = (documentName?: string): Industry | undefined => {
+  if (!documentName) return undefined;
+  
+  // Special case for healthcare (since that's the reported issue)
+  if (documentName.toLowerCase().includes('health') || 
+      documentName.toLowerCase().includes('medical') || 
+      documentName.toLowerCase().includes('hospital') || 
+      documentName.toLowerCase().includes('patient') || 
+      documentName.toLowerCase().includes('clinic')) {
+    return 'Healthcare';
+  }
+  
   return mapToIndustryType(documentName);
 };

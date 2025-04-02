@@ -1,3 +1,4 @@
+
 import { jsPDF } from "jspdf";
 import { AuditEvent } from '@/components/audit/types';
 import { Industry } from '@/utils/types';
@@ -34,7 +35,7 @@ export const addExecutiveSummary = (
   
   yPos += 7;
   // Extract industry from document name if possible
-  const industry = extractIndustryFromDocument(documentName);
+  const industry = extractIndustryFromDocument(documentName, auditEvents);
   doc.text(`Organization: ${documentName.split('-')[0] || 'Organization'}`, 20, yPos);
   
   // Add applicable compliance frameworks
@@ -105,7 +106,32 @@ const determineComplianceFrameworks = (auditEvents: AuditEvent[], industry?: Ind
 
 /**
  * Extract the industry from document name or audit events
+ * Enhanced to provide more accurate detection for healthcare and other industries
  */
-const extractIndustryFromDocument = (documentName: string): Industry | undefined => {
-  return mapToIndustryType(documentName);
+const extractIndustryFromDocument = (documentName: string, auditEvents: AuditEvent[]): Industry | undefined => {
+  // First try to extract from document name
+  const industryFromName = mapToIndustryType(documentName);
+  if (industryFromName) return industryFromName;
+  
+  // If no industry from name, check for healthcare keywords in audit events
+  const eventsText = auditEvents.map(event => 
+    JSON.stringify(event.action) + ' ' + 
+    JSON.stringify(event.comments)
+  ).join(' ');
+  
+  // Look specifically for healthcare indicators first (since that's the reported issue)
+  if (eventsText.toLowerCase().includes('patient') || 
+      eventsText.toLowerCase().includes('health') || 
+      eventsText.toLowerCase().includes('medical') || 
+      eventsText.toLowerCase().includes('hipaa')) {
+    return 'Healthcare';
+  }
+  
+  // Try other industries based on the event content
+  if (eventsText.toLowerCase().includes('financial') || eventsText.toLowerCase().includes('payment')) {
+    return 'Finance & Banking';
+  }
+  
+  // Default to undefined if no clear industry is detected
+  return undefined;
 };
