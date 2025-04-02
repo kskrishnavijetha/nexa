@@ -9,7 +9,13 @@ export const generateAuditReport = async (
   documentName: string,
   auditEvents: AuditEvent[]
 ): Promise<Blob> => {
-  return generatePDFReport(documentName, auditEvents);
+  try {
+    console.log(`Generating audit report for ${documentName} with ${auditEvents.length} events`);
+    return await generatePDFReport(documentName, auditEvents);
+  } catch (error) {
+    console.error('Error generating PDF report:', error);
+    throw error;
+  }
 };
 
 /**

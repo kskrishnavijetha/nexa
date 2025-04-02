@@ -3,136 +3,91 @@ import { jsPDF } from "jspdf";
 import { AuditEvent } from '@/components/audit/types';
 
 /**
- * Add detailed audit events section to the PDF document
+ * Add audit events section to the PDF document
  */
-export const addEventsSection = (doc: jsPDF, auditEvents: AuditEvent[], startY: number): number => {
+export const addEventsSection = (
+  doc: jsPDF, 
+  auditEvents: AuditEvent[], 
+  startY: number
+): number => {
   let yPos = startY;
   
-  // Add events section header
-  doc.setFontSize(16);
+  // Add section header
+  doc.setFontSize(14);
   doc.setTextColor(0, 51, 102);
-  doc.text('Detailed Audit Events', 20, yPos);
+  doc.text('Audit Events Log', 20, yPos);
   yPos += 10;
   
-  // Add section description
+  // Add description
   doc.setFontSize(10);
-  doc.setTextColor(80, 80, 80);
-  doc.text('This section lists all audit events in chronological order for detailed review.', 20, yPos);
-  yPos += 10;
+  doc.setTextColor(0, 0, 0);
+  doc.text('Complete log of all recorded audit events in chronological order:', 25, yPos);
+  yPos += 7;
   
-  // Sort events by timestamp, newest first
-  const sortedEvents = [...auditEvents].sort((a, b) => 
-    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-  );
+  // Add event entries with pagination awareness
+  const eventsPerPage = 8; // Limit events per page to avoid overflow
   
-  // Group events by date
-  const eventsByDate = groupEventsByDate(sortedEvents);
+  // Get most recent events first and limit to a reasonable number
+  const recentEvents = [...auditEvents]
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+    .slice(0, 30); // Limit to 30 most recent events
   
-  // Render each date group
-  Object.entries(eventsByDate).forEach(([date, events], index) => {
+  for (let i = 0; i < recentEvents.length; i++) {
+    const event = recentEvents[i];
+    
     // Check if we need a new page
-    if (yPos > 250 && index > 0) {
+    if (i > 0 && i % eventsPerPage === 0) {
       doc.addPage();
       yPos = 20;
+      
+      // Repeat section header on new page
+      doc.setFontSize(14);
+      doc.setTextColor(0, 51, 102);
+      doc.text('Audit Events Log (Continued)', 20, yPos);
+      yPos += 10;
     }
     
-    // Add date header
-    doc.setFontSize(12);
-    doc.setTextColor(0, 51, 102);
-    doc.text(date, 20, yPos);
-    yPos += 5;
+    // Format date
+    const eventDate = new Date(event.timestamp).toLocaleString();
     
-    // Add separator line
-    doc.setDrawColor(200, 200, 200);
-    doc.setLineWidth(0.1);
-    doc.line(20, yPos, 190, yPos);
-    yPos += 8;
+    // Add event entry
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text(`${i + 1}. ${eventDate} - ${event.eventType}`, 25, yPos);
+    yPos += 6;
     
-    // Add each event for this date
-    events.forEach(event => {
-      // Check if we need a new page
-      if (yPos > 270) {
-        doc.addPage();
-        yPos = 20;
-      }
-      
-      // Add event time
-      doc.setFontSize(9);
+    // Add event description with truncation to prevent overflow
+    doc.setFont('helvetica', 'normal');
+    let description = event.description || 'No description provided';
+    if (description.length > 100) {
+      description = description.substring(0, 97) + '...';
+    }
+    
+    const descriptionLines = doc.splitTextToSize(description, 160);
+    doc.text(descriptionLines, 30, yPos);
+    
+    // Adjust yPos based on number of lines
+    yPos += Math.max(6, descriptionLines.length * 5);
+    
+    // Add user info if available
+    if (event.user) {
+      doc.setFont('helvetica', 'italic');
       doc.setTextColor(100, 100, 100);
-      const time = new Date(event.timestamp).toLocaleTimeString();
-      doc.text(time, 20, yPos);
-      
-      // Add event action with appropriate color based on status
-      doc.setFontSize(10);
-      if (event.status === 'completed') {
-        doc.setTextColor(0, 128, 0); // Green for completed
-      } else if (event.status === 'in-progress') {
-        doc.setTextColor(0, 102, 204); // Blue for in-progress
-      } else if (event.status === 'pending') {
-        doc.setTextColor(255, 165, 0); // Orange for pending
-      } else if (event.status === 'failed') {
-        doc.setTextColor(204, 0, 0); // Red for failed
-      } else {
-        doc.setTextColor(0, 0, 0); // Black for other
-      }
-      
-      doc.text(event.action, 50, yPos);
-      
-      // Add event user if available
-      if (event.user) {
-        doc.setFontSize(9);
-        doc.setTextColor(100, 100, 100);
-        doc.text(`By: ${event.user}`, 160, yPos);
-      }
-      
-      yPos += 7;
-      
-      // Add comments if available
-      if (event.comments && event.comments.length > 0) {
-        event.comments.forEach(comment => {
-          // Check if we need a new page
-          if (yPos > 270) {
-            doc.addPage();
-            yPos = 20;
-          }
-          
-          doc.setFontSize(8);
-          doc.setTextColor(100, 100, 100);
-          
-          // Wrap comment text
-          const commentText = doc.splitTextToSize(`Comment: ${comment.text}`, 130);
-          doc.text(commentText, 55, yPos);
-          
-          // Add comment user and time
-          doc.text(`- ${comment.user} at ${new Date(comment.timestamp).toLocaleTimeString()}`, 
-            190, yPos, { align: 'right' });
-          
-          yPos += Math.max(7, commentText.length * 4);
-        });
-      }
-      
-      yPos += 3;
-    });
+      doc.text(`User: ${event.user}`, 30, yPos);
+      yPos += 6;
+    }
     
-    yPos += 5;
-  });
+    // Add separator except for last item
+    if (i < recentEvents.length - 1) {
+      doc.setDrawColor(230, 230, 230);
+      doc.setLineWidth(0.1);
+      doc.line(25, yPos, 185, yPos);
+      yPos += 6;
+    }
+  }
+  
+  yPos += 10;
   
   return yPos;
-};
-
-/**
- * Group events by date (YYYY-MM-DD)
- */
-const groupEventsByDate = (events: AuditEvent[]): Record<string, AuditEvent[]> => {
-  const grouped: Record<string, AuditEvent[]> = {};
-  
-  events.forEach(event => {
-    const date = new Date(event.timestamp).toISOString().split('T')[0];
-    if (!grouped[date]) {
-      grouped[date] = [];
-    }
-    grouped[date].push(event);
-  });
-  
-  return grouped;
 };

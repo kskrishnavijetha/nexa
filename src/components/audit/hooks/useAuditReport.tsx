@@ -8,8 +8,15 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[]) 
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
   const downloadAuditReport = useCallback(async () => {
+    if (auditEvents.length === 0) {
+      toast.error('No audit events to include in the report');
+      return;
+    }
+    
     try {
       setIsGeneratingReport(true);
+      console.log(`Starting report generation for ${documentName} with ${auditEvents.length} events`);
+      
       const reportBlob = await generateAuditReport(documentName, auditEvents);
       
       // Create a download link
@@ -26,7 +33,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[]) 
       toast.success('Audit report downloaded successfully');
     } catch (error) {
       console.error('Error generating audit report:', error);
-      toast.error('Failed to generate audit report');
+      toast.error('Failed to generate audit report: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setIsGeneratingReport(false);
     }
