@@ -2,12 +2,21 @@
 import { ComplianceFinding } from '../../types';
 
 /**
- * Calculate compliance score based on findings
+ * Calculate compliance score and determine compliance status based on findings
+ * @returns An object containing score and status
  */
-export const calculateComplianceScore = (findings: ComplianceFinding[]): number => {
-  if (findings.length === 0) return 100;
+export const calculateComplianceScore = (findings: ComplianceFinding[]): { 
+  score: number; 
+  status: 'Pass' | 'Fail' 
+} => {
+  if (findings.length === 0) return { score: 100, status: 'Pass' };
   
   // Count passed findings
   const passedCount = findings.filter(f => f.status === 'Pass').length;
-  return Math.round((passedCount / findings.length) * 100);
+  const score = Math.round((passedCount / findings.length) * 100);
+  
+  // Determine status based on score
+  const status = score >= 80 ? 'Pass' : 'Fail';
+  
+  return { score, status };
 };

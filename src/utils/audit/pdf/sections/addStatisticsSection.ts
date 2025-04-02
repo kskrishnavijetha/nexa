@@ -35,18 +35,31 @@ export const addStatisticsSection = (
     yPos += 7;
   });
   
-  yPos += 3;
-  
-  // Add compliance score
-  doc.setFontSize(12);
-  doc.setTextColor(0, 102, 51);
-  const score = calculateComplianceScore(findings);
-  const status = score >= 80 ? 'Pass' : 'Fail';
-  
-  doc.text(`Final Compliance Score: ${score}% (${score >= 80 ? 'Compliant' : 'Non-Compliant'})`, 25, yPos);
-  yPos += 7;
-  doc.text(`Overall Status: ${status}`, 25, yPos);
   yPos += 10;
+  
+  // Add compliance score with clear formatting
+  const { score, status } = calculateComplianceScore(findings);
+  
+  // Add a section separator
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.2);
+  doc.line(25, yPos - 5, 185, yPos - 5);
+  
+  // Format compliance score with bold font
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Final Compliance Score: ${score}% (${score >= 80 ? 'Compliant' : 'Non-Compliant'})`, 25, yPos);
+  yPos += 8;
+  
+  // Format overall status with appropriate color
+  doc.setTextColor(status === 'Pass' ? 0 : 204, status === 'Pass' ? 102 : 0, 0);
+  doc.text(`Overall Status: ${status}`, 25, yPos);
+  
+  // Reset font to normal for subsequent text
+  doc.setFont('helvetica', 'normal');
+  
+  yPos += 15;
   
   return yPos;
 };
