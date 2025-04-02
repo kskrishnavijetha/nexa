@@ -28,6 +28,15 @@ export interface GoogleScanRequest {
   services: GoogleService[];
 }
 
+export interface GoogleServicesScannerProps {
+  industry?: Industry;
+  region?: Region;
+  language?: SupportedLanguage;
+  file?: File;
+  persistedConnectedServices?: GoogleService[];
+  onServicesUpdate?: (services: GoogleService[]) => void;
+}
+
 export interface ScanViolation {
   title: string;
   description: string;
