@@ -78,7 +78,7 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       });
       break;
       
-    case 'Finance':
+    case 'Finance & Banking':
       insights.push({
         title: 'Financial Transaction Monitoring',
         text: 'Suspicious transaction pattern detection should be enhanced for better fraud prevention.',
@@ -91,7 +91,7 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       });
       break;
       
-    case 'Retail':
+    case 'E-commerce & Retail':
       insights.push({
         title: 'Customer Data Protection',
         text: 'Consider implementing enhanced customer PII protection measures for loyalty program data.',
@@ -104,7 +104,7 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       });
       break;
       
-    case 'Technology':
+    case 'Cloud & SaaS':
       insights.push({
         title: 'API Access Controls',
         text: 'Implement stricter rate limiting and authentication for API endpoints to prevent abuse.',
@@ -117,7 +117,7 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       });
       break;
       
-    case 'Government':
+    case 'Government & Defense':
       insights.push({
         title: 'Records Management',
         text: 'Implement NARA-compliant records retention schedules for all document categories.',

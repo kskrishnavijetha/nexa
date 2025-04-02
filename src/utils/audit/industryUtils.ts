@@ -13,16 +13,16 @@ export const mapToIndustryType = (name?: string): Industry | undefined => {
     return 'Healthcare';
   }
   if (lowerName.includes('bank') || lowerName.includes('finance') || lowerName.includes('payment')) {
-    return 'Finance';
+    return 'Finance & Banking';
   }
   if (lowerName.includes('retail') || lowerName.includes('ecommerce') || lowerName.includes('shop')) {
-    return 'Retail';
+    return 'E-commerce & Retail';
   }
   if (lowerName.includes('tech') || lowerName.includes('software') || lowerName.includes('cloud')) {
-    return 'Technology';
+    return 'Cloud & SaaS';
   }
   if (lowerName.includes('gov') || lowerName.includes('public')) {
-    return 'Government';
+    return 'Government & Defense';
   }
   
   return undefined;
