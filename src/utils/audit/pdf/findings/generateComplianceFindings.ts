@@ -13,6 +13,20 @@ export const generateComplianceFindings = (
   documentName?: string,
   documentContent?: string
 ): ComplianceFinding[] => {
+  // First check specifically for healthcare in the document name
+  if (documentName && (
+      documentName.toLowerCase().includes('health') || 
+      documentName.toLowerCase().includes('medical') || 
+      documentName.toLowerCase().includes('hospital') || 
+      documentName.toLowerCase().includes('patient') || 
+      documentName.toLowerCase().includes('clinic') ||
+      documentName.toLowerCase().includes('doctor') ||
+      documentName.toLowerCase().includes('care') ||
+      documentName.toLowerCase().includes('hipaa'))) {
+    console.log('Healthcare industry detected from keywords');
+    return generateIndustryFindings(stats, 'Healthcare');
+  }
+  
   // Extract industry from document name if available
   let industry = extractIndustryFromDocument(documentName);
   
@@ -43,7 +57,10 @@ const extractIndustryFromDocument = (documentName?: string): Industry | undefine
       documentName.toLowerCase().includes('medical') || 
       documentName.toLowerCase().includes('hospital') || 
       documentName.toLowerCase().includes('patient') || 
-      documentName.toLowerCase().includes('clinic')) {
+      documentName.toLowerCase().includes('clinic') ||
+      documentName.toLowerCase().includes('doctor') ||
+      documentName.toLowerCase().includes('care') ||
+      documentName.toLowerCase().includes('hipaa')) {
     return 'Healthcare';
   }
   

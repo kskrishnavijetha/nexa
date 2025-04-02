@@ -3,17 +3,26 @@ import { Industry } from '@/utils/types';
 
 /**
  * Maps lowercase industry names to proper Industry enum values
+ * Healthcare detection has top priority to fix misidentification issues
  */
 export const mapToIndustryType = (name?: string): Industry | undefined => {
   if (!name) return undefined;
   
   const lowerName = name.toLowerCase();
   
-  // Healthcare should be matched first as it's more specific
-  if (lowerName.includes('health') || lowerName.includes('medical') || lowerName.includes('hospital') || 
-      lowerName.includes('clinic') || lowerName.includes('patient') || lowerName.includes('care')) {
+  // Healthcare should be matched first - explicitly check this before any other industry
+  if (lowerName.includes('health') || 
+      lowerName.includes('medical') || 
+      lowerName.includes('hospital') || 
+      lowerName.includes('clinic') || 
+      lowerName.includes('patient') || 
+      lowerName.includes('care') ||
+      lowerName.includes('doctor') ||
+      lowerName.includes('hipaa')) {
     return 'Healthcare';
   }
+  
+  // Only check other industries after ruling out healthcare
   if (lowerName.includes('bank') || lowerName.includes('finance') || lowerName.includes('payment') || 
       lowerName.includes('invest') || lowerName.includes('loan')) {
     return 'Finance & Banking';
@@ -68,7 +77,7 @@ export const extractIndustryFromContent = (content: string): Industry | undefine
   const lowerContent = content.toLowerCase();
   
   const industryKeywords: Record<Industry, string[]> = {
-    'Healthcare': ['patient', 'health', 'medical', 'hipaa', 'hospital', 'clinical', 'treatment'],
+    'Healthcare': ['patient', 'health', 'medical', 'hipaa', 'hospital', 'clinical', 'treatment', 'doctor', 'nurse', 'care'],
     'Finance & Banking': ['bank', 'financial', 'credit', 'loan', 'investment', 'transaction', 'payment'],
     'Cloud & SaaS': ['cloud', 'software', 'service', 'platform', 'subscription', 'api', 'hosting'],
     'E-Commerce': ['shop', 'store', 'cart', 'checkout', 'product', 'order', 'customer'],
@@ -83,8 +92,24 @@ export const extractIndustryFromContent = (content: string): Industry | undefine
     'Global': ['global', 'international', 'worldwide', 'multinational']
   };
   
+  // Special case for healthcare - check first and with higher weight
+  const healthcareKeywords = industryKeywords['Healthcare'];
+  const healthcareCount = healthcareKeywords.reduce((total, keyword) => {
+    const regex = new RegExp(keyword, 'gi');
+    const matches = lowerContent.match(regex);
+    // Give higher weight to healthcare matches
+    return total + (matches ? matches.length * 1.5 : 0); 
+  }, 0);
+  
+  if (healthcareCount > 5) {
+    return 'Healthcare';
+  }
+  
   // Check each industry by counting keyword occurrences
   const industryCounts = Object.entries(industryKeywords).map(([industry, keywords]) => {
+    // Skip healthcare as we already checked it
+    if (industry === 'Healthcare') return { industry: industry as Industry, count: healthcareCount };
+    
     const count = keywords.reduce((total, keyword) => {
       const regex = new RegExp(keyword, 'gi');
       const matches = lowerContent.match(regex);

@@ -109,7 +109,20 @@ const determineComplianceFrameworks = (auditEvents: AuditEvent[], industry?: Ind
  * Enhanced to provide more accurate detection for healthcare and other industries
  */
 const extractIndustryFromDocument = (documentName: string, auditEvents: AuditEvent[]): Industry | undefined => {
-  // First try to extract from document name
+  // Special case check for healthcare first
+  const docNameLower = documentName.toLowerCase();
+  if (docNameLower.includes('health') || 
+      docNameLower.includes('medical') || 
+      docNameLower.includes('hospital') || 
+      docNameLower.includes('clinic') || 
+      docNameLower.includes('patient') || 
+      docNameLower.includes('care') ||
+      docNameLower.includes('doctor') ||
+      docNameLower.includes('hipaa')) {
+    return 'Healthcare';
+  }
+  
+  // Then try to extract from document name with standard mapping
   const industryFromName = mapToIndustryType(documentName);
   if (industryFromName) return industryFromName;
   
@@ -119,11 +132,14 @@ const extractIndustryFromDocument = (documentName: string, auditEvents: AuditEve
     JSON.stringify(event.comments)
   ).join(' ');
   
-  // Look specifically for healthcare indicators first (since that's the reported issue)
+  // Look specifically for healthcare indicators first
   if (eventsText.toLowerCase().includes('patient') || 
       eventsText.toLowerCase().includes('health') || 
       eventsText.toLowerCase().includes('medical') || 
-      eventsText.toLowerCase().includes('hipaa')) {
+      eventsText.toLowerCase().includes('hipaa') ||
+      eventsText.toLowerCase().includes('hospital') ||
+      eventsText.toLowerCase().includes('doctor') ||
+      eventsText.toLowerCase().includes('clinic')) {
     return 'Healthcare';
   }
   
