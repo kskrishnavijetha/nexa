@@ -16,7 +16,22 @@ export const generatePDFReport = async (
   documentName: string,
   auditEvents: AuditEvent[]
 ): Promise<Blob> => {
-  const pdf = new jsPDF();
+  // Create PDF with a slightly larger page size (a4+ format)
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+    compress: true,
+    putOnlyUsedFonts: true
+  });
+  
+  // Set reasonable margins
+  const margin = 20; // 20mm margins
+  pdf.setProperties({
+    title: `Audit Report - ${documentName}`,
+    subject: 'AI-Enhanced Compliance Report',
+    creator: 'Compliance Report Generator'
+  });
   
   // Add executive summary with document info
   let yPos = addExecutiveSummary(pdf, auditEvents, documentName);
@@ -27,13 +42,13 @@ export const generatePDFReport = async (
   // AI-Generated Insights
   const insights: AIInsight[] = generateAIInsights(auditEvents);
   
-  // Add risk and recommendation insights section
+  // Add risk and recommendation insights section with padding
   yPos = addInsightsSection(pdf, insights, yPos + 10);
   
-  // Add summary statistics and findings section
+  // Add summary statistics and findings section with padding
   yPos = addSummarySection(pdf, stats, yPos + 10);
   
-  // Add footer with page numbers to all pages
+  // Add footer with page numbers to all pages - must be last operation
   addFooter(pdf);
   
   // Return the PDF as a blob

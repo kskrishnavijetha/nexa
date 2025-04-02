@@ -6,11 +6,28 @@ import { jsPDF } from "jspdf";
  */
 export const addFooter = (doc: jsPDF): void => {
   const pageCount = doc.getNumberOfPages();
+  
+  // Add footer to each page with adjusted positioning
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
+    
+    // Set smaller font size for more space
     doc.setFontSize(8);
     doc.setTextColor(100, 100, 100);
-    doc.text(`Page ${i} of ${pageCount}`, 100, 290, { align: 'center' });
-    doc.text(`AI-Enhanced Compliance Report - CONFIDENTIAL`, 100, 284, { align: 'center' });
+    
+    // Adjusted y-position to ensure visibility (moved up slightly)
+    const footerPosition = 285; // Moved up from 290
+    const confidentialPosition = 280; // Moved up from 284
+    
+    // Add page numbers with more space
+    doc.text(`Page ${i} of ${pageCount}`, 100, footerPosition, { align: 'center' });
+    
+    // Add confidentiality notice with more space
+    doc.text(`AI-Enhanced Compliance Report - CONFIDENTIAL`, 100, confidentialPosition, { align: 'center' });
+    
+    // Draw a light separator line above the footer
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.1);
+    doc.line(20, confidentialPosition - 5, 190, confidentialPosition - 5);
   }
 };
