@@ -103,7 +103,8 @@ const generateRecommendations = (insights: AIInsight[]): ComplianceRecommendatio
   
   // Extract recommendations from insights
   insights.forEach(insight => {
-    if (insight.text.includes('implement') || 
+    if (insight.type === 'recommendation' || 
+        insight.text.includes('implement') || 
         insight.text.includes('should') || 
         insight.text.includes('consider') ||
         insight.text.includes('recommend')) {

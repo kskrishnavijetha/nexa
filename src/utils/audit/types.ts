@@ -1,7 +1,7 @@
 
 export interface AIInsight {
   text: string;
-  type: 'info' | 'warning' | 'success';
+  type: 'info' | 'warning' | 'success' | 'observation' | 'recommendation';
   title?: string;
   actionRequired?: boolean;
 }
