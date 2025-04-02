@@ -82,7 +82,7 @@ export const addStatisticsSection = (
   // Format overall status with appropriate color and slightly larger font
   doc.setFontSize(14);
   doc.setTextColor(status === 'Pass' ? 0 : 204, status === 'Pass' ? 102 : 0, 0);
-  doc.text(`Overall Status: ${status === 'Pass' ? 'COMPLIANT' : 'NON-COMPLIANT'}`, 35, yPos);
+  doc.text(`Overall Status: ${status === 'Pass' ? 'PASS' : 'FAIL'}`, 35, yPos);
   
   // Reset font to normal for subsequent text
   doc.setFont('helvetica', 'normal');
