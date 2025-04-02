@@ -393,6 +393,106 @@ export const INDUSTRY_RISKS: Record<string, ComplianceRisk[]> = {
       regulation: 'NYDFS',
       mitigation: 'Implement comprehensive vendor risk management program'
     }
+  ],
+  'SOX': [
+    {
+      id: 'sox-ind-1',
+      title: 'Financial Reporting Controls',
+      description: 'Inadequate controls for financial reporting integrity',
+      severity: 'high',
+      regulation: 'SOX',
+      mitigation: 'Implement robust internal controls and audit trail'
+    }
+  ],
+  'GLBA': [
+    {
+      id: 'glba-ind-1',
+      title: 'Financial Privacy Notices',
+      description: 'Insufficient privacy notices for financial customers',
+      severity: 'medium',
+      regulation: 'GLBA',
+      mitigation: 'Update privacy notices to comply with GLBA requirements'
+    }
+  ],
+  'FedRAMP': [
+    {
+      id: 'fedramp-ind-1',
+      title: 'Cloud Security Assessment',
+      description: 'Incomplete security assessment documentation',
+      severity: 'high',
+      regulation: 'FedRAMP',
+      mitigation: 'Complete all required security assessment documentation'
+    }
+  ],
+  'CIS Benchmarks': [
+    {
+      id: 'cis-ind-1',
+      title: 'Configuration Baseline',
+      description: 'System configurations not aligned with security benchmarks',
+      severity: 'medium',
+      regulation: 'CIS Benchmarks',
+      mitigation: 'Audit and align system configurations with CIS benchmarks'
+    }
+  ],
+  'FTC Act': [
+    {
+      id: 'ftc-ind-1',
+      title: 'Consumer Protection',
+      description: 'Potentially deceptive advertising or marketing practices',
+      severity: 'medium',
+      regulation: 'FTC Act',
+      mitigation: 'Review all consumer-facing communications for compliance'
+    }
+  ],
+  'FISMA': [
+    {
+      id: 'fisma-ind-1',
+      title: 'Federal Information Security',
+      description: 'Inadequate security controls for federal information systems',
+      severity: 'high',
+      regulation: 'FISMA',
+      mitigation: 'Implement NIST security controls and continuous monitoring'
+    }
+  ],
+  'CMMC': [
+    {
+      id: 'cmmc-ind-1',
+      title: 'Defense Industrial Base Security',
+      description: 'Insufficient cybersecurity maturity for defense contracts',
+      severity: 'high',
+      regulation: 'CMMC',
+      mitigation: 'Implement practices to achieve required CMMC level'
+    }
+  ],
+  'ITAR': [
+    {
+      id: 'itar-ind-1',
+      title: 'Export Controls',
+      description: 'Insufficient controls for export-controlled technical data',
+      severity: 'critical',
+      regulation: 'ITAR',
+      mitigation: 'Implement comprehensive export control program'
+    }
+  ],
+  'ISO 14001': [
+    {
+      id: 'iso14001-ind-1',
+      title: 'Environmental Management',
+      description: 'Environmental impact monitoring gaps identified',
+      severity: 'medium',
+      regulation: 'ISO 14001',
+      mitigation: 'Enhance environmental management system documentation'
+    }
+  ],
+  'FERC': [
+    {
+      id: 'ferc-ind-1',
+      title: 'Energy Market Reporting',
+      description: 'Incomplete energy market transaction reporting',
+      severity: 'medium',
+      regulation: 'FERC',
+      mitigation: 'Improve energy market reporting procedures'
+    }
   ]
 };
 

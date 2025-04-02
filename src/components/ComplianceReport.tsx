@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ComplianceReport as ComplianceReportType } from '@/utils/apiService';
+import { ComplianceReport as ComplianceReportType } from '@/utils/types';
 import ReportHeader from './report/ReportHeader';
 import ReportTabs from './report/ReportTabs';
 import useLanguagePreference from '@/hooks/useLanguagePreference';
