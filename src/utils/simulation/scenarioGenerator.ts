@@ -143,8 +143,8 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
       });
     }
     
-    // Healthcare specific scenarios
-    if (industry === 'Healthcare' || industry === 'Pharmaceutical & Life Sciences') {
+    // Healthcare and Pharmaceutical specific scenarios
+    if (industry === 'Healthcare' || industry === 'Pharmaceutical & Biotech') {
       baseScenarios.push({
         id: 'healthcare-hipaa-update',
         name: 'HIPAA Regulatory Changes',
@@ -169,12 +169,12 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
       });
       
       // Add FDA compliance scenario for Pharmaceuticals
-      if (industry === 'Pharmaceutical & Life Sciences') {
+      if (industry === 'Pharmaceutical & Biotech') {
         baseScenarios.push({
           id: 'fda-compliance-update',
           name: 'FDA CFR Part 11 Updates',
           description: 'Simulates changes to FDA electronic records regulations',
-          industry: 'Pharmaceutical & Life Sciences',
+          industry: 'Pharmaceutical & Biotech',
           actions: [
             'Enhance electronic signature validation',
             'Update audit trail procedures',
@@ -250,12 +250,12 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
     }
     
     // E-commerce & Retail scenarios
-    if (industry === 'E-commerce & Retail') {
+    if (industry === 'E-Commerce' || industry === 'Retail & Consumer') {
       baseScenarios.push({
         id: 'ccpa-update',
         name: 'CCPA/CPRA Enforcement Changes',
         description: 'Simulates stricter enforcement of California privacy regulations',
-        industry: 'E-commerce & Retail',
+        industry: 'E-Commerce',
         actions: [
           'Update privacy notices',
           'Enhance data subject request handling',
@@ -278,7 +278,7 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
         id: 'pci-dss-4-update',
         name: 'PCI DSS 4.0 Transition',
         description: 'Simulates transition to PCI DSS 4.0 requirements',
-        industry: 'E-commerce & Retail',
+        industry: 'Retail & Consumer',
         actions: [
           'Implement customized approach documentation',
           'Enhance authentication requirements',

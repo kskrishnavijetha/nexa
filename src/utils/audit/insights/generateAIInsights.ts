@@ -91,7 +91,8 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       });
       break;
       
-    case 'E-commerce & Retail':
+    case 'E-Commerce':
+    case 'Retail & Consumer':
       insights.push({
         title: 'Customer Data Protection',
         text: 'Consider implementing enhanced customer PII protection measures for loyalty program data.',
@@ -143,7 +144,7 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       });
       break;
       
-    case 'Telecommunications':
+    case 'Telecom':
       insights.push({
         title: 'Customer Data Privacy',
         text: 'CPNI protection measures need enhancement to meet current FCC requirements.',
@@ -156,7 +157,7 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       });
       break;
       
-    case 'Manufacturing & IoT':
+    case 'Manufacturing & Supply Chain':
       insights.push({
         title: 'ICS Security Controls',
         text: 'Industrial Control System security monitoring needs enhancement to detect advanced threats.',
@@ -169,7 +170,7 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       });
       break;
       
-    case 'Education & EdTech':
+    case 'Education':
       insights.push({
         title: 'Student Data Privacy',
         text: 'FERPA compliance gaps identified in student record access controls.',
@@ -182,33 +183,20 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       });
       break;
       
-    case 'Legal & Consulting':
+    case 'Automotive':
       insights.push({
-        title: 'Client Confidentiality',
-        text: 'Document access patterns indicate potential need for enhanced access controls.',
+        title: 'Connected Vehicle Security',
+        text: 'Implement stronger security controls for connected vehicle systems.',
         type: 'warning'
       });
       insights.push({
-        title: 'Matter Management Security',
-        text: 'Implement data loss prevention controls for sensitive client information.',
+        title: 'Component Traceability',
+        text: 'Improve supply chain component traceability and security validation.',
         type: 'recommendation'
       });
       break;
       
-    case 'Insurance':
-      insights.push({
-        title: 'Claims Data Protection',
-        text: 'Claims processing systems show potential privacy control weaknesses.',
-        type: 'warning'
-      });
-      insights.push({
-        title: 'Regulatory Compliance',
-        text: 'Enhance controls to meet NYDFS Cybersecurity Regulation requirements for nonpublic information.',
-        type: 'recommendation'
-      });
-      break;
-      
-    case 'Pharmaceutical & Life Sciences':
+    case 'Pharmaceutical & Biotech':
       insights.push({
         title: 'Clinical Data Integrity',
         text: 'Audit trail analysis indicates potential gaps in 21 CFR Part 11 compliance for clinical systems.',
