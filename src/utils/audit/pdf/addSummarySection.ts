@@ -8,7 +8,12 @@ import { addStatisticsSection } from './sections/addStatisticsSection';
 /**
  * Add summary statistics section to the PDF document
  */
-export const addSummarySection = (doc: jsPDF, stats: AuditReportStatistics, startY: number): number => {
+export const addSummarySection = (
+  doc: jsPDF, 
+  stats: AuditReportStatistics, 
+  startY: number,
+  documentName?: string
+): number => {
   let yPos = startY;
   
   // Add horizontal line after insights
@@ -23,8 +28,8 @@ export const addSummarySection = (doc: jsPDF, stats: AuditReportStatistics, star
   doc.text('Summary of Findings', 20, yPos);
   yPos += 10;
   
-  // Create compliance findings
-  const findings = generateComplianceFindings(stats);
+  // Create compliance findings - pass document name for industry detection
+  const findings = generateComplianceFindings(stats, documentName);
   
   // Create findings table
   yPos = createFindingsTable(doc, findings, yPos);
