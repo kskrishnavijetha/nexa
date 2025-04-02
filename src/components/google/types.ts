@@ -1,22 +1,37 @@
 
-import { Industry, Region } from '@/utils/types';
+import { Industry, Region, RiskSeverity } from '@/utils/types';
 import { SupportedLanguage } from '@/utils/language';
 
 export type GoogleService = 'drive' | 'gmail' | 'docs';
 
-export interface GoogleServicesScannerProps {
+export interface GoogleServiceConnection {
+  id: string;
+  service: GoogleService;
+  dateConnected: string;
+  status: 'connected' | 'disconnected' | 'error';
+  lastScanned?: string;
+  itemsScanned?: number;
+  issuesFound?: number;
+}
+
+export interface GoogleServiceStats {
+  totalIssues: number;
+  documentCount: number;
+  lastScanDate?: string;
+  serviceType: GoogleService;
+}
+
+export interface GoogleScanRequest {
   industry?: Industry;
   region?: Region;
   language?: SupportedLanguage;
-  file?: File | null;
-  persistedConnectedServices?: GoogleService[];
-  onServicesUpdate?: (services: GoogleService[]) => void;
+  services: GoogleService[];
 }
 
 export interface ScanViolation {
   title: string;
   description: string;
-  severity: 'high' | 'medium' | 'low';
+  severity: RiskSeverity;
   service: string;
   location: string;
 }
@@ -25,8 +40,11 @@ export interface ScanResults {
   violations: ScanViolation[];
 }
 
-export interface UploadedFileInfo {
-  name: string;
-  type: string;
-  size: number;
+export interface ServiceHistoryItem {
+  id: string;
+  service: GoogleService;
+  scanDate: string;
+  issuesFound: number;
+  itemsScanned: number;
+  status: 'completed' | 'failed' | 'partial';
 }

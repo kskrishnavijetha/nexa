@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { GoogleService } from '@/components/google/types';
 import { SupportedLanguage } from '@/utils/language';
-import { Industry, Region } from '@/utils/types';
+import { Industry, Region, RiskSeverity } from '@/utils/types';
 import { scanGoogleService } from '@/utils/google/scanService';
 import { toast } from 'sonner';
 import { ScanViolation, ScanResults } from '@/components/google/types';

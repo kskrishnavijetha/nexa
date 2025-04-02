@@ -1,13 +1,14 @@
 
 import React from 'react';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, AlertCircle } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
+import { RiskSeverity } from '@/utils/types';
 
 interface RiskPrediction {
   riskType: string;
   probability: number;
   regulation: string;
-  severity: 'high' | 'medium' | 'low';
+  severity: RiskSeverity;
   trend: 'increasing' | 'stable' | 'decreasing';
 }
 
@@ -34,6 +35,21 @@ const RiskPredictions: React.FC<RiskPredictionsProps> = ({ predictions }) => {
     if (probability >= 70) return 'bg-red-500';
     if (probability >= 40) return 'bg-amber-500';
     return 'bg-green-500';
+  };
+
+  const getSeverityClass = (severity: RiskSeverity) => {
+    switch (severity) {
+      case 'critical':
+        return 'bg-purple-100 text-purple-700';
+      case 'high':
+        return 'bg-red-100 text-red-700';
+      case 'medium':
+        return 'bg-amber-100 text-amber-700';
+      case 'low':
+        return 'bg-green-100 text-green-700';
+      default:
+        return 'bg-gray-100 text-gray-700';
+    }
   };
 
   return (
@@ -65,11 +81,7 @@ const RiskPredictions: React.FC<RiskPredictionsProps> = ({ predictions }) => {
               </div>
               
               <div className="flex items-center gap-2 mb-2">
-                <span className={`text-xs px-2 py-0.5 rounded ${
-                  prediction.severity === 'high' ? 'bg-red-100 text-red-700' :
-                  prediction.severity === 'medium' ? 'bg-amber-100 text-amber-700' :
-                  'bg-green-100 text-green-700'
-                }`}>
+                <span className={`text-xs px-2 py-0.5 rounded ${getSeverityClass(prediction.severity)}`}>
                   {prediction.severity.toUpperCase()}
                 </span>
                 <span className="text-xs text-muted-foreground">

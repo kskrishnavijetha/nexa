@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { AlertTriangle, Check, FileText, Download } from 'lucide-react';
+import { AlertTriangle, Check, FileText, Download, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScanViolation } from './types';
@@ -23,6 +23,32 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
     acc[service] = violations.filter(v => v.service === service);
     return acc;
   }, {} as Record<string, ScanViolation[]>);
+
+  const getSeverityIcon = (severity: string) => {
+    switch (severity) {
+      case 'critical':
+        return <AlertCircle className="h-5 w-5 text-purple-500 mr-3 mt-0.5" />;
+      case 'high':
+        return <AlertTriangle className="h-5 w-5 text-red-500 mr-3 mt-0.5" />;
+      case 'medium':
+        return <AlertTriangle className="h-5 w-5 text-amber-500 mr-3 mt-0.5" />;
+      default:
+        return <AlertTriangle className="h-5 w-5 text-blue-500 mr-3 mt-0.5" />;
+    }
+  };
+
+  const getSeverityBadgeClass = (severity: string) => {
+    switch (severity) {
+      case 'critical':
+        return 'border-purple-200 bg-purple-100 text-purple-800';
+      case 'high':
+        return 'border-red-200 bg-red-100 text-red-800';
+      case 'medium':
+        return 'border-amber-200 bg-amber-100 text-amber-800';
+      default:
+        return 'border-blue-200 bg-blue-100 text-blue-800';
+    }
+  };
 
   const handleDownloadPDF = async (serviceFilter?: string) => {
     try {
@@ -131,25 +157,13 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
         <div className="space-y-4">
           {violations.map((violation, index) => (
             <div key={index} className="flex items-start p-3 rounded-md bg-muted/50">
-              {violation.severity === 'high' ? (
-                <AlertTriangle className="h-5 w-5 text-red-500 mr-3 mt-0.5" />
-              ) : violation.severity === 'medium' ? (
-                <AlertTriangle className="h-5 w-5 text-amber-500 mr-3 mt-0.5" />
-              ) : (
-                <AlertTriangle className="h-5 w-5 text-blue-500 mr-3 mt-0.5" />
-              )}
+              {getSeverityIcon(violation.severity)}
               <div>
                 <h4 className="font-medium">
                   {violation.title}
                   <Badge 
                     variant="outline" 
-                    className={`ml-2 ${
-                      violation.severity === 'high' 
-                        ? 'border-red-200 bg-red-100 text-red-800' 
-                        : violation.severity === 'medium'
-                        ? 'border-amber-200 bg-amber-100 text-amber-800'
-                        : 'border-blue-200 bg-blue-100 text-blue-800'
-                    }`}
+                    className={`ml-2 ${getSeverityBadgeClass(violation.severity)}`}
                   >
                     {violation.severity}
                   </Badge>

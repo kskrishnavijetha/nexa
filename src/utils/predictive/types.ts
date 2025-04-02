@@ -52,7 +52,7 @@ export interface RiskPrediction {
   riskType: string;
   probability: number;
   regulation: string;
-  severity: 'high' | 'medium' | 'low';
+  severity: RiskSeverity; // Updated to use RiskSeverity which includes 'critical'
   trend: 'increasing' | 'stable' | 'decreasing';
 }
 
