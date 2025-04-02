@@ -50,16 +50,28 @@ export const addEventsSection = (
     // Format date
     const eventDate = new Date(event.timestamp).toLocaleString();
     
-    // Add event entry
+    // Add event entry - Using 'action' instead of 'eventType'
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(0, 0, 0);
-    doc.text(`${i + 1}. ${eventDate} - ${event.eventType}`, 25, yPos);
+    doc.text(`${i + 1}. ${eventDate} - ${event.action}`, 25, yPos);
     yPos += 6;
     
-    // Add event description with truncation to prevent overflow
+    // Add event description - Since there's no direct 'description' property, we'll use action as a fallback
+    // or create a descriptive text from other properties
     doc.setFont('helvetica', 'normal');
-    let description = event.description || 'No description provided';
+    let description = '';
+    
+    // Check if there's a documentName to include
+    if (event.documentName) {
+      description = `Document: ${event.documentName}`;
+      if (event.status) {
+        description += ` - Status: ${event.status}`;
+      }
+    } else {
+      description = event.action; // Use action as fallback description
+    }
+    
     if (description.length > 100) {
       description = description.substring(0, 97) + '...';
     }
