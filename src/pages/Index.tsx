@@ -7,7 +7,6 @@ import WhyChooseSection from '@/components/home/WhyChooseSection';
 import ComplianceFeaturesSection from '@/components/home/ComplianceFeaturesSection';
 import IndustriesSection from '@/components/home/IndustriesSection';
 import ResultsSection from '@/components/home/ResultsSection';
-import TrustedBySection from '@/components/home/TrustedBySection';
 import UserGuide from '@/components/home/UserGuide';
 import Layout from '@/components/layout/Layout';
 
@@ -23,7 +22,6 @@ const Index = () => {
           <ComplianceFeaturesSection />
           <IndustriesSection />
           <ResultsSection />
-          <TrustedBySection />
           <UserGuide />
           <Features />
         </div>

@@ -12,7 +12,13 @@ interface AuditTrailHeaderProps {
 }
 
 const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => {
-  const { auditEvents, isGeneratingReport, downloadAuditReport } = useAuditTrail();
+  const { auditEvents, isGeneratingReport, downloadAuditReport, setLastActivity } = useAuditTrail();
+
+  const handleRefresh = () => {
+    // Just update the last activity timestamp to trigger new events
+    // without reloading the page or clearing existing events
+    setLastActivity(new Date());
+  };
 
   return (
     <CardHeader className="flex flex-col space-y-2 md:flex-row md:justify-between md:items-center md:space-y-0">
@@ -34,7 +40,7 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
                 variant="outline" 
                 size="sm" 
                 className="gap-1"
-                onClick={() => window.location.reload()}
+                onClick={handleRefresh}
               >
                 <RefreshCw size={14} />
                 <span className="hidden sm:inline">Refresh</span>

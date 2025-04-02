@@ -21,7 +21,8 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
     isLoading,
     addAuditEvent,
     updateTaskStatus,
-    updateAuditEvents
+    updateAuditEvents,
+    setLastActivity
   } = useAuditEventManager(documentName, initialEvents);
 
   const {
@@ -36,7 +37,8 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
     downloadAuditReport,
     addAuditEvent,
     updateTaskStatus,
-    updateAuditEvents
+    updateAuditEvents,
+    setLastActivity
   };
 
   return (
