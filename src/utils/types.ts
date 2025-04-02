@@ -237,18 +237,18 @@ export interface RiskPrediction {
 }
 
 export const INDUSTRY_REGULATIONS: Record<string, string[]> = {
-  'Finance & Banking': ['GDPR', 'SOC 2', 'PCI-DSS', 'ISO/IEC 27001'],
-  'Healthcare': ['HIPAA', 'GDPR', 'ISO/IEC 27001'],
-  'Cloud & SaaS': ['GDPR', 'SOC 2', 'ISO/IEC 27001'],
+  'Finance & Banking': ['GDPR', 'PCI-DSS', 'SOX', 'GLBA', 'ISO/IEC 27001'],
+  'Healthcare': ['HIPAA', 'GDPR', 'HITECH', '21 CFR Part 11', 'ISO/IEC 27001'],
+  'Cloud & SaaS': ['SOC 2', 'ISO/IEC 27001', 'FedRAMP', 'CIS Benchmarks', 'GDPR'],
   'E-Commerce': ['PCI-DSS', 'GDPR', 'CCPA'],
-  'Retail & Consumer': ['PCI-DSS', 'GDPR', 'CCPA'],
-  'Government & Defense': ['FISMA', 'GDPR', 'ISO/IEC 27001'],
-  'Energy & Utilities': ['NERC CIP', 'GDPR', 'ISO/IEC 27001'],
-  'Telecom': ['GDPR', 'ISO/IEC 27001', 'CPNI'],
-  'Manufacturing & Supply Chain': ['GDPR', 'ISO/IEC 27001', 'IEC 62443'],
+  'Retail & Consumer': ['GDPR', 'CCPA', 'FTC Act', 'PCI-DSS'],
+  'Government & Defense': ['FISMA', 'ITAR', 'CMMC', 'GDPR', 'ISO/IEC 27001'],
+  'Energy & Utilities': ['NERC CIP', 'FERC', 'ISO 14001', 'GDPR', 'ISO/IEC 27001'],
+  'Telecom': ['FCC Regulations', 'GDPR', 'CPRA', 'ISO/IEC 27001'],
+  'Manufacturing & Supply Chain': ['ISO 9001', 'C-TPAT', 'RoHS', 'GDPR', 'ISO/IEC 27001'],
   'Education': ['FERPA', 'GDPR', 'COPPA'],
-  'Automotive': ['ISO 26262', 'GDPR', 'WP.29'],
-  'Pharmaceutical & Biotech': ['HIPAA', 'GDPR', 'GxP', 'FDA CFR Part 11'],
+  'Automotive': ['ISO 26262', 'TS 16949', 'GDPR', 'WP.29'],
+  'Pharmaceutical & Biotech': ['FDA Regulations', 'EMA Regulations', 'ISO 13485', 'GDPR', 'GxP', 'FDA CFR Part 11'],
   'Global': ['GDPR', 'ISO/IEC 27001', 'PCI-DSS']
 };
 

@@ -76,6 +76,16 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
         text: 'Implement additional safeguards for electronic protected health information (ePHI).',
         type: 'recommendation'
       });
+      insights.push({
+        title: 'HITECH Act Compliance',
+        text: 'Consider enhanced breach notification procedures to comply with HITECH requirements.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: '21 CFR Part 11 Compliance',
+        text: 'Electronic records and signatures should be validated against FDA requirements.',
+        type: 'warning'
+      });
       break;
       
     case 'Finance & Banking':
@@ -88,6 +98,16 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
         title: 'PCI DSS Compliance',
         text: 'Strengthen cardholder data environment (CDE) segmentation to improve security posture.',
         type: 'recommendation'
+      });
+      insights.push({
+        title: 'SOX Compliance',
+        text: 'Financial reporting controls should be reviewed for Sarbanes-Oxley Act compliance.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'GLBA Privacy Notices',
+        text: 'Update customer privacy notices to comply with Gramm-Leach-Bliley Act requirements.',
+        type: 'warning'
       });
       break;
       
@@ -103,6 +123,16 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
         text: 'Audit trail for inventory changes shows potential gaps in logging completeness.',
         type: 'warning'
       });
+      insights.push({
+        title: 'CCPA Compliance',
+        text: 'Implement "Do Not Sell My Personal Information" functionality to comply with California regulations.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'FTC Act Compliance',
+        text: 'Review advertising practices and disclosures for compliance with consumer protection laws.',
+        type: 'recommendation'
+      });
       break;
       
     case 'Cloud & SaaS':
@@ -115,6 +145,21 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
         title: 'Development Environment',
         text: 'Code deployment patterns indicate potential bypassing of security review processes.',
         type: 'warning'
+      });
+      insights.push({
+        title: 'SOC 2 Service Controls',
+        text: 'Enhance monitoring and logging of service availability to meet SOC 2 requirements.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'FedRAMP Compliance',
+        text: 'Government data handling practices need additional controls to meet federal requirements.',
+        type: 'warning'
+      });
+      insights.push({
+        title: 'CIS Benchmark Alignment',
+        text: 'System configurations should be assessed against CIS benchmarks for cloud security.',
+        type: 'recommendation'
       });
       break;
       
@@ -129,6 +174,21 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
         text: 'Access controls for sensitive information should be reviewed for proper clearance enforcement.',
         type: 'warning'
       });
+      insights.push({
+        title: 'ITAR Compliance',
+        text: 'Technical data export controls need enhancement to prevent unauthorized access.',
+        type: 'warning'
+      });
+      insights.push({
+        title: 'CMMC Preparation',
+        text: 'Prepare for Cybersecurity Maturity Model Certification assessment through enhanced controls.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'FISMA Controls',
+        text: 'Federal information system security controls should be regularly assessed and documented.',
+        type: 'recommendation'
+      });
       break;
       
     case 'Energy & Utilities':
@@ -140,6 +200,16 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       insights.push({
         title: 'Smart Grid Security',
         text: 'Enhance network segmentation for industrial control systems to prevent lateral movement.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'FERC Compliance',
+        text: 'Regulatory reporting for energy market participation should be reviewed for accuracy.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'Environmental Management',
+        text: 'ISO 14001 environmental impact monitoring should be integrated with compliance processes.',
         type: 'recommendation'
       });
       break;
@@ -155,6 +225,16 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
         text: 'Implement additional security monitoring for critical network infrastructure components.',
         type: 'recommendation'
       });
+      insights.push({
+        title: 'FCC Regulations Compliance',
+        text: 'Telecommunications service reporting should be reviewed for regulatory completeness.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'CPRA Implementation',
+        text: 'Prepare for expanded consumer privacy rights under California Privacy Rights Act.',
+        type: 'recommendation'
+      });
       break;
       
     case 'Manufacturing & Supply Chain':
@@ -166,6 +246,21 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       insights.push({
         title: 'IoT Device Management',
         text: 'Implement comprehensive IoT device inventory and vulnerability management program.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'Quality Management',
+        text: 'ISO 9001 process documentation should be aligned with compliance management systems.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'Supply Chain Security',
+        text: 'C-TPAT security practices should be extended to all international suppliers.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'RoHS Compliance',
+        text: 'Material compliance documentation for hazardous substances should be centralized.',
         type: 'recommendation'
       });
       break;
@@ -181,6 +276,11 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
         text: 'Enhance authentication controls for learning management systems to prevent unauthorized access.',
         type: 'recommendation'
       });
+      insights.push({
+        title: 'Child Online Protection',
+        text: 'COPPA compliance requires enhanced consent management for users under 13.',
+        type: 'warning'
+      });
       break;
       
     case 'Automotive':
@@ -192,6 +292,16 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       insights.push({
         title: 'Component Traceability',
         text: 'Improve supply chain component traceability and security validation.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'Functional Safety',
+        text: 'ISO 26262 functional safety documentation should be integrated with compliance processes.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'Quality Management',
+        text: 'TS 16949 automotive quality management practices should be digitally transformed.',
         type: 'recommendation'
       });
       break;
@@ -210,6 +320,21 @@ const generateIndustryInsights = (industry: Industry, auditEvents: AuditEvent[])
       insights.push({
         title: 'Research Data Protection',
         text: 'Strengthen access controls and encryption for sensitive research and development data.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'FDA Regulatory Compliance',
+        text: 'Drug and medical device compliance documentation should be centralized for audit readiness.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'EMA Submission Standards',
+        text: 'European Medicines Agency submission formatting should follow current standards.',
+        type: 'recommendation'
+      });
+      insights.push({
+        title: 'Quality Management System',
+        text: 'ISO 13485 medical device quality management procedures require digital transformation.',
         type: 'recommendation'
       });
       break;
