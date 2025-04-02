@@ -7,7 +7,6 @@ import { generateAIInsights } from './insights';
 import { addExecutiveSummary } from './pdf/addExecutiveSummary';
 import { addInsightsSection } from './pdf/addInsightsSection';
 import { addSummarySection } from './pdf/addSummarySection';
-import { addEventsSection } from './pdf/addEventsSection';
 
 /**
  * Generate a PDF report with AI-enhanced insights from audit events
@@ -33,11 +32,7 @@ export const generatePDFReport = async (
   // Add summary statistics and findings section
   yPos = addSummarySection(pdf, stats, yPos + 10);
   
-  // Add a new page for detailed events
-  pdf.addPage();
-  
-  // Add the detailed audit events section
-  addEventsSection(pdf, auditEvents, 20);
+  // Note: We're removing the detailed audit events section as requested
   
   return pdf.output('blob');
 };
