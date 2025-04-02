@@ -34,9 +34,9 @@ export const generateLegalFindings = (stats: AuditReportStatistics): ComplianceF
   
   findings.push({
     category: 'Conflict of Interest Controls',
-    status: stats.completedTasks < 3 ? 'Failed' : 'Pass',
+    status: stats.completedTasks! < 3 ? 'Failed' : 'Pass',
     criticality: 'Medium',
-    details: stats.completedTasks < 3 
+    details: stats.completedTasks! < 3 
       ? 'Conflict of interest management processes need improvement' 
       : 'Conflict of interest management properly maintained'
   });

@@ -34,9 +34,9 @@ export const generateInsuranceFindings = (stats: AuditReportStatistics): Complia
   
   findings.push({
     category: 'NYDFS Cybersecurity Compliance',
-    status: stats.completedTasks < 4 ? 'Failed' : 'Pass',
+    status: stats.completedTasks! < 4 ? 'Failed' : 'Pass',
     criticality: 'High',
-    details: stats.completedTasks < 4 
+    details: stats.completedTasks! < 4 
       ? 'NYDFS Cybersecurity Regulation compliance issues detected' 
       : 'NYDFS Cybersecurity Regulation requirements satisfied'
   });

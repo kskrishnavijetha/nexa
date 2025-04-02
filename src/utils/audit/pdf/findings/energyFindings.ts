@@ -34,9 +34,9 @@ export const generateEnergyFindings = (stats: AuditReportStatistics): Compliance
   
   findings.push({
     category: 'Environmental Compliance',
-    status: stats.completedTasks < 3 ? 'Failed' : 'Pass',
+    status: stats.completedTasks! < 3 ? 'Failed' : 'Pass',
     criticality: 'Medium',
-    details: stats.completedTasks < 3 
+    details: stats.completedTasks! < 3 
       ? 'Environmental compliance reporting incomplete' 
       : 'Environmental compliance reporting up to date'
   });

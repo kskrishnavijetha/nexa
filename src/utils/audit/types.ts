@@ -13,6 +13,9 @@ export interface AuditReportStatistics {
   completed: number;
   inProgress: number;
   pending: number;
+  // Add aliases for clearer property names in findings files
+  completedTasks?: number;
+  pendingTasks?: number;
 }
 
 export interface ComplianceFinding {

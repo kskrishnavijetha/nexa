@@ -34,9 +34,9 @@ export const generateEducationFindings = (stats: AuditReportStatistics): Complia
   
   findings.push({
     category: 'Learning Management Security',
-    status: stats.completedTasks < 3 ? 'Failed' : 'Pass',
+    status: stats.completedTasks! < 3 ? 'Failed' : 'Pass',
     criticality: 'Medium',
-    details: stats.completedTasks < 3 
+    details: stats.completedTasks! < 3 
       ? 'Learning Management System security controls need improvement' 
       : 'Learning Management System security properly maintained'
   });

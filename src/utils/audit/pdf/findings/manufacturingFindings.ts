@@ -34,9 +34,9 @@ export const generateManufacturingFindings = (stats: AuditReportStatistics): Com
   
   findings.push({
     category: 'IEC 62443 Compliance',
-    status: stats.completedTasks < 4 ? 'Failed' : 'Pass',
+    status: stats.completedTasks! < 4 ? 'Failed' : 'Pass',
     criticality: 'High',
-    details: stats.completedTasks < 4 
+    details: stats.completedTasks! < 4 
       ? 'IEC 62443 compliance requirements not fully satisfied' 
       : 'IEC 62443 compliance requirements satisfied'
   });

@@ -34,18 +34,18 @@ export const generatePharmaFindings = (stats: AuditReportStatistics): Compliance
   
   findings.push({
     category: 'Pharmacovigilance Data Integrity',
-    status: stats.completedTasks < 5 ? 'Failed' : 'Pass',
+    status: stats.completedTasks! < 5 ? 'Failed' : 'Pass',
     criticality: 'High',
-    details: stats.completedTasks < 5 
+    details: stats.completedTasks! < 5 
       ? 'Pharmacovigilance data management needs improvement' 
       : 'Pharmacovigilance data integrity properly maintained'
   });
   
   findings.push({
     category: 'HIPAA Compliance for Research Data',
-    status: stats.pendingTasks > 3 ? 'Failed' : 'Pass',
+    status: stats.pendingTasks! > 3 ? 'Failed' : 'Pass',
     criticality: 'High',
-    details: stats.pendingTasks > 3 
+    details: stats.pendingTasks! > 3 
       ? 'Patient health information in research not fully HIPAA compliant' 
       : 'HIPAA requirements for research data satisfied'
   });

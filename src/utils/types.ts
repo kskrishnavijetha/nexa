@@ -46,7 +46,7 @@ export interface ComplianceRisk {
   mitigation?: string;
 }
 
-export type RiskSeverity = 'high' | 'medium' | 'low';
+export type RiskSeverity = 'high' | 'medium' | 'low' | 'critical';
 
 export interface Risk {
   id?: string;
@@ -58,7 +58,6 @@ export interface Risk {
   mitigation?: string;
 }
 
-// Add RiskItem interface needed by predictive analysis
 export interface RiskItem {
   id: string;
   title?: string;
@@ -130,7 +129,6 @@ export type Region =
 
 export type SupportedLanguage = 'en' | 'es' | 'fr' | 'de' | 'zh';
 
-// API response interface
 export interface ApiResponse<T> {
   success: boolean;
   data?: T;
@@ -138,7 +136,6 @@ export interface ApiResponse<T> {
   status?: number;
 }
 
-// Risk trend interface
 export interface RiskTrend {
   riskId: string;
   id?: string; // Add optional id field
@@ -155,7 +152,6 @@ export interface RiskTrend {
   trend: 'increase' | 'decrease' | 'stable'; // Fixed to match expected values
 }
 
-// Simulation scenario interface
 export interface SimulationScenario {
   id: string;
   name: string;
@@ -173,14 +169,12 @@ export interface SimulationScenario {
   };
 }
 
-// Add RegulationChange interface
 export interface RegulationChange {
   regulation: string;
   changeType: 'stricter' | 'relaxed' | 'new' | 'updated';
   impactLevel: 'high' | 'medium' | 'low';
 }
 
-// Predictive analysis interface
 export interface PredictiveAnalysis {
   scenarioId?: string; // Added to match usage
   scenarioName?: string; // Added to match usage
@@ -224,7 +218,6 @@ export interface PredictiveAnalysis {
   complianceInsights?: ComplianceInsight[]; // Added to match usage
 }
 
-// Add missing ComplianceInsight interface
 export interface ComplianceInsight {
   title: string;
   description: string;
@@ -232,7 +225,6 @@ export interface ComplianceInsight {
   priority: 'high' | 'medium' | 'low' | 'critical';
 }
 
-// Risk prediction interface
 export interface RiskPrediction {
   title?: string;
   riskType?: string;
@@ -244,7 +236,6 @@ export interface RiskPrediction {
   trend?: 'increasing' | 'decreasing' | 'stable';
 }
 
-// Industry regulations mapping
 export const INDUSTRY_REGULATIONS: Record<string, string[]> = {
   'Finance & Banking': ['GDPR', 'SOC 2', 'PCI-DSS', 'ISO/IEC 27001'],
   'Healthcare': ['HIPAA', 'GDPR', 'ISO/IEC 27001'],
@@ -261,7 +252,6 @@ export const INDUSTRY_REGULATIONS: Record<string, string[]> = {
   'Global': ['GDPR', 'ISO/IEC 27001', 'PCI-DSS']
 };
 
-// Region regulations mapping
 export const REGION_REGULATIONS: Record<string, Record<string, string>> = {
   'us': {
     'CCPA': 'California Consumer Privacy Act',
@@ -315,7 +305,6 @@ export const REGION_REGULATIONS: Record<string, Record<string, string>> = {
   }
 };
 
-// Add missing INDUSTRY_RISKS constant to fix imports
 export const INDUSTRY_RISKS: Record<string, ComplianceRisk[]> = {
   'GDPR': [
     {
@@ -407,7 +396,6 @@ export const INDUSTRY_RISKS: Record<string, ComplianceRisk[]> = {
   ]
 };
 
-// Add missing REGION_RISKS constant to fix imports
 export const REGION_RISKS: Record<string, ComplianceRisk[]> = {
   'us': [
     {

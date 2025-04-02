@@ -21,6 +21,9 @@ export const calculateReportStatistics = (auditEvents: AuditEvent[]): AuditRepor
     userEvents,
     completed,
     inProgress,
-    pending
+    pending,
+    // Add these aliases for industry findings files
+    completedTasks: completed,
+    pendingTasks: pending
   };
 };

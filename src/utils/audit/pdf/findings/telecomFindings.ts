@@ -34,9 +34,9 @@ export const generateTelecomFindings = (stats: AuditReportStatistics): Complianc
   
   findings.push({
     category: 'CPNI Protection',
-    status: stats.completedTasks < 5 ? 'Failed' : 'Pass',
+    status: stats.completedTasks! < 5 ? 'Failed' : 'Pass',
     criticality: 'High',
-    details: stats.completedTasks < 5 
+    details: stats.completedTasks! < 5 
       ? 'Customer Proprietary Network Information protection inadequate' 
       : 'CPNI protection requirements satisfied'
   });
