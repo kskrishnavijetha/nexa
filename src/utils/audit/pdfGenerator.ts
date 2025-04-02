@@ -7,7 +7,6 @@ import { generateAIInsights } from './insights';
 import { addExecutiveSummary } from './pdf/addExecutiveSummary';
 import { addInsightsSection } from './pdf/addInsightsSection';
 import { addSummarySection } from './pdf/addSummarySection';
-import { addEventsSection } from './pdf/addEventsSection';
 import { addFooter } from './pdf/addFooter';
 
 /**
@@ -49,8 +48,7 @@ export const generatePDFReport = async (
   // Add summary statistics and findings section with padding
   yPos = addSummarySection(pdf, stats, yPos + 10);
   
-  // Add events section showing the actual audit events
-  yPos = addEventsSection(pdf, auditEvents, yPos + 10);
+  // We've removed the audit events section as requested
   
   // Add footer with page numbers to all pages - must be last operation
   addFooter(pdf);

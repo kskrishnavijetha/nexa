@@ -1,5 +1,4 @@
 
-import { addEventsSection } from './addEventsSection';
 import { addInsightsSection } from './addInsightsSection';
 import { addSummarySection } from './addSummarySection';
 import { addExecutiveSummary } from './addExecutiveSummary';
@@ -10,7 +9,6 @@ import { calculateComplianceScore } from './findings/calculateComplianceScore';
 import { addStatisticsSection } from './sections/addStatisticsSection';
 
 export {
-  addEventsSection,
   addInsightsSection,
   addSummarySection,
   addExecutiveSummary,

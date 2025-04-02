@@ -15,8 +15,27 @@ export const addStatisticsSection = (
 ): number => {
   let yPos = startY;
   
-  // Add summary details
-  doc.setFontSize(10);
+  // Check if we need a new page for the final results
+  if (yPos > 220) {
+    doc.addPage();
+    yPos = 20;
+    
+    // Add page header for final results page
+    doc.setFontSize(14);
+    doc.setTextColor(0, 51, 102);
+    doc.text('Compliance Results & Final Score', 20, yPos);
+    yPos += 15;
+  } else {
+    // Add a section header
+    doc.setFontSize(14);
+    doc.setTextColor(0, 51, 102);
+    doc.text('Compliance Results & Final Score', 20, yPos);
+    yPos += 15;
+  }
+  
+  // Add summary details with clear formatting and spacing
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
   doc.setTextColor(0, 0, 0);
   
   // Use text arrays for each line to ensure proper rendering
@@ -37,7 +56,7 @@ export const addStatisticsSection = (
   
   yPos += 10;
   
-  // Add compliance score with clear formatting
+  // Add compliance score with clear formatting and visual separation
   const { score, status } = calculateComplianceScore(findings);
   
   // Add a section separator
@@ -45,21 +64,37 @@ export const addStatisticsSection = (
   doc.setLineWidth(0.2);
   doc.line(25, yPos - 5, 185, yPos - 5);
   
-  // Format compliance score with bold font
-  doc.setFontSize(12);
+  // Add a decorative box for the final score
+  const scoreBoxY = yPos;
+  const scoreBoxHeight = 30;
+  doc.setFillColor(245, 245, 250);
+  doc.setDrawColor(200, 200, 210);
+  doc.roundedRect(25, scoreBoxY, 160, scoreBoxHeight, 5, 5, 'FD');
+  
+  // Format compliance score with larger, bold font
+  yPos += 10;
+  doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(0, 0, 0);
-  doc.text(`Final Compliance Score: ${score}% (${score >= 80 ? 'Compliant' : 'Non-Compliant'})`, 25, yPos);
-  yPos += 8;
+  doc.text(`Final Compliance Score: ${score}%`, 35, yPos);
+  yPos += 12;
   
-  // Format overall status with appropriate color
+  // Format overall status with appropriate color and slightly larger font
+  doc.setFontSize(14);
   doc.setTextColor(status === 'Pass' ? 0 : 204, status === 'Pass' ? 102 : 0, 0);
-  doc.text(`Overall Status: ${status}`, 25, yPos);
+  doc.text(`Overall Status: ${status === 'Pass' ? 'COMPLIANT' : 'NON-COMPLIANT'}`, 35, yPos);
   
   // Reset font to normal for subsequent text
   doc.setFont('helvetica', 'normal');
   
-  yPos += 15;
+  yPos += scoreBoxHeight + 5;
+  
+  // Add final note about AI-enhancement
+  doc.setFontSize(9);
+  doc.setTextColor(100, 100, 100);
+  doc.text('Note: This report was automatically generated with AI compliance analysis.', 25, yPos);
+  
+  yPos += 20;
   
   return yPos;
 };
