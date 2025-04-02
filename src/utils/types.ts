@@ -101,15 +101,15 @@ export type Industry =
   | 'Finance & Banking'
   | 'Healthcare'
   | 'Cloud & SaaS'
-  | 'E-commerce & Retail'
-  | 'Government & Defense'
+  | 'E-Commerce'
+  | 'Telecom'
   | 'Energy & Utilities'
-  | 'Telecommunications'
-  | 'Manufacturing & IoT'
-  | 'Education & EdTech'
-  | 'Legal & Consulting'
-  | 'Insurance'
-  | 'Pharmaceutical & Life Sciences'
+  | 'Retail & Consumer'
+  | 'Education'
+  | 'Government & Defense'
+  | 'Pharmaceutical & Biotech'
+  | 'Manufacturing & Supply Chain'
+  | 'Automotive'
   | 'Global';
 
 export type Region =
@@ -240,15 +240,15 @@ export const INDUSTRY_REGULATIONS: Record<string, string[]> = {
   'Finance & Banking': ['GDPR', 'SOC 2', 'PCI-DSS', 'ISO/IEC 27001'],
   'Healthcare': ['HIPAA', 'GDPR', 'ISO/IEC 27001'],
   'Cloud & SaaS': ['GDPR', 'SOC 2', 'ISO/IEC 27001'],
-  'E-commerce & Retail': ['PCI-DSS', 'GDPR', 'CCPA'],
+  'E-Commerce': ['PCI-DSS', 'GDPR', 'CCPA'],
+  'Retail & Consumer': ['PCI-DSS', 'GDPR', 'CCPA'],
   'Government & Defense': ['FISMA', 'GDPR', 'ISO/IEC 27001'],
   'Energy & Utilities': ['NERC CIP', 'GDPR', 'ISO/IEC 27001'],
-  'Telecommunications': ['GDPR', 'ISO/IEC 27001', 'CPNI'],
-  'Manufacturing & IoT': ['GDPR', 'ISO/IEC 27001', 'IEC 62443'],
-  'Education & EdTech': ['FERPA', 'GDPR', 'COPPA'],
-  'Legal & Consulting': ['GDPR', 'ISO/IEC 27001', 'CCPA'],
-  'Insurance': ['GDPR', 'SOC 2', 'NYDFS'],
-  'Pharmaceutical & Life Sciences': ['HIPAA', 'GDPR', 'GxP', 'FDA CFR Part 11'],
+  'Telecom': ['GDPR', 'ISO/IEC 27001', 'CPNI'],
+  'Manufacturing & Supply Chain': ['GDPR', 'ISO/IEC 27001', 'IEC 62443'],
+  'Education': ['FERPA', 'GDPR', 'COPPA'],
+  'Automotive': ['ISO 26262', 'GDPR', 'WP.29'],
+  'Pharmaceutical & Biotech': ['HIPAA', 'GDPR', 'GxP', 'FDA CFR Part 11'],
   'Global': ['GDPR', 'ISO/IEC 27001', 'PCI-DSS']
 };
 

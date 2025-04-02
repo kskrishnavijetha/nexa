@@ -19,7 +19,7 @@ const industries = [
     ]
   },
   {
-    name: "Pharmaceutical & Life Sciences",
+    name: "Pharmaceutical & Biotech",
     features: [
       "FDA CFR Part 11 & GxP compliance",
       "Clinical data integrity monitoring",
@@ -27,7 +27,7 @@ const industries = [
     ]
   },
   {
-    name: "E-commerce & Retail",
+    name: "E-Commerce",
     features: [
       "PCI-DSS compliance for online payments",
       "GDPR & CCPA user data protection",
@@ -59,7 +59,7 @@ const industries = [
     ]
   },
   {
-    name: "Telecommunications",
+    name: "Telecom",
     features: [
       "FCC compliance automation",
       "CPNI protection assessment",

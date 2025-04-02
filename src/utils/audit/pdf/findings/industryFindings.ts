@@ -11,8 +11,7 @@ import { generateEnergyFindings } from './energyFindings';
 import { generateTelecomFindings } from './telecomFindings';
 import { generateManufacturingFindings } from './manufacturingFindings';
 import { generateEducationFindings } from './educationFindings';
-import { generateLegalFindings } from './legalFindings';
-import { generateInsuranceFindings } from './insuranceFindings';
+import { generateAutomotiveFindings } from './automotiveFindings';
 import { generatePharmaFindings } from './pharmaFindings';
 
 /**
@@ -24,7 +23,8 @@ export const generateIndustryFindings = (stats: AuditReportStatistics, industry:
       return generateHealthcareFindings(stats);
     case 'Finance & Banking':
       return generateFinanceFindings(stats);
-    case 'E-commerce & Retail':
+    case 'E-Commerce':
+    case 'Retail & Consumer':
       return generateRetailFindings(stats);
     case 'Cloud & SaaS':
       return generateTechnologyFindings(stats);
@@ -32,17 +32,15 @@ export const generateIndustryFindings = (stats: AuditReportStatistics, industry:
       return generateGovernmentFindings(stats);
     case 'Energy & Utilities':
       return generateEnergyFindings(stats);
-    case 'Telecommunications':
+    case 'Telecom':
       return generateTelecomFindings(stats);
-    case 'Manufacturing & IoT':
+    case 'Manufacturing & Supply Chain':
       return generateManufacturingFindings(stats);
-    case 'Education & EdTech':
+    case 'Education':
       return generateEducationFindings(stats);
-    case 'Legal & Consulting':
-      return generateLegalFindings(stats);
-    case 'Insurance':
-      return generateInsuranceFindings(stats);
-    case 'Pharmaceutical & Life Sciences':
+    case 'Automotive':
+      return generateAutomotiveFindings(stats);
+    case 'Pharmaceutical & Biotech':
       return generatePharmaFindings(stats);
     default:
       return generateDefaultFindings(stats);
