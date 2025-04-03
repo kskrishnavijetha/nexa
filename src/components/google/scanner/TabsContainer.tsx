@@ -1,9 +1,9 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScanResults } from '../types';
+import { ScanResults as ScanResultsType } from '../types';
 import ScanStats from '../ScanStats';
-import ScanResults from '../ScanResults';
+import ScanResultsComponent from '../ScanResults';
 import { Industry } from '@/utils/types';
 import ServiceTabs from '../ServiceTabs';
 import ConnectionStatus from '../ConnectionStatus';
@@ -12,7 +12,7 @@ import { GoogleService } from '../types';
 interface TabsContainerProps {
   activeTab: string;
   setActiveTab: (value: string) => void;
-  scanResults: ScanResults | null;
+  scanResults: ScanResultsType | null;
   lastScanTime?: Date;
   itemsScanned: number;
   violationsFound: number;
@@ -88,7 +88,7 @@ const TabsContainer: React.FC<TabsContainerProps> = ({
               violationsFound={violationsFound}
             />
             
-            <ScanResults 
+            <ScanResultsComponent 
               violations={scanResults.violations} 
               industry={scanResults.industry || selectedIndustry} 
             />
