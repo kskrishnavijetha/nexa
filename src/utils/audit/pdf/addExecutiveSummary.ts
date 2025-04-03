@@ -1,3 +1,4 @@
+
 import { jsPDF } from "jspdf";
 import { AuditEvent } from '@/components/audit/types';
 import { Industry } from '@/utils/types';
@@ -34,8 +35,13 @@ export const addExecutiveSummary = (
   doc.text(`Date: ${new Date().toLocaleString()}`, 20, yPos);
   
   yPos += 7;
+  console.log(`[addExecutiveSummary] Using selectedIndustry: ${selectedIndustry || 'not provided'}`);
+  
   // If an industry is explicitly selected, use it - highest priority
   const industry = selectedIndustry || extractIndustryFromDocument(documentName, auditEvents);
+  
+  console.log(`[addExecutiveSummary] Final industry used: ${industry || 'Global'}`);
+  
   const orgNameParts = documentName.split('-');
   const organization = orgNameParts.length > 0 && orgNameParts[0].trim() ? 
     orgNameParts[0].trim() : 
@@ -46,7 +52,7 @@ export const addExecutiveSummary = (
   yPos += 7;
   doc.text(`Industry: ${industry || 'Global'}`, 20, yPos);
   
-  // Add applicable compliance frameworks
+  // Add applicable compliance frameworks - use selected industry first
   yPos += 7;
   const frameworks = determineComplianceFrameworks(auditEvents, industry);
   doc.text(`Compliance Framework: ${frameworks.join(', ')}`, 20, yPos);
@@ -84,6 +90,7 @@ export const addExecutiveSummary = (
 const determineComplianceFrameworks = (auditEvents: AuditEvent[], industry?: Industry): string[] => {
   // If we have an industry, use its regulations as primary frameworks
   if (industry && INDUSTRY_REGULATIONS[industry]) {
+    console.log(`[determineComplianceFrameworks] Using regulations for ${industry}:`, INDUSTRY_REGULATIONS[industry]);
     return [...INDUSTRY_REGULATIONS[industry]]; // Return a copy to avoid modifying the original
   }
   

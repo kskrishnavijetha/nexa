@@ -45,8 +45,8 @@ export const generatePDFReport = async (
   const stats = calculateReportStatistics(auditEvents);
   
   // AI-Generated Insights based on industry and document
-  // Use the document name to help determine the industry
-  const insights: AIInsight[] = generateAIInsights(auditEvents, documentName);
+  // Use the document name and industry to help determine the insights
+  const insights: AIInsight[] = generateAIInsights(auditEvents, documentName, selectedIndustry);
   
   // Add risk and recommendation insights section with padding
   yPos = addInsightsSection(pdf, insights, yPos + 10);

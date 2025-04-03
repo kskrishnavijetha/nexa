@@ -1,6 +1,7 @@
 
 import { createContext, useContext } from 'react';
 import { AuditEvent } from '../types';
+import { Industry } from '@/utils/types';
 
 interface AuditTrailContextType {
   auditEvents: AuditEvent[];
@@ -11,6 +12,7 @@ interface AuditTrailContextType {
   updateTaskStatus: (eventId: string, status: 'pending' | 'in-progress' | 'completed') => void;
   updateAuditEvents: (events: AuditEvent[]) => void;
   setLastActivity: (date: Date) => void;
+  industry?: Industry; // Add industry to context
 }
 
 const AuditTrailContext = createContext<AuditTrailContextType | undefined>(undefined);

@@ -73,6 +73,7 @@ const extractIndustryFromDocument = (documentName?: string): Industry | undefine
       normalizedName.includes('funding') ||
       normalizedName.includes('credit') ||
       normalizedName.includes('loan')) {
+    console.log('[extractIndustryFromDocument] Detected Finance & Banking industry');
     return 'Finance & Banking';
   }
   
@@ -85,8 +86,15 @@ const extractIndustryFromDocument = (documentName?: string): Industry | undefine
       normalizedName.includes('doctor') ||
       normalizedName.includes('care') ||
       normalizedName.includes('hipaa')) {
+    console.log('[extractIndustryFromDocument] Detected Healthcare industry');
     return 'Healthcare';
   }
   
-  return mapToIndustryType(documentName);
+  // Use the general mapping function
+  const mappedIndustry = mapToIndustryType(documentName);
+  if (mappedIndustry) {
+    console.log(`[extractIndustryFromDocument] Mapped to industry: ${mappedIndustry}`);
+  }
+  
+  return mappedIndustry;
 };

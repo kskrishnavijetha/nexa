@@ -19,6 +19,8 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
   initialEvents,
   industry,
 }) => {
+  console.log(`[AuditTrailProvider] Initializing with industry: ${industry || 'not specified'}`);
+  
   const {
     auditEvents,
     isLoading,
@@ -41,7 +43,8 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
     addAuditEvent,
     updateTaskStatus,
     updateAuditEvents,
-    setLastActivity
+    setLastActivity,
+    industry // Make industry available in the context
   };
 
   return (

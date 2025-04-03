@@ -4,6 +4,7 @@ import { AuditReportStatistics } from '../types';
 import { generateComplianceFindings } from './findings/generateComplianceFindings';
 import { createFindingsTable } from './tables/createFindingsTable';
 import { addStatisticsSection } from './sections/addStatisticsSection';
+import { Industry } from '@/utils/types';
 
 /**
  * Add summary statistics section to the PDF document
@@ -12,7 +13,8 @@ export const addSummarySection = (
   doc: jsPDF, 
   stats: AuditReportStatistics, 
   startY: number,
-  documentName?: string
+  documentName?: string,
+  industry?: Industry
 ): number => {
   let yPos = startY;
   
@@ -28,8 +30,10 @@ export const addSummarySection = (
   doc.text('Summary of Findings', 20, yPos);
   yPos += 10;
   
-  // Create compliance findings - pass document name for industry detection
-  const findings = generateComplianceFindings(stats, documentName);
+  console.log(`[addSummarySection] Generating findings with industry: ${industry || 'not specified'}`);
+  
+  // Create compliance findings - pass both document name and industry
+  const findings = generateComplianceFindings(stats, documentName, undefined, industry);
   
   // Create findings table
   yPos = createFindingsTable(doc, findings, yPos);

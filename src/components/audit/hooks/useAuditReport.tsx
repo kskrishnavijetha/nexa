@@ -18,7 +18,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       console.log(`[useAuditReport] Generating report for ${documentName} with ${auditEvents.length} events`);
       console.log(`[useAuditReport] Industry explicitly selected: ${industry || 'not specified'}`);
       
-      // Pass the industry parameter explicitly to ensure it's properly used
+      // Make sure we're using the industry from props first, before trying to detect it
       const reportBlob = await generatePDFReport(documentName, auditEvents, industry);
       
       // Create download link
@@ -32,8 +32,6 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       link.click();
       document.body.removeChild(link);
       
-      // Add the report generation as an audit event
-      // This would be done through the context in a real app
       console.log(`[useAuditReport] Report successfully generated for industry: ${industry || 'General'}`);
       
       toast.success('Audit report downloaded successfully');

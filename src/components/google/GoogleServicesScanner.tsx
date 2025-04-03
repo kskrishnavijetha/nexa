@@ -43,9 +43,13 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   const { addScanHistory, setUserId } = useServiceHistoryStore();
   const { user } = useAuth();
   
+  // Log when industry props change
+  useEffect(() => {
+    console.log(`[GoogleServicesScanner] Industry prop changed: ${industry || 'undefined'}`);
+  }, [industry]);
+  
   // Update the user ID in the store when the user changes
   useEffect(() => {
-    console.log('[GoogleServicesScanner] Setting user ID in history store:', user?.id);
     if (user) {
       setUserId(user.id);
     } else {
@@ -121,7 +125,11 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
           documentName: documentName,
           fileName: file?.name || documentName,
           industry: industry, // Add industry to scan history for better tracking
-          organization: organization // Add organization name for consistency
+          organization: organization, // Add organization name for consistency
+          regulations: industry ? [...(industry === 'Healthcare' ? ['HIPAA', 'GDPR'] : 
+                          industry === 'Finance & Banking' ? ['GLBA', 'PCI-DSS', 'SOX'] :
+                          industry === 'Retail & Consumer' ? ['PCI-DSS', 'CCPA', 'GDPR'] :
+                          ['GDPR', 'CCPA'])] : ['GDPR']
         });
       });
     } else {

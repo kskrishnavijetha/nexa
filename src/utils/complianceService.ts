@@ -24,7 +24,8 @@ export const requestComplianceCheck = async (
     // Get language preference or use provided language
     const userLanguage = language || getLanguagePreference();
     
-    console.log(`[complianceService] Checking compliance for industry: ${industry || 'unspecified'}`);
+    console.log(`[complianceService] Checking compliance for document: ${documentName}`);
+    console.log(`[complianceService] Industry passed to complianceService: ${industry || 'unspecified'}`);
     
     // Get applicable regulations based on industry
     const regulations = industry && INDUSTRY_REGULATIONS[industry] 
@@ -56,6 +57,14 @@ export const requestComplianceCheck = async (
     // Create a relevant summary based on scores, industry, and region
     const summary = generateSummary(overallScore, gdprScore, hipaaScore, pciDssScore, industry, userLanguage, region);
     
+    // Extract organization name from document name if available
+    const orgNameParts = documentName.split('-');
+    const organization = orgNameParts.length > 0 && orgNameParts[0].trim() ? 
+      orgNameParts[0].trim() : 
+      'Organization';
+    
+    console.log(`[complianceService] Organization extracted: ${organization}`);
+    
     // Mock compliance report with real-time values
     const mockReport: ComplianceReport = {
       documentId,
@@ -78,7 +87,8 @@ export const requestComplianceCheck = async (
       summary,
       suggestions,
       timestamp: new Date().toISOString(),
-      complianceStatus: overallScore >= 80 ? 'compliant' : overallScore >= 60 ? 'partially-compliant' : 'non-compliant'
+      complianceStatus: overallScore >= 80 ? 'compliant' : overallScore >= 60 ? 'partially-compliant' : 'non-compliant',
+      organization: organization // Add organization field
     };
     
     console.log(`[complianceService] Generated report for industry: ${industry}, with regulations:`, regulations);
