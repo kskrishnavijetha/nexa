@@ -57,10 +57,7 @@ export const addStatisticsSection = (
   yPos += 10;
   
   // Add compliance score with clear formatting and visual separation
-  const { score, status } = calculateComplianceScore(findings);
-  
-  // Determine compliance status text based on score
-  const complianceStatus = score >= 80 ? 'Compliant' : 'Non-Compliant';
+  const { score, status, complianceStatus } = calculateComplianceScore(findings);
   
   // Add a section separator
   doc.setDrawColor(200, 200, 200);

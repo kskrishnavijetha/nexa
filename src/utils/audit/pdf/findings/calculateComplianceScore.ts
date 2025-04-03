@@ -7,9 +7,10 @@ import { ComplianceFinding } from '../../types';
  */
 export const calculateComplianceScore = (findings: ComplianceFinding[]): { 
   score: number; 
-  status: 'Pass' | 'Fail' 
+  status: 'Pass' | 'Fail';
+  complianceStatus: 'Compliant' | 'Non-Compliant';
 } => {
-  if (findings.length === 0) return { score: 100, status: 'Pass' };
+  if (findings.length === 0) return { score: 100, status: 'Pass', complianceStatus: 'Compliant' };
   
   // Count passed findings
   const passedCount = findings.filter(f => f.status === 'Pass').length;
@@ -17,6 +18,8 @@ export const calculateComplianceScore = (findings: ComplianceFinding[]): {
   
   // Determine status based on score
   const status = score >= 80 ? 'Pass' : 'Fail';
+  // Add compliance status text for consistent display across application
+  const complianceStatus = score >= 80 ? 'Compliant' : 'Non-Compliant';
   
-  return { score, status };
+  return { score, status, complianceStatus };
 };
