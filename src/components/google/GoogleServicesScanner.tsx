@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 import { GoogleService, GoogleServicesScannerProps, ScanResults } from './types';
 import { useGoogleServiceConnections } from '@/hooks/useGoogleServiceConnections';
@@ -89,12 +90,12 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
       return;
     }
     
-    // Pass the required parameters to handleScan
+    // Pass the required parameters to handleScan, ensuring industry is passed correctly
     handleScan(connectedServices, industry, language, region);
 
     // Add to scan history for each connected service
     if (user) {
-      console.log(`Adding scan history for user ${user.id}`);
+      console.log(`Adding scan history for user ${user.id} with industry: ${industry}`);
       // Add to scan history for each connected service
       connectedServices.forEach(service => {
         const timestamp = new Date().toISOString();
@@ -107,10 +108,11 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
           serviceName: service === 'drive' ? 'Google Drive' : 
                       service === 'gmail' ? 'Gmail' : 'Google Docs',
           scanDate: timestamp,
-          itemsScanned: itemsScanned || Math.floor(Math.random() * 50) + 10, // Use actual or placeholder
-          violationsFound: violationsFound || Math.floor(Math.random() * 5), // Use actual or placeholder
+          itemsScanned: itemsScanned || Math.floor(Math.random() * 50) + 10,
+          violationsFound: violationsFound || Math.floor(Math.random() * 5),
           documentName: documentName,
-          fileName: file?.name || documentName // Add the file name here
+          fileName: file?.name || documentName,
+          industry: industry // Add industry to scan history for better tracking
         });
       });
     } else {

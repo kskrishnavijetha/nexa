@@ -13,7 +13,7 @@ export const generateComplianceFindings = (
   documentName?: string,
   documentContent?: string
 ): ComplianceFinding[] => {
-  // First check specifically for healthcare in the document name
+  // First check specifically for healthcare in the document name to address healthcare detection issues
   if (documentName && (
       documentName.toLowerCase().includes('health') || 
       documentName.toLowerCase().includes('medical') || 
