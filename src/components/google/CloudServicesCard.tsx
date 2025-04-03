@@ -1,9 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Cloud, AlertCircle } from 'lucide-react';
+import { Cloud, AlertCircle, HardDrive, Mail, FileText } from 'lucide-react';
 import ServiceCard from './service-card/ServiceCard';
-import { Drive, Gmail, FileText } from 'lucide-react';
 import { GoogleService } from './types';
 import ScanButton from './ScanButton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -65,7 +64,7 @@ const CloudServicesCard: React.FC<CloudServicesCardProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
           <ServiceCard
             serviceId="drive"
-            icon={Drive}
+            icon={HardDrive}
             title="Google Drive"
             description="Scan files and documents in Google Drive for compliance with regulations."
             isConnected={connectedServices.includes('drive')}
@@ -77,7 +76,7 @@ const CloudServicesCard: React.FC<CloudServicesCardProps> = ({
           
           <ServiceCard
             serviceId="gmail"
-            icon={Gmail}
+            icon={Mail}
             title="Gmail"
             description="Analyze email content for potential compliance issues and data protection."
             isConnected={connectedServices.includes('gmail')}
