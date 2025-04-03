@@ -39,12 +39,27 @@ const ServiceHistory: React.FC = () => {
       setUserId(user.id);
       // Fetch user's historical reports
       const userReports = getUserHistoricalReports(user.id);
+      console.log('ServiceHistory: Loaded reports for user:', userReports.length);
       setReports(userReports);
     } else {
       setUserId(null);
       setReports([]);
     }
   }, [user, setUserId]);
+  
+  // Force a refresh of reports every 2 seconds (for demo purposes)
+  useEffect(() => {
+    if (user) {
+      const interval = setInterval(() => {
+        const userReports = getUserHistoricalReports(user.id);
+        if (userReports.length !== reports.length) {
+          console.log('ServiceHistory: Refreshing reports, found:', userReports.length);
+          setReports(userReports);
+        }
+      }, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [user, reports.length]);
   
   const handleDocumentClick = (document: string, report?: ComplianceReport) => {
     setSelectedDocument(document);

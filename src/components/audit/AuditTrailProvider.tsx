@@ -4,17 +4,20 @@ import AuditTrailContext from './context/AuditTrailContext';
 import { useAuditEventManager } from './hooks/useAuditEventManager';
 import { useAuditReport } from './hooks/useAuditReport';
 import { AuditEvent } from './types';
+import { Industry } from '@/utils/types';
 
 interface AuditTrailProviderProps {
   documentName: string;
   children: React.ReactNode;
   initialEvents?: AuditEvent[];
+  industry?: Industry;
 }
 
 export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
   documentName,
   children,
   initialEvents,
+  industry,
 }) => {
   const {
     auditEvents,
@@ -28,7 +31,7 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
   const {
     isGeneratingReport,
     downloadAuditReport
-  } = useAuditReport(documentName, auditEvents);
+  } = useAuditReport(documentName, auditEvents, industry);
 
   const value = {
     auditEvents,

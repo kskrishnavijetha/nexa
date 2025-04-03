@@ -14,7 +14,7 @@ export const generateComplianceFindings = (
   documentContent?: string,
   selectedIndustry?: Industry // Add selectedIndustry parameter
 ): ComplianceFinding[] => {
-  // If an industry is explicitly selected, use it
+  // If an industry is explicitly selected, use it - this is the highest priority
   if (selectedIndustry) {
     console.log(`Using explicitly selected industry: ${selectedIndustry}`);
     return generateIndustryFindings(stats, selectedIndustry);
@@ -59,12 +59,18 @@ const extractIndustryFromDocument = (documentName?: string): Industry | undefine
   
   const normalizedName = documentName.toLowerCase();
   
-  // Special case for Finance & Banking
+  // Special case for Finance & Banking - make this higher priority and more comprehensive
   if (normalizedName.includes('finance') || 
       normalizedName.includes('bank') || 
       normalizedName.includes('financial') ||
       normalizedName.includes('investment') ||
-      normalizedName.includes('trading')) {
+      normalizedName.includes('trading') ||
+      normalizedName.includes('wealth') ||
+      normalizedName.includes('asset management') ||
+      normalizedName.includes('capital') ||
+      normalizedName.includes('funding') ||
+      normalizedName.includes('credit') ||
+      normalizedName.includes('loan')) {
     return 'Finance & Banking';
   }
   

@@ -6,17 +6,19 @@ import { AuditTrailProvider } from './AuditTrailProvider';
 import AuditTrailHeader from './AuditTrailHeader';
 import AuditTrailList from './AuditTrailList';
 import AuditLogs from './AuditLogs';
+import { Industry } from '@/utils/types';
 
 interface AuditTrailProps {
   documentName: string;
+  industry?: Industry;
 }
 
-const AuditTrail: React.FC<AuditTrailProps> = ({ documentName }) => {
+const AuditTrail: React.FC<AuditTrailProps> = ({ documentName, industry }) => {
   const [activeTab, setActiveTab] = useState<string>('timeline');
   
   return (
     <Card>
-      <AuditTrailProvider documentName={documentName}>
+      <AuditTrailProvider documentName={documentName} industry={industry}>
         <AuditTrailHeader documentName={documentName} />
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

@@ -1,3 +1,4 @@
+
 import { Industry } from '@/utils/types';
 
 /**
@@ -8,12 +9,18 @@ export const mapToIndustryType = (name?: string): Industry | undefined => {
   
   const lowerName = name.toLowerCase();
   
-  // Finance & Banking detection
+  // Finance & Banking detection - expanded keywords
   if (lowerName.includes('finance') || 
       lowerName.includes('bank') || 
       lowerName.includes('financial') ||
       lowerName.includes('investment') ||
-      lowerName.includes('trading')) {
+      lowerName.includes('trading') ||
+      lowerName.includes('wealth') ||
+      lowerName.includes('asset management') ||
+      lowerName.includes('capital') ||
+      lowerName.includes('funding') ||
+      lowerName.includes('credit') ||
+      lowerName.includes('loan')) {
     return 'Finance & Banking';
   }
   
@@ -71,12 +78,18 @@ export const mapToIndustryType = (name?: string): Industry | undefined => {
 export const extractIndustryFromContent = (content: string): Industry | undefined => {
   const lowerContent = content.toLowerCase();
   
-  // First check for Finance & Banking
+  // First check for Finance & Banking - expanded keywords
   if (lowerContent.includes('bank') || 
       lowerContent.includes('financial') || 
       lowerContent.includes('investment') ||
       lowerContent.includes('trading') ||
-      lowerContent.includes('finance')) {
+      lowerContent.includes('finance') ||
+      lowerContent.includes('wealth') ||
+      lowerContent.includes('asset management') ||
+      lowerContent.includes('capital') ||
+      lowerContent.includes('funding') ||
+      lowerContent.includes('credit') ||
+      lowerContent.includes('loan')) {
     return 'Finance & Banking';
   }
   
@@ -91,19 +104,19 @@ export const extractIndustryFromContent = (content: string): Industry | undefine
   
   // Check other industries with specific keywords
   const industryKeywords: Record<Industry, string[]> = {
-    'Finance & Banking': ['bank', 'financial', 'investment', 'trading', 'finance'],
-    'Healthcare': ['health', 'medical', 'patient', 'hipaa', 'clinic'],
-    'Retail & Consumer': ['retail', 'consumer', 'store', 'shop'],
-    'E-Commerce': ['ecommerce', 'online store', 'marketplace'],
-    'Cloud & SaaS': ['cloud', 'software', 'saas', 'platform'],
-    'Government & Defense': ['government', 'defense', 'public', 'federal'],
-    'Energy & Utilities': ['energy', 'utility', 'power', 'electric'],
-    'Telecom': ['telecom', 'communication', 'network'],
-    'Manufacturing & Supply Chain': ['manufacturing', 'factory', 'supply chain'],
-    'Education': ['education', 'school', 'university', 'academic'],
-    'Automotive': ['automotive', 'car', 'vehicle', 'motor'],
-    'Pharmaceutical & Biotech': ['pharmaceutical', 'biotech', 'drug'],
-    'Global': ['global', 'international', 'worldwide']
+    'Finance & Banking': ['bank', 'financial', 'investment', 'trading', 'finance', 'wealth', 'asset management', 'capital', 'funding', 'credit', 'loan'],
+    'Healthcare': ['health', 'medical', 'patient', 'hipaa', 'clinic', 'doctor', 'care', 'hospital'],
+    'Retail & Consumer': ['retail', 'consumer', 'store', 'shop', 'merchandise'],
+    'E-Commerce': ['ecommerce', 'online store', 'marketplace', 'digital retail'],
+    'Cloud & SaaS': ['cloud', 'software', 'saas', 'platform', 'tech', 'technology'],
+    'Government & Defense': ['government', 'defense', 'public', 'federal', 'agency'],
+    'Energy & Utilities': ['energy', 'utility', 'power', 'electric', 'renewable'],
+    'Telecom': ['telecom', 'communication', 'network', 'cellular', 'phone'],
+    'Manufacturing & Supply Chain': ['manufacturing', 'factory', 'supply chain', 'production'],
+    'Education': ['education', 'school', 'university', 'academic', 'teaching'],
+    'Automotive': ['automotive', 'car', 'vehicle', 'motor', 'transportation'],
+    'Pharmaceutical & Biotech': ['pharmaceutical', 'biotech', 'drug', 'medicine'],
+    'Global': ['global', 'international', 'worldwide', 'multinational']
   };
 
   // Count keyword matches for each industry

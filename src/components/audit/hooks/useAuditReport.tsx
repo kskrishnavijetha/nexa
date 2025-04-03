@@ -1,43 +1,42 @@
 
-import { useCallback, useState } from 'react';
-import { toast } from 'sonner';
+import { useState } from 'react';
+import { generatePDFReport, getAuditReportFileName } from '@/utils/audit';
 import { AuditEvent } from '../types';
-import { generateAuditReport, getAuditReportFileName } from '@/utils/auditReportService';
+import { toast } from 'sonner';
+import { Industry } from '@/utils/types';
 
-export function useAuditReport(documentName: string, auditEvents: AuditEvent[]) {
+export function useAuditReport(documentName: string, auditEvents: AuditEvent[], industry?: Industry) {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
-  const downloadAuditReport = useCallback(async () => {
-    if (auditEvents.length === 0) {
-      toast.error('No audit events to include in the report');
-      return;
-    }
+  const downloadAuditReport = async () => {
+    if (isGeneratingReport) return;
+    
+    setIsGeneratingReport(true);
+    toast.info('Generating audit report...');
     
     try {
-      setIsGeneratingReport(true);
-      console.log(`Starting report generation for ${documentName} with ${auditEvents.length} events`);
+      console.log(`Generating report for ${documentName} with ${auditEvents.length} events and industry: ${industry || 'not specified'}`);
+      const reportBlob = await generatePDFReport(documentName, auditEvents, industry);
       
-      const reportBlob = await generateAuditReport(documentName, auditEvents);
-      
-      // Create a download link
+      // Create download link
       const url = window.URL.createObjectURL(reportBlob);
       const link = document.createElement('a');
       link.href = url;
       link.download = getAuditReportFileName(documentName);
       
-      // Append to body, click and clean up
+      // Trigger download
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
       
       toast.success('Audit report downloaded successfully');
     } catch (error) {
-      console.error('Error generating audit report:', error);
-      toast.error('Failed to generate audit report: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      console.error('Error generating report:', error);
+      toast.error('Failed to generate audit report');
     } finally {
       setIsGeneratingReport(false);
     }
-  }, [auditEvents, documentName]);
+  };
 
   return {
     isGeneratingReport,

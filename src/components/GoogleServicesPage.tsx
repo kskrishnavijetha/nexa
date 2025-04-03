@@ -40,6 +40,7 @@ const GoogleServicesPage: React.FC = () => {
   }, []);
 
   const handleIndustryChange = (newIndustry: Industry) => {
+    console.log(`Industry changed to: ${newIndustry}`);
     setIndustry(newIndustry);
   };
 
@@ -110,7 +111,7 @@ const GoogleServicesPage: React.FC = () => {
         <TabsContent value="history" className="mt-6">
           <div className="grid grid-cols-1 gap-6">
             <ServiceHistory />
-            <AuditTrail documentName="Cloud Services Scanner" />
+            <AuditTrail documentName="Cloud Services Scanner" industry={industry} />
           </div>
         </TabsContent>
         
