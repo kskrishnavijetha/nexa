@@ -18,6 +18,7 @@ interface ServicesTabProps {
   onConnectGmail: () => void;
   onConnectDocs: () => void;
   onDisconnect: (service: GoogleService) => void;
+  isCompactView?: boolean;
 }
 
 const ServiceTabs: React.FC<ServicesTabProps> = ({
@@ -31,6 +32,7 @@ const ServiceTabs: React.FC<ServicesTabProps> = ({
   onConnectGmail,
   onConnectDocs,
   onDisconnect,
+  isCompactView = false
 }) => {
   const isDriveConnected = connectedServices.includes('drive');
   const isGmailConnected = connectedServices.includes('gmail');
@@ -38,7 +40,7 @@ const ServiceTabs: React.FC<ServicesTabProps> = ({
 
   return (
     <TabsContent value="google">
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className={`grid gap-4 ${isCompactView ? 'grid-cols-1 md:grid-cols-3' : 'md:grid-cols-3'}`}>
         <ServiceCard
           serviceId="drive-1"
           icon={Cloud}
@@ -49,6 +51,7 @@ const ServiceTabs: React.FC<ServicesTabProps> = ({
           isScanning={isScanning}
           onConnect={onConnectDrive}
           onDisconnect={() => onDisconnect('drive')}
+          isCompactView={isCompactView}
         />
         
         <ServiceCard
@@ -61,6 +64,7 @@ const ServiceTabs: React.FC<ServicesTabProps> = ({
           isScanning={isScanning}
           onConnect={onConnectGmail}
           onDisconnect={() => onDisconnect('gmail')}
+          isCompactView={isCompactView}
         />
         
         <ServiceCard
@@ -73,6 +77,7 @@ const ServiceTabs: React.FC<ServicesTabProps> = ({
           isScanning={isScanning}
           onConnect={onConnectDocs}
           onDisconnect={() => onDisconnect('docs')}
+          isCompactView={isCompactView}
         />
       </div>
     </TabsContent>

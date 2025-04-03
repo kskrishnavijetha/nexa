@@ -19,6 +19,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   isScanning,
   onConnect,
   onDisconnect,
+  isCompactView = false
 }) => {
   const {
     lastUpdated,
@@ -50,23 +51,27 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
   const helperTexts = getServiceHelperTexts(serviceId);
 
   return (
-    <Card className="border-gray-200">
+    <Card className={`border-gray-200 ${isCompactView ? 'shadow-sm' : 'shadow'}`}>
       <ServiceCardHeader 
         icon={icon}
         title={title}
         isConnected={isConnected}
         isRealTimeActive={isRealTimeActive}
         toggleRealTime={toggleRealTime}
+        isCompactView={isCompactView}
       />
 
-      <CardContent>
-        <p className="text-sm text-muted-foreground mb-4">
-          {description}
-        </p>
+      <CardContent className={isCompactView ? "p-3" : ""}>
+        {!isCompactView && (
+          <p className="text-sm text-muted-foreground mb-4">
+            {description}
+          </p>
+        )}
         
         <RealTimeMonitor 
           isActive={isConnected && isRealTimeActive}
           lastUpdated={lastUpdated}
+          isCompactView={isCompactView}
         />
         
         <ActionButtons 
@@ -82,6 +87,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
           connectVariant="default"
           uploadVariant="outline"
           downloadVariant="secondary"
+          isCompactView={isCompactView}
         />
 
         <AuthDialog 

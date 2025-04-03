@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
@@ -25,6 +24,7 @@ interface ScannerControlsProps {
     itemsScanned: number, 
     violationsFound: number
   ) => void;
+  isCompactView: boolean;
 }
 
 const ScannerControls: React.FC<ScannerControlsProps> = ({
@@ -35,7 +35,8 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
   region,
   file,
   onScan,
-  onScanComplete
+  onScanComplete,
+  isCompactView
 }) => {
   const handleStartScan = async () => {
     if (!industry) {

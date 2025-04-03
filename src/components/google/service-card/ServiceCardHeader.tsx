@@ -11,6 +11,7 @@ interface ServiceCardHeaderProps {
   isConnected: boolean;
   isRealTimeActive: boolean;
   toggleRealTime: () => void;
+  isCompactView?: boolean;
 }
 
 const ServiceCardHeader: React.FC<ServiceCardHeaderProps> = ({
@@ -19,11 +20,12 @@ const ServiceCardHeader: React.FC<ServiceCardHeaderProps> = ({
   isConnected,
   isRealTimeActive,
   toggleRealTime,
+  isCompactView = false
 }) => {
   return (
-    <CardHeader className="pb-2">
+    <CardHeader className={isCompactView ? "p-3 pb-1" : "pb-2"}>
       <div className="flex justify-between items-center">
-        <CardTitle className="text-base flex items-center">
+        <CardTitle className={`flex items-center ${isCompactView ? 'text-sm' : 'text-base'}`}>
           <Icon className="h-4 w-4 mr-2" />
           {title}
         </CardTitle>
@@ -37,7 +39,7 @@ const ServiceCardHeader: React.FC<ServiceCardHeaderProps> = ({
               <RefreshCw className={`h-4 w-4 ${isRealTimeActive ? "text-green-500 animate-spin-slow" : "text-gray-400"}`} />
             </div>
           )}
-          <Badge variant={isConnected ? "default" : "outline"} className={isConnected ? "bg-green-500" : ""}>
+          <Badge variant={isConnected ? "default" : "outline"} className={`${isConnected ? "bg-green-500" : ""} ${isCompactView ? "text-xs px-1.5 py-0" : ""}`}>
             {isConnected ? 'Connected' : 'Not Connected'}
           </Badge>
         </div>

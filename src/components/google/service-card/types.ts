@@ -1,7 +1,7 @@
 
-import { ReactNode } from 'react';
-import { LucideIcon } from 'lucide-react';
-import { GoogleService } from '../types';
+import { LucideIcon } from "lucide-react";
+import { GoogleService } from "../types";
+import { ButtonProps } from "@/components/ui/button";
 
 export interface ServiceCardProps {
   serviceId: string;
@@ -13,36 +13,28 @@ export interface ServiceCardProps {
   isScanning: boolean;
   onConnect: () => void;
   onDisconnect: () => void;
-}
-
-export interface ServiceHelperTexts {
-  actionButtonText: string;
-  uploadDialogTitle: string;
-  uploadDialogDescription: string;
-  submitButtonText: string;
-}
-
-export type ButtonVariant = 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
-
-export interface UploadedFileInfo {
-  name: string;
-  type: string;
-  size: number;
+  isCompactView?: boolean;
 }
 
 export interface ActionButtonsProps {
   isConnected: boolean;
   isConnecting: boolean;
-  isUploading: boolean;
-  isScanned: boolean;
+  isUploading?: boolean;
+  isScanned?: boolean;
   fileUploaded?: string;
   handleConnect: () => void;
-  handleUpload: () => void;
-  handleDownload: () => void;
+  handleUpload?: () => void;
+  handleDownload?: () => void;
   actionButtonText: string;
-  connectVariant: 'default' | 'outline' | 'secondary';
-  uploadVariant: 'default' | 'outline' | 'secondary';
-  downloadVariant: 'default' | 'outline' | 'secondary';
+  connectVariant?: ButtonProps["variant"];
+  uploadVariant?: ButtonProps["variant"];
+  downloadVariant?: ButtonProps["variant"];
+  isCompactView?: boolean;
+}
+
+export interface UploadProps {
+  serviceId: string;
+  onUploadComplete: (fileName: string) => void;
 }
 
 export interface AuthDialogProps {
@@ -55,7 +47,7 @@ export interface AuthDialogProps {
 export interface UploadDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (file: File) => void;
+  onSubmit: (formData: any) => void;
   serviceId: string;
   dialogTitle: string;
   dialogDescription: string;
@@ -65,21 +57,15 @@ export interface UploadDialogProps {
 export interface GoogleDocsDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (documentId: string) => void;
+  onSubmit: (formData: any) => void;
   dialogTitle: string;
   dialogDescription: string;
   submitButtonText: string;
 }
 
-export interface RealTimeMonitorProps {
-  isActive: boolean;
-  lastUpdated?: string;
-}
-
-export interface ServiceCardHeaderProps {
-  icon: LucideIcon;
-  title: string;
-  isConnected: boolean;
-  isRealTimeActive: boolean;
-  toggleRealTime: () => void;
+export interface HelperTexts {
+  actionButtonText: string;
+  uploadDialogTitle: string;
+  uploadDialogDescription: string;
+  submitButtonText: string;
 }

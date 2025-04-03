@@ -9,6 +9,7 @@ import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
 import { useGoogleServiceConnections } from '@/hooks/useGoogleServiceConnections';
 import TabsContainer from './scanner/TabsContainer';
 import ScannerControls from './scanner/ScannerControls';
+import ConnectionStatus from './ConnectionStatus';
 
 const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   industry,
@@ -16,7 +17,8 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   language,
   file,
   persistedConnectedServices = [],
-  onServicesUpdate
+  onServicesUpdate,
+  isCompactView = false
 }) => {
   const [activeTab, setActiveTab] = useState('scanner');
   
@@ -80,16 +82,27 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
+        <CardHeader className={isCompactView ? "pb-2 pt-4 px-4" : ""}>
           <CardTitle className="flex items-center">
             <ShieldCheck className="h-5 w-5 mr-2" />
             Cloud Services Scanner
           </CardTitle>
-          <CardDescription>
-            Connect and scan your Google services for compliance risks
-          </CardDescription>
+          {!isCompactView && (
+            <CardDescription>
+              Connect and scan your Google services for compliance risks
+            </CardDescription>
+          )}
         </CardHeader>
-        <CardContent>
+        <CardContent className={isCompactView ? "px-4 py-2" : ""}>
+          {isCompactView && connectedServices.length > 0 && (
+            <div className="mb-4">
+              <ConnectionStatus 
+                connectedServices={connectedServices} 
+                isScanning={isScanning} 
+              />
+            </div>
+          )}
+          
           <TabsContainer
             activeTab={activeTab}
             setActiveTab={setActiveTab}
@@ -107,6 +120,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
             onConnectGmail={handleConnectGmail}
             onConnectDocs={handleConnectDocs}
             onDisconnect={handleDisconnect}
+            isCompactView={isCompactView}
           >
             <ScannerControls
               connectedServices={connectedServices}
@@ -116,6 +130,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
               region={region}
               file={file}
               onScan={handleStartScan}
+              isCompactView={isCompactView}
               onScanComplete={(itemsScanned, violationsFound) => {
                 // This callback can be used for any post-scan operations
                 console.log(`Scan completed: ${itemsScanned} items scanned, ${violationsFound} violations found`);

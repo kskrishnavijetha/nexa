@@ -17,7 +17,10 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
   connectVariant = 'default',
   uploadVariant = 'outline',
   downloadVariant = 'default',
+  isCompactView = false,
 }) => {
+  const buttonSize = isCompactView ? "sm" : "default";
+  
   return (
     <div className="flex flex-col space-y-2">
       <Button 
@@ -25,11 +28,12 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
         className="w-full"
         onClick={handleConnect}
         disabled={isConnecting}
+        size={buttonSize}
       >
         {isConnecting ? (
           <>
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Connecting...
+            {isCompactView ? "Connecting..." : "Connecting..."}
           </>
         ) : isConnected ? (
           'Disconnect'
@@ -41,8 +45,8 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
       {isConnected && (
         <>
           {fileUploaded ? (
-            <div className="flex items-center border border-gray-200 rounded-md p-2 text-sm bg-gray-50 mb-2">
-              <FileText className="h-4 w-4 mr-2 text-blue-500" />
+            <div className={`flex items-center border border-gray-200 rounded-md ${isCompactView ? 'p-1' : 'p-2'} ${isCompactView ? 'text-xs' : 'text-sm'} bg-gray-50 mb-2`}>
+              <FileText className={`${isCompactView ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'} text-blue-500`} />
               <span className="truncate">{fileUploaded}</span>
             </div>
           ) : null}
@@ -53,11 +57,12 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
               className="w-full flex items-center" 
               onClick={handleUpload}
               disabled={isUploading}
+              size={buttonSize}
             >
               {isUploading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Processing...
+                  {isCompactView ? "Processing..." : "Processing..."}
                 </>
               ) : (
                 <>
@@ -66,7 +71,10 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
                   ) : (
                     <Upload className="h-4 w-4 mr-2" />
                   )}
-                  {actionButtonText}
+                  {isCompactView && actionButtonText.length > 10 
+                    ? (actionButtonText.includes('scan') ? 'Scan' : 'Upload')
+                    : actionButtonText
+                  }
                 </>
               )}
             </Button>

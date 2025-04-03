@@ -1,22 +1,18 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScanResults as ScanResultsType } from '../types';
-import ScanStats from '../ScanStats';
-import ScanResultsComponent from '../ScanResults';
-import { Industry } from '@/utils/types';
-import ServiceTabs from '../ServiceTabs';
-import ConnectionStatus from '../ConnectionStatus';
-import { GoogleService } from '../types';
+import { ScanResults, GoogleService, Industry } from '../types';
+import CloudServicesCard from '../CloudServicesCard';
+import ScanResults from '../ScanResults';
 
 interface TabsContainerProps {
   activeTab: string;
-  setActiveTab: (value: string) => void;
-  scanResults: ScanResultsType | null;
-  lastScanTime?: Date;
+  setActiveTab: (tab: string) => void;
+  scanResults: ScanResults | null;
+  lastScanTime: Date | undefined;
   itemsScanned: number;
   violationsFound: number;
-  selectedIndustry?: Industry;
+  selectedIndustry: Industry | undefined;
   isScanning: boolean;
   connectedServices: GoogleService[];
   isConnectingDrive: boolean;
@@ -27,6 +23,7 @@ interface TabsContainerProps {
   onConnectDocs: () => void;
   onDisconnect: (service: GoogleService) => void;
   children: React.ReactNode;
+  isCompactView?: boolean;
 }
 
 const TabsContainer: React.FC<TabsContainerProps> = ({
@@ -46,19 +43,25 @@ const TabsContainer: React.FC<TabsContainerProps> = ({
   onConnectGmail,
   onConnectDocs,
   onDisconnect,
-  children
+  children,
+  isCompactView = false
 }) => {
+  const anyServiceConnected = connectedServices.length > 0;
+  
   return (
-    <Tabs defaultValue="scanner" value={activeTab} onValueChange={setActiveTab}>
-      <TabsList className="mb-4">
-        <TabsTrigger value="scanner">Connect Services</TabsTrigger>
-        <TabsTrigger value="results" disabled={!scanResults}>Results</TabsTrigger>
-      </TabsList>
-      
-      <TabsContent value="scanner">
-        <div className="space-y-6">
-          <ServiceTabs 
-            activeTab="google"
+    <div>
+      <Tabs defaultValue="connect" className="w-full">
+        <TabsList className={isCompactView ? "w-full mb-4" : ""}>
+          <TabsTrigger value="connect" className={isCompactView ? "flex-1 text-xs" : ""}>
+            Connect Services
+          </TabsTrigger>
+          <TabsTrigger value="results" disabled={!scanResults} className={isCompactView ? "flex-1 text-xs" : ""}>
+            Scan Results
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="connect">
+          <CloudServicesCard
             isScanning={isScanning}
             connectedServices={connectedServices}
             isConnectingDrive={isConnectingDrive}
@@ -68,34 +71,29 @@ const TabsContainer: React.FC<TabsContainerProps> = ({
             onConnectGmail={onConnectGmail}
             onConnectDocs={onConnectDocs}
             onDisconnect={onDisconnect}
-          />
-          
-          <ConnectionStatus 
-            connectedServices={connectedServices} 
-            isScanning={isScanning}
+            onScan={() => setActiveTab('results')}
+            anyServiceConnected={anyServiceConnected}
+            disableScan={isScanning}
+            isCompactView={isCompactView}
           />
           
           {children}
-        </div>
-      </TabsContent>
-      
-      <TabsContent value="results">
-        {scanResults && (
-          <div className="space-y-6">
-            <ScanStats 
+        </TabsContent>
+        
+        <TabsContent value="results">
+          {scanResults && (
+            <ScanResults
+              results={scanResults}
               lastScanTime={lastScanTime}
               itemsScanned={itemsScanned}
               violationsFound={violationsFound}
+              selectedIndustry={selectedIndustry}
+              isCompactView={isCompactView}
             />
-            
-            <ScanResultsComponent 
-              violations={scanResults.violations} 
-              industry={scanResults.industry || selectedIndustry} 
-            />
-          </div>
-        )}
-      </TabsContent>
-    </Tabs>
+          )}
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { AlertTriangle, Check, FileText, Download, AlertCircle } from 'lucide-react';
@@ -12,10 +11,11 @@ import { ComplianceRisk, Industry, Region, Suggestion } from '@/utils/types';
 
 interface ScanResultsProps {
   violations: ScanViolation[];
-  industry?: Industry; // Add industry prop
+  industry?: Industry;
+  isCompactView?: boolean; // Add isCompactView parameter
 }
 
-const ScanResults: React.FC<ScanResultsProps> = ({ violations, industry }) => {
+const ScanResults: React.FC<ScanResultsProps> = ({ violations, industry, isCompactView }) => {
   // Get unique services from violations
   const uniqueServices = [...new Set(violations.map(v => v.service))];
 

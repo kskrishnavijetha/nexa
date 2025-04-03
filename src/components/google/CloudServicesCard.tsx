@@ -20,6 +20,7 @@ interface CloudServicesCardProps {
   onScan: () => void;
   anyServiceConnected: boolean;
   disableScan: boolean;
+  isCompactView?: boolean;
 }
 
 const CloudServicesCard: React.FC<CloudServicesCardProps> = ({
@@ -34,7 +35,8 @@ const CloudServicesCard: React.FC<CloudServicesCardProps> = ({
   onDisconnect,
   onScan,
   anyServiceConnected,
-  disableScan
+  disableScan,
+  isCompactView = false
 }) => {
   const handleScan = () => {
     console.log('Scan handler triggered in CloudServicesCard');
@@ -45,13 +47,13 @@ const CloudServicesCard: React.FC<CloudServicesCardProps> = ({
 
   return (
     <Card className="mb-6">
-      <CardHeader>
+      <CardHeader className={isCompactView ? "pb-2 pt-4 px-4" : ""}>
         <CardTitle className="flex items-center">
           <Cloud className="h-5 w-5 mr-2" />
           Cloud Services Scanner
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className={isCompactView ? "px-4 pb-4 pt-0" : ""}>
         {!anyServiceConnected && (
           <Alert variant="default" className="mb-4 bg-blue-50 text-blue-800 border-blue-200">
             <AlertCircle className="h-4 w-4" />
@@ -61,7 +63,7 @@ const CloudServicesCard: React.FC<CloudServicesCardProps> = ({
           </Alert>
         )}
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+        <div className={`grid grid-cols-1 ${isCompactView ? 'sm:grid-cols-1 md:grid-cols-3' : 'sm:grid-cols-2 md:grid-cols-3'} gap-4 mb-6`}>
           <ServiceCard
             serviceId="drive"
             icon={HardDrive}
@@ -72,6 +74,7 @@ const CloudServicesCard: React.FC<CloudServicesCardProps> = ({
             isScanning={isScanning}
             onConnect={onConnectDrive}
             onDisconnect={() => onDisconnect('drive')}
+            isCompactView={isCompactView}
           />
           
           <ServiceCard
@@ -84,6 +87,7 @@ const CloudServicesCard: React.FC<CloudServicesCardProps> = ({
             isScanning={isScanning}
             onConnect={onConnectGmail}
             onDisconnect={() => onDisconnect('gmail')}
+            isCompactView={isCompactView}
           />
           
           <ServiceCard
@@ -96,6 +100,7 @@ const CloudServicesCard: React.FC<CloudServicesCardProps> = ({
             isScanning={isScanning}
             onConnect={onConnectDocs}
             onDisconnect={() => onDisconnect('docs')}
+            isCompactView={isCompactView}
           />
         </div>
         

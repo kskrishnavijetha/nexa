@@ -1,23 +1,31 @@
 
 import React from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import { Wifi } from 'lucide-react';
 
 interface RealTimeMonitorProps {
   isActive: boolean;
   lastUpdated: Date;
+  isCompactView?: boolean;
 }
 
-const RealTimeMonitor: React.FC<RealTimeMonitorProps> = ({ isActive, lastUpdated }) => {
+const RealTimeMonitor: React.FC<RealTimeMonitorProps> = ({ 
+  isActive, 
+  lastUpdated,
+  isCompactView = false
+}) => {
   if (!isActive) return null;
-  
+
+  const lastUpdatedText = formatDistanceToNow(lastUpdated, { addSuffix: true });
+
   return (
-    <div className="mb-4 text-xs text-muted-foreground">
-      <div className="flex items-center">
-        <span className="inline-block h-2 w-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
-        Real-time monitoring active
-      </div>
-      <div className="mt-1">
-        Last updated: {lastUpdated.toLocaleTimeString()}
-      </div>
+    <div className={`flex items-center text-sm text-muted-foreground ${isCompactView ? 'text-xs mb-2' : 'mb-4'}`}>
+      <Wifi className={`${isCompactView ? 'h-3 w-3 mr-1' : 'h-4 w-4 mr-2'} text-green-500`} />
+      {isCompactView ? (
+        <span>Updated {lastUpdatedText}</span>
+      ) : (
+        <span>Real-time monitoring active • Last updated {lastUpdatedText}</span>
+      )}
     </div>
   );
 };
