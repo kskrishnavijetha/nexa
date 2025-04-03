@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ComplianceRisk } from '@/utils/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -30,7 +31,7 @@ const ComplianceCharts: React.FC<ComplianceChartsProps> = ({ report }) => {
       const colors = ['#2563eb', '#4f46e5', '#7c3aed', '#9333ea', '#c026d3', '#db2777'];
       barChartData.push({ 
         name: regulation.length > 10 ? regulation.substring(0, 10) + '...' : regulation, 
-        score, 
+        score: score as number, 
         fill: colors[index % colors.length] 
       });
     });
