@@ -1,22 +1,28 @@
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 export function useGoogleAuth() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [authChecked, setAuthChecked] = useState(false);
+
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const authCode = params.get('code');
-    const error = params.get('error');
+    // Check if user is authenticated
+    if (authChecked) return;
     
-    if (authCode) {
-      // Successfully authorized
-      toast.success('Google authorization successful!');
-      // Clear URL parameters without refreshing
-      window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (error) {
-      // Authorization failed
-      toast.error('Google authorization failed. Please try again.');
-      window.history.replaceState({}, document.title, window.location.pathname);
+    setAuthChecked(true);
+    
+    if (!user) {
+      console.log('User not authenticated, redirecting to sign-in page');
+      toast.error('Please sign in to access Cloud Services Scanner');
+      navigate('/sign-in', { replace: true });
+    } else {
+      console.log('User authenticated, can access Cloud Services Scanner');
     }
-  }, []);
+  }, [user, navigate, authChecked]);
+
+  return { isAuthenticated: !!user };
 }

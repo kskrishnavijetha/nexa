@@ -1,16 +1,30 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GoogleService } from '@/components/google/types';
 import { connectGoogleService, disconnectGoogleService } from '@/utils/google/connectionService';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function useGoogleServiceConnections() {
   const [isConnectingDrive, setIsConnectingDrive] = useState(false);
   const [isConnectingGmail, setIsConnectingGmail] = useState(false);
   const [isConnectingDocs, setIsConnectingDocs] = useState(false);
   const [connectedServices, setConnectedServices] = useState<GoogleService[]>([]);
+  const { user } = useAuth();
+
+  // Clear connections if user signs out
+  useEffect(() => {
+    if (!user) {
+      setConnectedServices([]);
+    }
+  }, [user]);
 
   const handleConnectDrive = async () => {
+    if (!user) {
+      toast.error('Please sign in to connect services');
+      return;
+    }
+    
     setIsConnectingDrive(true);
     try {
       // Mock Google OAuth flow - in a real app, this would redirect to Google
@@ -22,6 +36,8 @@ export function useGoogleServiceConnections() {
       if (result.data && result.data.connected) {
         setConnectedServices(prev => [...prev.filter(s => s !== 'drive'), 'drive']);
         toast.success('Google Drive connected successfully');
+      } else if (result.error) {
+        toast.error(`Failed to connect: ${result.error}`);
       }
     } catch (error) {
       console.error('Error connecting Drive:', error);
@@ -32,6 +48,11 @@ export function useGoogleServiceConnections() {
   };
   
   const handleConnectGmail = async () => {
+    if (!user) {
+      toast.error('Please sign in to connect services');
+      return;
+    }
+    
     setIsConnectingGmail(true);
     try {
       // Mock authentication
@@ -39,6 +60,8 @@ export function useGoogleServiceConnections() {
       if (result.data && result.data.connected) {
         setConnectedServices(prev => [...prev.filter(s => s !== 'gmail'), 'gmail']);
         toast.success('Gmail connected successfully');
+      } else if (result.error) {
+        toast.error(`Failed to connect: ${result.error}`);
       }
     } catch (error) {
       console.error('Error connecting Gmail:', error);
@@ -49,6 +72,11 @@ export function useGoogleServiceConnections() {
   };
   
   const handleConnectDocs = async () => {
+    if (!user) {
+      toast.error('Please sign in to connect services');
+      return;
+    }
+    
     setIsConnectingDocs(true);
     try {
       // Mock authentication
@@ -56,6 +84,8 @@ export function useGoogleServiceConnections() {
       if (result.data && result.data.connected) {
         setConnectedServices(prev => [...prev.filter(s => s !== 'docs'), 'docs']);
         toast.success('Google Docs connected successfully');
+      } else if (result.error) {
+        toast.error(`Failed to connect: ${result.error}`);
       }
     } catch (error) {
       console.error('Error connecting Docs:', error);
@@ -66,6 +96,11 @@ export function useGoogleServiceConnections() {
   };
   
   const handleDisconnect = async (service: GoogleService) => {
+    if (!user) {
+      toast.error('Please sign in to disconnect services');
+      return;
+    }
+    
     try {
       const serviceId = 
         service === 'drive' ? 'drive-1' : 
