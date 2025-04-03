@@ -12,6 +12,7 @@ import { GoogleServicesScannerProps } from './types';
 import { GoogleService } from './types';
 import { useServiceScanner } from '@/hooks/useServiceScanner';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
+import { useGoogleServiceConnections } from '@/hooks/useGoogleServiceConnections';
 import { toast } from 'sonner';
 
 const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
@@ -23,11 +24,18 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   onServicesUpdate
 }) => {
   const [activeTab, setActiveTab] = useState('scanner');
-  const [connectedServices, setConnectedServices] = useState<GoogleService[]>(persistedConnectedServices);
   
-  const [isConnectingDrive, setIsConnectingDrive] = useState(false);
-  const [isConnectingGmail, setIsConnectingGmail] = useState(false);
-  const [isConnectingDocs, setIsConnectingDocs] = useState(false);
+  const {
+    isConnectingDrive,
+    isConnectingGmail,
+    isConnectingDocs,
+    connectedServices,
+    setConnectedServices,
+    handleConnectDrive,
+    handleConnectGmail,
+    handleConnectDocs,
+    handleDisconnect
+  } = useGoogleServiceConnections();
   
   const { addScanHistory } = useServiceHistoryStore();
   
@@ -45,69 +53,13 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     if (persistedConnectedServices.length > 0) {
       setConnectedServices(persistedConnectedServices);
     }
-  }, [persistedConnectedServices]);
+  }, [persistedConnectedServices, setConnectedServices]);
 
   useEffect(() => {
     if (onServicesUpdate) {
       onServicesUpdate(connectedServices);
     }
   }, [connectedServices, onServicesUpdate]);
-
-  const handleConnectDrive = () => {
-    const isDriveConnected = connectedServices.includes('drive');
-    
-    if (isDriveConnected) {
-      setConnectedServices(prev => prev.filter(s => s !== 'drive'));
-      toast.success('Google Drive disconnected');
-    } else {
-      setIsConnectingDrive(true);
-      
-      setTimeout(() => {
-        setConnectedServices(prev => [...prev, 'drive']);
-        setIsConnectingDrive(false);
-        toast.success('Google Drive connected successfully');
-      }, 1500);
-    }
-  };
-
-  const handleConnectGmail = () => {
-    const isGmailConnected = connectedServices.includes('gmail');
-    
-    if (isGmailConnected) {
-      setConnectedServices(prev => prev.filter(s => s !== 'gmail'));
-      toast.success('Gmail disconnected');
-    } else {
-      setIsConnectingGmail(true);
-      
-      setTimeout(() => {
-        setConnectedServices(prev => [...prev, 'gmail']);
-        setIsConnectingGmail(false);
-        toast.success('Gmail connected successfully');
-      }, 1500);
-    }
-  };
-
-  const handleConnectDocs = () => {
-    const isDocsConnected = connectedServices.includes('docs');
-    
-    if (isDocsConnected) {
-      setConnectedServices(prev => prev.filter(s => s !== 'docs'));
-      toast.success('Google Docs disconnected');
-    } else {
-      setIsConnectingDocs(true);
-      
-      setTimeout(() => {
-        setConnectedServices(prev => [...prev, 'docs']);
-        setIsConnectingDocs(false);
-        toast.success('Google Docs connected successfully');
-      }, 1500);
-    }
-  };
-
-  const handleDisconnect = (service: GoogleService) => {
-    setConnectedServices(prev => prev.filter(s => s !== service));
-    toast.success(`${service} disconnected`);
-  };
 
   const handleStartScan = async () => {
     if (!industry) {
