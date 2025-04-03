@@ -1,142 +1,39 @@
 
-import React, { useState, useEffect } from 'react';
-import { ComplianceReport, PredictiveAnalysis, SimulationScenario } from '@/utils/types';
-import { generateScenarios, runSimulationAnalysis } from '@/utils/simulationService';
+import React from 'react';
+import { ComplianceReport } from '@/utils/types';
 import ScenarioSelector from './ScenarioSelector';
 import SimulationResults from './SimulationResults';
 import SimulationConfiguration from './SimulationConfiguration';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import DeleteConfirmDialog from './DeleteConfirmDialog';
+import ErrorDisplay from './ErrorDisplay';
+import { useSimulationState } from '@/hooks/useSimulationState';
 
 interface SimulationWrapperProps {
   report: ComplianceReport;
 }
 
 const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
-  const [selectedScenarioId, setSelectedScenarioId] = useState<string | undefined>();
-  const [isLoading, setIsLoading] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<PredictiveAnalysis | null>(null);
-  const [simulationDepth, setSimulationDepth] = useState<string>("medium");
-  const [showConfiguration, setShowConfiguration] = useState(false);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
-  const [scenarios, setScenarios] = useState<SimulationScenario[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Generate scenarios based on the report's industry when component mounts
-  useEffect(() => {
-    if (report && report.industry) {
-      console.log("Generating scenarios for industry:", report.industry);
-      try {
-        const generatedScenarios = generateScenarios(report.industry);
-        console.log("Generated scenarios:", generatedScenarios);
-        setScenarios(generatedScenarios);
-        setError(null);
-      } catch (error) {
-        console.error("Error generating scenarios:", error);
-        toast.error("Failed to generate simulation scenarios");
-        setError("Failed to generate simulation scenarios");
-      }
-    } else {
-      console.error("Cannot generate scenarios: Missing report or industry", report);
-      toast.error("Could not generate simulation scenarios due to missing data");
-      setError("Missing report data needed for simulation");
-    }
-  }, [report]);
-  
-  const handleSelectScenario = (scenarioId: string) => {
-    console.log("Selected scenario:", scenarioId);
-    if (isLoading) return;
-    
-    setSelectedScenarioId(scenarioId);
-    setAnalysisResult(null);
-    setShowConfiguration(true); // Always show configuration when selecting a scenario
-    setError(null); // Clear any previous errors
-  };
-  
-  const runSimulation = async (scenarioId: string) => {
-    if (!scenarioId || !report) {
-      toast.error("Please select a scenario first");
-      return;
-    }
-    
-    setIsLoading(true);
-    setError(null);
-    
-    try {
-      console.log("Running simulation for scenario:", scenarioId);
-      console.log("Report data:", report);
-      
-      // Make sure the report has all required fields for the simulation
-      if (!report.documentId || !report.industry) {
-        throw new Error("Invalid report data for simulation");
-      }
-      
-      const response = await runSimulationAnalysis(report, scenarioId);
-      
-      console.log("Simulation response:", response);
-      
-      if (!response.success) {
-        throw new Error(response.error || "Failed to run simulation");
-      }
-      
-      if (response.data) {
-        console.log("Simulation results:", response.data);
-        setAnalysisResult(response.data);
-        toast.success('Predictive analysis completed');
-      } else {
-        throw new Error('No simulation data returned');
-      }
-    } catch (error) {
-      console.error('Simulation error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to run simulation analysis';
-      toast.error(errorMessage);
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  
-  const handleDeleteClick = (id: string) => {
-    setItemToDelete(id);
-    setDeleteDialogOpen(true);
-  };
-  
-  const confirmDelete = () => {
-    if (itemToDelete) {
-      // In a real app, this would delete the scenario from the database
-      setScenarios(prevScenarios => prevScenarios.filter(s => s.id !== itemToDelete));
-      toast.success(`Simulation ${itemToDelete} has been deleted permanently`);
-      setItemToDelete(null);
-    }
-    setDeleteDialogOpen(false);
-  };
-  
-  const resetSimulation = () => {
-    setAnalysisResult(null);
-    setShowConfiguration(false);
-    setSelectedScenarioId(undefined);
-    setError(null);
-  };
-
-  const backToScenarioSelection = () => {
-    setShowConfiguration(false);
-  };
-  
-  const selectedScenario = selectedScenarioId 
-    ? scenarios.find(s => s.id === selectedScenarioId) 
-    : undefined;
+  const {
+    selectedScenarioId,
+    isLoading,
+    analysisResult,
+    simulationDepth,
+    setSimulationDepth,
+    showConfiguration,
+    deleteDialogOpen,
+    setDeleteDialogOpen,
+    scenarios,
+    error,
+    selectedScenario,
+    handleSelectScenario,
+    runSimulation,
+    handleDeleteClick,
+    confirmDelete,
+    resetSimulation,
+    backToScenarioSelection
+  } = useSimulationState(report);
 
   if (scenarios.length === 0) {
     return (
@@ -150,12 +47,7 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
 
   return (
     <>
-      {error && !analysisResult && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-          <strong className="font-bold mr-1">Error:</strong>
-          <span className="block sm:inline">{error}</span>
-        </div>
-      )}
+      {error && !analysisResult && <ErrorDisplay error={error} />}
     
       {!analysisResult ? (
         <>
@@ -197,25 +89,11 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
         </>
       )}
       
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Simulation</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to delete this simulation? This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmDelete}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              Delete Permanently
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirmDelete={confirmDelete}
+      />
     </>
   );
 };
