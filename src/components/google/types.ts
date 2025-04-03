@@ -43,10 +43,12 @@ export interface ScanViolation {
   severity: RiskSeverity;
   service: string;
   location: string;
+  industry?: Industry; // Add industry to scan violation
 }
 
 export interface ScanResults {
   violations: ScanViolation[];
+  industry?: Industry; // Add industry to scan results
 }
 
 export interface ServiceHistoryItem {

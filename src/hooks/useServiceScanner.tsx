@@ -13,6 +13,7 @@ export function useServiceScanner() {
   const [lastScanTime, setLastScanTime] = useState<Date | undefined>(undefined);
   const [itemsScanned, setItemsScanned] = useState<number>(0);
   const [violationsFound, setViolationsFound] = useState<number>(0);
+  const [selectedIndustry, setSelectedIndustry] = useState<Industry | undefined>(undefined);
 
   // Real-time simulation for connected services
   useEffect(() => {
@@ -58,11 +59,13 @@ export function useServiceScanner() {
     
     console.log('Starting scan with:', { connectedServices, industry, language, region });
     
+    // Store the selected industry for later reference
+    setSelectedIndustry(industry);
     setIsScanning(true);
     setScanResults(null); // Clear previous results
     
     try {
-      // Scan each connected service
+      // Scan each connected service, always passing the explicit industry
       const results = await Promise.all(
         connectedServices.map(service => {
           console.log(`Scanning service: ${service} for industry: ${industry}`);
@@ -103,7 +106,8 @@ export function useServiceScanner() {
                       `${riskRegulation}: ${risk.section || 'General compliance issue'}`,
                     severity: risk.severity,
                     service: result.data?.serviceType || 'unknown',
-                    location: report.documentName
+                    location: report.documentName,
+                    industry: report.industry || industry // Include the industry in the violation
                   });
                 });
               }
@@ -118,7 +122,7 @@ export function useServiceScanner() {
       setLastScanTime(new Date());
       setItemsScanned(totalItemsScanned);
       setViolationsFound(violations.length);
-      setScanResults({ violations });
+      setScanResults({ violations, industry }); // Include industry in scan results
       
       if (violations.length > 0) {
         toast.success(`Scan completed with ${violations.length} issues detected`);
@@ -148,14 +152,16 @@ export function useServiceScanner() {
             description: 'Financial documents exceed retention policy',
             severity: 'medium' as RiskSeverity,
             service: connectedServices[0] || 'drive',
-            location: 'Financial Records'
+            location: 'Financial Records',
+            industry: 'Finance & Banking'
           },
           {
             title: 'Customer Financial Information',
             description: 'Unencrypted account numbers detected',
             severity: 'high' as RiskSeverity,
             service: connectedServices[0] || 'drive',
-            location: 'Customer Files'
+            location: 'Customer Files',
+            industry: 'Finance & Banking'
           }
         ];
         break;
@@ -167,14 +173,16 @@ export function useServiceScanner() {
             description: 'Patient health information in unsecured document',
             severity: 'high' as RiskSeverity,
             service: connectedServices[0] || 'drive',
-            location: 'Patient Records'
+            location: 'Patient Records',
+            industry: 'Healthcare'
           },
           {
             title: 'HIPAA Consent Forms',
             description: 'Missing signed authorization forms',
             severity: 'medium' as RiskSeverity,
             service: connectedServices[0] || 'drive',
-            location: 'Consent Forms'
+            location: 'Consent Forms',
+            industry: 'Healthcare'
           }
         ];
         break;
@@ -186,14 +194,16 @@ export function useServiceScanner() {
             description: 'PCI-DSS violation: stored card data',
             severity: 'high' as RiskSeverity,
             service: connectedServices[0] || 'drive',
-            location: 'Sales Records'
+            location: 'Sales Records',
+            industry: 'Retail & Consumer'
           },
           {
             title: 'Customer Personal Data',
             description: 'Customer data shared without consent',
             severity: 'medium' as RiskSeverity,
             service: connectedServices[0] || 'drive',
-            location: 'Marketing Lists'
+            location: 'Marketing Lists',
+            industry: 'Retail & Consumer'
           }
         ];
         break;
@@ -206,19 +216,21 @@ export function useServiceScanner() {
             description: 'Documents exceed maximum retention period',
             severity: 'medium' as RiskSeverity,
             service: connectedServices[0] || 'drive',
-            location: 'Shared Documents'
+            location: 'Shared Documents',
+            industry: industry || 'Global'
           },
           {
             title: 'Sensitive Information',
             description: 'PII detected in unsecured document',
             severity: 'high' as RiskSeverity,
             service: connectedServices[0] || 'drive',
-            location: 'Personal Files'
+            location: 'Personal Files',
+            industry: industry || 'Global'
           }
         ];
     }
     
-    setScanResults({ violations: fallbackViolations });
+    setScanResults({ violations: fallbackViolations, industry });
     setLastScanTime(new Date());
     setItemsScanned(25);
     setViolationsFound(fallbackViolations.length);
@@ -230,6 +242,7 @@ export function useServiceScanner() {
     lastScanTime,
     itemsScanned,
     violationsFound,
+    selectedIndustry,
     setLastScanTime,
     setItemsScanned,
     setViolationsFound,

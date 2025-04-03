@@ -14,15 +14,15 @@ export const generateComplianceFindings = (
   documentContent?: string,
   selectedIndustry?: Industry // Add selectedIndustry parameter
 ): ComplianceFinding[] => {
-  console.log(`[generateComplianceFindings] Generating findings with selectedIndustry: ${selectedIndustry || 'not specified'}`);
+  console.log(`[generateComplianceFindings] Generating findings with explicitly selected industry: ${selectedIndustry || 'not specified'}`);
   
-  // If an industry is explicitly selected, use it - this is the highest priority
+  // Always prioritize explicitly selected industry (this is the key fix)
   if (selectedIndustry) {
     console.log(`[generateComplianceFindings] Using explicitly selected industry: ${selectedIndustry}`);
     return generateIndustryFindings(stats, selectedIndustry);
   }
 
-  // First check specifically for healthcare in the document name
+  // Only try to auto-detect if no industry was explicitly selected
   if (documentName && (
       documentName.toLowerCase().includes('health') || 
       documentName.toLowerCase().includes('medical') || 

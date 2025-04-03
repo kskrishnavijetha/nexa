@@ -1,178 +1,240 @@
 
-import { useEffect } from 'react';
-import { GoogleService, GoogleServicesScannerProps, ScanResults } from './types';
-import { useGoogleServiceConnections } from '@/hooks/useGoogleServiceConnections';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScannerCircle, ShieldCheck } from 'lucide-react';
+import ServiceTabs from './ServiceTabs';
+import ConnectionStatus from './ConnectionStatus';
+import ScanResults from './ScanResults';
+import ScanStats from './ScanStats';
+import { GoogleServicesScannerProps } from './types';
+import { GoogleService } from './types';
 import { useServiceScanner } from '@/hooks/useServiceScanner';
-import GoogleScannerStatus from './GoogleScannerStatus';
-import CloudServicesCard from './CloudServicesCard';
-import ScanResultsComponent from './ScanResults';
-import { toast } from 'sonner';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
-import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
-const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({ 
-  industry, 
-  region, 
+const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
+  industry,
+  region,
   language,
   file,
   persistedConnectedServices = [],
   onServicesUpdate
 }) => {
-  // Use custom hooks for state and handlers
-  const {
-    isConnectingDrive,
-    isConnectingGmail,
-    isConnectingDocs,
-    connectedServices,
-    handleConnectDrive,
-    handleConnectGmail,
-    handleConnectDocs,
-    handleDisconnect,
-    setConnectedServices
-  } = useGoogleServiceConnections();
-
+  const [activeTab, setActiveTab] = useState('scanner');
+  const [connectedServices, setConnectedServices] = useState<GoogleService[]>(persistedConnectedServices);
+  
+  // Services connection states
+  const [isConnectingDrive, setIsConnectingDrive] = useState(false);
+  const [isConnectingGmail, setIsConnectingGmail] = useState(false);
+  const [isConnectingDocs, setIsConnectingDocs] = useState(false);
+  
+  const { addScanHistory } = useServiceHistoryStore();
+  
   const {
     isScanning,
     scanResults,
     lastScanTime,
     itemsScanned,
     violationsFound,
+    selectedIndustry,
     handleScan
   } = useServiceScanner();
 
-  const { addScanHistory, setUserId } = useServiceHistoryStore();
-  const { user } = useAuth();
-  
-  // Log when industry props change
+  // When explicitly configured services change, update state
   useEffect(() => {
-    console.log(`[GoogleServicesScanner] Industry prop changed: ${industry || 'undefined'}`);
-  }, [industry]);
-  
-  // Update the user ID in the store when the user changes
-  useEffect(() => {
-    if (user) {
-      setUserId(user.id);
-    } else {
-      setUserId(null);
-    }
-  }, [user, setUserId]);
-  
-  // Initialize connected services from persisted state
-  useEffect(() => {
-    if (persistedConnectedServices.length > 0 && connectedServices.length === 0) {
+    if (persistedConnectedServices.length > 0) {
       setConnectedServices(persistedConnectedServices);
     }
-  }, [persistedConnectedServices, connectedServices.length, setConnectedServices]);
+  }, [persistedConnectedServices]);
 
-  // Update parent component when services change
+  // When services change, notify parent component
   useEffect(() => {
     if (onServicesUpdate) {
       onServicesUpdate(connectedServices);
     }
   }, [connectedServices, onServicesUpdate]);
-  
-  const anyServiceConnected = connectedServices.length > 0;
-  
-  // Handler for scan button
-  const onScanButtonClick = () => {
-    console.log('[GoogleServicesScanner] Scan button clicked', {
-      connectedServices,
-      industry,
-      language,
-      region,
-      userId: user?.id,
-      file: file?.name
-    });
-    
-    if (connectedServices.length === 0) {
-      toast.error('No services connected. Please connect at least one service before scanning.');
-      return;
-    }
-    
-    if (!industry) {
-      toast.error('No industry selected. Please select an industry before scanning.');
-      return;
-    }
-    
-    // Pass the required parameters to handleScan, ensuring industry is passed correctly
-    handleScan(connectedServices, industry, language, region);
 
-    // Add to scan history for each connected service
-    if (user) {
-      console.log(`[GoogleServicesScanner] Adding scan history for user ${user.id} with industry: ${industry}`);
-      // Add to scan history for each connected service
-      connectedServices.forEach(service => {
-        const timestamp = new Date().toISOString();
-        const documentName = file?.name || 
-          `${service.charAt(0).toUpperCase() + service.slice(1)} Scan ${new Date().toLocaleTimeString()}`;
-        
-        // Extract organization name from document name if available
-        const orgNameParts = documentName.split('-');
-        const organization = orgNameParts.length > 0 && orgNameParts[0].trim() ? 
-          orgNameParts[0].trim() : 
-          'Organization';
-          
-        console.log(`[GoogleServicesScanner] Adding scan with organization: ${organization}, industry: ${industry}`);
-        
-        // Add with a unique timestamp to prevent duplicates
-        addScanHistory({
-          serviceId: service,
-          serviceName: service === 'drive' ? 'Google Drive' : 
-                      service === 'gmail' ? 'Gmail' : 'Google Docs',
-          scanDate: timestamp,
-          itemsScanned: itemsScanned || Math.floor(Math.random() * 50) + 10,
-          violationsFound: violationsFound || Math.floor(Math.random() * 5),
-          documentName: documentName,
-          fileName: file?.name || documentName,
-          industry: industry, // Add industry to scan history for better tracking
-          organization: organization, // Now this property exists in the interface
-          regulations: industry ? [...(industry === 'Healthcare' ? ['HIPAA', 'GDPR'] : 
-                          industry === 'Finance & Banking' ? ['GLBA', 'PCI-DSS', 'SOX'] :
-                          industry === 'Retail & Consumer' ? ['PCI-DSS', 'CCPA', 'GDPR'] :
-                          ['GDPR', 'CCPA'])] : ['GDPR']
-        });
-      });
+  // Connect Google Drive
+  const handleConnectDrive = () => {
+    const isDriveConnected = connectedServices.includes('drive');
+    
+    if (isDriveConnected) {
+      // Disconnect
+      setConnectedServices(prev => prev.filter(s => s !== 'drive'));
+      toast.success('Google Drive disconnected');
     } else {
-      console.log('[GoogleServicesScanner] User not authenticated, skipping scan history addition');
-      toast.warning('Sign in to save scan history', { duration: 3000 });
+      // Connect
+      setIsConnectingDrive(true);
+      
+      // Simulate connection process
+      setTimeout(() => {
+        setConnectedServices(prev => [...prev, 'drive']);
+        setIsConnectingDrive(false);
+        toast.success('Google Drive connected successfully');
+      }, 1500);
     }
   };
 
-  // Show guidance if no services are connected
-  useEffect(() => {
-    if (connectedServices.length === 0) {
-      toast.info('Connect at least one service and select an industry to begin scanning', {
-        duration: 5000,
-        id: 'connect-service-toast', // Prevent duplicate toasts
-      });
+  // Connect Gmail
+  const handleConnectGmail = () => {
+    const isGmailConnected = connectedServices.includes('gmail');
+    
+    if (isGmailConnected) {
+      // Disconnect
+      setConnectedServices(prev => prev.filter(s => s !== 'gmail'));
+      toast.success('Gmail disconnected');
+    } else {
+      // Connect
+      setIsConnectingGmail(true);
+      
+      // Simulate connection process
+      setTimeout(() => {
+        setConnectedServices(prev => [...prev, 'gmail']);
+        setIsConnectingGmail(false);
+        toast.success('Gmail connected successfully');
+      }, 1500);
     }
-  }, []);
+  };
+
+  // Connect Google Docs
+  const handleConnectDocs = () => {
+    const isDocsConnected = connectedServices.includes('docs');
+    
+    if (isDocsConnected) {
+      // Disconnect
+      setConnectedServices(prev => prev.filter(s => s !== 'docs'));
+      toast.success('Google Docs disconnected');
+    } else {
+      // Connect
+      setIsConnectingDocs(true);
+      
+      // Simulate connection process
+      setTimeout(() => {
+        setConnectedServices(prev => [...prev, 'docs']);
+        setIsConnectingDocs(false);
+        toast.success('Google Docs connected successfully');
+      }, 1500);
+    }
+  };
+
+  // Disconnect a service
+  const handleDisconnect = (service: GoogleService) => {
+    setConnectedServices(prev => prev.filter(s => s !== service));
+    toast.success(`${service} disconnected`);
+  };
+
+  // Initiate scan
+  const handleStartScan = async () => {
+    // Verify industry is selected
+    if (!industry) {
+      toast.error('Please select an industry before scanning');
+      return;
+    }
+    
+    // Verify at least one service is connected
+    if (connectedServices.length === 0) {
+      toast.error('Please connect at least one service before scanning');
+      return;
+    }
+    
+    try {
+      await handleScan(connectedServices, industry, language, region);
+      
+      // Add scan to history
+      if (scanResults) {
+        addScanHistory({
+          serviceId: connectedServices.join('-'),
+          serviceName: connectedServices.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(', '),
+          scanDate: new Date().toISOString(),
+          itemsScanned: itemsScanned,
+          violationsFound: violationsFound,
+          documentName: 'Cloud Services Scan',
+          fileName: file ? file.name : 'multiple services'
+        });
+      }
+    } catch (error) {
+      console.error('Error starting scan:', error);
+      toast.error('Failed to complete scan');
+    }
+  };
 
   return (
     <div className="space-y-6">
-      <GoogleScannerStatus 
-        connectedServices={connectedServices}
-        lastScanTime={lastScanTime}
-        itemsScanned={itemsScanned}
-        violationsFound={violationsFound}
-      />
-      
-      <CloudServicesCard
-        isScanning={isScanning}
-        connectedServices={connectedServices}
-        isConnectingDrive={isConnectingDrive}
-        isConnectingGmail={isConnectingGmail}
-        isConnectingDocs={isConnectingDocs}
-        onConnectDrive={handleConnectDrive}
-        onConnectGmail={handleConnectGmail}
-        onConnectDocs={handleConnectDocs}
-        onDisconnect={handleDisconnect}
-        onScan={onScanButtonClick}
-        anyServiceConnected={anyServiceConnected}
-        disableScan={!industry}
-      />
-      
-      {scanResults && <ScanResultsComponent violations={scanResults.violations} />}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center">
+            <ShieldCheck className="h-5 w-5 mr-2" />
+            Cloud Services Scanner
+          </CardTitle>
+          <CardDescription>
+            Connect and scan your Google services for compliance risks
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="scanner" value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="mb-4">
+              <TabsTrigger value="scanner">Connect Services</TabsTrigger>
+              <TabsTrigger value="results" disabled={!scanResults}>Results</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="scanner">
+              <div className="space-y-6">
+                <ServiceTabs 
+                  activeTab="google"
+                  isScanning={isScanning}
+                  connectedServices={connectedServices}
+                  isConnectingDrive={isConnectingDrive}
+                  isConnectingGmail={isConnectingGmail}
+                  isConnectingDocs={isConnectingDocs}
+                  onConnectDrive={handleConnectDrive}
+                  onConnectGmail={handleConnectGmail}
+                  onConnectDocs={handleConnectDocs}
+                  onDisconnect={handleDisconnect}
+                />
+                
+                <ConnectionStatus 
+                  connectedServices={connectedServices} 
+                  isScanning={isScanning}
+                />
+                
+                <Button 
+                  disabled={isScanning || connectedServices.length === 0 || !industry}
+                  className="w-full"
+                  onClick={handleStartScan}
+                >
+                  {isScanning ? (
+                    <>
+                      <ScannerCircle className="h-4 w-4 mr-2 animate-spin" />
+                      Scanning...
+                    </>
+                  ) : (
+                    'Start Compliance Scan'
+                  )}
+                </Button>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="results">
+              {scanResults && (
+                <div className="space-y-6">
+                  <ScanStats 
+                    lastScanTime={lastScanTime}
+                    itemsScanned={itemsScanned}
+                    violationsFound={violationsFound}
+                  />
+                  
+                  <ScanResults 
+                    violations={scanResults.violations} 
+                    industry={scanResults.industry || selectedIndustry} 
+                  />
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
 };

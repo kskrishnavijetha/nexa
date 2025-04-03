@@ -25,20 +25,28 @@ export const requestComplianceCheck = async (
     const userLanguage = language || getLanguagePreference();
     
     console.log(`[complianceService] Checking compliance for document: ${documentName}`);
-    console.log(`[complianceService] Industry passed to complianceService: ${industry || 'unspecified'}`);
+    console.log(`[complianceService] Industry explicitly selected: ${industry || 'unspecified'}`);
     
-    // Get applicable regulations based on industry
-    const regulations = industry && INDUSTRY_REGULATIONS[industry] 
-      ? [...INDUSTRY_REGULATIONS[industry]] // Make a copy to avoid modifying the original
-      : [];
+    // Important: Always prioritize explicitly selected industry
+    let selectedIndustry = industry;
+    let applicableRegulations: string[] = [];
     
-    console.log(`[complianceService] Regulations for ${industry || 'unspecified industry'}:`, regulations);
+    // If an industry is explicitly selected, use its regulations
+    if (selectedIndustry && INDUSTRY_REGULATIONS[selectedIndustry]) {
+      applicableRegulations = [...INDUSTRY_REGULATIONS[selectedIndustry]];
+      console.log(`[complianceService] Using regulations for explicitly selected industry ${selectedIndustry}:`, applicableRegulations);
+    } else {
+      // Default to Global if no industry specified
+      selectedIndustry = 'Global' as Industry;
+      applicableRegulations = [...INDUSTRY_REGULATIONS['Global']];
+      console.log(`[complianceService] Using Global regulations:`, applicableRegulations);
+    }
     
     // Get regional regulations if a region is specified
     const regionalRegulations = region && REGION_REGULATIONS[region] ? Object.keys(REGION_REGULATIONS[region]) : [];
     
     // Generate scores
-    const { gdprScore, hipaaScore, soc2Score, pciDssScore, overallScore, industryScores } = generateScores(regulations);
+    const { gdprScore, hipaaScore, soc2Score, pciDssScore, overallScore, industryScores } = generateScores(applicableRegulations);
     
     // Generate region-specific scores
     const regionScores: Record<string, number> = {};
@@ -49,13 +57,13 @@ export const requestComplianceCheck = async (
     }
     
     // Define risks based on scores, regulations and regional regulations
-    const risks = generateRisks(gdprScore, hipaaScore, soc2Score, pciDssScore, regulations, region);
+    const risks = generateRisks(gdprScore, hipaaScore, soc2Score, pciDssScore, applicableRegulations, region);
     
     // Generate suggestions based on risks, regulations, and regional regulations
-    const suggestions = generateSuggestions(regulations, region);
+    const suggestions = generateSuggestions(applicableRegulations, region);
     
     // Create a relevant summary based on scores, industry, and region
-    const summary = generateSummary(overallScore, gdprScore, hipaaScore, pciDssScore, industry, userLanguage, region);
+    const summary = generateSummary(overallScore, gdprScore, hipaaScore, pciDssScore, selectedIndustry, userLanguage, region);
     
     // Extract organization name from document name if available
     const orgNameParts = documentName.split('-');
@@ -69,7 +77,7 @@ export const requestComplianceCheck = async (
     const mockReport: ComplianceReport = {
       documentId,
       documentName,
-      industry: industry || 'Global' as Industry, // Default to Global if no industry specified
+      industry: selectedIndustry,
       region: region || 'Global' as Region, // Default to Global if no region specified
       overallScore,
       gdprScore,
@@ -81,7 +89,7 @@ export const requestComplianceCheck = async (
       regulationScore: Math.round((gdprScore + hipaaScore + soc2Score + (pciDssScore || 0)) / 4),
       industryScores,
       regionScores,
-      regulations,
+      regulations: applicableRegulations,
       regionalRegulations: region && REGION_REGULATIONS[region] ? REGION_REGULATIONS[region] : undefined,
       risks,
       summary,
@@ -92,7 +100,7 @@ export const requestComplianceCheck = async (
       organization: organization // Now this property exists in the interface
     };
     
-    console.log(`[complianceService] Generated report for industry: ${industry}, with regulations:`, regulations);
+    console.log(`[complianceService] Generated report for industry: ${selectedIndustry}, with regulations:`, applicableRegulations);
     
     return {
       success: true,

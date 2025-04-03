@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { AlertTriangle, Check, FileText, Download, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ScanViolation } from './types';
+import { ScanViolation, ScanResults as ScanResultsType } from './types';
 import { generateReportPDF } from '@/utils/reportService';
 import { toast } from 'sonner';
 import { SupportedLanguage } from '@/utils/language';
@@ -12,9 +12,10 @@ import { ComplianceRisk, Industry, Region, Suggestion } from '@/utils/types';
 
 interface ScanResultsProps {
   violations: ScanViolation[];
+  industry?: Industry; // Add industry prop
 }
 
-const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
+const ScanResults: React.FC<ScanResultsProps> = ({ violations, industry }) => {
   // Get unique services from violations
   const uniqueServices = [...new Set(violations.map(v => v.service))];
 
@@ -96,6 +97,13 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
         section: v.location
       }));
       
+      // Always use the explicitly selected industry from props or from the first violation
+      const reportIndustry = industry || 
+        (filteredViolations.length > 0 && filteredViolations[0].industry) || 
+        'Global' as Industry;
+        
+      console.log(`[ScanResults] Using industry for report: ${reportIndustry}`);
+      
       // Create a mock report structure with the filtered violations data
       const mockReport = {
         id: docId,
@@ -112,13 +120,16 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
         industryScore: Math.floor(Math.random() * 30) + 70,
         regionalScore: Math.floor(Math.random() * 30) + 70,
         regulationScore: Math.floor(Math.random() * 30) + 70,
-        industry: 'Technology' as Industry,
+        industry: reportIndustry,
         region: 'Global' as Region,
         risks: risks,
         summary: `Scan completed with ${filteredViolations.length} potential compliance issues found${serviceFilter ? ` in ${serviceFilter}` : ' across cloud services'}.`,
         suggestions: suggestionObjects,
         complianceStatus: 'partially-compliant' as 'compliant' | 'non-compliant' | 'partially-compliant',
-        regulations: ['GDPR', 'ISO/IEC 27001']
+        regulations: industry === 'Healthcare' ? ['HIPAA', 'GDPR'] :
+                     industry === 'Finance & Banking' ? ['GLBA', 'PCI-DSS', 'SOC 2'] :
+                     industry === 'Retail & Consumer' ? ['PCI-DSS', 'GDPR', 'CCPA'] :
+                     ['GDPR', 'ISO/IEC 27001']
       };
       
       const result = await generateReportPDF(mockReport, 'en' as SupportedLanguage);
@@ -151,6 +162,7 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
         <CardTitle>Scan Results</CardTitle>
         <CardDescription>
           Found {violations.length} potential compliance issues
+          {industry && <span className="ml-1">in {industry} industry</span>}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -174,6 +186,11 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations }) => {
                     {violation.service}
                   </Badge>
                   <span>{violation.location}</span>
+                  {violation.industry && (
+                    <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200">
+                      {violation.industry}
+                    </Badge>
+                  )}
                 </div>
               </div>
             </div>
