@@ -15,7 +15,10 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
     toast.info('Generating audit report...');
     
     try {
-      console.log(`Generating report for ${documentName} with ${auditEvents.length} events and industry: ${industry || 'not specified'}`);
+      console.log(`[useAuditReport] Generating report for ${documentName} with ${auditEvents.length} events`);
+      console.log(`[useAuditReport] Industry explicitly selected: ${industry || 'not specified'}`);
+      
+      // Pass the industry parameter explicitly to ensure it's properly used
       const reportBlob = await generatePDFReport(documentName, auditEvents, industry);
       
       // Create download link
@@ -31,11 +34,11 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       
       // Add the report generation as an audit event
       // This would be done through the context in a real app
-      console.log(`Report successfully generated for industry: ${industry || 'General'}`);
+      console.log(`[useAuditReport] Report successfully generated for industry: ${industry || 'General'}`);
       
       toast.success('Audit report downloaded successfully');
     } catch (error) {
-      console.error('Error generating report:', error);
+      console.error('[useAuditReport] Error generating report:', error);
       toast.error('Failed to generate audit report');
     } finally {
       setIsGeneratingReport(false);

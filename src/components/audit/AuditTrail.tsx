@@ -16,6 +16,8 @@ interface AuditTrailProps {
 const AuditTrail: React.FC<AuditTrailProps> = ({ documentName, industry }) => {
   const [activeTab, setActiveTab] = useState<string>('timeline');
   
+  console.log(`[AuditTrail] Rendering AuditTrail with documentName: ${documentName}, industry: ${industry || 'not specified'}`);
+  
   return (
     <Card>
       <AuditTrailProvider documentName={documentName} industry={industry}>

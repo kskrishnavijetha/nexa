@@ -14,9 +14,11 @@ export const generateComplianceFindings = (
   documentContent?: string,
   selectedIndustry?: Industry // Add selectedIndustry parameter
 ): ComplianceFinding[] => {
+  console.log(`[generateComplianceFindings] Generating findings with selectedIndustry: ${selectedIndustry || 'not specified'}`);
+  
   // If an industry is explicitly selected, use it - this is the highest priority
   if (selectedIndustry) {
-    console.log(`Using explicitly selected industry: ${selectedIndustry}`);
+    console.log(`[generateComplianceFindings] Using explicitly selected industry: ${selectedIndustry}`);
     return generateIndustryFindings(stats, selectedIndustry);
   }
 
@@ -30,7 +32,7 @@ export const generateComplianceFindings = (
       documentName.toLowerCase().includes('doctor') ||
       documentName.toLowerCase().includes('care') ||
       documentName.toLowerCase().includes('hipaa'))) {
-    console.log('Healthcare industry detected from keywords');
+    console.log('[generateComplianceFindings] Healthcare industry detected from keywords');
     return generateIndustryFindings(stats, 'Healthcare');
   }
   
@@ -44,12 +46,12 @@ export const generateComplianceFindings = (
   
   // Generate industry-specific findings
   if (industry) {
-    console.log(`Generating findings for detected industry: ${industry}`);
+    console.log(`[generateComplianceFindings] Generating findings for detected industry: ${industry}`);
     return generateIndustryFindings(stats, industry);
   }
   
   // Default findings when no industry is identified
-  console.log('No industry identified, using default findings');
+  console.log('[generateComplianceFindings] No industry identified, using default findings');
   return generateDefaultFindings(stats);
 };
 

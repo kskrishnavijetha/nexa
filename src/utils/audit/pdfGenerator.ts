@@ -8,14 +8,19 @@ import { addExecutiveSummary } from './pdf/addExecutiveSummary';
 import { addInsightsSection } from './pdf/addInsightsSection';
 import { addSummarySection } from './pdf/addSummarySection';
 import { addFooter } from './pdf/addFooter';
+import { Industry } from '@/utils/types';
 
 /**
  * Generate a PDF report with AI-enhanced insights from audit events
  */
 export const generatePDFReport = async (
   documentName: string,
-  auditEvents: AuditEvent[]
+  auditEvents: AuditEvent[],
+  selectedIndustry?: Industry
 ): Promise<Blob> => {
+  console.log(`[pdfGenerator] Generating PDF report for ${documentName}`);
+  console.log(`[pdfGenerator] Selected industry parameter: ${selectedIndustry || 'not specified'}`);
+  
   // Create PDF with a slightly larger page size (a4+ format)
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -33,8 +38,8 @@ export const generatePDFReport = async (
     creator: 'Compliance Report Generator'
   });
   
-  // Add executive summary with document info
-  let yPos = addExecutiveSummary(pdf, auditEvents, documentName);
+  // Add executive summary with document info - pass the industry explicitly
+  let yPos = addExecutiveSummary(pdf, auditEvents, documentName, selectedIndustry);
   
   // Report Statistics
   const stats = calculateReportStatistics(auditEvents);
@@ -47,8 +52,8 @@ export const generatePDFReport = async (
   yPos = addInsightsSection(pdf, insights, yPos + 10);
   
   // Add summary statistics and findings section with padding
-  // Pass document name to allow industry-specific findings
-  yPos = addSummarySection(pdf, stats, yPos + 10, documentName);
+  // Pass document name and selected industry to allow industry-specific findings
+  yPos = addSummarySection(pdf, stats, yPos + 10, documentName, selectedIndustry);
   
   // We've removed the audit events section as requested
   

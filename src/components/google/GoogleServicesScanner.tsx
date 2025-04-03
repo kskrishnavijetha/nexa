@@ -45,7 +45,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   
   // Update the user ID in the store when the user changes
   useEffect(() => {
-    console.log('GoogleServicesScanner: Setting user ID in history store:', user?.id);
+    console.log('[GoogleServicesScanner] Setting user ID in history store:', user?.id);
     if (user) {
       setUserId(user.id);
     } else {
@@ -71,7 +71,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   
   // Handler for scan button
   const onScanButtonClick = () => {
-    console.log('Scan button clicked', {
+    console.log('[GoogleServicesScanner] Scan button clicked', {
       connectedServices,
       industry,
       language,
@@ -95,12 +95,20 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
 
     // Add to scan history for each connected service
     if (user) {
-      console.log(`Adding scan history for user ${user.id} with industry: ${industry}`);
+      console.log(`[GoogleServicesScanner] Adding scan history for user ${user.id} with industry: ${industry}`);
       // Add to scan history for each connected service
       connectedServices.forEach(service => {
         const timestamp = new Date().toISOString();
         const documentName = file?.name || 
           `${service.charAt(0).toUpperCase() + service.slice(1)} Scan ${new Date().toLocaleTimeString()}`;
+        
+        // Extract organization name from document name if available
+        const orgNameParts = documentName.split('-');
+        const organization = orgNameParts.length > 0 && orgNameParts[0].trim() ? 
+          orgNameParts[0].trim() : 
+          'Organization';
+          
+        console.log(`[GoogleServicesScanner] Adding scan with organization: ${organization}, industry: ${industry}`);
         
         // Add with a unique timestamp to prevent duplicates
         addScanHistory({
@@ -112,11 +120,12 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
           violationsFound: violationsFound || Math.floor(Math.random() * 5),
           documentName: documentName,
           fileName: file?.name || documentName,
-          industry: industry // Add industry to scan history for better tracking
+          industry: industry, // Add industry to scan history for better tracking
+          organization: organization // Add organization name for consistency
         });
       });
     } else {
-      console.log('User not authenticated, skipping scan history addition');
+      console.log('[GoogleServicesScanner] User not authenticated, skipping scan history addition');
       toast.warning('Sign in to save scan history', { duration: 3000 });
     }
   };

@@ -40,15 +40,17 @@ const GoogleServicesPage: React.FC = () => {
   }, []);
 
   const handleIndustryChange = (newIndustry: Industry) => {
-    console.log(`Industry changed to: ${newIndustry}`);
+    console.log(`[GoogleServicesPage] Industry changed to: ${newIndustry}`);
     setIndustry(newIndustry);
   };
 
   const handleRegionChange = (newRegion: Region) => {
+    console.log(`[GoogleServicesPage] Region changed to: ${newRegion}`);
     setRegion(newRegion);
   };
 
   const handleLanguageChange = (newLanguage: SupportedLanguage) => {
+    console.log(`[GoogleServicesPage] Language changed to: ${newLanguage}`);
     setLanguage(newLanguage);
   };
 

@@ -24,12 +24,14 @@ export const requestComplianceCheck = async (
     // Get language preference or use provided language
     const userLanguage = language || getLanguagePreference();
     
+    console.log(`[complianceService] Checking compliance for industry: ${industry || 'unspecified'}`);
+    
     // Get applicable regulations based on industry
     const regulations = industry && INDUSTRY_REGULATIONS[industry] 
       ? [...INDUSTRY_REGULATIONS[industry]] // Make a copy to avoid modifying the original
       : [];
     
-    console.log(`Regulations for ${industry || 'unspecified industry'}:`, regulations);
+    console.log(`[complianceService] Regulations for ${industry || 'unspecified industry'}:`, regulations);
     
     // Get regional regulations if a region is specified
     const regionalRegulations = region && REGION_REGULATIONS[region] ? Object.keys(REGION_REGULATIONS[region]) : [];
@@ -79,14 +81,14 @@ export const requestComplianceCheck = async (
       complianceStatus: overallScore >= 80 ? 'compliant' : overallScore >= 60 ? 'partially-compliant' : 'non-compliant'
     };
     
-    console.log(`Generated report for industry: ${industry}, with regulations:`, regulations);
+    console.log(`[complianceService] Generated report for industry: ${industry}, with regulations:`, regulations);
     
     return {
       success: true,
       data: mockReport,
     };
   } catch (error) {
-    console.error('Compliance check error:', error);
+    console.error('[complianceService] Compliance check error:', error);
     return {
       success: false,
       error: 'Failed to analyze the document. Please try again.'
