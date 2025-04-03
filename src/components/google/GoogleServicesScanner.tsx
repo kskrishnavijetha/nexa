@@ -1,19 +1,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, ShieldCheck } from 'lucide-react';
-import ServiceTabs from './ServiceTabs';
-import ConnectionStatus from './ConnectionStatus';
-import ScanResults from './ScanResults';
-import ScanStats from './ScanStats';
+import { ShieldCheck } from 'lucide-react';
 import { GoogleServicesScannerProps } from './types';
 import { GoogleService } from './types';
 import { useServiceScanner } from '@/hooks/useServiceScanner';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
 import { useGoogleServiceConnections } from '@/hooks/useGoogleServiceConnections';
-import { toast } from 'sonner';
+import TabsContainer from './scanner/TabsContainer';
+import ScannerControls from './scanner/ScannerControls';
 
 const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   industry,
@@ -61,34 +56,24 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     }
   }, [connectedServices, onServicesUpdate]);
 
-  const handleStartScan = async () => {
-    if (!industry) {
-      toast.error('Please select an industry before scanning');
-      return;
-    }
+  const handleStartScan = async (
+    services: GoogleService[], 
+    selectedIndustry: typeof industry, 
+    selectedLanguage = language, 
+    selectedRegion = region
+  ) => {
+    await handleScan(services, selectedIndustry, selectedLanguage, selectedRegion);
     
-    if (connectedServices.length === 0) {
-      toast.error('Please connect at least one service before scanning');
-      return;
-    }
-    
-    try {
-      await handleScan(connectedServices, industry, language, region);
-      
-      if (scanResults) {
-        addScanHistory({
-          serviceId: connectedServices.join('-'),
-          serviceName: connectedServices.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(', '),
-          scanDate: new Date().toISOString(),
-          itemsScanned: itemsScanned,
-          violationsFound: violationsFound,
-          documentName: 'Cloud Services Scan',
-          fileName: file ? file.name : 'multiple services'
-        });
-      }
-    } catch (error) {
-      console.error('Error starting scan:', error);
-      toast.error('Failed to complete scan');
+    if (scanResults) {
+      addScanHistory({
+        serviceId: services.join('-'),
+        serviceName: services.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(', '),
+        scanDate: new Date().toISOString(),
+        itemsScanned: itemsScanned,
+        violationsFound: violationsFound,
+        documentName: 'Cloud Services Scan',
+        fileName: file ? file.name : 'multiple services'
+      });
     }
   };
 
@@ -105,66 +90,38 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="scanner" value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="mb-4">
-              <TabsTrigger value="scanner">Connect Services</TabsTrigger>
-              <TabsTrigger value="results" disabled={!scanResults}>Results</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="scanner">
-              <div className="space-y-6">
-                <ServiceTabs 
-                  activeTab="google"
-                  isScanning={isScanning}
-                  connectedServices={connectedServices}
-                  isConnectingDrive={isConnectingDrive}
-                  isConnectingGmail={isConnectingGmail}
-                  isConnectingDocs={isConnectingDocs}
-                  onConnectDrive={handleConnectDrive}
-                  onConnectGmail={handleConnectGmail}
-                  onConnectDocs={handleConnectDocs}
-                  onDisconnect={handleDisconnect}
-                />
-                
-                <ConnectionStatus 
-                  connectedServices={connectedServices} 
-                  isScanning={isScanning}
-                />
-                
-                <Button 
-                  disabled={isScanning || connectedServices.length === 0 || !industry}
-                  className="w-full"
-                  onClick={handleStartScan}
-                >
-                  {isScanning ? (
-                    <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Scanning...
-                    </>
-                  ) : (
-                    'Start Compliance Scan'
-                  )}
-                </Button>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="results">
-              {scanResults && (
-                <div className="space-y-6">
-                  <ScanStats 
-                    lastScanTime={lastScanTime}
-                    itemsScanned={itemsScanned}
-                    violationsFound={violationsFound}
-                  />
-                  
-                  <ScanResults 
-                    violations={scanResults.violations} 
-                    industry={scanResults.industry || selectedIndustry} 
-                  />
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+          <TabsContainer
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            scanResults={scanResults}
+            lastScanTime={lastScanTime}
+            itemsScanned={itemsScanned}
+            violationsFound={violationsFound}
+            selectedIndustry={selectedIndustry}
+            isScanning={isScanning}
+            connectedServices={connectedServices}
+            isConnectingDrive={isConnectingDrive}
+            isConnectingGmail={isConnectingGmail}
+            isConnectingDocs={isConnectingDocs}
+            onConnectDrive={handleConnectDrive}
+            onConnectGmail={handleConnectGmail}
+            onConnectDocs={handleConnectDocs}
+            onDisconnect={handleDisconnect}
+          >
+            <ScannerControls
+              connectedServices={connectedServices}
+              isScanning={isScanning}
+              industry={industry}
+              language={language}
+              region={region}
+              file={file}
+              onScan={handleStartScan}
+              onScanComplete={(itemsScanned, violationsFound) => {
+                // This callback can be used for any post-scan operations
+                console.log(`Scan completed: ${itemsScanned} items scanned, ${violationsFound} violations found`);
+              }}
+            />
+          </TabsContainer>
         </CardContent>
       </Card>
     </div>
