@@ -8,12 +8,12 @@ interface PredictiveTabProps {
 }
 
 const PredictiveTab: React.FC<PredictiveTabProps> = ({ report }) => {
-  if (!report) {
-    console.error("PredictiveTab received undefined report");
+  if (!report || !report.documentId) {
+    console.error("PredictiveTab received invalid report:", report);
     return (
       <div className="p-6">
         <p className="text-muted-foreground">
-          No report data available. Please complete a compliance scan first.
+          No valid report data available. Please complete a compliance scan first.
         </p>
       </div>
     );

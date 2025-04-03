@@ -37,8 +37,14 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
   useEffect(() => {
     if (report && report.industry) {
       console.log("Generating scenarios for industry:", report.industry);
-      const generatedScenarios = generateScenarios(report.industry);
-      setScenarios(generatedScenarios);
+      try {
+        const generatedScenarios = generateScenarios(report.industry);
+        console.log("Generated scenarios:", generatedScenarios);
+        setScenarios(generatedScenarios);
+      } catch (error) {
+        console.error("Error generating scenarios:", error);
+        toast.error("Failed to generate simulation scenarios");
+      }
     } else {
       console.error("Cannot generate scenarios: Missing report or industry", report);
       toast.error("Could not generate simulation scenarios due to missing data");
@@ -46,19 +52,16 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
   }, [report]);
   
   const handleSelectScenario = (scenarioId: string) => {
+    console.log("Selected scenario:", scenarioId);
     if (isLoading) return;
     
-    if (selectedScenarioId === scenarioId && !analysisResult) {
-      setShowConfiguration(true);
-    } else {
-      setSelectedScenarioId(scenarioId);
-      setAnalysisResult(null);
-      setShowConfiguration(true); // Always show configuration when selecting a scenario
-    }
+    setSelectedScenarioId(scenarioId);
+    setAnalysisResult(null);
+    setShowConfiguration(true); // Always show configuration when selecting a scenario
   };
   
   const runSimulation = async (scenarioId: string) => {
-    if (!scenarioId) {
+    if (!scenarioId || !report) {
       toast.error("Please select a scenario first");
       return;
     }
@@ -70,6 +73,8 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
       console.log("Report data:", report);
       
       const response = await runSimulationAnalysis(report, scenarioId);
+      
+      console.log("Simulation response:", response);
       
       if (!response.success) {
         console.error("Simulation error:", response.error);
@@ -100,6 +105,8 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
   
   const confirmDelete = () => {
     if (itemToDelete) {
+      // In a real app, this would delete the scenario from the database
+      setScenarios(prevScenarios => prevScenarios.filter(s => s.id !== itemToDelete));
       toast.success(`Simulation ${itemToDelete} has been deleted permanently`);
       setItemToDelete(null);
     }

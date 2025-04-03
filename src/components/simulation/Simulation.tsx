@@ -10,6 +10,8 @@ interface SimulationProps {
 }
 
 const Simulation: React.FC<SimulationProps> = ({ report }) => {
+  console.log("Simulation component received report:", report);
+
   if (!report || !report.documentId) {
     console.error("Simulation component received invalid report:", report);
     return (
@@ -28,8 +30,6 @@ const Simulation: React.FC<SimulationProps> = ({ report }) => {
       </Card>
     );
   }
-
-  console.log("Simulation component rendering with report:", report);
   
   return (
     <Card>
