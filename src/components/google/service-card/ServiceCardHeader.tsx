@@ -3,9 +3,10 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { RefreshCw } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 
 interface ServiceCardHeaderProps {
-  icon: React.ReactNode;
+  icon: LucideIcon;
   title: string;
   isConnected: boolean;
   isRealTimeActive: boolean;
@@ -13,7 +14,7 @@ interface ServiceCardHeaderProps {
 }
 
 const ServiceCardHeader: React.FC<ServiceCardHeaderProps> = ({
-  icon,
+  icon: Icon,
   title,
   isConnected,
   isRealTimeActive,
@@ -23,7 +24,7 @@ const ServiceCardHeader: React.FC<ServiceCardHeaderProps> = ({
     <CardHeader className="pb-2">
       <div className="flex justify-between items-center">
         <CardTitle className="text-base flex items-center">
-          {icon}
+          <Icon className="h-4 w-4 mr-2" />
           {title}
         </CardTitle>
         <div className="flex items-center space-x-2">
