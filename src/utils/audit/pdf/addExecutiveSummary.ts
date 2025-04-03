@@ -1,4 +1,3 @@
-
 import { jsPDF } from "jspdf";
 import { AuditEvent } from '@/components/audit/types';
 import { Industry } from '@/utils/types';
@@ -11,7 +10,8 @@ import { mapToIndustryType } from '../industryUtils';
 export const addExecutiveSummary = (
   doc: jsPDF, 
   auditEvents: AuditEvent[], 
-  documentName: string
+  documentName: string,
+  selectedIndustry?: Industry
 ): number => {
   // Starting position
   let yPos = 20;
@@ -34,9 +34,10 @@ export const addExecutiveSummary = (
   doc.text(`Date: ${new Date().toLocaleString()}`, 20, yPos);
   
   yPos += 7;
-  // Extract industry from document name if possible
-  const industry = extractIndustryFromDocument(documentName, auditEvents);
-  doc.text(`Organization: ${documentName.split('-')[0] || 'Organization'}`, 20, yPos);
+  // Use selected industry or extract from document name
+  const industry = selectedIndustry || extractIndustryFromDocument(documentName, auditEvents);
+  const organization = documentName.split('-')[0] || 'Organization';
+  doc.text(`Organization: ${organization} (${industry || 'General'})`, 20, yPos);
   
   // Add applicable compliance frameworks
   yPos += 7;

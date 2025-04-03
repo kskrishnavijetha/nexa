@@ -11,9 +11,16 @@ import { generateIndustryFindings } from './industryFindings';
 export const generateComplianceFindings = (
   stats: AuditReportStatistics,
   documentName?: string,
-  documentContent?: string
+  documentContent?: string,
+  selectedIndustry?: Industry // Add selectedIndustry parameter
 ): ComplianceFinding[] => {
-  // First check specifically for healthcare in the document name to address healthcare detection issues
+  // If an industry is explicitly selected, use it
+  if (selectedIndustry) {
+    console.log(`Using explicitly selected industry: ${selectedIndustry}`);
+    return generateIndustryFindings(stats, selectedIndustry);
+  }
+
+  // First check specifically for healthcare in the document name
   if (documentName && (
       documentName.toLowerCase().includes('health') || 
       documentName.toLowerCase().includes('medical') || 
@@ -37,7 +44,7 @@ export const generateComplianceFindings = (
   
   // Generate industry-specific findings
   if (industry) {
-    console.log(`Generating findings for industry: ${industry}`);
+    console.log(`Generating findings for detected industry: ${industry}`);
     return generateIndustryFindings(stats, industry);
   }
   
@@ -46,21 +53,30 @@ export const generateComplianceFindings = (
   return generateDefaultFindings(stats);
 };
 
-/**
- * Extract the industry from document name with improved detection
- */
+// Helper function to extract industry from document name
 const extractIndustryFromDocument = (documentName?: string): Industry | undefined => {
   if (!documentName) return undefined;
   
-  // Special case for healthcare (since that's the reported issue)
-  if (documentName.toLowerCase().includes('health') || 
-      documentName.toLowerCase().includes('medical') || 
-      documentName.toLowerCase().includes('hospital') || 
-      documentName.toLowerCase().includes('patient') || 
-      documentName.toLowerCase().includes('clinic') ||
-      documentName.toLowerCase().includes('doctor') ||
-      documentName.toLowerCase().includes('care') ||
-      documentName.toLowerCase().includes('hipaa')) {
+  const normalizedName = documentName.toLowerCase();
+  
+  // Special case for Finance & Banking
+  if (normalizedName.includes('finance') || 
+      normalizedName.includes('bank') || 
+      normalizedName.includes('financial') ||
+      normalizedName.includes('investment') ||
+      normalizedName.includes('trading')) {
+    return 'Finance & Banking';
+  }
+  
+  // Special case for healthcare
+  if (normalizedName.includes('health') || 
+      normalizedName.includes('medical') || 
+      normalizedName.includes('hospital') || 
+      normalizedName.includes('patient') || 
+      normalizedName.includes('clinic') ||
+      normalizedName.includes('doctor') ||
+      normalizedName.includes('care') ||
+      normalizedName.includes('hipaa')) {
     return 'Healthcare';
   }
   
