@@ -1,50 +1,60 @@
 
 import React from 'react';
-import { PredictiveAnalysis } from '@/utils/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { PredictiveAnalysis } from '@/utils/types';
 import ScoreComparisonChart from './ScoreComparisonChart';
 import RiskTrendList from './RiskTrendList';
-import ScenarioHeader from './ScenarioHeader';
 import RecommendationsList from './RecommendationsList';
 
 interface SimulationResultsProps {
-  analysis: PredictiveAnalysis;
-  onReset: () => void;
+  analysisData: PredictiveAnalysis;
+  loading?: boolean;
 }
 
-const SimulationResults: React.FC<SimulationResultsProps> = ({ analysis, onReset }) => {
-  return (
-    <div className="space-y-6">
-      <ScenarioHeader analysis={analysis} />
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+const SimulationResults: React.FC<SimulationResultsProps> = ({ analysisData, loading = false }) => {
+  if (loading) {
+    return (
+      <div className="space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Predicted Score Impact</CardTitle>
+            <CardTitle>Simulation Results</CardTitle>
           </CardHeader>
           <CardContent>
-            <ScoreComparisonChart analysis={analysis} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Key Risk Changes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <RiskTrendList analysis={analysis} />
+            <div className="flex justify-center items-center h-40">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-700" />
+            </div>
           </CardContent>
         </Card>
       </div>
+    );
+  }
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Recommended Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <RecommendationsList recommendations={analysis.recommendedActions || []} />
-        </CardContent>
-      </Card>
+  if (!analysisData || !analysisData.scenarioId) {
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Simulation Results</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center text-muted-foreground">
+              Select a scenario to view simulation results
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <ScoreComparisonChart analysis={analysisData} />
+      
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RiskTrendList riskTrends={analysisData.riskTrends || []} />
+        
+        <RecommendationsList recommendations={analysisData.recommendations || []} />
+      </div>
     </div>
   );
 };

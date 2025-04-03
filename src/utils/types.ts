@@ -126,6 +126,20 @@ export interface PredictiveAnalysis {
   };
   riskTrends?: RiskTrend[];
   recommendations?: string[];
+  originalScores?: {
+    overall: number;
+    gdpr: number;
+    hipaa: number;
+    soc2: number;
+    pciDss?: number;
+  };
+  predictedScores?: {
+    overall: number;
+    gdpr: number;
+    hipaa: number;
+    soc2: number;
+    pciDss?: number;
+  };
 }
 
 export interface SimulationScenario {
@@ -135,6 +149,13 @@ export interface SimulationScenario {
   industry?: string;
   regulationChanges: RegulationChange[];
   actions: string[];
+  predictedImprovements?: {
+    overall: number;
+    gdpr: number;
+    hipaa: number;
+    soc2: number;
+    pciDss?: number;
+  };
 }
 
 export interface RegulationChange {
@@ -151,6 +172,9 @@ export interface RiskTrend {
   impact: 'high' | 'medium' | 'low';
   currentSeverity: RiskSeverity;
   projectedSeverity?: RiskSeverity;
+  riskId?: string;
+  previousScore?: number;
+  predictedScore?: number;
 }
 
 export interface Risk {
@@ -159,6 +183,7 @@ export interface Risk {
   description: string;
   severity: RiskSeverity;
   regulation: string;
+  mitigation?: string;
 }
 
 export type RiskItem = ComplianceRisk;
@@ -206,6 +231,40 @@ export const REGION_REGULATIONS: Record<string, Record<string, string>> = {
     'ISO/IEC 27001': 'Information Security Management',
     'ISO/IEC 27701': 'Privacy Information Management',
     'SOC 2': 'Service Organization Control 2'
+  },
+  'North America': {
+    'CCPA': 'California Consumer Privacy Act',
+    'HIPAA': 'Health Insurance Portability and Accountability Act',
+    'PIPEDA': 'Personal Information Protection and Electronic Documents Act'
+  },
+  'European Union': {
+    'GDPR': 'General Data Protection Regulation',
+    'ePrivacy': 'ePrivacy Directive',
+    'NIS2': 'Network and Information Security Directive'
+  },
+  'Asia Pacific': {
+    'PDPA': 'Personal Data Protection Act (Singapore)',
+    'PIPL': 'Personal Information Protection Law (China)',
+    'APP': 'Australian Privacy Principles'
+  },
+  'United Kingdom': {
+    'UK GDPR': 'UK General Data Protection Regulation',
+    'DPA': 'Data Protection Act 2018',
+    'PECR': 'Privacy and Electronic Communications Regulations'
+  },
+  'Latin America': {
+    'LGPD': 'Lei Geral de Proteção de Dados (Brazil)',
+    'PDPL': 'Personal Data Protection Law (Chile)',
+    'LPDP': 'Ley de Protección de Datos Personales (Mexico)'
+  },
+  'Middle East': {
+    'PDPL': 'Personal Data Protection Law (Bahrain)',
+    'DPL': 'Data Protection Law (DIFC)',
+    'PDPL': 'Personal Data Protection Law (Qatar)'
+  },
+  'Africa': {
+    'POPIA': 'Protection of Personal Information Act (South Africa)',
+    'NDPR': 'Nigeria Data Protection Regulation',
+    'PDPA': 'Personal Data Protection Act (Kenya)'
   }
 };
-

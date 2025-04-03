@@ -1,116 +1,159 @@
-import { useState, useEffect } from 'react';
-import { ComplianceReport, Risk } from '@/utils/types';
-import { toast } from 'sonner';
 
-interface RealtimeSimulatorProps {
-  enabled: boolean;
-  reports: ComplianceReport[];
-  onReportsUpdate: (reports: ComplianceReport[]) => void;
-  onAnalyzingUpdate: (documentName: string | null) => void;
-  onLastUpdatedChange: (date: Date) => void;
+import React, { useState, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Risk, ComplianceReport } from '@/utils/types';
+import { Loader2 } from 'lucide-react';
+
+interface RealtimeAnalysisSimulatorProps {
+  report: ComplianceReport;
 }
 
-const RealtimeAnalysisSimulator = ({
-  enabled,
-  reports,
-  onReportsUpdate,
-  onAnalyzingUpdate,
-  onLastUpdatedChange
-}: RealtimeSimulatorProps) => {
-  const [analyzingDocument, setAnalyzingDocument] = useState<string | null>(null);
+const RealtimeAnalysisSimulator: React.FC<RealtimeAnalysisSimulatorProps> = ({ report }) => {
+  const [isAnalyzing, setIsAnalyzing] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const [detectedRisks, setDetectedRisks] = useState<Risk[]>([]);
+  const [currentStage, setCurrentStage] = useState('Starting analysis...');
 
-  // Real-time updates simulation
+  // Simulate analysis progress
   useEffect(() => {
-    if (!enabled) return;
-    
-    const interval = setInterval(() => {
-      // Update last updated timestamp
-      onLastUpdatedChange(new Date());
+    const startAnalysis = () => {
+      setIsAnalyzing(true);
+      setProgress(0);
+      setDetectedRisks([]);
       
-      // 20% chance to update an existing report or start analyzing a new document
-      if (Math.random() < 0.2) {
-        // 70% chance to update an existing report, 30% chance to start analyzing a new document
-        if (Math.random() < 0.7 && reports.length > 0) {
-          // Update an existing report score
-          const reportIndex = Math.floor(Math.random() * reports.length);
-          const updatedReports = [...reports];
-          const scoreChange = Math.floor(Math.random() * 10) - 3; // Between -3 and +6
-          const report = {...updatedReports[reportIndex]};
-          
-          report.overallScore = Math.min(100, Math.max(0, report.overallScore + scoreChange));
-          report.gdprScore = Math.min(100, Math.max(0, (report.gdprScore || 70) + Math.floor(Math.random() * 8) - 3));
-          report.hipaaScore = Math.min(100, Math.max(0, (report.hipaaScore || 70) + Math.floor(Math.random() * 8) - 3));
-          report.soc2Score = Math.min(100, Math.max(0, (report.soc2Score || 70) + Math.floor(Math.random() * 8) - 3));
-          
-          updatedReports[reportIndex] = report;
-          onReportsUpdate(updatedReports);
-          toast.info(`Compliance scores updated for "${report.documentName}"`);
+      const totalDuration = 8000; // 8 seconds for the full analysis
+      const intervalStep = 50; // Update every 50ms
+      const progressPerStep = (intervalStep / totalDuration) * 100;
+      
+      let currentProgress = 0;
+      const progressInterval = setInterval(() => {
+        currentProgress += progressPerStep;
+        
+        // Update progress state
+        setProgress(Math.min(Math.round(currentProgress), 100));
+        
+        // Update stage text based on progress
+        if (currentProgress < 20) {
+          setCurrentStage('Scanning document structure...');
+        } else if (currentProgress < 40) {
+          setCurrentStage('Analyzing regulatory references...');
+        } else if (currentProgress < 60) {
+          setCurrentStage('Detecting compliance gaps...');
+          // Add first risk at ~50%
+          if (currentProgress >= 50 && detectedRisks.length === 0) {
+            const risk: Risk = {
+              id: 'risk-1',
+              title: 'Missing Data Retention Policy',
+              description: 'Document does not specify data retention timeframes',
+              severity: 'medium',
+              regulation: 'GDPR',
+              mitigation: 'Define clear data retention periods in your policy'
+            };
+            setDetectedRisks([risk]);
+          }
+        } else if (currentProgress < 80) {
+          setCurrentStage('Evaluating security controls...');
+          // Add second risk at ~70%
+          if (currentProgress >= 70 && detectedRisks.length === 1) {
+            const risk: Risk = {
+              id: 'risk-2',
+              title: 'Weak Access Control Description',
+              description: 'Access control measures lack specificity',
+              severity: 'high',
+              regulation: report.regulations?.[0] || 'GDPR',
+              mitigation: 'Define role-based access controls and implementation details'
+            };
+            setDetectedRisks(prev => [...prev, risk]);
+          }
         } else {
-          // Simulate analyzing a new document
-          const documentNames = [
-            "Terms of Service",
-            "Cookie Policy",
-            "Employee Handbook",
-            "GDPR Compliance Statement",
-            "Data Processing Agreement",
-            "Information Security Policy"
-          ];
-          
-          // Get a random document that's not already in reports
-          const existingNames = reports.map(r => r.documentName);
-          const availableNames = documentNames.filter(name => !existingNames.includes(name));
-          
-          if (availableNames.length > 0) {
-            const newDocName = availableNames[Math.floor(Math.random() * availableNames.length)];
-            setAnalyzingDocument(newDocName);
-            onAnalyzingUpdate(newDocName);
-            
-            // After 5-10 seconds, add the document to reports
-            const analysisTime = 5000 + Math.random() * 5000;
-            setTimeout(() => {
-              const newRisk: Risk = { 
-                id: `risk-${Date.now()}-1`, 
-                title: 'Compliance Issue',
-                description: 'Automatically detected compliance issue', 
-                severity: Math.random() > 0.7 ? 'high' : Math.random() > 0.5 ? 'medium' : 'low', 
-                regulation: Math.random() > 0.6 ? 'GDPR' : Math.random() > 0.3 ? 'HIPAA' : 'SOC 2',
-                mitigation: 'Update compliance policy and documentation'
-              };
-              
-              const newReport: ComplianceReport = {
-                documentId: `doc-${Date.now()}`,
-                documentName: newDocName,
-                timestamp: new Date().toISOString(),
-                overallScore: 60 + Math.floor(Math.random() * 40),
-                gdprScore: 60 + Math.floor(Math.random() * 40),
-                hipaaScore: 60 + Math.floor(Math.random() * 40),
-                soc2Score: 60 + Math.floor(Math.random() * 40),
-                industryScore: 60 + Math.floor(Math.random() * 40),
-                regionalScore: 60 + Math.floor(Math.random() * 40),
-                regulationScore: 60 + Math.floor(Math.random() * 40),
-                risks: [newRisk],
-                summary: 'Automatically generated compliance report with detected issues',
-                industry: 'Cloud & SaaS',
-                region: 'North America',
-                complianceStatus: 'partially-compliant',
-                regulations: ['GDPR', 'HIPAA'],
-                suggestions: []
-              };
-              
-              onReportsUpdate([newReport, ...reports]);
-              setAnalyzingDocument(null);
-              onAnalyzingUpdate(null);
-              toast.success(`New compliance report added: "${newReport.documentName}"`);
-            }, analysisTime);
+          setCurrentStage('Finalizing analysis...');
+          // Add third risk at ~90%
+          if (currentProgress >= 90 && detectedRisks.length === 2) {
+            const risk: Risk = {
+              id: 'risk-3',
+              title: 'Incomplete Breach Notification Process',
+              description: 'Incident response plan lacks clear breach notification timelines',
+              severity: 'high',
+              regulation: 'GDPR',
+              mitigation: 'Specify notification timelines and processes in your documentation'
+            };
+            setDetectedRisks(prev => [...prev, risk]);
           }
         }
-      }
-    }, 10000); // Check every 10 seconds
+        
+        // Complete the analysis
+        if (currentProgress >= 100) {
+          clearInterval(progressInterval);
+          setCurrentStage('Analysis complete');
+          setProgress(100);
+          setIsAnalyzing(false);
+        }
+      }, intervalStep);
+      
+      // Clean up
+      return () => clearInterval(progressInterval);
+    };
     
-    return () => clearInterval(interval);
-  }, [enabled, reports, onReportsUpdate, onAnalyzingUpdate, onLastUpdatedChange]);
+    startAnalysis();
+  }, [report]);
 
-  return null; // This is a non-visual component
+  return (
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          {isAnalyzing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Realtime Document Analysis
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {/* Progress indicator */}
+          <div className="space-y-2">
+            <div className="text-sm font-medium">{currentStage}</div>
+            <div className="w-full bg-gray-200 rounded-full h-2.5">
+              <div 
+                className="bg-blue-600 h-2.5 rounded-full" 
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+            <div className="text-right text-sm text-gray-500">{progress}%</div>
+          </div>
+          
+          {/* Detected risks */}
+          {detectedRisks.length > 0 && (
+            <div className="mt-4">
+              <h3 className="text-sm font-medium mb-2">Detected Issues:</h3>
+              <div className="space-y-3">
+                {detectedRisks.map((risk) => (
+                  <div 
+                    key={risk.id}
+                    className={`p-3 rounded-md border-l-4 ${
+                      risk.severity === 'high' ? 'border-red-500 bg-red-50' :
+                      risk.severity === 'medium' ? 'border-amber-500 bg-amber-50' :
+                      'border-blue-500 bg-blue-50'
+                    }`}
+                  >
+                    <div className="font-medium">{risk.title}</div>
+                    <p className="text-sm mt-1">{risk.description}</p>
+                    <div className="flex justify-between mt-2 text-xs">
+                      <span className="font-medium">{risk.regulation}</span>
+                      <span className={`${
+                        risk.severity === 'high' ? 'text-red-700' :
+                        risk.severity === 'medium' ? 'text-amber-700' :
+                        'text-blue-700'
+                      }`}>
+                        {risk.severity.charAt(0).toUpperCase() + risk.severity.slice(1)} Severity
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
 
 export default RealtimeAnalysisSimulator;

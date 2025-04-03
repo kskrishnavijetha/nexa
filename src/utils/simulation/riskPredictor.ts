@@ -1,118 +1,120 @@
 
+import { Industry } from '../types';
 import { Risk, SimulationScenario, RiskItem } from '@/utils/types';
 
 /**
- * Generate predicted risks based on simulation scenario
+ * Generate anticipated risks based on simulation scenario
  */
-export function generatePredictedRisks(
-  currentRisks: RiskItem[],
-  scenario: SimulationScenario,
-  adjustedScores: any
-): Risk[] {
+export function predictRisks(scenario: SimulationScenario, existingRisks: Risk[] = []): Risk[] {
   const predictedRisks: Risk[] = [];
   
-  // Based on regulation changes in the scenario, predict new risks
+  // Analyze regulation changes to predict risks
   scenario.regulationChanges.forEach(change => {
-    if (change.changeType === 'stricter' || change.changeType === 'new') {
+    // New regulatory requirements often introduce compliance risks
+    if (change.changeType === 'new') {
+      if (change.impactLevel === 'high') {
+        predictedRisks.push({
+          id: `pred-risk-${Math.random().toString(36).substring(2, 9)}`,
+          title: `${change.regulation} Compliance Gap`,
+          description: `Potential gap in compliance with new ${change.regulation} requirements: ${change.description}`,
+          severity: 'high',
+          regulation: change.regulation,
+          mitigation: `Conduct ${change.regulation} readiness assessment`
+        });
+      } else {
+        predictedRisks.push({
+          id: `pred-risk-${Math.random().toString(36).substring(2, 9)}`,
+          title: `${change.regulation} Adaptation Required`,
+          description: `Need to adapt to new ${change.regulation} requirements: ${change.description}`,
+          severity: 'medium',
+          regulation: change.regulation,
+          mitigation: `Review and update ${change.regulation} compliance programs`
+        });
+      }
+    }
+    
+    // Updates to existing regulations
+    if (change.changeType === 'update') {
       if (change.regulation === 'GDPR') {
         predictedRisks.push({
-          id: `predicted-gdpr-${Date.now()}`,
-          title: 'Additional GDPR Requirements',
-          description: 'New requirements for data protection impact assessments',
-          severity: 'medium',
-          mitigation: 'Implement DPIA procedures for high-risk processing',
+          id: `pred-risk-${Math.random().toString(36).substring(2, 9)}`,
+          title: 'Data Protection Documentation Risk',
+          description: `Need to update data protection documentation for ${change.description}`,
+          severity: change.impactLevel === 'high' ? 'high' : 'medium',
           regulation: 'GDPR',
-          section: 'Article 35'
+          mitigation: 'Review and update data protection policies and procedures'
         });
       }
       
       if (change.regulation === 'HIPAA') {
         predictedRisks.push({
-          id: `predicted-hipaa-${Date.now()}`,
-          title: 'Enhanced PHI Protection',
-          description: 'Stricter requirements for protecting PHI in transit',
-          severity: 'high',
-          mitigation: 'Implement end-to-end encryption for all PHI transfers',
+          id: `pred-risk-${Math.random().toString(36).substring(2, 9)}`,
+          title: 'PHI Security Controls Risk',
+          description: `Potential gaps in PHI security controls for ${change.description}`,
+          severity: change.impactLevel === 'high' ? 'high' : 'medium',
           regulation: 'HIPAA',
-          section: '§164.312'
-        });
-      }
-    }
-    
-    if (change.impactLevel === 'high') {
-      if (change.regulation === 'PCI-DSS') {
-        predictedRisks.push({
-          id: `predicted-pci-${Date.now()}`,
-          title: 'New PCI DSS Compliance',
-          description: 'New requirements for multi-factor authentication',
-          severity: 'high',
-          mitigation: 'Implement MFA for all system access',
-          regulation: 'PCI-DSS',
-          section: 'Requirement 8.4'
+          mitigation: 'Enhance security controls for protected health information'
         });
       }
       
       if (change.regulation === 'SOC 2') {
         predictedRisks.push({
-          id: `predicted-soc2-${Date.now()}`,
-          title: 'SOC 2 Security Updates',
-          description: 'Enhanced monitoring requirements for access events',
-          severity: 'medium',
-          mitigation: 'Implement comprehensive logging and monitoring',
+          id: `pred-risk-${Math.random().toString(36).substring(2, 9)}`,
+          title: 'Service Organization Controls Risk',
+          description: `Potential gaps in service controls for ${change.description}`,
+          severity: change.impactLevel === 'high' ? 'high' : 'medium',
           regulation: 'SOC 2',
-          section: 'CC7.2'
+          mitigation: 'Update service organization controls and documentation'
+        });
+      }
+      
+      if (change.regulation === 'PCI-DSS') {
+        predictedRisks.push({
+          id: `pred-risk-${Math.random().toString(36).substring(2, 9)}`,
+          title: 'Cardholder Data Environment Risk',
+          description: `Security control gaps for cardholder data: ${change.description}`,
+          severity: change.impactLevel === 'high' ? 'high' : 'medium',
+          regulation: 'PCI-DSS',
+          mitigation: 'Enhance security controls for cardholder data environment'
         });
       }
     }
     
-    if (adjustedScores.gdprScore < 70) {
+    // Repeal of regulations can create compliance confusion
+    if (change.changeType === 'repeal') {
       predictedRisks.push({
-        id: `predicted-score-gdpr-${Date.now()}`,
-        title: 'GDPR Score Risk',
-        description: 'Low GDPR compliance score presents significant risk',
+        id: `pred-risk-${Math.random().toString(36).substring(2, 9)}`,
+        title: `${change.regulation} Transition Risk`,
+        description: `Uncertainty during transition away from ${change.regulation} requirements`,
         severity: 'medium',
-        mitigation: 'Conduct a comprehensive GDPR gap analysis',
-        regulation: 'GDPR',
-        section: 'General'
-      });
-    }
-    
-    if (adjustedScores.hipaaScore < 65) {
-      predictedRisks.push({
-        id: `predicted-score-hipaa-${Date.now()}`,
-        title: 'HIPAA Score Risk',
-        description: 'Declining HIPAA compliance score requires attention',
-        severity: 'high',
-        mitigation: 'Prioritize HIPAA compliance remediation',
-        regulation: 'HIPAA',
-        section: 'General'
-      });
-    }
-    
-    if (adjustedScores.soc2Score < 70) {
-      predictedRisks.push({
-        id: `predicted-score-soc2-${Date.now()}`,
-        title: 'SOC 2 Risk',
-        description: 'Projected SOC 2 compliance issues need addressing',
-        severity: 'high',
-        mitigation: 'Address security controls before audit period',
-        regulation: 'SOC 2',
-        section: 'General'
-      });
-    }
-    
-    if (adjustedScores.pciDssScore < 75) {
-      predictedRisks.push({
-        id: `predicted-score-pci-${Date.now()}`,
-        title: 'PCI Compliance Issue',
-        description: 'PCI DSS compliance score below threshold',
-        severity: 'medium',
-        mitigation: 'Review and update cardholder data environment',
-        regulation: 'PCI-DSS',
-        section: 'General'
+        regulation: change.regulation,
+        mitigation: 'Develop transition plan and documentation updates'
       });
     }
   });
+  
+  // Add industry-specific predictive risks
+  if (scenario.industry === 'Healthcare') {
+    predictedRisks.push({
+      id: `pred-risk-${Math.random().toString(36).substring(2, 9)}`,
+      title: 'Patient Data Access Controls Risk',
+      description: 'Potential weaknesses in access controls for patient data',
+      severity: 'high',
+      regulation: 'HIPAA',
+      mitigation: 'Implement enhanced authentication and access monitoring'
+    });
+  }
+  
+  if (scenario.industry === 'Finance & Banking') {
+    predictedRisks.push({
+      id: `pred-risk-${Math.random().toString(36).substring(2, 9)}`,
+      title: 'Financial Transaction Security Risk',
+      description: 'Potential vulnerabilities in financial transaction processing',
+      severity: 'high',
+      regulation: 'PCI-DSS',
+      mitigation: 'Implement enhanced encryption and transaction monitoring'
+    });
+  }
   
   return predictedRisks;
 }

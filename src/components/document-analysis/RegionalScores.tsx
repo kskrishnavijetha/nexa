@@ -18,7 +18,7 @@ const RegionalScores: React.FC<RegionalScoresProps> = ({ report }) => {
         {Object.entries(report.regionScores).map(([regulation, score]) => (
           <div key={regulation} className="bg-blue-50 p-4 rounded">
             <p className="text-sm text-blue-700">{regulation}</p>
-            <p className="text-2xl font-bold text-blue-900">{score as number}%</p>
+            <p className="text-2xl font-bold text-blue-900">{score}%</p>
           </div>
         ))}
       </div>

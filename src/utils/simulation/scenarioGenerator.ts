@@ -1,303 +1,245 @@
 
-import { SimulationScenario, Industry, RegulationChange } from '@/utils/types';
+import { Industry } from '../types';
+import { SimulationScenario, RegulationChange } from '@/utils/types';
 
-/**
- * Generate simulation scenarios based on industry
- */
+// Helper function to generate a unique ID
+const generateId = (): string => {
+  return Math.random().toString(36).substring(2, 11);
+};
+
+// Generate simulation scenarios based on industry
 export function generateScenarios(industry?: Industry): SimulationScenario[] {
-  // Generate base scenarios
+  // Base scenarios that apply to all industries
   const baseScenarios: SimulationScenario[] = [
     {
-      id: 'gdpr-stricter',
-      name: 'GDPR Stricter Enforcement',
-      description: 'Simulates stricter enforcement of GDPR regulations with higher penalties',
-      industry: 'Global',
-      actions: [
-        'Update privacy policies',
-        'Enhance data subject request processes',
-        'Implement stronger consent management'
-      ],
+      id: generateId(),
+      name: 'Enhanced Data Protection Measures',
+      description: 'Implement additional data protection measures to strengthen compliance posture.',
       regulationChanges: [
         {
           regulation: 'GDPR',
-          changeType: 'stricter',
-          impactLevel: 'high'
+          changeType: 'update',
+          impactLevel: 'high',
+          description: 'Stricter requirements for data subject access requests'
         }
       ],
-      predictedImprovements: {
-        overallScore: 15,
-        gdprScore: 25
-      }
+      actions: [
+        'Implement automated data subject request handling',
+        'Update privacy policies',
+        'Conduct staff training on new requirements'
+      ]
     },
     {
-      id: 'multi-reg-changes',
-      name: 'Multiple Regulatory Updates',
-      description: 'Simulates simultaneous changes to multiple regulations',
-      industry: 'Global',
-      actions: [
-        'Comprehensive compliance review',
-        'Staff training updates',
-        'Technology updates for compliance tracking'
-      ],
+      id: generateId(),
+      name: 'Regulatory Changes Preparation',
+      description: 'Prepare for upcoming regulatory changes in major compliance frameworks.',
       regulationChanges: [
         {
           regulation: 'GDPR',
-          changeType: 'updated',
-          impactLevel: 'medium'
+          changeType: 'update',
+          impactLevel: 'medium',
+          description: 'Updated guidelines on cookies and tracking technologies'
         },
         {
           regulation: 'HIPAA',
-          changeType: 'stricter',
-          impactLevel: 'high'
-        },
-        {
-          regulation: 'SOC 2',
-          changeType: 'updated',
-          impactLevel: 'medium'
+          changeType: 'update',
+          impactLevel: 'high',
+          description: 'Enhanced security requirements for telehealth services'
         }
       ],
-      predictedImprovements: {
-        overallScore: 18,
-        gdprScore: 15,
-        hipaaScore: 20,
-        soc2Score: 18
-      }
-    },
-    {
-      id: 'new-regulation',
-      name: 'New International Privacy Law',
-      description: 'Simulates the impact of a new international privacy regulation',
-      industry: 'Global',
       actions: [
-        'Initial compliance assessment',
-        'Gap analysis',
-        'Implementation of new controls'
-      ],
-      regulationChanges: [
-        {
-          regulation: 'New Global Privacy Standard',
-          changeType: 'new',
-          impactLevel: 'high'
-        }
-      ],
-      predictedImprovements: {
-        overallScore: 10
-      }
+        'Review and update consent mechanisms',
+        'Implement new security controls for digital services',
+        'Update documentation and training materials'
+      ]
     }
   ];
-  
-  // Add industry-specific scenarios if an industry is specified
-  if (industry) {
-    // Financial services specific scenarios
-    if (industry === 'Finance & Banking') {
-      baseScenarios.push({
-        id: 'financial-reg-update',
-        name: 'Financial Services Compliance Update',
-        description: 'Simulates updates to financial services compliance requirements',
-        industry: 'Finance & Banking',
-        actions: [
-          'Update transaction monitoring',
-          'Enhance KYC processes',
-          'Update security controls'
-        ],
-        regulationChanges: [
-          {
-            regulation: 'PCI-DSS',
-            changeType: 'stricter',
-            impactLevel: 'high'
-          },
-          {
-            regulation: 'SOC 2',
-            changeType: 'updated',
-            impactLevel: 'medium'
-          }
-        ],
-        predictedImprovements: {
-          overallScore: 12,
-          pciDssScore: 18,
-          soc2Score: 10
+
+  // Industry-specific scenarios
+  if (industry === 'Healthcare' || industry === 'Pharmaceutical & Biotech') {
+    baseScenarios.push({
+      id: generateId(),
+      name: 'Patient Data Protection Enhancement',
+      description: 'Strengthen safeguards for protected health information (PHI).',
+      regulationChanges: [
+        {
+          regulation: 'HIPAA',
+          changeType: 'new',
+          impactLevel: 'high',
+          description: 'New requirements for securing patient data in telehealth'
         }
-      });
-      
-      // Add NYDFS specific scenario
-      baseScenarios.push({
-        id: 'nydfs-update',
-        name: 'NYDFS 23 NYCRR 500 Update',
-        description: 'Simulates changes to NY Department of Financial Services cybersecurity regulations',
-        industry: 'Finance & Banking',
-        actions: [
-          'Update cybersecurity program',
-          'Enhance incident response plan',
-          'Implement multi-factor authentication'
-        ],
-        regulationChanges: [
-          {
-            regulation: 'NYDFS',
-            changeType: 'stricter',
-            impactLevel: 'high'
-          }
-        ],
-        predictedImprovements: {
-          overallScore: 14
-        }
-      });
-    }
-    
-    // Healthcare and Pharmaceutical specific scenarios
-    if (industry === 'Healthcare' || industry === 'Pharmaceutical & Biotech') {
-      baseScenarios.push({
-        id: 'healthcare-hipaa-update',
-        name: 'HIPAA Regulatory Changes',
-        description: 'Simulates changes to HIPAA regulations affecting healthcare providers',
-        industry: 'Healthcare',
-        actions: [
-          'Update patient data handling procedures',
-          'Enhance breach notification processes',
-          'Implement additional training'
-        ],
-        regulationChanges: [
-          {
-            regulation: 'HIPAA',
-            changeType: 'stricter',
-            impactLevel: 'high'
-          }
-        ],
-        predictedImprovements: {
-          overallScore: 15,
-          hipaaScore: 22
-        }
-      });
-      
-      // Add FDA compliance scenario for Pharmaceuticals
-      if (industry === 'Pharmaceutical & Biotech') {
-        baseScenarios.push({
-          id: 'fda-compliance-update',
-          name: 'FDA CFR Part 11 Updates',
-          description: 'Simulates changes to FDA electronic records regulations',
-          industry: 'Pharmaceutical & Biotech',
-          actions: [
-            'Enhance electronic signature validation',
-            'Update audit trail procedures',
-            'Implement system validation protocols'
-          ],
-          regulationChanges: [
-            {
-              regulation: 'FDA CFR Part 11',
-              changeType: 'updated',
-              impactLevel: 'high'
-            }
-          ],
-          predictedImprovements: {
-            overallScore: 16
-          }
-        });
-      }
-    }
-    
-    // Technology specific scenarios
-    if (industry === 'Cloud & SaaS') {
-      baseScenarios.push({
-        id: 'tech-data-regulations',
-        name: 'Technology Data Protection Updates',
-        description: 'Simulates new data protection requirements for technology companies',
-        industry: 'Cloud & SaaS',
-        actions: [
-          'Update data handling processes',
-          'Enhance API security',
-          'Implement stronger encryption'
-        ],
-        regulationChanges: [
-          {
-            regulation: 'GDPR',
-            changeType: 'updated',
-            impactLevel: 'medium'
-          },
-          {
-            regulation: 'SOC 2',
-            changeType: 'stricter',
-            impactLevel: 'high'
-          }
-        ],
-        predictedImprovements: {
-          overallScore: 14,
-          gdprScore: 12,
-          soc2Score: 20
-        }
-      });
-      
-      // Add ISO 27001 scenario for Cloud providers
-      baseScenarios.push({
-        id: 'iso-27001-update',
-        name: 'ISO 27001 Certification Requirements',
-        description: 'Simulates updated ISO 27001 certification requirements for cloud providers',
-        industry: 'Cloud & SaaS',
-        actions: [
-          'Update information security management system',
-          'Enhance risk assessment methodology',
-          'Implement continuous monitoring'
-        ],
-        regulationChanges: [
-          {
-            regulation: 'ISO/IEC 27001',
-            changeType: 'updated',
-            impactLevel: 'medium'
-          }
-        ],
-        predictedImprovements: {
-          overallScore: 13
-        }
-      });
-    }
-    
-    // E-commerce & Retail scenarios
-    if (industry === 'E-Commerce' || industry === 'Retail & Consumer') {
-      baseScenarios.push({
-        id: 'ccpa-update',
-        name: 'CCPA/CPRA Enforcement Changes',
-        description: 'Simulates stricter enforcement of California privacy regulations',
-        industry: 'E-Commerce',
-        actions: [
-          'Update privacy notices',
-          'Enhance data subject request handling',
-          'Implement right to deletion processes'
-        ],
-        regulationChanges: [
-          {
-            regulation: 'CCPA',
-            changeType: 'stricter',
-            impactLevel: 'high'
-          }
-        ],
-        predictedImprovements: {
-          overallScore: 15
-        }
-      });
-      
-      // Add PCI DSS scenario for retailers
-      baseScenarios.push({
-        id: 'pci-dss-4-update',
-        name: 'PCI DSS 4.0 Transition',
-        description: 'Simulates transition to PCI DSS 4.0 requirements',
-        industry: 'Retail & Consumer',
-        actions: [
-          'Implement customized approach documentation',
-          'Enhance authentication requirements',
-          'Update encryption protocols'
-        ],
-        regulationChanges: [
-          {
-            regulation: 'PCI-DSS',
-            changeType: 'updated',
-            impactLevel: 'high'
-          }
-        ],
-        predictedImprovements: {
-          overallScore: 16,
-          pciDssScore: 25
-        }
-      });
-    }
+      ],
+      actions: [
+        'Implement end-to-end encryption for telehealth services',
+        'Enhance authentication for patient portals',
+        'Establish audit trails for all PHI access'
+      ]
+    });
   }
-  
+
+  if (industry === 'Finance & Banking') {
+    baseScenarios.push({
+      id: generateId(),
+      name: 'Financial Data Security Improvement',
+      description: 'Enhance security measures for financial information and transactions.',
+      regulationChanges: [
+        {
+          regulation: 'PCI-DSS',
+          changeType: 'update',
+          impactLevel: 'high',
+          description: 'Stricter requirements for payment processing security'
+        },
+        {
+          regulation: 'GLBA',
+          changeType: 'update',
+          impactLevel: 'medium',
+          description: 'Updated requirements for customer data protection'
+        }
+      ],
+      actions: [
+        'Implement advanced encryption for financial transactions',
+        'Enhance network segmentation for cardholder data',
+        'Update privacy notices and customer consent forms'
+      ]
+    });
+  }
+
+  if (industry === 'Retail & Consumer' || industry === 'E-Commerce') {
+    baseScenarios.push({
+      id: generateId(),
+      name: 'Customer Data Privacy Enhancement',
+      description: 'Strengthen customer data privacy protections and consent mechanisms.',
+      regulationChanges: [
+        {
+          regulation: 'CCPA',
+          changeType: 'update',
+          impactLevel: 'high',
+          description: 'Expanded consumer rights for data access and deletion'
+        },
+        {
+          regulation: 'GDPR',
+          changeType: 'update',
+          impactLevel: 'medium',
+          description: 'Stricter requirements for processing customer consent'
+        }
+      ],
+      actions: [
+        'Enhance cookie consent management',
+        'Implement comprehensive data subject rights portal',
+        'Update privacy policies and marketing practices'
+      ]
+    });
+  }
+
+  if (industry === 'Government & Defense') {
+    baseScenarios.push({
+      id: generateId(),
+      name: 'Critical Infrastructure Protection',
+      description: 'Enhance security measures for critical infrastructure and classified information.',
+      regulationChanges: [
+        {
+          regulation: 'CMMC',
+          changeType: 'update',
+          impactLevel: 'high',
+          description: 'Updated cybersecurity maturity model requirements'
+        },
+        {
+          regulation: 'FISMA',
+          changeType: 'update',
+          impactLevel: 'high',
+          description: 'Stricter security controls for federal information systems'
+        }
+      ],
+      actions: [
+        'Implement enhanced threat monitoring',
+        'Conduct regular security assessments',
+        'Update incident response procedures'
+      ]
+    });
+  }
+
+  if (industry === 'Cloud & SaaS') {
+    baseScenarios.push({
+      id: generateId(),
+      name: 'Multi-Cloud Compliance Strategy',
+      description: 'Develop a unified compliance approach across multiple cloud environments.',
+      regulationChanges: [
+        {
+          regulation: 'SOC 2',
+          changeType: 'update',
+          impactLevel: 'high',
+          description: 'Enhanced requirements for cloud service providers'
+        },
+        {
+          regulation: 'ISO/IEC 27001',
+          changeType: 'update',
+          impactLevel: 'medium',
+          description: 'Updated security controls for cloud environments'
+        }
+      ],
+      actions: [
+        'Implement unified security policy management',
+        'Establish automated compliance monitoring',
+        'Create comprehensive data flow mapping'
+      ]
+    });
+  }
+
+  if (industry === 'Energy & Utilities') {
+    baseScenarios.push({
+      id: generateId(),
+      name: 'Critical Infrastructure Security',
+      description: 'Strengthen security measures for energy infrastructure and systems.',
+      regulationChanges: [
+        {
+          regulation: 'NERC',
+          changeType: 'update',
+          impactLevel: 'high',
+          description: 'Stricter requirements for electrical grid security'
+        },
+        {
+          regulation: 'GDPR',
+          changeType: 'update',
+          impactLevel: 'medium',
+          description: 'Updated requirements for consumer data protection'
+        }
+      ],
+      actions: [
+        'Implement enhanced OT/IT security measures',
+        'Conduct regular penetration testing',
+        'Establish comprehensive incident response procedures'
+      ]
+    });
+  }
+
+  if (industry === 'Education') {
+    baseScenarios.push({
+      id: generateId(),
+      name: 'Student Data Protection Enhancement',
+      description: 'Strengthen protections for student data in digital learning environments.',
+      regulationChanges: [
+        {
+          regulation: 'FERPA',
+          changeType: 'update',
+          impactLevel: 'high',
+          description: 'Updated requirements for student data in online learning'
+        },
+        {
+          regulation: 'COPPA',
+          changeType: 'update',
+          impactLevel: 'medium',
+          description: 'Stricter requirements for educational apps for minors'
+        }
+      ],
+      actions: [
+        'Implement enhanced parental consent mechanisms',
+        'Review and update third-party educational app permissions',
+        'Create comprehensive data handling procedures for remote learning'
+      ]
+    });
+  }
+
+  // Add more industry-specific scenarios as needed
+
   return baseScenarios;
 }
