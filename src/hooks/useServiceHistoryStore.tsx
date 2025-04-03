@@ -89,14 +89,18 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
                 documentId: `${userId}-${item.documentName}-${Date.now()}`,
                 documentName: item.documentName,
                 scanDate: item.scanDate,
+                timestamp: new Date().toISOString(),
                 industry: item.industry as any || 'Global',
+                organization: item.organization,
                 overallScore: Math.floor(Math.random() * 30) + 70,
                 gdprScore: Math.floor(Math.random() * 30) + 70,
                 hipaaScore: Math.floor(Math.random() * 30) + 70,
                 soc2Score: Math.floor(Math.random() * 30) + 70,
                 summary: `Compliance scan of ${item.documentName} using ${item.serviceName}.`,
                 risks: [],
-                userId: userId
+                userId: userId,
+                complianceStatus: 'Compliant',
+                regulations: item.regulations || ['GDPR', 'HIPAA', 'SOC2']
               };
               
               addReportToHistory(report);
