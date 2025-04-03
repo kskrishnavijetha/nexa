@@ -1,4 +1,3 @@
-
 export interface AIInsight {
   text: string;
   type: 'info' | 'warning' | 'success' | 'observation' | 'recommendation';
@@ -73,6 +72,7 @@ export interface ComplianceReport {
   regulationScore?: number;
   summary: string;
   risks: Array<ComplianceRisk>;
+  recommendations?: string[]; // Add recommendations field to resolve the error
   userId?: string;
   complianceStatus?: string;
   regulations?: string[];
