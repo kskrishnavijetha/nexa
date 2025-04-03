@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScannerCircle, ShieldCheck } from 'lucide-react';
+import { Loader2, ShieldCheck } from 'lucide-react';
 import ServiceTabs from './ServiceTabs';
 import ConnectionStatus from './ConnectionStatus';
 import ScanResults from './ScanResults';
@@ -206,7 +206,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
                 >
                   {isScanning ? (
                     <>
-                      <ScannerCircle className="h-4 w-4 mr-2 animate-spin" />
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       Scanning...
                     </>
                   ) : (
