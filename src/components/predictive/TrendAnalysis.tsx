@@ -5,7 +5,7 @@ import { ArrowDownIcon, ArrowRightIcon, ArrowUpIcon } from 'lucide-react';
 import { RiskTrend } from '@/utils/types';
 
 interface TrendAnalysisProps {
-  trends: RiskTrend[];
+  trends: RiskTrend[]; // Use 'trends' as the prop name
 }
 
 const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ trends }) => {
@@ -59,7 +59,8 @@ const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ trends }) => {
                 <div className="flex items-center mt-1 text-xs">
                   <span className={`font-medium ${
                     trend.currentSeverity === 'high' ? 'text-red-500' : 
-                    trend.currentSeverity === 'medium' ? 'text-amber-500' : 'text-green-500'
+                    trend.currentSeverity === 'medium' ? 'text-amber-500' : 
+                    trend.currentSeverity === 'critical' ? 'text-purple-500' : 'text-green-500'
                   }`}>
                     {trend.currentSeverity.charAt(0).toUpperCase() + trend.currentSeverity.slice(1)}
                   </span>
@@ -67,6 +68,7 @@ const TrendAnalysis: React.FC<TrendAnalysisProps> = ({ trends }) => {
                   <span className={`font-medium ${
                     trend.projectedSeverity === 'high' ? 'text-red-500' : 
                     trend.projectedSeverity === 'medium' ? 'text-amber-500' : 
+                    trend.projectedSeverity === 'critical' ? 'text-purple-500' :
                     trend.projectedSeverity === 'low' ? 'text-green-500' : 'text-muted-foreground'
                   }`}>
                     {trend.projectedSeverity ? trend.projectedSeverity.charAt(0).toUpperCase() + trend.projectedSeverity.slice(1) : 'Unknown'}

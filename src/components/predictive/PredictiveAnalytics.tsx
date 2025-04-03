@@ -150,7 +150,7 @@ const PredictiveAnalytics: React.FC<PredictiveAnalyticsProps> = ({
           </TabsContent>
 
           <TabsContent value="trends">
-            <TrendAnalysis riskTrends={analyticsResult.riskTrends} />
+            <TrendAnalysis trends={analyticsResult.riskTrends} />
           </TabsContent>
 
           <TabsContent value="actions">

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { ComplianceReport } from '@/utils/apiService';
 import ComplianceInsights from '@/components/predictive/ComplianceInsights';
@@ -121,7 +120,7 @@ const PredictiveTab: React.FC<PredictiveTabProps> = ({ report }) => {
         </TabsContent>
         
         <TabsContent value="trends">
-          <TrendAnalysis riskTrends={mockTrends} />
+          <TrendAnalysis trends={mockTrends} />
         </TabsContent>
       </Tabs>
     </div>

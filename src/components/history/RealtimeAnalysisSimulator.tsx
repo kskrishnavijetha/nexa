@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ComplianceReport, Risk } from '@/utils/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -29,7 +30,10 @@ const RealtimeAnalysisSimulator: React.FC<RealtimeAnalysisSimulatorProps> = ({
     setTimeout(() => {
       const newReport: ComplianceReport = {
         id: `report-${Date.now()}`,
-        date: new Date(),
+        documentId: `report-${Date.now()}`,
+        documentName: `Simulated Analysis Report ${new Date().toLocaleString()}`,
+        timestamp: new Date().toISOString(),
+        date: new Date(), // This is now properly typed in ComplianceReport
         overallScore: Math.floor(Math.random() * (95 - 60 + 1)) + 60,
         gdprScore: Math.floor(Math.random() * (90 - 50 + 1)) + 50,
         hipaaScore: Math.floor(Math.random() * (85 - 55 + 1)) + 55,
@@ -42,6 +46,7 @@ const RealtimeAnalysisSimulator: React.FC<RealtimeAnalysisSimulatorProps> = ({
         industry: 'Healthcare',
         risks: generateRandomRisks(),
         recommendations: generateRandomRecommendations(),
+        summary: 'Simulated analysis report for demonstration purposes.',
       };
 
       onReportsUpdate([newReport, ...reports]);
