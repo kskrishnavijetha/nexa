@@ -15,6 +15,21 @@ export interface ServiceCardProps {
   onDisconnect: () => void;
 }
 
+export interface ServiceHelperTexts {
+  actionButtonText: string;
+  uploadDialogTitle: string;
+  uploadDialogDescription: string;
+  submitButtonText: string;
+}
+
+export type ButtonVariant = 'default' | 'outline' | 'secondary' | 'ghost' | 'link' | 'destructive';
+
+export interface UploadedFileInfo {
+  name: string;
+  type: string;
+  size: number;
+}
+
 export interface ActionButtonsProps {
   isConnected: boolean;
   isConnecting: boolean;
@@ -24,11 +39,7 @@ export interface ActionButtonsProps {
   handleConnect: () => void;
   handleUpload: () => void;
   handleDownload: () => void;
-  actionButtonText: {
-    connect: string;
-    upload: string;
-    download: string;
-  };
+  actionButtonText: string;
   connectVariant: 'default' | 'outline' | 'secondary';
   uploadVariant: 'default' | 'outline' | 'secondary';
   downloadVariant: 'default' | 'outline' | 'secondary';

@@ -41,7 +41,7 @@ const ServiceTabs: React.FC<ServicesTabProps> = ({
       <div className="grid gap-4 md:grid-cols-3">
         <ServiceCard
           serviceId="drive-1"
-          icon={<Cloud className="h-4 w-4 mr-2 text-blue-500" />}
+          icon={Cloud}
           title="Google Drive"
           description="Scan your Drive files for sensitive data and compliance issues"
           isConnected={isDriveConnected}
@@ -53,7 +53,7 @@ const ServiceTabs: React.FC<ServicesTabProps> = ({
         
         <ServiceCard
           serviceId="gmail-1"
-          icon={<Mail className="h-4 w-4 mr-2 text-red-500" />}
+          icon={Mail}
           title="Gmail"
           description="Analyze email content for potential compliance violations"
           isConnected={isGmailConnected}
@@ -65,7 +65,7 @@ const ServiceTabs: React.FC<ServicesTabProps> = ({
         
         <ServiceCard
           serviceId="docs-1"
-          icon={<FileText className="h-4 w-4 mr-2 text-green-500" />}
+          icon={FileText}
           title="Google Docs"
           description="Check documents for regulatory compliance and PII"
           isConnected={isDocsConnected}

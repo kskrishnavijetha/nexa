@@ -2,7 +2,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2, Upload, Scan, FileText } from 'lucide-react';
-import { ButtonVariant, ActionButtonsProps } from './types';
+import { ActionButtonsProps } from './types';
 
 const ActionButtons: React.FC<ActionButtonsProps> = ({
   isConnected,
@@ -61,7 +61,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({
                 </>
               ) : (
                 <>
-                  {actionButtonText.toLowerCase().includes('scan') ? (
+                  {actionButtonText.includes('scan') ? (
                     <Scan className="h-4 w-4 mr-2" />
                   ) : (
                     <Upload className="h-4 w-4 mr-2" />

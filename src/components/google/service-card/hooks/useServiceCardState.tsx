@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { UploadedFileInfo } from '../types';
 import { toast } from 'sonner';
@@ -87,7 +86,7 @@ export const useServiceCardState = ({
     }
   };
 
-  const handleAuth = (email: string, password: string) => {
+  const handleAuth = () => {
     setShowAuthDialog(false);
     // Simulate authentication
     onConnect();
