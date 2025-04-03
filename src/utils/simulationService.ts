@@ -1,3 +1,4 @@
+
 import { ApiResponse } from './types';
 import { Risk, SimulationScenario, RiskItem, PredictiveAnalysis, RegulationChange, RiskTrend, RiskSeverity } from '@/utils/types';
 import { generateScenarios } from './simulation/scenarioGenerator';
@@ -10,89 +11,91 @@ function generateRisks(scenario: SimulationScenario): Risk[] {
   const risks: Risk[] = [];
   
   // Process regulation changes to identify risks
-  scenario.regulationChanges.forEach(change => {
-    // New regulations typically introduce compliance risks
-    if (change.changeType === 'new') {
-      if (change.impactLevel === 'high') {
+  if (scenario.regulationChanges && Array.isArray(scenario.regulationChanges)) {
+    scenario.regulationChanges.forEach(change => {
+      // New regulations typically introduce compliance risks
+      if (change.changeType === 'new') {
+        if (change.impactLevel === 'high') {
+          risks.push({
+            id: `risk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            title: `${change.regulation} Compliance Gap`,
+            description: `Potential gap in compliance with new ${change.regulation} requirements: ${change.description}`,
+            severity: 'high',
+            regulation: change.regulation,
+            mitigation: `Conduct ${change.regulation} readiness assessment`
+          });
+        } else {
+          risks.push({
+            id: `risk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            title: `${change.regulation} Adaptation Risk`,
+            description: `Adaptation needed for new ${change.regulation} requirements: ${change.description}`,
+            severity: 'medium',
+            regulation: change.regulation,
+            mitigation: `Review and update ${change.regulation} compliance programs`
+          });
+        }
+      }
+      
+      // Updates to existing regulations can create gaps
+      if (change.changeType === 'update') {
+        if (change.regulation === 'GDPR') {
+          risks.push({
+            id: `risk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            title: 'Data Protection Documentation Risk',
+            description: `Need to update data protection documentation for ${change.description}`,
+            severity: change.impactLevel === 'high' ? 'high' : 'medium',
+            regulation: 'GDPR',
+            mitigation: 'Review and update data protection policies and procedures'
+          });
+        }
+        
+        if (change.regulation === 'HIPAA') {
+          risks.push({
+            id: `risk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            title: 'PHI Security Controls Risk',
+            description: `Potential gaps in PHI security controls for ${change.description}`,
+            severity: change.impactLevel === 'high' ? 'high' : 'medium',
+            regulation: 'HIPAA',
+            mitigation: 'Enhance security controls for protected health information'
+          });
+        }
+        
+        if (change.regulation === 'SOC 2') {
+          risks.push({
+            id: `risk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            title: 'Service Organization Controls Risk',
+            description: `Potential gaps in service controls for ${change.description}`,
+            severity: change.impactLevel === 'high' ? 'high' : 'medium',
+            regulation: 'SOC 2',
+            mitigation: 'Update service organization controls and documentation'
+          });
+        }
+        
+        if (change.regulation === 'PCI-DSS') {
+          risks.push({
+            id: `risk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+            title: 'Cardholder Data Environment Risk',
+            description: `Security control gaps for cardholder data: ${change.description}`,
+            severity: change.impactLevel === 'high' ? 'high' : 'medium',
+            regulation: 'PCI-DSS',
+            mitigation: 'Enhance security controls for cardholder data environment'
+          });
+        }
+      }
+      
+      // Repeal of regulations can create compliance confusion
+      if (change.changeType === 'repeal') {
         risks.push({
           id: `risk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-          title: `${change.regulation} Compliance Gap`,
-          description: `Potential gap in compliance with new ${change.regulation} requirements: ${change.description}`,
-          severity: 'high',
-          regulation: change.regulation,
-          mitigation: `Conduct ${change.regulation} readiness assessment`
-        });
-      } else {
-        risks.push({
-          id: `risk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-          title: `${change.regulation} Adaptation Risk`,
-          description: `Adaptation needed for new ${change.regulation} requirements: ${change.description}`,
+          title: `${change.regulation} Transition Risk`,
+          description: `Uncertainty during transition away from ${change.regulation} requirements`,
           severity: 'medium',
           regulation: change.regulation,
-          mitigation: `Review and update ${change.regulation} compliance programs`
+          mitigation: 'Develop transition plan and documentation updates'
         });
       }
-    }
-    
-    // Updates to existing regulations can create gaps
-    if (change.changeType === 'update') {
-      if (change.regulation === 'GDPR') {
-        risks.push({
-          id: `risk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-          title: 'Data Protection Documentation Risk',
-          description: `Need to update data protection documentation for ${change.description}`,
-          severity: change.impactLevel === 'high' ? 'high' : 'medium',
-          regulation: 'GDPR',
-          mitigation: 'Review and update data protection policies and procedures'
-        });
-      }
-      
-      if (change.regulation === 'HIPAA') {
-        risks.push({
-          id: `risk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-          title: 'PHI Security Controls Risk',
-          description: `Potential gaps in PHI security controls for ${change.description}`,
-          severity: change.impactLevel === 'high' ? 'high' : 'medium',
-          regulation: 'HIPAA',
-          mitigation: 'Enhance security controls for protected health information'
-        });
-      }
-      
-      if (change.regulation === 'SOC 2') {
-        risks.push({
-          id: `risk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-          title: 'Service Organization Controls Risk',
-          description: `Potential gaps in service controls for ${change.description}`,
-          severity: change.impactLevel === 'high' ? 'high' : 'medium',
-          regulation: 'SOC 2',
-          mitigation: 'Update service organization controls and documentation'
-        });
-      }
-      
-      if (change.regulation === 'PCI-DSS') {
-        risks.push({
-          id: `risk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-          title: 'Cardholder Data Environment Risk',
-          description: `Security control gaps for cardholder data: ${change.description}`,
-          severity: change.impactLevel === 'high' ? 'high' : 'medium',
-          regulation: 'PCI-DSS',
-          mitigation: 'Enhance security controls for cardholder data environment'
-        });
-      }
-    }
-    
-    // Repeal of regulations can create compliance confusion
-    if (change.changeType === 'repeal') {
-      risks.push({
-        id: `risk-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-        title: `${change.regulation} Transition Risk`,
-        description: `Uncertainty during transition away from ${change.regulation} requirements`,
-        severity: 'medium',
-        regulation: change.regulation,
-        mitigation: 'Develop transition plan and documentation updates'
-      });
-    }
-  });
+    });
+  }
   
   // Add industry-specific risks
   if (scenario.industry === 'Healthcare') {
@@ -156,29 +159,31 @@ function projectScores(scenario: SimulationScenario): Record<string, number> {
   };
   
   // Calculate improvements based on regulation changes
-  scenario.regulationChanges.forEach(change => {
-    const impactMultiplier = change.impactLevel === 'high' ? 8 : change.impactLevel === 'medium' ? 5 : 3;
-    
-    if (change.regulation === 'GDPR') {
-      baseImprovements.gdpr += impactMultiplier;
-      baseImprovements.overall += impactMultiplier * 0.5;
-    }
-    
-    if (change.regulation === 'HIPAA') {
-      baseImprovements.hipaa += impactMultiplier;
-      baseImprovements.overall += impactMultiplier * 0.5;
-    }
-    
-    if (change.regulation === 'SOC 2') {
-      baseImprovements.soc2 += impactMultiplier;
-      baseImprovements.overall += impactMultiplier * 0.5;
-    }
-    
-    if (change.regulation === 'PCI-DSS') {
-      baseImprovements.pciDss += impactMultiplier;
-      baseImprovements.overall += impactMultiplier * 0.4;
-    }
-  });
+  if (scenario.regulationChanges && Array.isArray(scenario.regulationChanges)) {
+    scenario.regulationChanges.forEach(change => {
+      const impactMultiplier = change.impactLevel === 'high' ? 8 : change.impactLevel === 'medium' ? 5 : 3;
+      
+      if (change.regulation === 'GDPR') {
+        baseImprovements.gdpr += impactMultiplier;
+        baseImprovements.overall += impactMultiplier * 0.5;
+      }
+      
+      if (change.regulation === 'HIPAA') {
+        baseImprovements.hipaa += impactMultiplier;
+        baseImprovements.overall += impactMultiplier * 0.5;
+      }
+      
+      if (change.regulation === 'SOC 2') {
+        baseImprovements.soc2 += impactMultiplier;
+        baseImprovements.overall += impactMultiplier * 0.5;
+      }
+      
+      if (change.regulation === 'PCI-DSS') {
+        baseImprovements.pciDss += impactMultiplier;
+        baseImprovements.overall += impactMultiplier * 0.4;
+      }
+    });
+  }
   
   // Return the projected improvements
   return baseImprovements;
@@ -188,84 +193,118 @@ function projectScores(scenario: SimulationScenario): Record<string, number> {
  * Generate a risk trend analysis based on the scenario
  */
 function generateRiskTrends(scenario: SimulationScenario, currentRisks: Risk[]): RiskTrend[] {
-  const riskTrends: RiskTrend[] = [];
+  const trends: RiskTrend[] = [];
   
   // Create trends for existing risks
   currentRisks.slice(0, 3).forEach(risk => {
-    let trend: 'increase' | 'decrease' | 'stable' = 'stable';
-    let projectedSeverity = risk.severity;
+    // Check if scenario affects this risk's regulation
+    const relevantChanges = scenario.regulationChanges && Array.isArray(scenario.regulationChanges) 
+      ? scenario.regulationChanges.filter(change => change.regulation === risk.regulation)
+      : [];
     
-    // Determine trend direction based on regulation changes
-    for (const change of scenario.regulationChanges) {
-      if (change.regulation === risk.regulation) {
-        if (change.changeType === 'new' || change.changeType === 'update') {
-          // New or updated regulations for this risk area
-          if (change.impactLevel === 'high') {
-            trend = 'decrease';
-            // Improve severity by one level if possible
-            projectedSeverity = risk.severity === 'high' ? 'medium' : 
-                               risk.severity === 'medium' ? 'low' : 'low';
-          } else {
-            // Medium/low impact changes have a smaller effect
-            trend = 'stable';
-          }
-        } else if (change.changeType === 'repeal') {
-          trend = 'increase';
-          // Worsen severity by one level
-          projectedSeverity = risk.severity === 'low' ? 'medium' : 
-                             risk.severity === 'medium' ? 'high' : 'high';
-        }
+    if (relevantChanges.length > 0) {
+      // Affected by regulation changes
+      let trend: 'increase' | 'decrease' | 'stable' = 'stable';
+      let impact: 'high' | 'medium' | 'low' = 'medium';
+      let projectedSeverity: RiskSeverity = risk.severity;
+      
+      // Determine trend direction based on change type and impact level
+      const highestImpactChange = relevantChanges.reduce((prev, current) => 
+        (current.impactLevel === 'high' && prev.impactLevel !== 'high') ? current : prev
+      );
+      
+      if (highestImpactChange.changeType === 'new' || 
+         (highestImpactChange.changeType === 'update' && highestImpactChange.impactLevel === 'high')) {
+        // New or major update to regulation typically decreases risk as compliance improves
+        trend = 'decrease';
+        impact = 'high';
+        // Improve severity by one level if possible
+        projectedSeverity = getImprovedSeverity(risk.severity);
+      } else if (highestImpactChange.changeType === 'repeal') {
+        // Repealing regulations may increase risk
+        trend = 'increase';
+        impact = 'medium';
+        // Worsen severity by one level
+        projectedSeverity = getWorsenedSeverity(risk.severity);
       }
+      
+      trends.push({
+        riskId: risk.id,
+        regulation: risk.regulation,
+        description: risk.description,
+        trend,
+        impact,
+        currentSeverity: risk.severity,
+        projectedSeverity
+      });
     }
-    
-    riskTrends.push({
-      riskId: risk.id,
-      regulation: risk.regulation,
-      description: risk.description,
-      trend,
-      impact: trend === 'increase' ? 'high' : trend === 'decrease' ? 'medium' : 'low',
-      currentSeverity: risk.severity,
-      projectedSeverity
-    });
   });
   
   // Add new trends based on the scenario
-  scenario.regulationChanges.forEach(change => {
-    // Skip if we already have enough trends or already have a trend for this regulation
-    if (riskTrends.length >= 5 || riskTrends.some(t => t.regulation === change.regulation)) {
-      return;
-    }
-    
-    let trend: 'increase' | 'decrease' | 'stable';
-    let currentSeverity: RiskSeverity;
-    let projectedSeverity: RiskSeverity;
-    
-    if (change.changeType === 'new') {
-      trend = 'decrease';
-      currentSeverity = change.impactLevel === 'high' ? 'high' : 'medium';
-      projectedSeverity = change.impactLevel === 'high' ? 'medium' : 'low';
-    } else if (change.changeType === 'update') {
-      trend = 'decrease';
-      currentSeverity = 'medium';
-      projectedSeverity = 'low';
-    } else {
-      trend = 'increase';
-      currentSeverity = 'low';
-      projectedSeverity = 'medium';
-    }
-    
-    riskTrends.push({
-      riskId: `trend-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-      regulation: change.regulation,
-      description: `Impact from ${change.description}`,
-      trend,
-      impact: change.impactLevel,
-      currentSeverity,
-      projectedSeverity
+  if (scenario.regulationChanges && Array.isArray(scenario.regulationChanges)) {
+    scenario.regulationChanges.forEach(change => {
+      // Skip if we already have enough trends or already have a trend for this regulation
+      if (trends.length >= 5 || trends.some(t => t.regulation === change.regulation)) {
+        return;
+      }
+      
+      let trend: 'increase' | 'decrease' | 'stable';
+      let impact: 'high' | 'medium' | 'low';
+      let currentSeverity: RiskSeverity;
+      let projectedSeverity: RiskSeverity;
+      
+      if (change.changeType === 'new') {
+        // New regulations typically start with high risk that decreases over time
+        trend = 'decrease';
+        impact = change.impactLevel as 'high' | 'medium' | 'low';
+        currentSeverity = mapImpactToSeverity(change.impactLevel);
+        projectedSeverity = getImprovedSeverity(currentSeverity);
+      } else if (change.changeType === 'update') {
+        // Updates typically reduce risk
+        trend = 'decrease';
+        impact = 'medium';
+        currentSeverity = 'medium';
+        projectedSeverity = 'low';
+      } else {
+        // Repeal might increase risk initially
+        trend = 'increase';
+        impact = 'medium';
+        currentSeverity = 'low';
+        projectedSeverity = 'medium';
+      }
+      
+      trends.push({
+        riskId: `trend-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+        regulation: change.regulation,
+        description: `Impact from ${change.description}`,
+        trend,
+        impact,
+        currentSeverity,
+        projectedSeverity
+      });
     });
-  });
+  }
   
-  return riskTrends;
+  return trends;
+}
+
+// Helper functions
+function getImprovedSeverity(severity: RiskSeverity): RiskSeverity {
+  if (severity === 'high') return 'medium';
+  if (severity === 'medium') return 'low';
+  return 'low';
+}
+
+function getWorsenedSeverity(severity: RiskSeverity): RiskSeverity {
+  if (severity === 'low') return 'medium';
+  if (severity === 'medium') return 'high';
+  return 'high';
+}
+
+function mapImpactToSeverity(impact: string): RiskSeverity {
+  if (impact === 'high') return 'high';
+  if (impact === 'medium') return 'medium';
+  return 'low';
 }
 
 /**
@@ -374,7 +413,7 @@ export const runSimulation = async (
     console.error('Error running simulation:', error);
     return {
       success: false,
-      error: 'Failed to run the simulation. Please try again.'
+      error: error instanceof Error ? error.message : 'Failed to run the simulation. Please try again.'
     };
   }
 };
@@ -386,6 +425,14 @@ export const runSimulationAnalysis = async (
   scenarioId: string
 ): Promise<ApiResponse<PredictiveAnalysis>> => {
   try {
+    if (!report || !report.documentId || !report.industry) {
+      throw new Error("Invalid report data for simulation");
+    }
+    
+    if (!scenarioId) {
+      throw new Error("No scenario selected");
+    }
+    
     // Extract current risks from the report if available
     const currentRisks: Risk[] = report.risks || [];
     
@@ -404,7 +451,7 @@ export const runSimulationAnalysis = async (
     console.error('Error in simulation analysis:', error);
     return {
       success: false,
-      error: 'Failed to run simulation analysis. Please try again.'
+      error: error instanceof Error ? error.message : 'Failed to run simulation analysis. Please try again.'
     };
   }
 };

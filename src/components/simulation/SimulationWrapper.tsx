@@ -32,6 +32,7 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [scenarios, setScenarios] = useState<SimulationScenario[]>([]);
+  const [error, setError] = useState<string | null>(null);
   
   // Generate scenarios based on the report's industry when component mounts
   useEffect(() => {
@@ -41,13 +42,16 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
         const generatedScenarios = generateScenarios(report.industry);
         console.log("Generated scenarios:", generatedScenarios);
         setScenarios(generatedScenarios);
+        setError(null);
       } catch (error) {
         console.error("Error generating scenarios:", error);
         toast.error("Failed to generate simulation scenarios");
+        setError("Failed to generate simulation scenarios");
       }
     } else {
       console.error("Cannot generate scenarios: Missing report or industry", report);
       toast.error("Could not generate simulation scenarios due to missing data");
+      setError("Missing report data needed for simulation");
     }
   }, [report]);
   
@@ -58,6 +62,7 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
     setSelectedScenarioId(scenarioId);
     setAnalysisResult(null);
     setShowConfiguration(true); // Always show configuration when selecting a scenario
+    setError(null); // Clear any previous errors
   };
   
   const runSimulation = async (scenarioId: string) => {
@@ -67,20 +72,23 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
     }
     
     setIsLoading(true);
+    setError(null);
     
     try {
       console.log("Running simulation for scenario:", scenarioId);
       console.log("Report data:", report);
+      
+      // Make sure the report has all required fields for the simulation
+      if (!report.documentId || !report.industry) {
+        throw new Error("Invalid report data for simulation");
+      }
       
       const response = await runSimulationAnalysis(report, scenarioId);
       
       console.log("Simulation response:", response);
       
       if (!response.success) {
-        console.error("Simulation error:", response.error);
-        toast.error(response.error || "Failed to run simulation");
-        setIsLoading(false);
-        return;
+        throw new Error(response.error || "Failed to run simulation");
       }
       
       if (response.data) {
@@ -88,11 +96,13 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
         setAnalysisResult(response.data);
         toast.success('Predictive analysis completed');
       } else {
-        toast.error('No simulation data returned');
+        throw new Error('No simulation data returned');
       }
     } catch (error) {
       console.error('Simulation error:', error);
-      toast.error('Failed to run simulation analysis');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to run simulation analysis';
+      toast.error(errorMessage);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -117,6 +127,7 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
     setAnalysisResult(null);
     setShowConfiguration(false);
     setSelectedScenarioId(undefined);
+    setError(null);
   };
 
   const backToScenarioSelection = () => {
@@ -130,13 +141,22 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
   if (scenarios.length === 0) {
     return (
       <div className="text-center p-6 border rounded-lg">
-        <p className="text-muted-foreground">Loading simulation scenarios...</p>
+        <p className="text-muted-foreground">
+          {error || "Loading simulation scenarios..."}
+        </p>
       </div>
     );
   }
 
   return (
     <>
+      {error && !analysisResult && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+          <strong className="font-bold mr-1">Error:</strong>
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
+    
       {!analysisResult ? (
         <>
           <ScenarioSelector 

@@ -52,21 +52,22 @@ const ScenarioSelector: React.FC<ScenarioSelectorProps> = ({
                 <p className="text-sm text-muted-foreground mt-1">{scenario.description}</p>
                 
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {scenario.regulationChanges && scenario.regulationChanges.map((change, idx) => (
-                    <Badge 
-                      key={idx}
-                      variant="outline" 
-                      className={`text-xs ${
-                        change.impactLevel === 'high' 
-                          ? 'border-red-200 bg-red-50 text-red-700' 
-                          : change.impactLevel === 'medium' 
-                          ? 'border-amber-200 bg-amber-50 text-amber-700' 
-                          : 'border-blue-200 bg-blue-50 text-blue-700'
-                      }`}
-                    >
-                      {change.regulation} - {change.changeType}
-                    </Badge>
-                  ))}
+                  {scenario.regulationChanges && Array.isArray(scenario.regulationChanges) && 
+                    scenario.regulationChanges.map((change, idx) => (
+                      <Badge 
+                        key={idx}
+                        variant="outline" 
+                        className={`text-xs ${
+                          change.impactLevel === 'high' 
+                            ? 'border-red-200 bg-red-50 text-red-700' 
+                            : change.impactLevel === 'medium' 
+                            ? 'border-amber-200 bg-amber-50 text-amber-700' 
+                            : 'border-blue-200 bg-blue-50 text-blue-700'
+                        }`}
+                      >
+                        {change.regulation} - {change.changeType}
+                      </Badge>
+                    ))}
                 </div>
               </div>
               

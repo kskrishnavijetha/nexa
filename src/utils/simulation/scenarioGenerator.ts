@@ -9,6 +9,11 @@ const generateId = (): string => {
 
 // Generate simulation scenarios based on industry
 export function generateScenarios(industry?: Industry): SimulationScenario[] {
+  console.log("Generating scenarios for industry:", industry);
+  
+  // Default industry if none provided
+  const selectedIndustry = industry || 'Finance & Banking';
+  
   // Base scenarios that apply to all industries
   const baseScenarios: SimulationScenario[] = [
     {
@@ -56,7 +61,7 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
   ];
 
   // Industry-specific scenarios
-  if (industry === 'Healthcare' || industry === 'Pharmaceutical & Biotech') {
+  if (selectedIndustry === 'Healthcare' || selectedIndustry === 'Pharmaceutical & Biotech') {
     baseScenarios.push({
       id: generateId(),
       name: 'Patient Data Protection Enhancement',
@@ -77,7 +82,7 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
     });
   }
 
-  if (industry === 'Finance & Banking') {
+  if (selectedIndustry === 'Finance & Banking') {
     baseScenarios.push({
       id: generateId(),
       name: 'Financial Data Security Improvement',
@@ -104,7 +109,7 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
     });
   }
 
-  if (industry === 'Retail & Consumer' || industry === 'E-Commerce') {
+  if (selectedIndustry === 'Retail & Consumer' || selectedIndustry === 'E-Commerce') {
     baseScenarios.push({
       id: generateId(),
       name: 'Customer Data Privacy Enhancement',
@@ -131,7 +136,7 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
     });
   }
 
-  if (industry === 'Government & Defense') {
+  if (selectedIndustry === 'Government & Defense') {
     baseScenarios.push({
       id: generateId(),
       name: 'Critical Infrastructure Protection',
@@ -158,7 +163,7 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
     });
   }
 
-  if (industry === 'Cloud & SaaS') {
+  if (selectedIndustry === 'Cloud & SaaS') {
     baseScenarios.push({
       id: generateId(),
       name: 'Multi-Cloud Compliance Strategy',
@@ -185,61 +190,6 @@ export function generateScenarios(industry?: Industry): SimulationScenario[] {
     });
   }
 
-  if (industry === 'Energy & Utilities') {
-    baseScenarios.push({
-      id: generateId(),
-      name: 'Critical Infrastructure Security',
-      description: 'Strengthen security measures for energy infrastructure and systems.',
-      regulationChanges: [
-        {
-          regulation: 'NERC',
-          changeType: 'update',
-          impactLevel: 'high',
-          description: 'Stricter requirements for electrical grid security'
-        },
-        {
-          regulation: 'GDPR',
-          changeType: 'update',
-          impactLevel: 'medium',
-          description: 'Updated requirements for consumer data protection'
-        }
-      ],
-      actions: [
-        'Implement enhanced OT/IT security measures',
-        'Conduct regular penetration testing',
-        'Establish comprehensive incident response procedures'
-      ]
-    });
-  }
-
-  if (industry === 'Education') {
-    baseScenarios.push({
-      id: generateId(),
-      name: 'Student Data Protection Enhancement',
-      description: 'Strengthen protections for student data in digital learning environments.',
-      regulationChanges: [
-        {
-          regulation: 'FERPA',
-          changeType: 'update',
-          impactLevel: 'high',
-          description: 'Updated requirements for student data in online learning'
-        },
-        {
-          regulation: 'COPPA',
-          changeType: 'update',
-          impactLevel: 'medium',
-          description: 'Stricter requirements for educational apps for minors'
-        }
-      ],
-      actions: [
-        'Implement enhanced parental consent mechanisms',
-        'Review and update third-party educational app permissions',
-        'Create comprehensive data handling procedures for remote learning'
-      ]
-    });
-  }
-
-  // Add more industry-specific scenarios as needed
-
+  console.log("Generated scenarios:", baseScenarios);
   return baseScenarios;
 }
