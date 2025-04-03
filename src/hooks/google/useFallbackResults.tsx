@@ -1,7 +1,5 @@
-
-import { GoogleService } from '@/components/google/types';
+import { GoogleService, ScanViolation } from '@/components/google/types';
 import { Industry, RiskSeverity } from '@/utils/types';
-import { ScanViolation } from '@/components/google/types';
 
 export function useFallbackResults() {
   const generateIndustrySpecificFallbackResults = (

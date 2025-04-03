@@ -1,10 +1,13 @@
 
-import { GoogleService } from "@/utils/google/types";
-import { Industry, Region } from "@/utils/types";
-import { SupportedLanguage } from "@/utils/language";
+import { GoogleServiceConnection } from "@/utils/google/types";
+import { Industry as IndustryType, Region, RiskSeverity } from "@/utils/types";
 
+// Re-export GoogleService type from our utility function
+export type GoogleService = 'gmail' | 'drive' | 'docs';
+
+// Scanner component props
 export interface GoogleServicesScannerProps {
-  industry: Industry | undefined;
+  industry: IndustryType | undefined;
   region: Region | undefined;
   language: SupportedLanguage;
   file: File | null;
@@ -22,23 +25,29 @@ export interface ScannerProps {
   isCompactView?: boolean;
 }
 
-export { GoogleService };
+// Re-export Industry type to avoid conflicts
+export type Industry = 'healthcare' | 'finance' | 'technology' | 'retail' | 'manufacturing' | 'legal' | 'insurance' | 'government' | 'education' | 'energy' | 'automotive' | 'telecom' | 'pharma';
 
-export type Industry = "healthcare" | "finance" | "technology" | "retail" | "manufacturing" | "legal" | "insurance" | "government" | "education" | "energy" | "automotive" | "telecom" | "pharma";
-
+// Scan results types
 export interface ScanResults {
-  complianceScore: number;
-  riskLevel: "low" | "medium" | "high";
-  findings: Finding[];
-  recommendations: string[];
-  timestamp: Date;
+  violations: ScanViolation[];
+  industry?: IndustryType;
+}
+
+export interface ScanViolation {
+  title: string;
+  description: string;
+  severity: RiskSeverity;
+  service: string;
+  location?: string;
+  industry?: IndustryType;
 }
 
 export interface Finding {
   id: string;
   title: string;
   description: string;
-  severity: "low" | "medium" | "high" | "critical";
+  severity: RiskSeverity;
   location?: string;
   regulation?: string;
   remediationSteps?: string[];
@@ -47,11 +56,14 @@ export interface Finding {
 export interface ScanControlsProps {
   connectedServices: GoogleService[];
   isScanning: boolean;
-  industry: Industry | undefined;
+  industry: IndustryType | undefined;
   language: SupportedLanguage;
   region: Region | undefined;
   file: File | null;
-  onScan: (services: GoogleService[], industry: Industry | undefined, language?: SupportedLanguage, region?: Region | undefined) => void;
+  onScan: (services: GoogleService[], industry: IndustryType | undefined, language?: SupportedLanguage, region?: Region | undefined) => void;
   onScanComplete?: (itemsScanned: number, violationsFound: number) => void;
   isCompactView?: boolean;
 }
+
+// Adding SupportedLanguage so we don't need to import it everywhere
+export type SupportedLanguage = 'en' | 'es' | 'fr' | 'de' | 'it' | 'pt' | 'zh';

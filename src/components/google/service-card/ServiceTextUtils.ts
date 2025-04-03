@@ -1,5 +1,11 @@
+import { ServiceCardProps } from './types';
 
-import { ServiceHelperTexts } from './types';
+export interface ServiceHelperTexts {
+  actionButtonText: string;
+  uploadDialogTitle: string;
+  uploadDialogDescription: string;
+  submitButtonText: string;
+}
 
 export const getServiceHelperTexts = (serviceId: string): ServiceHelperTexts => {
   return {

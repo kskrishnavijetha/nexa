@@ -1,11 +1,9 @@
-
 import { useState } from 'react';
-import { GoogleService } from '@/components/google/types';
+import { GoogleService, ScanResults, ScanViolation } from '@/components/google/types';
 import { SupportedLanguage } from '@/utils/language';
 import { Industry, Region } from '@/utils/types';
 import { scanGoogleService } from '@/utils/google/scanService';
 import { toast } from 'sonner';
-import { ScanViolation, ScanResults } from '@/components/google/types';
 import { useScanState } from './google/useScanState';
 import { useRealTimeSimulation } from './google/useRealTimeSimulation';
 import { useFallbackResults } from './google/useFallbackResults';
@@ -102,7 +100,7 @@ export function useServiceScanner() {
       scanState.setLastScanTime(new Date());
       scanState.setItemsScanned(totalItemsScanned);
       scanState.setViolationsFound(violations.length);
-      scanState.setScanResults({ violations, industry }); // Include industry in scan results
+      scanState.setScanResults({ violations, industry }); // Updated format
       
       if (violations.length > 0) {
         toast.success(`Scan completed with ${violations.length} issues detected`);

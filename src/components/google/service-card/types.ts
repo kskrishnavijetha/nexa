@@ -69,3 +69,10 @@ export interface HelperTexts {
   uploadDialogDescription: string;
   submitButtonText: string;
 }
+
+export interface ServiceHelperTexts {
+  actionButtonText: string;
+  uploadDialogTitle: string;
+  uploadDialogDescription: string;
+  submitButtonText: string;
+}

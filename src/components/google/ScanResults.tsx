@@ -1,9 +1,10 @@
+
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { AlertTriangle, Check, FileText, Download, AlertCircle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ScanViolation, ScanResults as ScanResultsType } from './types';
+import { ScanViolation } from './types';
 import { generateReportPDF } from '@/utils/reportService';
 import { toast } from 'sonner';
 import { SupportedLanguage } from '@/utils/language';
@@ -12,7 +13,7 @@ import { ComplianceRisk, Industry, Region, Suggestion } from '@/utils/types';
 interface ScanResultsProps {
   violations: ScanViolation[];
   industry?: Industry;
-  isCompactView?: boolean; // Add isCompactView parameter
+  isCompactView?: boolean;
 }
 
 const ScanResults: React.FC<ScanResultsProps> = ({ violations, industry, isCompactView }) => {
