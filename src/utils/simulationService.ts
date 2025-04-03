@@ -1,8 +1,10 @@
-
 import { ApiResponse } from './types';
 import { Risk, SimulationScenario, RiskItem, PredictiveAnalysis, RegulationChange, RiskTrend, RiskSeverity } from '@/utils/types';
 import { generateScenarios } from './simulation/scenarioGenerator';
 import { generateRecommendations } from './simulation/recommendationGenerator';
+
+// Cache for scenarios to ensure consistency
+let scenariosCache: Record<string, SimulationScenario[]> = {};
 
 /**
  * Generate risks based on simulation scenario
@@ -315,12 +317,20 @@ export const getSimulationScenarios = async (industry?: string): Promise<ApiResp
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Generate scenarios
-    const scenarios = generateScenarios(industry as any);
+    // Check if we have cached scenarios for this industry
+    const cacheKey = industry || 'default';
+    
+    if (!scenariosCache[cacheKey]) {
+      // Generate and cache scenarios
+      console.log(`Generating new scenarios for industry: ${industry || 'default'}`);
+      scenariosCache[cacheKey] = generateScenarios(industry as any);
+    } else {
+      console.log(`Using cached scenarios for industry: ${industry || 'default'}`);
+    }
     
     return {
       success: true,
-      data: scenarios
+      data: scenariosCache[cacheKey]
     };
   } catch (error) {
     console.error('Error fetching simulation scenarios:', error);
@@ -343,26 +353,30 @@ export const runSimulation = async (
     // Simulate API delay
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Get all scenarios
-    const scenariosResponse = await getSimulationScenarios();
-    if (!scenariosResponse.success || !scenariosResponse.data) {
-      throw new Error('Failed to fetch scenarios');
-    }
+    // Find the scenario in our cache across all industries
+    let selectedScenario: SimulationScenario | undefined;
     
-    // Find the selected scenario
-    const scenario = scenariosResponse.data.find(s => s.id === scenarioId);
-    if (!scenario) {
+    // Search through all cached scenarios
+    Object.values(scenariosCache).some(scenarios => {
+      selectedScenario = scenarios.find(s => s.id === scenarioId);
+      return !!selectedScenario;
+    });
+    
+    if (!selectedScenario) {
+      console.error(`Scenario with ID ${scenarioId} not found in cache:`, scenariosCache);
       throw new Error('Selected scenario not found');
     }
     
+    console.log(`Found scenario for simulation:`, selectedScenario);
+    
     // Generate risks based on the scenario
-    const predictedRisks = generateRisks(scenario);
+    const predictedRisks = generateRisks(selectedScenario);
     
     // Generate risk trends
-    const riskTrends = generateRiskTrends(scenario, currentRisks);
+    const riskTrends = generateRiskTrends(selectedScenario, currentRisks);
     
     // Calculate projected scores
-    const scoreImprovements = projectScores(scenario);
+    const scoreImprovements = projectScores(selectedScenario);
     
     // Original scores from input or defaults
     const originalScores = {
@@ -383,15 +397,15 @@ export const runSimulation = async (
     };
     
     // Generate recommendations
-    const recommendations = generateRecommendations(scenario);
+    const recommendations = generateRecommendations(selectedScenario);
     
     // Create the analysis result
     const analysis: PredictiveAnalysis = {
-      scenarioId: scenario.id,
-      scenarioName: scenario.name,
-      scenarioDescription: scenario.description,
-      industry: scenario.industry,
-      regulationChanges: scenario.regulationChanges,
+      scenarioId: selectedScenario.id,
+      scenarioName: selectedScenario.name,
+      scenarioDescription: selectedScenario.description,
+      industry: selectedScenario.industry,
+      regulationChanges: selectedScenario.regulationChanges,
       recommendations,
       riskTrends,
       originalScores,
@@ -431,6 +445,11 @@ export const runSimulationAnalysis = async (
     
     if (!scenarioId) {
       throw new Error("No scenario selected");
+    }
+    
+    // Ensure we have scenarios generated for this industry
+    if (report.industry) {
+      await getSimulationScenarios(report.industry);
     }
     
     // Extract current risks from the report if available
