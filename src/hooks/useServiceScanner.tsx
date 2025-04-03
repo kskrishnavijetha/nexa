@@ -1,45 +1,25 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { GoogleService } from '@/components/google/types';
 import { SupportedLanguage } from '@/utils/language';
-import { Industry, Region, RiskSeverity } from '@/utils/types';
+import { Industry, Region } from '@/utils/types';
 import { scanGoogleService } from '@/utils/google/scanService';
 import { toast } from 'sonner';
 import { ScanViolation, ScanResults } from '@/components/google/types';
+import { useScanState } from './google/useScanState';
+import { useRealTimeSimulation } from './google/useRealTimeSimulation';
+import { useFallbackResults } from './google/useFallbackResults';
 
 export function useServiceScanner() {
-  const [isScanning, setIsScanning] = useState(false);
-  const [scanResults, setScanResults] = useState<ScanResults | null>(null);
-  const [lastScanTime, setLastScanTime] = useState<Date | undefined>(undefined);
-  const [itemsScanned, setItemsScanned] = useState<number>(0);
-  const [violationsFound, setViolationsFound] = useState<number>(0);
-  const [selectedIndustry, setSelectedIndustry] = useState<Industry | undefined>(undefined);
-
-  // Real-time simulation for connected services
-  useEffect(() => {
-    let interval: number | null = null;
-    
-    if (lastScanTime) {
-      // Simulate real-time updates for connected services
-      interval = window.setInterval(() => {
-        // Simulate random changes to items scanned
-        const randomChange = Math.floor(Math.random() * 5);
-        setItemsScanned(prev => prev + randomChange);
-        
-        // Occasionally add a new violation
-        if (Math.random() > 0.8) {
-          setViolationsFound(prev => prev + 1);
-          toast.info(`New potential compliance issue detected`);
-        }
-      }, 15000); // Update every 15 seconds
-    }
-    
-    return () => {
-      if (interval !== null) {
-        window.clearInterval(interval);
-      }
-    };
-  }, [lastScanTime]);
+  const scanState = useScanState();
+  const { generateIndustrySpecificFallbackResults } = useFallbackResults();
+  
+  // Setup real-time simulation
+  useRealTimeSimulation(
+    scanState.lastScanTime, 
+    scanState.setItemsScanned, 
+    scanState.setViolationsFound
+  );
 
   const handleScan = async (
     connectedServices: GoogleService[],
@@ -60,9 +40,9 @@ export function useServiceScanner() {
     console.log('Starting scan with:', { connectedServices, industry, language, region });
     
     // Store the selected industry for later reference
-    setSelectedIndustry(industry);
-    setIsScanning(true);
-    setScanResults(null); // Clear previous results
+    scanState.setSelectedIndustry(industry);
+    scanState.setIsScanning(true);
+    scanState.resetScanResults(); // Clear previous results
     
     try {
       // Scan each connected service, always passing the explicit industry
@@ -119,10 +99,10 @@ export function useServiceScanner() {
       console.log('Processed violations for industry:', industry, violations);
       
       // Set results in state
-      setLastScanTime(new Date());
-      setItemsScanned(totalItemsScanned);
-      setViolationsFound(violations.length);
-      setScanResults({ violations, industry }); // Include industry in scan results
+      scanState.setLastScanTime(new Date());
+      scanState.setItemsScanned(totalItemsScanned);
+      scanState.setViolationsFound(violations.length);
+      scanState.setScanResults({ violations, industry }); // Include industry in scan results
       
       if (violations.length > 0) {
         toast.success(`Scan completed with ${violations.length} issues detected`);
@@ -134,118 +114,26 @@ export function useServiceScanner() {
       toast.error('Failed to complete scan');
       
       // Provide industry-specific fallback scan results for demo purposes
-      generateIndustrySpecificFallbackResults(connectedServices, industry);
+      const fallbackViolations = generateIndustrySpecificFallbackResults(connectedServices, industry);
+      scanState.setScanResults({ violations: fallbackViolations, industry });
+      scanState.setLastScanTime(new Date());
+      scanState.setItemsScanned(25);
+      scanState.setViolationsFound(fallbackViolations.length);
     } finally {
-      setIsScanning(false);
+      scanState.setIsScanning(false);
     }
-  };
-
-  // Generate industry-specific fallback results for demo purposes
-  const generateIndustrySpecificFallbackResults = (connectedServices: GoogleService[], industry?: Industry) => {
-    let fallbackViolations: ScanViolation[] = [];
-    
-    switch(industry) {
-      case 'Finance & Banking':
-        fallbackViolations = [
-          {
-            title: 'PCI Data Retention',
-            description: 'Financial documents exceed retention policy',
-            severity: 'medium' as RiskSeverity,
-            service: connectedServices[0] || 'drive',
-            location: 'Financial Records',
-            industry: 'Finance & Banking'
-          },
-          {
-            title: 'Customer Financial Information',
-            description: 'Unencrypted account numbers detected',
-            severity: 'high' as RiskSeverity,
-            service: connectedServices[0] || 'drive',
-            location: 'Customer Files',
-            industry: 'Finance & Banking'
-          }
-        ];
-        break;
-        
-      case 'Healthcare':
-        fallbackViolations = [
-          {
-            title: 'PHI Exposure Risk',
-            description: 'Patient health information in unsecured document',
-            severity: 'high' as RiskSeverity,
-            service: connectedServices[0] || 'drive',
-            location: 'Patient Records',
-            industry: 'Healthcare'
-          },
-          {
-            title: 'HIPAA Consent Forms',
-            description: 'Missing signed authorization forms',
-            severity: 'medium' as RiskSeverity,
-            service: connectedServices[0] || 'drive',
-            location: 'Consent Forms',
-            industry: 'Healthcare'
-          }
-        ];
-        break;
-        
-      case 'Retail & Consumer':
-        fallbackViolations = [
-          {
-            title: 'Credit Card Information',
-            description: 'PCI-DSS violation: stored card data',
-            severity: 'high' as RiskSeverity,
-            service: connectedServices[0] || 'drive',
-            location: 'Sales Records',
-            industry: 'Retail & Consumer'
-          },
-          {
-            title: 'Customer Personal Data',
-            description: 'Customer data shared without consent',
-            severity: 'medium' as RiskSeverity,
-            service: connectedServices[0] || 'drive',
-            location: 'Marketing Lists',
-            industry: 'Retail & Consumer'
-          }
-        ];
-        break;
-        
-      // Default case for other industries
-      default:
-        fallbackViolations = [
-          {
-            title: 'Data Retention Policy',
-            description: 'Documents exceed maximum retention period',
-            severity: 'medium' as RiskSeverity,
-            service: connectedServices[0] || 'drive',
-            location: 'Shared Documents',
-            industry: industry || 'Global'
-          },
-          {
-            title: 'Sensitive Information',
-            description: 'PII detected in unsecured document',
-            severity: 'high' as RiskSeverity,
-            service: connectedServices[0] || 'drive',
-            location: 'Personal Files',
-            industry: industry || 'Global'
-          }
-        ];
-    }
-    
-    setScanResults({ violations: fallbackViolations, industry });
-    setLastScanTime(new Date());
-    setItemsScanned(25);
-    setViolationsFound(fallbackViolations.length);
   };
 
   return {
-    isScanning,
-    scanResults,
-    lastScanTime,
-    itemsScanned,
-    violationsFound,
-    selectedIndustry,
-    setLastScanTime,
-    setItemsScanned,
-    setViolationsFound,
+    isScanning: scanState.isScanning,
+    scanResults: scanState.scanResults,
+    lastScanTime: scanState.lastScanTime,
+    itemsScanned: scanState.itemsScanned,
+    violationsFound: scanState.violationsFound,
+    selectedIndustry: scanState.selectedIndustry,
+    setLastScanTime: scanState.setLastScanTime,
+    setItemsScanned: scanState.setItemsScanned,
+    setViolationsFound: scanState.setViolationsFound,
     handleScan
   };
 }
