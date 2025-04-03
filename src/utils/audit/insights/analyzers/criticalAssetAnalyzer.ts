@@ -12,7 +12,8 @@ export const analyzeCriticalAssets = (auditEvents: AuditEvent[]): AIInsight[] =>
   if (auditEvents.length > 10) {
     insights.push({
       text: `This document has significant activity with ${auditEvents.length} tracked events, suggesting it may be a critical compliance asset requiring continued monitoring and periodic reviews.`,
-      type: 'observation'
+      type: 'observation',
+      priority: 'medium'
     });
   }
   

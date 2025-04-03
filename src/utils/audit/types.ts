@@ -1,9 +1,9 @@
-
 export interface AIInsight {
   text: string;
   type: 'info' | 'warning' | 'success' | 'observation' | 'recommendation';
   title?: string;
   actionRequired?: boolean;
+  priority?: 'high' | 'medium' | 'low';
 }
 
 export interface AuditReportStatistics {

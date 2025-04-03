@@ -18,9 +18,13 @@ export const analyzeRemediationNeeds = (auditEvents: AuditEvent[]): AIInsight[] 
   if (remediationNeeded) {
     insights.push({
       text: "Compliance issues have been identified in the audit trail. Ensure all identified issues have corresponding remediation actions and verify their completion to maintain regulatory compliance.",
-      type: 'warning'
+      type: 'warning',
+      priority: 'high'
     });
   }
   
   return insights;
 };
+
+// For compatibility with previous code
+export const analyzeRemediation = analyzeRemediationNeeds;

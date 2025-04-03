@@ -125,7 +125,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
           documentName: documentName,
           fileName: file?.name || documentName,
           industry: industry, // Add industry to scan history for better tracking
-          organization: organization, // Add organization name for consistency
+          organization: organization, // Now this property exists in the interface
           regulations: industry ? [...(industry === 'Healthcare' ? ['HIPAA', 'GDPR'] : 
                           industry === 'Finance & Banking' ? ['GLBA', 'PCI-DSS', 'SOX'] :
                           industry === 'Retail & Consumer' ? ['PCI-DSS', 'CCPA', 'GDPR'] :

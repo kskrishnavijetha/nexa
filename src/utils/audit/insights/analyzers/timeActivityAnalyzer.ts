@@ -29,9 +29,13 @@ export const analyzeActivityOverTime = (auditEvents: AuditEvent[]): AIInsight[] 
   if (mostActiveDay) {
     insights.push({
       text: `Highest activity was recorded on ${new Date(mostActiveDay).toLocaleDateString()} with ${mostDayActions} events, which may correlate with compliance deadlines or review cycles.`,
-      type: 'observation'
+      type: 'observation',
+      priority: 'low'
     });
   }
   
   return insights;
 };
+
+// For compatibility with previous code
+export const analyzeTimeActivity = analyzeActivityOverTime;

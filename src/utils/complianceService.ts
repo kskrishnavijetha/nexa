@@ -87,8 +87,9 @@ export const requestComplianceCheck = async (
       summary,
       suggestions,
       timestamp: new Date().toISOString(),
+      scanDate: new Date().toISOString(), // Add scanDate
       complianceStatus: overallScore >= 80 ? 'compliant' : overallScore >= 60 ? 'partially-compliant' : 'non-compliant',
-      organization: organization // Add organization field
+      organization: organization // Now this property exists in the interface
     };
     
     console.log(`[complianceService] Generated report for industry: ${industry}, with regulations:`, regulations);

@@ -30,7 +30,8 @@ export const analyzeUserActivity = (auditEvents: AuditEvent[]): AIInsight[] => {
   if (mostActiveUser) {
     insights.push({
       text: `${mostActiveUser} is the most active user with ${mostActions} actions recorded, suggesting a key role in compliance management for this document.`,
-      type: 'observation'
+      type: 'observation',
+      priority: 'medium'
     });
   }
   

@@ -14,17 +14,20 @@ export const analyzeSystemBalance = (auditEvents: AuditEvent[]): AIInsight[] => 
   if (parseFloat(systemPercentage) > 70) {
     insights.push({
       text: `${systemPercentage}% of activities are automated system actions, indicating heavy reliance on automated compliance tools with limited human oversight. Consider increasing manual review frequency.`,
-      type: 'recommendation'
+      type: 'recommendation',
+      priority: 'medium'
     });
   } else if (parseFloat(systemPercentage) < 30) {
     insights.push({
       text: `Only ${systemPercentage}% of activities are automated, suggesting a manual-heavy compliance process. Consider implementing more automated compliance checks to improve efficiency and consistency.`,
-      type: 'recommendation'
+      type: 'recommendation',
+      priority: 'medium'
     });
   } else {
     insights.push({
       text: `The balance between automated (${systemPercentage}%) and manual activities demonstrates a well-integrated compliance approach combining technological efficiency with human expertise.`,
-      type: 'observation'
+      type: 'observation',
+      priority: 'low'
     });
   }
   

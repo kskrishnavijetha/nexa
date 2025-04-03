@@ -1,14 +1,17 @@
+
 export interface ComplianceReport {
   id?: string; // Add optional id field
   documentId: string;
   documentName: string;
   originalFileName?: string;
   userId?: string | null;
+  organization?: string; // Add organization property
   timestamp: string;
+  scanDate?: string; // Add scanDate property
   overallScore: number;
-  industryScore: number;
-  regionalScore: number;
-  regulationScore: number;
+  industryScore?: number;
+  regionalScore?: number;
+  regulationScore?: number;
   gdprScore: number;
   hipaaScore: number;
   soc2Score: number;

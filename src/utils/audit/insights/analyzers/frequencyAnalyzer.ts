@@ -23,9 +23,13 @@ export const analyzeActivityFrequency = (auditEvents: AuditEvent[]): AIInsight[]
     
     insights.push({
       text: `Average activity frequency is ${eventsPerDay} events per day over the ${daysDifference} day monitoring period, indicating ${parseFloat(eventsPerDay) > 5 ? 'high' : parseFloat(eventsPerDay) > 2 ? 'moderate' : 'low'} engagement with this document.`,
-      type: 'observation'
+      type: 'observation',
+      priority: 'medium'
     });
   }
   
   return insights;
 };
+
+// For compatibility with previous code
+export const analyzeFrequency = analyzeActivityFrequency;

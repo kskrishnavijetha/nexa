@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { ComplianceReport } from '@/utils/types';
@@ -14,6 +13,8 @@ interface ScanHistoryItem {
   fileName?: string;
   report?: ComplianceReport;
   industry?: string;
+  organization?: string;
+  regulations?: string[];
 }
 
 interface ServiceHistoryState {
@@ -24,7 +25,6 @@ interface ServiceHistoryState {
   setUserId: (id: string | null) => void;
 }
 
-// Create the store with persistence
 export const useServiceHistoryStore = create<ServiceHistoryState>()(
   persist(
     (set, get) => ({
@@ -34,16 +34,12 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
       setUserId: (id: string | null) => {
         const currentUserId = get().userId;
         
-        // Only update if user ID actually changed
         if (currentUserId !== id) {
           console.log(`User ID changed from ${currentUserId} to ${id}`);
           
-          // If we're setting a new user ID, we need to load their history
           if (id) {
-            // First reset the history
             set({ scanHistory: [], userId: id });
             
-            // Try to load user-specific history
             const userHistoryKey = `nexabloom_serviceHistory_${id}`;
             const savedHistory = localStorage.getItem(userHistoryKey);
             
@@ -59,14 +55,11 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
               }
             }
             
-            // Also load from our in-memory store
             const userReports = getUserHistoricalReports(id);
             if (userReports && userReports.length > 0) {
               console.log(`Found ${userReports.length} reports in memory for user ${id}`);
-              // We don't need to set these to scanHistory since they're separate
             }
           } else {
-            // If no user ID (logged out), clear history
             set({ scanHistory: [], userId: null });
           }
         }
@@ -75,12 +68,10 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
       addScanHistory: (item: ScanHistoryItem) => {
         const userId = get().userId;
         
-        // Only add history if we have a user ID
         if (userId) {
           console.log(`Adding scan history for user ${userId}`, item);
           
           set((state) => {
-            // Check for duplicates by serviceId and scanDate
             const isDuplicate = state.scanHistory.some(
               existingItem => 
                 existingItem.serviceId === item.serviceId && 
@@ -93,14 +84,13 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
               return state;
             }
             
-            // Create a report for this scan
             if (item.documentName) {
               const report: ComplianceReport = {
                 documentId: `${userId}-${item.documentName}-${Date.now()}`,
                 documentName: item.documentName,
                 scanDate: item.scanDate,
                 industry: item.industry as any || 'Global',
-                overallScore: Math.floor(Math.random() * 30) + 70, // 70-99
+                overallScore: Math.floor(Math.random() * 30) + 70,
                 gdprScore: Math.floor(Math.random() * 30) + 70,
                 hipaaScore: Math.floor(Math.random() * 30) + 70,
                 soc2Score: Math.floor(Math.random() * 30) + 70,
@@ -109,15 +99,12 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
                 userId: userId
               };
               
-              // Add to global history storage
               addReportToHistory(report);
               console.log(`Added report to global history: ${report.documentName}`);
             }
             
-            // Add new item to front of history
             const newHistory = [item, ...state.scanHistory];
             
-            // Also save directly to localStorage for this specific user
             const userHistoryKey = `nexabloom_serviceHistory_${userId}`;
             try {
               localStorage.setItem(
@@ -139,7 +126,6 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
         const userId = get().userId;
         console.log('Clearing scan history');
         
-        // Clear from localStorage if we have a user ID
         if (userId) {
           const userHistoryKey = `nexabloom_serviceHistory_${userId}`;
           localStorage.removeItem(userHistoryKey);

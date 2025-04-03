@@ -16,13 +16,15 @@ export const analyzeTaskCompletion = (auditEvents: AuditEvent[]): AIInsight[] =>
     const completionRate = (completedTasks / totalTasks * 100).toFixed(1);
     insights.push({
       text: `Task completion rate is ${completionRate}% (${completedTasks} out of ${totalTasks} tasks completed), indicating ${parseFloat(completionRate) > 75 ? 'excellent' : parseFloat(completionRate) > 50 ? 'moderate' : 'concerning'} process efficiency.`,
-      type: 'observation'
+      type: 'observation',
+      priority: parseFloat(completionRate) > 75 ? 'low' : parseFloat(completionRate) > 50 ? 'medium' : 'high'
     });
     
     if (parseFloat(completionRate) < 50) {
       insights.push({
         text: `The low task completion rate (${completionRate}%) suggests potential workflow bottlenecks or resource constraints. Consider reviewing incomplete tasks and allocating additional resources if needed.`,
-        type: 'recommendation'
+        type: 'recommendation',
+        priority: 'high'
       });
     }
   }
