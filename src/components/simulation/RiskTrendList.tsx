@@ -1,54 +1,53 @@
-
 import React from 'react';
-import { PredictiveAnalysis } from '@/utils/types';
+import { RiskTrend } from '@/utils/types';
 import { ArrowDown, ArrowUp, Minus, AlertTriangle, Brain } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface RiskTrendListProps {
-  analysis: PredictiveAnalysis;
+  riskTrends: RiskTrend[];
 }
 
-const RiskTrendList: React.FC<RiskTrendListProps> = ({ analysis }) => {
-  // Helper function to format regulation names
-  const formatRegulationName = (regulation: string): string => {
-    const displayNames: Record<string, string> = {
-      'GDPR': 'GDPR',
-      'HIPAA': 'HIPAA',
-      'SOC 2': 'SOC 2',
-      'PCI-DSS': 'PCI DSS',
-      'SOX': 'SOX',
-      'GLBA': 'GLBA',
-      'HITECH': 'HITECH',
-      'FedRAMP': 'FedRAMP',
-      'CCPA': 'CCPA',
-      'FERPA': 'FERPA',
-      'COPPA': 'COPPA',
-      'FISMA': 'FISMA',
-      'NERC': 'NERC CIP',
-      'ITAR': 'ITAR',
-      'CMMC': 'CMMC',
-      'ISO/IEC 27001': 'ISO 27001',
-      'ISO 9001': 'ISO 9001',
-      'ISO 13485': 'ISO 13485',
-      'FDA CFR Part 11': 'FDA CFR Part 11',
-      'NYDFS': 'NYDFS',
-      'FCC': 'FCC Regulations',
-      'CPRA': 'CPRA',
-      'FERC': 'FERC',
-      'ISO 14001': 'ISO 14001',
-      'FTC Act': 'FTC Act',
-      'FDA': 'FDA Regulations',
-      'EMA': 'EMA Regulations',
-      'C-TPAT': 'C-TPAT',
-      'RoHS': 'RoHS',
-      'ISO 26262': 'ISO 26262',
-      'TS 16949': 'TS 16949'
-    };
-    
-    return displayNames[regulation] || regulation;
+// Helper function to format regulation names
+const formatRegulationName = (regulation: string): string => {
+  const displayNames: Record<string, string> = {
+    'GDPR': 'GDPR',
+    'HIPAA': 'HIPAA',
+    'SOC 2': 'SOC 2',
+    'PCI-DSS': 'PCI DSS',
+    'SOX': 'SOX',
+    'GLBA': 'GLBA',
+    'HITECH': 'HITECH',
+    'FedRAMP': 'FedRAMP',
+    'CCPA': 'CCPA',
+    'FERPA': 'FERPA',
+    'COPPA': 'COPPA',
+    'FISMA': 'FISMA',
+    'NERC': 'NERC CIP',
+    'ITAR': 'ITAR',
+    'CMMC': 'CMMC',
+    'ISO/IEC 27001': 'ISO 27001',
+    'ISO 9001': 'ISO 9001',
+    'ISO 13485': 'ISO 13485',
+    'FDA CFR Part 11': 'FDA CFR Part 11',
+    'NYDFS': 'NYDFS',
+    'FCC': 'FCC Regulations',
+    'CPRA': 'CPRA',
+    'FERC': 'FERC',
+    'ISO 14001': 'ISO 14001',
+    'FTC Act': 'FTC Act',
+    'FDA': 'FDA Regulations',
+    'EMA': 'EMA Regulations',
+    'C-TPAT': 'C-TPAT',
+    'RoHS': 'RoHS',
+    'ISO 26262': 'ISO 26262',
+    'TS 16949': 'TS 16949'
   };
+  
+  return displayNames[regulation] || regulation;
+};
 
-  if (!analysis.riskTrends || analysis.riskTrends.length === 0) {
+const RiskTrendList: React.FC<RiskTrendListProps> = ({ riskTrends }) => {
+  if (!riskTrends || riskTrends.length === 0) {
     return (
       <div className="text-center p-4">
         <p className="text-muted-foreground">No risk trends available for this scenario</p>
@@ -63,7 +62,7 @@ const RiskTrendList: React.FC<RiskTrendListProps> = ({ analysis }) => {
         <span>AI-powered risk trend analysis</span>
       </div>
       
-      {analysis.riskTrends.map((trend, index) => (
+      {riskTrends.map((trend, index) => (
         <div 
           key={index} 
           className="p-3 border rounded-md bg-background/50"

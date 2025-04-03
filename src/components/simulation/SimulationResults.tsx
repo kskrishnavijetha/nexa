@@ -9,9 +9,10 @@ import RecommendationsList from './RecommendationsList';
 interface SimulationResultsProps {
   analysisData: PredictiveAnalysis;
   loading?: boolean;
+  onReset?: () => void;
 }
 
-const SimulationResults: React.FC<SimulationResultsProps> = ({ analysisData, loading = false }) => {
+const SimulationResults: React.FC<SimulationResultsProps> = ({ analysisData, loading = false, onReset }) => {
   if (loading) {
     return (
       <div className="space-y-6">

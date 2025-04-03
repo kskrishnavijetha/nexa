@@ -1,4 +1,3 @@
-
 export interface AIInsight {
   text: string;
   type: 'info' | 'warning' | 'success' | 'observation' | 'recommendation';
@@ -101,7 +100,7 @@ export type Industry =
 
 export type Region = 'US' | 'EU' | 'APAC' | 'UK' | 'Global' | 'North America' | 'European Union' | 'Asia Pacific' | 'United Kingdom' | 'Latin America' | 'Middle East' | 'Africa';
 
-export type RiskSeverity = 'high' | 'medium' | 'low' | 'critical';
+export type RiskSeverity = 'high' | 'medium' | 'low';
 
 export interface ApiResponse<T> {
   success: boolean;

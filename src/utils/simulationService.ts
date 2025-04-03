@@ -1,6 +1,5 @@
-
 import { ApiResponse } from './types';
-import { Risk, SimulationScenario, RiskItem, PredictiveAnalysis, RegulationChange, RiskTrend } from '@/utils/types';
+import { Risk, SimulationScenario, RiskItem, PredictiveAnalysis, RegulationChange, RiskTrend, RiskSeverity } from '@/utils/types';
 import { generateScenarios } from './simulation/scenarioGenerator';
 import { generateRecommendations } from './simulation/recommendationGenerator';
 
@@ -376,6 +375,36 @@ export const runSimulation = async (
     return {
       success: false,
       error: 'Failed to run the simulation. Please try again.'
+    };
+  }
+};
+
+export { generateScenarios };
+
+export const runSimulationAnalysis = async (
+  report: any,
+  scenarioId: string
+): Promise<ApiResponse<PredictiveAnalysis>> => {
+  try {
+    // Extract current risks from the report if available
+    const currentRisks: Risk[] = report.risks || [];
+    
+    // Extract current scores from the report
+    const currentScores = {
+      overall: report.overallScore || 75,
+      gdpr: report.gdprScore || 70,
+      hipaa: report.hipaaScore || 68,
+      soc2: report.soc2Score || 72,
+      pciDss: report.pciDssScore || 65
+    };
+    
+    // Run the simulation using existing function
+    return await runSimulation(scenarioId, currentRisks, currentScores);
+  } catch (error) {
+    console.error('Error in simulation analysis:', error);
+    return {
+      success: false,
+      error: 'Failed to run simulation analysis. Please try again.'
     };
   }
 };

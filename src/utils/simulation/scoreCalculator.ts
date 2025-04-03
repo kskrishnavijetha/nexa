@@ -27,9 +27,9 @@ export function calculateAdjustedScores(
       change.impactLevel === 'high' ? -15 : 
       change.impactLevel === 'medium' ? -10 : -5;
     
-    // Apply stricter impact for 'stricter' or 'new' change types
+    // Apply stricter impact for specific change types
     const severityMultiplier = 
-      change.changeType === 'stricter' ? 1.2 : 
+      change.changeType === 'update' && change.description?.includes('stricter') ? 1.2 : 
       change.changeType === 'new' ? 1.5 : 1;
     
     const scoreImpact = impactFactor * severityMultiplier;

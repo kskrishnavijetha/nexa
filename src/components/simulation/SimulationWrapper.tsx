@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ComplianceReport, PredictiveAnalysis, SimulationScenario } from '@/utils/types';
 import { generateScenarios, runSimulationAnalysis } from '@/utils/simulationService';
@@ -129,7 +130,7 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
             </Button>
           </div>
           <SimulationResults 
-            analysis={analysisResult}
+            analysisData={analysisResult}
             onReset={resetSimulation}
           />
         </>

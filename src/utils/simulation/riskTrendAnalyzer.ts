@@ -1,143 +1,118 @@
 
-import { Industry } from '../types';
-import { Risk, RiskTrend, SimulationScenario, RegulationChange } from '@/utils/types';
+import { Risk, RiskTrend, SimulationScenario, RiskSeverity } from '@/utils/types';
 
 /**
- * Generate risk trends based on scenario and existing risks
+ * Analyzes risk trends based on a simulation scenario
  */
-export function analyzeRiskTrends(
-  scenario: SimulationScenario, 
-  existingRisks: Risk[] = []
-): RiskTrend[] {
+export function analyzeRiskTrends(risks: Risk[], scenario: SimulationScenario): RiskTrend[] {
   const trends: RiskTrend[] = [];
   
-  // First, analyze existing risks to see how they might be affected
-  existingRisks.slice(0, 3).forEach(risk => {
-    // Find relevant regulation changes
-    const relevantChanges = scenario.regulationChanges.filter(
-      change => change.regulation === risk.regulation
+  // First, let's analyze existing risks and how they might change
+  risks.forEach(risk => {
+    // Check if scenario affects this risk's regulation
+    const relevantChanges = scenario.regulationChanges.filter(change => 
+      change.regulation === risk.regulation
     );
     
     if (relevantChanges.length > 0) {
-      // Determine how risk severity will change
+      // Affected by regulation changes
       let trend: 'increase' | 'decrease' | 'stable' = 'stable';
-      let projectedSeverity = risk.severity;
+      let impact: 'high' | 'medium' | 'low' = 'medium';
+      let projectedSeverity: RiskSeverity = risk.severity;
       
-      for (const change of relevantChanges) {
-        if (change.changeType === 'new' || change.changeType === 'update') {
-          if (change.impactLevel === 'high') {
-            trend = 'decrease';
-            // Improve severity by one level if possible
-            projectedSeverity = risk.severity === 'high' ? 'medium' : 
-                               risk.severity === 'medium' ? 'low' : 'low';
-            break;
-          }
-        } else {
-          trend = 'increase';
-          // Worsen severity by one level
-          projectedSeverity = risk.severity === 'low' ? 'medium' : 
-                             risk.severity === 'medium' ? 'high' : 'high';
-          break;
-        }
+      // Determine trend direction based on change type and impact level
+      const highestImpactChange = relevantChanges.reduce((prev, current) => 
+        (current.impactLevel === 'high' && prev.impactLevel !== 'high') ? current : prev
+      );
+      
+      if (highestImpactChange.changeType === 'new' || 
+         (highestImpactChange.changeType === 'update' && highestImpactChange.impactLevel === 'high')) {
+        // New or major update to regulation typically decreases risk as compliance improves
+        trend = 'decrease';
+        impact = 'high';
+        // Improve severity by one level if possible
+        projectedSeverity = getImprovedSeverity(risk.severity);
+      } else if (highestImpactChange.changeType === 'repeal') {
+        // Repealing regulations may increase risk
+        trend = 'increase';
+        impact = 'medium';
+        // Worsen severity by one level
+        projectedSeverity = getWorsenedSeverity(risk.severity);
       }
       
       trends.push({
+        riskId: risk.id,
         regulation: risk.regulation,
         description: risk.description,
         trend,
-        impact: relevantChanges[0].impactLevel,
+        impact,
         currentSeverity: risk.severity,
-        projectedSeverity,
-        previousScore: Math.round(Math.random() * 30) + 60, // Random score between 60-90
-        predictedScore: trend === 'decrease' 
-          ? Math.min(100, Math.round(Math.random() * 15) + 85) // Higher score (better) for decreasing risks
-          : Math.max(40, Math.round(Math.random() * 20) + 40), // Lower score (worse) for increasing risks
+        projectedSeverity
       });
     }
   });
   
-  // Then add trends for regulation changes that don't match existing risks
+  // Now add trends for new potential risks based on the scenario
   scenario.regulationChanges.forEach(change => {
     // Skip if we already have a trend for this regulation
     if (trends.some(t => t.regulation === change.regulation)) {
       return;
     }
     
-    // Skip if we already have enough trends
-    if (trends.length >= 5) {
-      return;
+    let trend: 'increase' | 'decrease' | 'stable';
+    let impact: 'high' | 'medium' | 'low';
+    let currentSeverity: RiskSeverity;
+    let projectedSeverity: RiskSeverity;
+    
+    if (change.changeType === 'new') {
+      // New regulations typically start with high risk that decreases over time
+      trend = 'decrease';
+      impact = change.impactLevel as 'high' | 'medium' | 'low';
+      currentSeverity = mapImpactToSeverity(change.impactLevel);
+      projectedSeverity = getImprovedSeverity(currentSeverity);
+    } else if (change.changeType === 'update') {
+      // Updates typically reduce risk
+      trend = 'decrease';
+      impact = 'medium';
+      currentSeverity = 'medium';
+      projectedSeverity = 'low';
+    } else {
+      // Repeal might increase risk initially
+      trend = 'increase';
+      impact = 'medium';
+      currentSeverity = 'low';
+      projectedSeverity = 'medium';
     }
     
-    // Generate a new trend for this regulation change
-    const newTrend = generateTrendFromChange(change, scenario.industry);
-    if (newTrend) {
-      trends.push(newTrend);
-    }
+    trends.push({
+      riskId: `trend-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+      regulation: change.regulation,
+      description: `Impact from ${change.description}`,
+      trend,
+      impact,
+      currentSeverity,
+      projectedSeverity
+    });
   });
   
   return trends;
 }
 
-/**
- * Generate a risk trend from a regulation change
- */
-function generateTrendFromChange(
-  change: RegulationChange,
-  industry?: string
-): RiskTrend | null {
-  let description = '';
-  let currentSeverity: 'high' | 'medium' | 'low' = 'medium';
-  let trend: 'increase' | 'decrease' | 'stable' = 'stable';
-  
-  // Determine description based on regulation
-  if (change.regulation === 'GDPR') {
-    description = 'Data protection compliance requirements';
-    currentSeverity = 'medium';
-  } else if (change.regulation === 'HIPAA') {
-    description = 'Healthcare data security requirements';
-    currentSeverity = 'high';
-  } else if (change.regulation === 'SOC 2') {
-    description = 'Service organization controls requirements';
-    currentSeverity = 'medium';
-  } else if (change.regulation === 'PCI-DSS') {
-    description = 'Payment card data security requirements';
-    currentSeverity = 'high';
-  } else {
-    description = `${change.regulation} compliance requirements`;
-    currentSeverity = change.impactLevel === 'high' ? 'high' : 'medium';
-  }
-  
-  // Add industry context if available
-  if (industry) {
-    description = `${description} for ${industry}`;
-  }
-  
-  // Determine trend based on change type
-  if (change.changeType === 'new') {
-    trend = 'decrease'; // New regulations typically improve compliance when addressed
-  } else if (change.changeType === 'update') {
-    trend = change.impactLevel === 'high' ? 'decrease' : 'stable';
-  } else {
-    trend = 'increase'; // Repealed regulations might increase risk in some cases
-  }
-  
-  // Determine projected severity
-  const projectedSeverity = trend === 'decrease' 
-    ? (currentSeverity === 'high' ? 'medium' : 'low')
-    : trend === 'increase'
-    ? (currentSeverity === 'low' ? 'medium' : 'high')
-    : currentSeverity;
-  
-  return {
-    regulation: change.regulation,
-    description: `${description}: ${change.description}`,
-    trend,
-    impact: change.impactLevel,
-    currentSeverity,
-    projectedSeverity,
-    previousScore: Math.round(Math.random() * 30) + 60, // Random score between 60-90
-    predictedScore: trend === 'decrease' 
-      ? Math.min(100, Math.round(Math.random() * 15) + 85) // Higher score (better) for decreasing risks
-      : Math.max(40, Math.round(Math.random() * 20) + 40), // Lower score (worse) for increasing risks
-  };
+// Helper functions
+function getImprovedSeverity(severity: RiskSeverity): RiskSeverity {
+  if (severity === 'high') return 'medium';
+  if (severity === 'medium') return 'low';
+  return 'low';
+}
+
+function getWorsenedSeverity(severity: RiskSeverity): RiskSeverity {
+  if (severity === 'low') return 'medium';
+  if (severity === 'medium') return 'high';
+  return 'high';
+}
+
+function mapImpactToSeverity(impact: string): RiskSeverity {
+  if (impact === 'high') return 'high';
+  if (impact === 'medium') return 'medium';
+  return 'low';
 }
