@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { User as UserIcon, LogOut, CreditCard } from 'lucide-react';
@@ -25,8 +26,8 @@ const Header: React.FC = () => {
       
       await signOut();
       
-      console.log('Header: Sign out completed, navigating to home');
-      navigate('/', { replace: true });
+      console.log('Header: Sign out completed');
+      // Navigation is now handled by the auth state change listener
     } catch (error) {
       console.error('Header: Error during sign out:', error);
       toast.error('Failed to sign out. Please try again.');

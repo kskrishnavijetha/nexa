@@ -152,27 +152,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     console.log('Signing out...');
     
     try {
-      setLoading(true);
-      
       // First clear user data manually to ensure clean state
       clearUserData();
       
-      // Then perform the actual signOut operation
+      // Handle sign out - the important fix is here
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error('Error signing out:', error);
         toast.error('Failed to sign out. Please try again.');
-        setLoading(false);
         throw error;
       }
       
-      // Explicitly set state to null (the listener will also do this but good to be explicit)
+      // The onAuthStateChange listener will handle state updates
+      // But we'll set these explicitly to ensure immediate UI updates
       setSession(null);
       setUser(null);
-      setLoading(false);
       
       console.log('Signout completed successfully');
+      
+      // Navigate after successful sign out
+      // This is now handled by the onAuthStateChange listener
     } catch (error) {
       console.error('Exception during sign out:', error);
       toast.error('Failed to sign out. Please try again.');
