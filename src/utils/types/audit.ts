@@ -31,4 +31,4 @@ export interface ComplianceRecommendation {
   priority: 'Critical' | 'High' | 'Medium' | 'Low';
 }
 
-export { AIInsight };
+export type { AIInsight };
