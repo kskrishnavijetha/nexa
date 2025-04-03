@@ -1,67 +1,31 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Industry, Region } from '@/utils/types';
-import { SupportedLanguage } from '@/utils/language';
 import { CloudLightning, History, Settings } from 'lucide-react';
 import AuditTrail from './audit/AuditTrail';
 import GoogleServicesScanner from './google/GoogleServicesScanner';
 import GoogleScannerConfig from './google/GoogleScannerConfig';
 import GoogleScannerSettings from './google/GoogleScannerSettings';
 import ServiceHistory from './google/ServiceHistory';
-import { toast } from 'sonner';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
 import { GoogleService } from './google/types';
+import { useGoogleScannerConfig } from '@/hooks/google/useGoogleScannerConfig';
+import { useTabManagement } from '@/hooks/google/useTabManagement';
 
 const GoogleServicesPage: React.FC = () => {
-  const [industry, setIndustry] = useState<Industry | undefined>(undefined);
-  const [region, setRegion] = useState<Region | undefined>(undefined);
-  const [language, setLanguage] = useState<SupportedLanguage>('en');
-  const [activeTab, setActiveTab] = useState('scanner');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const { 
+    industry, 
+    region, 
+    language, 
+    selectedFile,
+    handleIndustryChange, 
+    handleRegionChange, 
+    handleLanguageChange, 
+    handleFileSelect 
+  } = useGoogleScannerConfig();
+  
+  const { activeTab, handleTabChange } = useTabManagement();
   const [persistedConnectedServices, setPersistedConnectedServices] = useState<GoogleService[]>([]);
-
-  // Listen for Google authorization response
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const authCode = params.get('code');
-    const error = params.get('error');
-    
-    if (authCode) {
-      // Successfully authorized
-      toast.success('Google authorization successful!');
-      // Clear URL parameters without refreshing
-      window.history.replaceState({}, document.title, window.location.pathname);
-    } else if (error) {
-      // Authorization failed
-      toast.error('Google authorization failed. Please try again.');
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-  }, []);
-
-  const handleIndustryChange = (newIndustry: Industry) => {
-    console.log(`[GoogleServicesPage] Industry changed to: ${newIndustry}`);
-    setIndustry(newIndustry);
-  };
-
-  const handleRegionChange = (newRegion: Region) => {
-    console.log(`[GoogleServicesPage] Region changed to: ${newRegion}`);
-    setRegion(newRegion);
-  };
-
-  const handleLanguageChange = (newLanguage: SupportedLanguage) => {
-    console.log(`[GoogleServicesPage] Language changed to: ${newLanguage}`);
-    setLanguage(newLanguage);
-  };
-
-  const handleFileSelect = (file: File) => {
-    setSelectedFile(file);
-    toast.success(`File selected: ${file.name}`);
-  };
-
-  const handleTabChange = (value: string) => {
-    setActiveTab(value);
-  };
 
   const handleServicesUpdate = (services: GoogleService[]) => {
     setPersistedConnectedServices(services);
