@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { ComplianceReport, SimulationScenario, PredictiveAnalysis } from '@/utils/types';
-import { generateScenarios, runSimulationAnalysis } from '@/utils/simulationService';
+import { getSimulationScenarios, runSimulationAnalysis } from '@/utils/simulationService';
 import { toast } from 'sonner';
 
 export function useSimulationState(report: ComplianceReport) {
@@ -19,16 +19,27 @@ export function useSimulationState(report: ComplianceReport) {
   useEffect(() => {
     if (report && report.industry) {
       console.log("Generating scenarios for industry:", report.industry);
-      try {
-        const generatedScenarios = generateScenarios(report.industry);
-        console.log("Generated scenarios:", generatedScenarios);
-        setScenarios(generatedScenarios);
-        setError(null);
-      } catch (error) {
-        console.error("Error generating scenarios:", error);
-        toast.error("Failed to generate simulation scenarios");
-        setError("Failed to generate simulation scenarios");
-      }
+      setIsLoading(true);
+      
+      // Use the service to get and cache scenarios
+      getSimulationScenarios(report.industry)
+        .then(response => {
+          if (response.success && response.data) {
+            console.log("Generated scenarios:", response.data);
+            setScenarios(response.data);
+            setError(null);
+          } else {
+            throw new Error(response.error || "Failed to generate scenarios");
+          }
+        })
+        .catch(error => {
+          console.error("Error generating scenarios:", error);
+          toast.error("Failed to generate simulation scenarios");
+          setError("Failed to generate simulation scenarios");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     } else {
       console.error("Cannot generate scenarios: Missing report or industry", report);
       toast.error("Could not generate simulation scenarios due to missing data");
@@ -42,8 +53,8 @@ export function useSimulationState(report: ComplianceReport) {
     
     setSelectedScenarioId(scenarioId);
     setAnalysisResult(null);
-    setShowConfiguration(true); // Always show configuration when selecting a scenario
-    setError(null); // Clear any previous errors
+    setShowConfiguration(true);
+    setError(null);
   };
   
   const runSimulation = async (scenarioId: string) => {

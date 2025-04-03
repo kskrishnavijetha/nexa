@@ -1,3 +1,4 @@
+
 import { ApiResponse } from './types';
 import { Risk, SimulationScenario, RiskItem, PredictiveAnalysis, RegulationChange, RiskTrend, RiskSeverity } from '@/utils/types';
 import { generateScenarios } from './simulation/scenarioGenerator';
@@ -323,7 +324,10 @@ export const getSimulationScenarios = async (industry?: string): Promise<ApiResp
     if (!scenariosCache[cacheKey]) {
       // Generate and cache scenarios
       console.log(`Generating new scenarios for industry: ${industry || 'default'}`);
-      scenariosCache[cacheKey] = generateScenarios(industry as any);
+      const scenarios = generateScenarios(industry as any);
+      // Important: We need to clone the scenarios to avoid reference issues
+      scenariosCache[cacheKey] = JSON.parse(JSON.stringify(scenarios));
+      console.log(`Cached scenarios for ${cacheKey}:`, scenariosCache[cacheKey]);
     } else {
       console.log(`Using cached scenarios for industry: ${industry || 'default'}`);
     }
@@ -357,13 +361,22 @@ export const runSimulation = async (
     let selectedScenario: SimulationScenario | undefined;
     
     // Search through all cached scenarios
+    console.log("Looking for scenario with ID:", scenarioId);
+    console.log("Available scenario caches:", Object.keys(scenariosCache));
+    
+    // Dump all cached scenarios for debugging
+    Object.entries(scenariosCache).forEach(([key, scenarios]) => {
+      console.log(`Scenarios in cache for ${key}:`, scenarios.map(s => ({ id: s.id, name: s.name })));
+    });
+    
+    // Check each industry's scenarios
     Object.values(scenariosCache).some(scenarios => {
       selectedScenario = scenarios.find(s => s.id === scenarioId);
       return !!selectedScenario;
     });
     
     if (!selectedScenario) {
-      console.error(`Scenario with ID ${scenarioId} not found in cache:`, scenariosCache);
+      console.error(`Scenario with ID ${scenarioId} not found in any cache!`);
       throw new Error('Selected scenario not found');
     }
     
@@ -447,9 +460,15 @@ export const runSimulationAnalysis = async (
       throw new Error("No scenario selected");
     }
     
-    // Ensure we have scenarios generated for this industry
+    // Generate and cache scenarios specifically for this report's industry BEFORE running the simulation
+    // This ensures the scenarios are in the cache when we search for them
     if (report.industry) {
-      await getSimulationScenarios(report.industry);
+      console.log(`Pre-generating scenarios for ${report.industry} before simulation`);
+      const scenariosResponse = await getSimulationScenarios(report.industry);
+      if (!scenariosResponse.success) {
+        throw new Error("Failed to generate scenarios for this industry");
+      }
+      console.log(`Successfully cached scenarios for ${report.industry}`);
     }
     
     // Extract current risks from the report if available
