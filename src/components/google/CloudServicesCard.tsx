@@ -1,10 +1,12 @@
 
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { TabsContent, Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ServiceTabs from './ServiceTabs';
-import ScanButton from './ScanButton';
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Cloud, AlertCircle } from 'lucide-react';
+import ServiceCard from './service-card/ServiceCard';
+import { Drive, Gmail, FileText } from 'lucide-react';
 import { GoogleService } from './types';
+import ScanButton from './ScanButton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 interface CloudServicesCardProps {
   isScanning: boolean;
@@ -35,44 +37,74 @@ const CloudServicesCard: React.FC<CloudServicesCardProps> = ({
   anyServiceConnected,
   disableScan
 }) => {
-  // Using only 'google' as the tab value since Microsoft services were removed
-  const [activeTab] = useState<'google'>('google');
+  const handleScan = () => {
+    console.log('Scan handler triggered in CloudServicesCard');
+    if (anyServiceConnected && !disableScan) {
+      onScan();
+    }
+  };
 
   return (
-    <Card>
+    <Card className="mb-6">
       <CardHeader>
-        <CardTitle>Cloud Services Integration</CardTitle>
-        <CardDescription>
-          Connect your cloud services to scan for compliance issues
-        </CardDescription>
+        <CardTitle className="flex items-center">
+          <Cloud className="h-5 w-5 mr-2" />
+          Cloud Services Scanner
+        </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <Tabs value="google" defaultValue="google">
-          <TabsList className="mb-4">
-            <TabsTrigger value="google">Google Services</TabsTrigger>
-          </TabsList>
-          
-          <ServiceTabs 
-            activeTab={activeTab}
-            isScanning={isScanning}
-            connectedServices={connectedServices}
-            isConnectingDrive={isConnectingDrive}
-            isConnectingGmail={isConnectingGmail}
-            isConnectingDocs={isConnectingDocs}
-            onConnectDrive={onConnectDrive}
-            onConnectGmail={onConnectGmail}
-            onConnectDocs={onConnectDocs}
-            onDisconnect={onDisconnect}
-          />
-        </Tabs>
+      <CardContent>
+        {!anyServiceConnected && (
+          <Alert variant="default" className="mb-4 bg-blue-50 text-blue-800 border-blue-200">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Connect at least one service to begin scanning for compliance issues.
+            </AlertDescription>
+          </Alert>
+        )}
         
-        <div className="flex justify-center mt-4">
-          <ScanButton 
-            onScan={onScan} 
-            isScanning={isScanning} 
-            disabled={!anyServiceConnected || disableScan}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6">
+          <ServiceCard
+            serviceId="drive"
+            icon={Drive}
+            title="Google Drive"
+            description="Scan files and documents in Google Drive for compliance with regulations."
+            isConnected={connectedServices.includes('drive')}
+            isConnecting={isConnectingDrive}
+            isScanning={isScanning}
+            onConnect={onConnectDrive}
+            onDisconnect={() => onDisconnect('drive')}
+          />
+          
+          <ServiceCard
+            serviceId="gmail"
+            icon={Gmail}
+            title="Gmail"
+            description="Analyze email content for potential compliance issues and data protection."
+            isConnected={connectedServices.includes('gmail')}
+            isConnecting={isConnectingGmail}
+            isScanning={isScanning}
+            onConnect={onConnectGmail}
+            onDisconnect={() => onDisconnect('gmail')}
+          />
+          
+          <ServiceCard
+            serviceId="docs"
+            icon={FileText}
+            title="Google Docs"
+            description="Scan Google Docs for sensitive data and compliance violations."
+            isConnected={connectedServices.includes('docs')}
+            isConnecting={isConnectingDocs}
+            isScanning={isScanning}
+            onConnect={onConnectDocs}
+            onDisconnect={() => onDisconnect('docs')}
           />
         </div>
+        
+        <ScanButton 
+          onScan={handleScan} 
+          isScanning={isScanning} 
+          disabled={!anyServiceConnected || disableScan}
+        />
       </CardContent>
     </Card>
   );
