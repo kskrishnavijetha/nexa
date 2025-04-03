@@ -10,8 +10,8 @@ interface SimulationProps {
 }
 
 const Simulation: React.FC<SimulationProps> = ({ report }) => {
-  if (!report) {
-    console.error("Simulation component received undefined report");
+  if (!report || !report.documentId) {
+    console.error("Simulation component received invalid report:", report);
     return (
       <Card>
         <CardHeader className="pb-2">
@@ -22,14 +22,14 @@ const Simulation: React.FC<SimulationProps> = ({ report }) => {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            No report data available for simulation. Please complete a compliance scan first.
+            No valid report data available for simulation. Please complete a compliance scan first.
           </p>
         </CardContent>
       </Card>
     );
   }
 
-  console.log("Simulation component received report:", report);
+  console.log("Simulation component rendering with report:", report);
   
   return (
     <Card>

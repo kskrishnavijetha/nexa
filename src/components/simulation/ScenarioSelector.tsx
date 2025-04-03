@@ -24,7 +24,7 @@ const ScenarioSelector: React.FC<ScenarioSelectorProps> = ({
 }) => {
   console.log("ScenarioSelector received scenarios:", scenarios);
   
-  if (!scenarios || scenarios.length === 0) {
+  if (!scenarios || !Array.isArray(scenarios) || scenarios.length === 0) {
     return (
       <div className="text-center p-6 border rounded-lg">
         <p className="text-muted-foreground">No simulation scenarios available</p>

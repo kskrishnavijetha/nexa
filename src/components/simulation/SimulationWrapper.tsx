@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ComplianceReport, PredictiveAnalysis, SimulationScenario } from '@/utils/types';
 import { generateScenarios, runSimulationAnalysis } from '@/utils/simulationService';
 import ScenarioSelector from './ScenarioSelector';
@@ -31,9 +31,19 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
   const [showConfiguration, setShowConfiguration] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [scenarios, setScenarios] = useState<SimulationScenario[]>([]);
   
-  // Generate scenarios based on the report's industry
-  const scenarios = generateScenarios(report.industry);
+  // Generate scenarios based on the report's industry when component mounts
+  useEffect(() => {
+    if (report && report.industry) {
+      console.log("Generating scenarios for industry:", report.industry);
+      const generatedScenarios = generateScenarios(report.industry);
+      setScenarios(generatedScenarios);
+    } else {
+      console.error("Cannot generate scenarios: Missing report or industry", report);
+      toast.error("Could not generate simulation scenarios due to missing data");
+    }
+  }, [report]);
   
   const handleSelectScenario = (scenarioId: string) => {
     if (isLoading) return;
@@ -61,9 +71,9 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
       
       const response = await runSimulationAnalysis(report, scenarioId);
       
-      if (response.error) {
+      if (!response.success) {
         console.error("Simulation error:", response.error);
-        toast.error(response.error);
+        toast.error(response.error || "Failed to run simulation");
         setIsLoading(false);
         return;
       }
@@ -109,6 +119,14 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
   const selectedScenario = selectedScenarioId 
     ? scenarios.find(s => s.id === selectedScenarioId) 
     : undefined;
+
+  if (scenarios.length === 0) {
+    return (
+      <div className="text-center p-6 border rounded-lg">
+        <p className="text-muted-foreground">Loading simulation scenarios...</p>
+      </div>
+    );
+  }
 
   return (
     <>
