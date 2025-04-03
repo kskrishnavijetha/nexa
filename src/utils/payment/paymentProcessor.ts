@@ -3,6 +3,7 @@
  * Service for payment processing
  */
 import { saveSubscription } from './subscriptionService';
+import { supabase } from '@/integrations/supabase/client';
 
 export interface PaymentResult {
   success: boolean;
@@ -52,6 +53,47 @@ export const processOneTimePayment = async (
 };
 
 /**
+ * Send payment confirmation email
+ */
+const sendPaymentConfirmationEmail = async (email: string, plan: string, billingCycle: 'monthly' | 'annually') => {
+  try {
+    const amount = calculatePlanAmount(plan, billingCycle);
+    
+    const { error } = await supabase.functions.invoke('send-email', {
+      body: {
+        type: 'payment-confirmation',
+        email,
+        planDetails: {
+          plan,
+          billingCycle,
+          amount
+        }
+      }
+    });
+    
+    if (error) {
+      console.error('Error sending payment confirmation email:', error);
+    }
+  } catch (err) {
+    console.error('Failed to send payment confirmation email:', err);
+  }
+};
+
+/**
+ * Helper to calculate plan amount in cents
+ */
+const calculatePlanAmount = (plan: string, billingCycle: 'monthly' | 'annually'): number => {
+  const pricing = {
+    free: 0,
+    basic: billingCycle === 'monthly' ? 999 : 9990,
+    pro: billingCycle === 'monthly' ? 1999 : 19990,
+    enterprise: billingCycle === 'monthly' ? 4999 : 49990,
+  };
+  
+  return pricing[plan as keyof typeof pricing] || 0;
+};
+
+/**
  * Create a subscription
  */
 export const createSubscription = async (
@@ -91,6 +133,14 @@ export const createSubscription = async (
       
       // Save the subscription with billing cycle
       saveSubscription(planName, paymentId, billingCycle);
+      
+      // Get current user email for confirmation
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user?.email) {
+        // Send payment confirmation email
+        await sendPaymentConfirmationEmail(user.email, planName, billingCycle);
+      }
       
       return {
         success: true,
