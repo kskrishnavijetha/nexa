@@ -1,5 +1,4 @@
-
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
 export function useRealTimeSimulation(
@@ -7,6 +6,10 @@ export function useRealTimeSimulation(
   setItemsScanned: (value: number) => void,
   setViolationsFound: (value: number) => void
 ) {
+  // Use refs to keep track of current values
+  const itemsScannedRef = useRef<number>(0);
+  const violationsFoundRef = useRef<number>(0);
+  
   // Real-time simulation for connected services
   useEffect(() => {
     let interval: number | null = null;
@@ -16,11 +19,13 @@ export function useRealTimeSimulation(
       interval = window.setInterval(() => {
         // Simulate random changes to items scanned
         const randomChange = Math.floor(Math.random() * 5);
-        setItemsScanned((prev: number) => prev + randomChange);
+        itemsScannedRef.current += randomChange;
+        setItemsScanned(itemsScannedRef.current);
         
         // Occasionally add a new violation
         if (Math.random() > 0.8) {
-          setViolationsFound((prev: number) => prev + 1);
+          violationsFoundRef.current += 1;
+          setViolationsFound(violationsFoundRef.current);
           toast.info(`New potential compliance issue detected`);
         }
       }, 15000); // Update every 15 seconds
