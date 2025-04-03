@@ -64,6 +64,7 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
       if (response.error) {
         console.error("Simulation error:", response.error);
         toast.error(response.error);
+        setIsLoading(false);
         return;
       }
       

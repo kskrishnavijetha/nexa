@@ -3,7 +3,6 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PredictiveAnalysis } from '@/utils/types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
-import { ChartContainer } from '@/components/ui/chart';
 
 interface ScoreComparisonChartProps {
   analysis: PredictiveAnalysis;
