@@ -32,6 +32,7 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   
+  // Generate scenarios based on the report's industry
   const scenarios = generateScenarios(report.industry);
   
   const handleSelectScenario = (scenarioId: string) => {
@@ -42,23 +43,36 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
     } else {
       setSelectedScenarioId(scenarioId);
       setAnalysisResult(null);
+      setShowConfiguration(true); // Always show configuration when selecting a scenario
     }
   };
   
   const runSimulation = async (scenarioId: string) => {
+    if (!scenarioId) {
+      toast.error("Please select a scenario first");
+      return;
+    }
+    
     setIsLoading(true);
     
     try {
+      console.log("Running simulation for scenario:", scenarioId);
+      console.log("Report data:", report);
+      
       const response = await runSimulationAnalysis(report, scenarioId);
       
       if (response.error) {
+        console.error("Simulation error:", response.error);
         toast.error(response.error);
         return;
       }
       
       if (response.data) {
+        console.log("Simulation results:", response.data);
         setAnalysisResult(response.data);
         toast.success('Predictive analysis completed');
+      } else {
+        toast.error('No simulation data returned');
       }
     } catch (error) {
       console.error('Simulation error:', error);
@@ -84,6 +98,7 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
   const resetSimulation = () => {
     setAnalysisResult(null);
     setShowConfiguration(false);
+    setSelectedScenarioId(undefined);
   };
 
   const backToScenarioSelection = () => {
@@ -113,7 +128,7 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
               simulationDepth={simulationDepth}
               setSimulationDepth={setSimulationDepth}
               onBackToScenarios={backToScenarioSelection}
-              onRunSimulation={runSimulation}
+              onRunSimulation={() => runSimulation(selectedScenarioId)}
               isLoading={isLoading}
             />
           )}
