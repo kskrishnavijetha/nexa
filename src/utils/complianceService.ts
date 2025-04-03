@@ -25,7 +25,11 @@ export const requestComplianceCheck = async (
     const userLanguage = language || getLanguagePreference();
     
     // Get applicable regulations based on industry
-    const regulations = industry ? INDUSTRY_REGULATIONS[industry] || [] : [];
+    const regulations = industry && INDUSTRY_REGULATIONS[industry] 
+      ? [...INDUSTRY_REGULATIONS[industry]] // Make a copy to avoid modifying the original
+      : [];
+    
+    console.log(`Regulations for ${industry || 'unspecified industry'}:`, regulations);
     
     // Get regional regulations if a region is specified
     const regionalRegulations = region && REGION_REGULATIONS[region] ? Object.keys(REGION_REGULATIONS[region]) : [];
@@ -54,8 +58,8 @@ export const requestComplianceCheck = async (
     const mockReport: ComplianceReport = {
       documentId,
       documentName,
-      industry: industry || 'technology' as Industry, // Default to technology if no industry specified
-      region: region || 'us' as Region, // Default to US if no region specified
+      industry: industry || 'Global' as Industry, // Default to Global if no industry specified
+      region: region || 'Global' as Region, // Default to Global if no region specified
       overallScore,
       gdprScore,
       hipaaScore,
@@ -74,6 +78,8 @@ export const requestComplianceCheck = async (
       timestamp: new Date().toISOString(),
       complianceStatus: overallScore >= 80 ? 'compliant' : overallScore >= 60 ? 'partially-compliant' : 'non-compliant'
     };
+    
+    console.log(`Generated report for industry: ${industry}, with regulations:`, regulations);
     
     return {
       success: true,

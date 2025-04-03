@@ -65,6 +65,9 @@ const GoogleServicesPage: React.FC = () => {
     setPersistedConnectedServices(services);
   };
 
+  // Ensure consistent document name for both scanner and audit trail
+  const documentTitle = "Cloud Services Scanner";
+
   return (
     <div className="container mx-auto py-8 px-4">
       <h1 className="text-3xl font-bold mb-8">Cloud Services Compliance</h1>
@@ -111,7 +114,7 @@ const GoogleServicesPage: React.FC = () => {
         <TabsContent value="history" className="mt-6">
           <div className="grid grid-cols-1 gap-6">
             <ServiceHistory />
-            <AuditTrail documentName="Cloud Services Scanner" industry={industry} />
+            <AuditTrail documentName={documentTitle} industry={industry} />
           </div>
         </TabsContent>
         

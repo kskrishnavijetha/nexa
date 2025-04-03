@@ -29,6 +29,10 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       link.click();
       document.body.removeChild(link);
       
+      // Add the report generation as an audit event
+      // This would be done through the context in a real app
+      console.log(`Report successfully generated for industry: ${industry || 'General'}`);
+      
       toast.success('Audit report downloaded successfully');
     } catch (error) {
       console.error('Error generating report:', error);

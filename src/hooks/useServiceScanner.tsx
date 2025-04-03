@@ -65,7 +65,7 @@ export function useServiceScanner() {
       // Scan each connected service
       const results = await Promise.all(
         connectedServices.map(service => {
-          console.log(`Scanning service: ${service}`);
+          console.log(`Scanning service: ${service} for industry: ${industry}`);
           
           const serviceId = 
             service === 'drive' ? 'drive-1' : 
@@ -90,11 +90,17 @@ export function useServiceScanner() {
               // Each risk item in the report becomes a violation
               if (report.risks && Array.isArray(report.risks)) {
                 report.risks.forEach(risk => {
+                  // Make sure to use the correct industry-specific regulations
+                  const riskRegulation = risk.regulation || 
+                    (industry === 'Finance & Banking' ? 'GLBA' : 
+                     industry === 'Healthcare' ? 'HIPAA' : 
+                     industry === 'Retail & Consumer' ? 'PCI-DSS' : 'GDPR');
+                     
                   violations.push({
                     title: risk.title || (risk.description.split(': ')[0] || risk.description),
                     description: risk.description.includes(': ') ? 
                       risk.description.split(': ')[1] : 
-                      `${risk.regulation}: ${risk.section || 'General compliance issue'}`,
+                      `${riskRegulation}: ${risk.section || 'General compliance issue'}`,
                     severity: risk.severity,
                     service: result.data?.serviceType || 'unknown',
                     location: report.documentName
@@ -106,7 +112,7 @@ export function useServiceScanner() {
         }
       });
       
-      console.log('Processed violations:', violations);
+      console.log('Processed violations for industry:', industry, violations);
       
       // Set results in state
       setLastScanTime(new Date());
@@ -122,31 +128,100 @@ export function useServiceScanner() {
     } catch (error) {
       console.error('Error scanning:', error);
       toast.error('Failed to complete scan');
-      // Provide fallback scan results for demo purposes
-      const fallbackViolations: ScanViolation[] = [
-        {
-          title: 'Data Retention Policy',
-          description: 'Documents exceed maximum retention period',
-          severity: 'medium',
-          service: connectedServices[0] || 'drive',
-          location: 'Shared Documents'
-        },
-        {
-          title: 'Sensitive Information',
-          description: 'PII detected in unsecured document',
-          severity: 'high',
-          service: connectedServices[0] || 'drive',
-          location: 'Personal Files'
-        }
-      ];
       
-      setScanResults({ violations: fallbackViolations });
-      setLastScanTime(new Date());
-      setItemsScanned(25);
-      setViolationsFound(fallbackViolations.length);
+      // Provide industry-specific fallback scan results for demo purposes
+      generateIndustrySpecificFallbackResults(connectedServices, industry);
     } finally {
       setIsScanning(false);
     }
+  };
+
+  // Generate industry-specific fallback results for demo purposes
+  const generateIndustrySpecificFallbackResults = (connectedServices: GoogleService[], industry?: Industry) => {
+    let fallbackViolations: ScanViolation[] = [];
+    
+    switch(industry) {
+      case 'Finance & Banking':
+        fallbackViolations = [
+          {
+            title: 'PCI Data Retention',
+            description: 'Financial documents exceed retention policy',
+            severity: 'medium' as RiskSeverity,
+            service: connectedServices[0] || 'drive',
+            location: 'Financial Records'
+          },
+          {
+            title: 'Customer Financial Information',
+            description: 'Unencrypted account numbers detected',
+            severity: 'high' as RiskSeverity,
+            service: connectedServices[0] || 'drive',
+            location: 'Customer Files'
+          }
+        ];
+        break;
+        
+      case 'Healthcare':
+        fallbackViolations = [
+          {
+            title: 'PHI Exposure Risk',
+            description: 'Patient health information in unsecured document',
+            severity: 'high' as RiskSeverity,
+            service: connectedServices[0] || 'drive',
+            location: 'Patient Records'
+          },
+          {
+            title: 'HIPAA Consent Forms',
+            description: 'Missing signed authorization forms',
+            severity: 'medium' as RiskSeverity,
+            service: connectedServices[0] || 'drive',
+            location: 'Consent Forms'
+          }
+        ];
+        break;
+        
+      case 'Retail & Consumer':
+        fallbackViolations = [
+          {
+            title: 'Credit Card Information',
+            description: 'PCI-DSS violation: stored card data',
+            severity: 'high' as RiskSeverity,
+            service: connectedServices[0] || 'drive',
+            location: 'Sales Records'
+          },
+          {
+            title: 'Customer Personal Data',
+            description: 'Customer data shared without consent',
+            severity: 'medium' as RiskSeverity,
+            service: connectedServices[0] || 'drive',
+            location: 'Marketing Lists'
+          }
+        ];
+        break;
+        
+      // Default case for other industries
+      default:
+        fallbackViolations = [
+          {
+            title: 'Data Retention Policy',
+            description: 'Documents exceed maximum retention period',
+            severity: 'medium' as RiskSeverity,
+            service: connectedServices[0] || 'drive',
+            location: 'Shared Documents'
+          },
+          {
+            title: 'Sensitive Information',
+            description: 'PII detected in unsecured document',
+            severity: 'high' as RiskSeverity,
+            service: connectedServices[0] || 'drive',
+            location: 'Personal Files'
+          }
+        ];
+    }
+    
+    setScanResults({ violations: fallbackViolations });
+    setLastScanTime(new Date());
+    setItemsScanned(25);
+    setViolationsFound(fallbackViolations.length);
   };
 
   return {

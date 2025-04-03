@@ -1,4 +1,3 @@
-
 import { jsPDF } from "jspdf";
 import { AuditEvent } from '@/components/audit/types';
 import { Industry } from '@/utils/types';
@@ -45,7 +44,7 @@ export const addExecutiveSummary = (
   doc.text(`Organization: ${organization}`, 20, yPos);
   
   yPos += 7;
-  doc.text(`Industry: ${industry || 'General'}`, 20, yPos);
+  doc.text(`Industry: ${industry || 'Global'}`, 20, yPos);
   
   // Add applicable compliance frameworks
   yPos += 7;
@@ -85,7 +84,7 @@ export const addExecutiveSummary = (
 const determineComplianceFrameworks = (auditEvents: AuditEvent[], industry?: Industry): string[] => {
   // If we have an industry, use its regulations as primary frameworks
   if (industry && INDUSTRY_REGULATIONS[industry]) {
-    return INDUSTRY_REGULATIONS[industry];
+    return [...INDUSTRY_REGULATIONS[industry]]; // Return a copy to avoid modifying the original
   }
   
   // Otherwise look for mentions of frameworks in event text
