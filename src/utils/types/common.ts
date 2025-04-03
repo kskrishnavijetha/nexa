@@ -1,0 +1,117 @@
+
+export interface AIInsight {
+  text: string;
+  type: 'info' | 'warning' | 'success' | 'observation' | 'recommendation';
+  title?: string;
+  actionRequired?: boolean;
+  priority?: 'high' | 'medium' | 'low';
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  status?: number; // Added for services that return status
+}
+
+export type Industry = 
+  'Finance & Banking' | 
+  'Healthcare' | 
+  'Retail & Consumer' | 
+  'E-Commerce' | 
+  'Cloud & SaaS' | 
+  'Government & Defense' | 
+  'Energy & Utilities' | 
+  'Telecom' | 
+  'Manufacturing & Supply Chain' | 
+  'Education' | 
+  'Automotive' | 
+  'Pharmaceutical & Biotech' |
+  'Global';
+
+export type Region = 'US' | 'EU' | 'APAC' | 'UK' | 'Global' | 'North America' | 'European Union' | 'Asia Pacific' | 'United Kingdom' | 'Latin America' | 'Middle East' | 'Africa';
+
+// Update to include 'critical' as a valid severity
+export type RiskSeverity = 'critical' | 'high' | 'medium' | 'low';
+
+// Constants for industry and region regulations needed by many components
+export const INDUSTRY_REGULATIONS: Record<string, string[]> = {
+  'Finance & Banking': ['GDPR', 'SOC 2', 'PCI-DSS', 'GLBA'],
+  'Healthcare': ['HIPAA', 'GDPR', 'HITECH'],
+  'Retail & Consumer': ['GDPR', 'PCI-DSS', 'CCPA'],
+  'E-Commerce': ['GDPR', 'PCI-DSS', 'CCPA'],
+  'Cloud & SaaS': ['GDPR', 'SOC 2', 'ISO/IEC 27001'],
+  'Government & Defense': ['FISMA', 'FedRAMP', 'CMMC'],
+  'Energy & Utilities': ['NERC', 'GDPR', 'CCPA'],
+  'Telecom': ['GDPR', 'CPNI', 'CCPA'],
+  'Manufacturing & Supply Chain': ['ISO 9001', 'GDPR', 'CCPA'],
+  'Education': ['FERPA', 'GDPR', 'COPPA'],
+  'Automotive': ['ISO 26262', 'GDPR', 'CCPA'],
+  'Pharmaceutical & Biotech': ['FDA CFR Part 11', 'HIPAA', 'GDPR'],
+  'Global': ['GDPR', 'ISO/IEC 27001', 'SOC 2']
+};
+
+// Fix duplicated property names in REGION_REGULATIONS
+export const REGION_REGULATIONS: Record<string, Record<string, string>> = {
+  'US': {
+    'CCPA': 'California Consumer Privacy Act',
+    'HIPAA': 'Health Insurance Portability and Accountability Act',
+    'SOX': 'Sarbanes-Oxley Act',
+    'GLBA': 'Gramm-Leach-Bliley Act'
+  },
+  'EU': {
+    'GDPR': 'General Data Protection Regulation',
+    'ePrivacy': 'ePrivacy Directive',
+    'NIS2': 'Network and Information Security Directive'
+  },
+  'UK': {
+    'UK GDPR': 'UK General Data Protection Regulation',
+    'DPA': 'Data Protection Act 2018',
+    'PECR': 'Privacy and Electronic Communications Regulations'
+  },
+  'APAC': {
+    'PDPA': 'Personal Data Protection Act (Singapore)',
+    'PIPL': 'Personal Information Protection Law (China)',
+    'APP': 'Australian Privacy Principles'
+  },
+  'Global': {
+    'ISO/IEC 27001': 'Information Security Management',
+    'ISO/IEC 27701': 'Privacy Information Management',
+    'SOC 2': 'Service Organization Control 2'
+  },
+  'North America': {
+    'CCPA_NA': 'California Consumer Privacy Act',
+    'HIPAA_NA': 'Health Insurance Portability and Accountability Act',
+    'PIPEDA': 'Personal Information Protection and Electronic Documents Act'
+  },
+  'European Union': {
+    'GDPR_EU': 'General Data Protection Regulation',
+    'ePrivacy_EU': 'ePrivacy Directive',
+    'NIS2_EU': 'Network and Information Security Directive'
+  },
+  'Asia Pacific': {
+    'PDPA_AP': 'Personal Data Protection Act (Singapore)',
+    'PIPL_AP': 'Personal Information Protection Law (China)',
+    'APP_AP': 'Australian Privacy Principles'
+  },
+  'United Kingdom': {
+    'UK_GDPR': 'UK General Data Protection Regulation',
+    'DPA_UK': 'Data Protection Act 2018',
+    'PECR_UK': 'Privacy and Electronic Communications Regulations'
+  },
+  'Latin America': {
+    'LGPD': 'Lei Geral de Proteção de Dados (Brazil)',
+    'PDPL_CL': 'Personal Data Protection Law (Chile)',
+    'LPDP': 'Ley de Protección de Datos Personales (Mexico)'
+  },
+  'Middle East': {
+    'PDPL_BH': 'Personal Data Protection Law (Bahrain)',
+    'DPL_DIFC': 'Data Protection Law (DIFC)',
+    'PDPL_QA': 'Personal Data Protection Law (Qatar)'
+  },
+  'Africa': {
+    'POPIA': 'Protection of Personal Information Act (South Africa)',
+    'NDPR': 'Nigeria Data Protection Regulation',
+    'PDPA_KE': 'Personal Data Protection Act (Kenya)'
+  }
+};
