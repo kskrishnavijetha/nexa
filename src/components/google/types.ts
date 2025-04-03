@@ -1,6 +1,6 @@
 
-import { GoogleServiceConnection } from "@/utils/google/types";
 import { Industry as IndustryType, Region, RiskSeverity } from "@/utils/types";
+import { SupportedLanguage as SupportedLanguageType } from "@/utils/language/types";
 
 // Re-export GoogleService type from our utility function
 export type GoogleService = 'gmail' | 'drive' | 'docs';
@@ -9,7 +9,7 @@ export type GoogleService = 'gmail' | 'drive' | 'docs';
 export interface GoogleServicesScannerProps {
   industry: IndustryType | undefined;
   region: Region | undefined;
-  language: SupportedLanguage;
+  language: SupportedLanguageType;
   file: File | null;
   persistedConnectedServices?: GoogleService[];
   onServicesUpdate?: (services: GoogleService[]) => void;
@@ -25,8 +25,11 @@ export interface ScannerProps {
   isCompactView?: boolean;
 }
 
-// Re-export Industry type to avoid conflicts
-export type Industry = 'healthcare' | 'finance' | 'technology' | 'retail' | 'manufacturing' | 'legal' | 'insurance' | 'government' | 'education' | 'energy' | 'automotive' | 'telecom' | 'pharma';
+// Industry type to be compatible with utility types
+export type Industry = IndustryType;
+
+// Export language type to be compatible with utility types
+export type SupportedLanguage = SupportedLanguageType;
 
 // Scan results types
 export interface ScanResults {
@@ -57,13 +60,10 @@ export interface ScanControlsProps {
   connectedServices: GoogleService[];
   isScanning: boolean;
   industry: IndustryType | undefined;
-  language: SupportedLanguage;
+  language: SupportedLanguageType;
   region: Region | undefined;
   file: File | null;
-  onScan: (services: GoogleService[], industry: IndustryType | undefined, language?: SupportedLanguage, region?: Region | undefined) => void;
+  onScan: (services: GoogleService[], industry: IndustryType | undefined, language?: SupportedLanguageType, region?: Region | undefined) => void;
   onScanComplete?: (itemsScanned: number, violationsFound: number) => void;
   isCompactView?: boolean;
 }
-
-// Adding SupportedLanguage so we don't need to import it everywhere
-export type SupportedLanguage = 'en' | 'es' | 'fr' | 'de' | 'it' | 'pt' | 'zh';
