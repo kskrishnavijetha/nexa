@@ -27,8 +27,10 @@ const Header: React.FC = () => {
       // Call the signOut function from AuthContext
       await signOut();
       
-      console.log('Header: Sign out completed');
-      // Navigation is now handled by the auth state change listener in AuthContext
+      console.log('Header: Sign out completed successfully');
+      
+      // Force navigation to home page
+      navigate('/', { replace: true });
     } catch (error) {
       console.error('Header: Error during sign out:', error);
       toast.error('Failed to sign out. Please try again.');

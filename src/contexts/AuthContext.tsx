@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -150,34 +149,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     console.log('Signing out...');
+    setLoading(true);
     
     try {
       // Clear user data from localStorage before signing out from Supabase
       clearUserData();
       
-      // Execute the signOut call to Supabase
-      const { error } = await supabase.auth.signOut();
+      // Execute the signOut call to Supabase - directly return its promise
+      const result = await supabase.auth.signOut();
       
-      if (error) {
-        console.error('Error from Supabase during sign out:', error);
-        toast.error('Failed to sign out. Please try again.');
-        throw error;
+      if (result.error) {
+        console.error('Error from Supabase during sign out:', result.error);
+        // Don't throw here, we'll manually update state
       }
       
-      // Set local state to null regardless of the Supabase response
-      // This ensures the UI updates even if there's an issue with Supabase
+      // Force update local state regardless of Supabase response
       setSession(null);
       setUser(null);
       
       console.log('Signout completed successfully');
       
-      // Don't need to navigate here - the onAuthStateChange listener will handle it
-      return;
-      
     } catch (error) {
       console.error('Exception during sign out:', error);
-      toast.error('Failed to sign out. Please try again.');
-      throw error; // Re-throw the error so the component can handle it
     } finally {
       setLoading(false);
     }
