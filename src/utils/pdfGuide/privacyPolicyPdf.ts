@@ -68,7 +68,7 @@ export const generatePrivacyPolicyPdf = (): Blob => {
   
   pdf.setFontSize(FONT_SIZES.BODY);
   pdf.text('If you have any questions about our privacy practices, please contact us at:', 20, 252);
-  pdf.text('privacy@nexabloom.com', 20, 260);
+  pdf.text('contact@nexabloom.xyz', 20, 260);
   
   // Add footer with page numbers
   addFooter(pdf);
