@@ -2,12 +2,15 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileDown, FileText, BookOpen, BookMarked } from 'lucide-react';
+import { FileDown, FileText, BookOpen, BookMarked, Eye } from 'lucide-react';
 import { getPdfDownloadUrl } from '@/utils/pdfGuide';
 import { toast } from 'sonner';
+import { generateUserGuide } from '@/utils/pdfGuide'; 
+import DocumentPreview from '@/components/report/UserGuidePreview';
 
 const UserGuide: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   
   const handleDownload = () => {
     setIsGenerating(true);
@@ -33,6 +36,10 @@ const UserGuide: React.FC = () => {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const handlePreview = () => {
+    setPreviewOpen(true);
   };
   
   return (
@@ -118,11 +125,19 @@ const UserGuide: React.FC = () => {
             </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-center pb-6 pt-4">
+        <CardFooter className="flex justify-center pb-6 pt-4 gap-4">
+          <Button 
+            variant="outline"
+            onClick={handlePreview} 
+            className="gap-2 transition-all hover:scale-105"
+          >
+            <Eye className="h-5 w-5" />
+            Preview Guide
+          </Button>
+          
           <Button 
             onClick={handleDownload} 
             disabled={isGenerating}
-            size="lg"
             className="gap-2 transition-all hover:scale-105"
           >
             {isGenerating ? (
@@ -139,6 +154,11 @@ const UserGuide: React.FC = () => {
           </Button>
         </CardFooter>
       </Card>
+      
+      <DocumentPreview 
+        isOpen={previewOpen} 
+        onClose={() => setPreviewOpen(false)} 
+      />
     </div>
   );
 };
