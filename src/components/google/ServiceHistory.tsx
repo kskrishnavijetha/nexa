@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ServiceHistoryTable } from './service-history/ServiceHistoryTable';
 import { EmptyState } from './service-history/EmptyState';
 import { AuditTrailDialog } from './service-history/AuditTrailDialog';
-import { ComplianceReport } from '@/utils/types';
+import { ComplianceReport, Industry } from '@/utils/types';
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -20,10 +20,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from 'sonner';
 import { deleteReportFromHistory, getUserHistoricalReports } from '@/utils/historyService';
+import { SupportedLanguage, translate } from '@/utils/language';
+import { useLanguagePreference } from '@/hooks/useLanguagePreference';
 
 const ServiceHistory: React.FC = () => {
   const { userId, setUserId, scanHistory } = useServiceHistoryStore();
   const { user } = useAuth();
+  const { language } = useLanguagePreference();
   const [auditDialogOpen, setAuditDialogOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
   const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
@@ -57,7 +60,7 @@ const ServiceHistory: React.FC = () => {
               documentName: item.documentName || 'Anonymous Scan',
               scanDate: item.scanDate,
               timestamp: item.scanDate,
-              industry: 'Global',
+              industry: 'Global' as Industry,
               overallScore: 85,
               gdprScore: 80, // Add required property
               hipaaScore: 75, // Add required property
@@ -97,7 +100,7 @@ const ServiceHistory: React.FC = () => {
           documentName: item.documentName || 'Anonymous Scan',
           scanDate: item.scanDate,
           timestamp: item.scanDate,
-          industry: 'Global',
+          industry: 'Global' as Industry,
           overallScore: 85,
           gdprScore: 80, // Add required property
           hipaaScore: 75, // Add required property
@@ -170,7 +173,7 @@ const ServiceHistory: React.FC = () => {
       documentName: item.documentName || 'Anonymous Scan',
       scanDate: item.scanDate,
       timestamp: item.scanDate,
-      industry: 'Global',
+      industry: 'Global' as Industry,
       overallScore: 85,
       gdprScore: 80, // Add required property
       hipaaScore: 75, // Add required property
@@ -185,8 +188,8 @@ const ServiceHistory: React.FC = () => {
   if (displayReports.length === 0) {
     return (
       <EmptyState 
-        title={user ? "No scan history yet" : "Please sign in to view your history"}
-        description={user ? "Connect services and run scans to see your history here" : "Sign in to view and manage your scan history"}
+        title={user ? translate("no_scan_history_yet", language) : translate("please_sign_in", language)}
+        description={user ? translate("connect_services_text", language) : translate("sign_in_to_view", language)}
       />
     );
   }
@@ -196,7 +199,7 @@ const ServiceHistory: React.FC = () => {
       <CardHeader>
         <CardTitle className="flex items-center">
           <Calendar className="mr-2 h-5 w-5" />
-          Service Scan History {user && `- ${user.email}`}
+          {translate("service_scan_history", language)} {user && `- ${user.email}`}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -219,15 +222,15 @@ const ServiceHistory: React.FC = () => {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Document Permanently</AlertDialogTitle>
+            <AlertDialogTitle>{translate("delete_document_permanently", language)}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to permanently delete "{documentToDelete?.name}" from your history? This action cannot be undone.
+              {translate("delete_confirmation", language).replace("{documentName}", documentToDelete?.name || "")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{translate("cancel", language)}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-              Delete Permanently
+              {translate("delete_permanently", language)}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
