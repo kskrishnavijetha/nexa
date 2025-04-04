@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScanResults } from './types';
+import { ScanResults } from '@/components/google/types';
 import { ScanResults as ScanResultsComponent } from '../index';
 import ServiceCard from '../service-card/ServiceCard';
 import { GoogleService } from '../types';
@@ -60,31 +60,31 @@ const TabsContainer: React.FC<TabsContainerProps> = ({
         {activeTab === 'scanner' && (
           <div className="grid grid-cols-1 gap-4">
             <ServiceCard 
-              service="drive"
+              serviceId="drive"
               isConnected={connectedServices.includes('drive')}
               isConnecting={isConnectingDrive}
               isScanning={isScanning && connectedServices.includes('drive')}
               onConnect={onConnectDrive}
               onDisconnect={() => onDisconnect('drive')}
-              compact
+              isCompactView={true}
             />
             <ServiceCard 
-              service="gmail"
+              serviceId="gmail"
               isConnected={connectedServices.includes('gmail')}
               isConnecting={isConnectingGmail}
               isScanning={isScanning && connectedServices.includes('gmail')}
               onConnect={onConnectGmail}
               onDisconnect={() => onDisconnect('gmail')}
-              compact
+              isCompactView={true}
             />
             <ServiceCard 
-              service="docs"
+              serviceId="docs"
               isConnected={connectedServices.includes('docs')}
               isConnecting={isConnectingDocs}
               isScanning={isScanning && connectedServices.includes('docs')}
               onConnect={onConnectDocs}
               onDisconnect={() => onDisconnect('docs')}
-              compact
+              isCompactView={true}
             />
           </div>
         )}
@@ -116,7 +116,7 @@ const TabsContainer: React.FC<TabsContainerProps> = ({
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <ServiceCard 
-            service="drive"
+            serviceId="drive"
             isConnected={connectedServices.includes('drive')}
             isConnecting={isConnectingDrive}
             isScanning={isScanning && connectedServices.includes('drive')}
@@ -124,7 +124,7 @@ const TabsContainer: React.FC<TabsContainerProps> = ({
             onDisconnect={() => onDisconnect('drive')}
           />
           <ServiceCard 
-            service="gmail"
+            serviceId="gmail"
             isConnected={connectedServices.includes('gmail')}
             isConnecting={isConnectingGmail}
             isScanning={isScanning && connectedServices.includes('gmail')}
@@ -132,7 +132,7 @@ const TabsContainer: React.FC<TabsContainerProps> = ({
             onDisconnect={() => onDisconnect('gmail')}
           />
           <ServiceCard 
-            service="docs"
+            serviceId="docs"
             isConnected={connectedServices.includes('docs')}
             isConnecting={isConnectingDocs}
             isScanning={isScanning && connectedServices.includes('docs')}

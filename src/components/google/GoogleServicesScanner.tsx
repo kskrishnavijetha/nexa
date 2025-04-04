@@ -107,6 +107,8 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     }
   };
 
+  console.log("GoogleServicesScanner: Rendering with connected services:", connectedServices);
+
   return (
     <div className="space-y-6">
       <Card>
@@ -149,7 +151,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
             onConnectDocs={handleConnectDocs}
             onDisconnect={handleDisconnect}
             isCompactView={isCompactView}
-            language={language} // Pass language to TabsContainer
+            language={language}
           >
             <ScannerControls
               connectedServices={connectedServices}
