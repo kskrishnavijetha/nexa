@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScanResults as ScanResultsType, GoogleService } from '../types';
 import CloudServicesCard from '../CloudServicesCard';
 import ScanResultsComponent from '../ScanResults';
+import ServiceTabs from '../ServiceTabs';
 
 interface TabsContainerProps {
   activeTab: string;
@@ -95,6 +96,21 @@ const TabsContainer: React.FC<TabsContainerProps> = ({
             onScan={() => setActiveTab('results')}
             anyServiceConnected={anyServiceConnected}
             disableScan={isScanning}
+            isCompactView={isCompactView}
+          />
+          
+          {/* Use ServiceTabs component instead of direct ServiceCard usage */}
+          <ServiceTabs
+            activeTab="google"
+            isScanning={isScanning}
+            connectedServices={connectedServices}
+            isConnectingDrive={isConnectingDrive}
+            isConnectingGmail={isConnectingGmail}
+            isConnectingDocs={isConnectingDocs}
+            onConnectDrive={onConnectDrive}
+            onConnectGmail={onConnectGmail}
+            onConnectDocs={onConnectDocs}
+            onDisconnect={onDisconnect}
             isCompactView={isCompactView}
           />
           
