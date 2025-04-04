@@ -40,7 +40,7 @@ const AuditTrail: React.FC<AuditTrailProps> = ({ documentName, industry }) => {
           </Tabs>
         </CardContent>
       </AuditTrailProvider>
-      <Toaster richColors closeButton position="top-right" />
+      <Toaster richColors closeButton />
     </Card>
   );
 };

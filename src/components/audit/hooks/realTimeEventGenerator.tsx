@@ -79,17 +79,12 @@ export const notifyNewActivity = (event: AuditEvent): void => {
   const icon = event.icon || <Clock className="h-4 w-4" />;
   const eventType = getEventType(event.action);
   
-  // Ensure toast is visible by forcing it to render on next tick
-  setTimeout(() => {
-    toast[eventType](`New activity: ${event.action}`, {
-      description: `By ${event.user} • ${new Date(event.timestamp).toLocaleTimeString()}`,
-      icon: icon,
-      duration: 5000,
-      position: 'top-right',
-    });
-    
-    console.log(`Toast notification sent: ${event.action} (${eventType})`);
-  }, 0);
+  toast[eventType](`New activity: ${event.action}`, {
+    description: `By ${event.user} • ${new Date(event.timestamp).toLocaleTimeString()}`,
+    icon: icon,
+    duration: 5000,
+    position: 'top-right',
+  });
 };
 
 /**
