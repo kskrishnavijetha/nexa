@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CloudLightning, History, Settings } from 'lucide-react';
@@ -6,7 +5,7 @@ import AuditTrail from './audit/AuditTrail';
 import GoogleServicesScanner from './google/GoogleServicesScanner';
 import GoogleScannerConfig from './google/GoogleScannerConfig';
 import GoogleScannerSettings from './google/GoogleScannerSettings';
-import ServiceHistory from './google/ServiceHistory';
+import { ServiceHistoryContainer } from './google/service-history';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
 import { GoogleService } from './google/types';
 import { useGoogleScannerConfig } from '@/hooks/google/useGoogleScannerConfig';
@@ -31,7 +30,6 @@ const GoogleServicesPage: React.FC = () => {
   const [isCompactView, setIsCompactView] = useState(false);
   const isMobile = useIsMobile();
   
-  // Set compact view by default on mobile
   useEffect(() => {
     setIsCompactView(isMobile);
   }, [isMobile]);
@@ -44,7 +42,6 @@ const GoogleServicesPage: React.FC = () => {
     setIsCompactView(prev => !prev);
   };
 
-  // Ensure consistent document name for both scanner and audit trail
   const documentTitle = "Cloud Services Scanner";
 
   return (
@@ -99,7 +96,7 @@ const GoogleServicesPage: React.FC = () => {
         
         <TabsContent value="history" className="mt-6">
           <div className="grid grid-cols-1 gap-6">
-            <ServiceHistory />
+            <ServiceHistoryContainer />
             <AuditTrail documentName={documentTitle} industry={industry} />
           </div>
         </TabsContent>
