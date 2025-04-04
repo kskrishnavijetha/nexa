@@ -56,9 +56,7 @@ export function useAuthState() {
           // Clear any user-specific data from localStorage on sign out
           clearUserData();
           
-          // Force navigation to home page
-          navigate('/', { replace: true });
-          toast.info('Signed out');
+          console.log('User signed out, state cleared');
         } else if (event === 'TOKEN_REFRESHED') {
           // Update session with refreshed token
           setSession(newSession);
@@ -136,22 +134,27 @@ export function useAuthState() {
       // Clear user data from localStorage before signing out from Supabase
       clearUserData();
       
-      // Execute the signOut call to Supabase - directly return its promise
-      const result = await supabase.auth.signOut();
+      // Execute the signOut call to Supabase
+      const { error } = await supabase.auth.signOut();
       
-      if (result.error) {
-        console.error('Error from Supabase during sign out:', result.error);
-        // Don't throw here, we'll manually update state
+      if (error) {
+        console.error('Error from Supabase during sign out:', error);
+        toast.error('Error signing out: ' + error.message);
+        setLoading(false);
+        throw error;
       }
       
-      // Force update local state regardless of Supabase response
+      // Force update local state
       setSession(null);
       setUser(null);
       
       console.log('Signout completed successfully');
+      return { error: null };
       
     } catch (error) {
       console.error('Exception during sign out:', error);
+      setLoading(false);
+      throw error;
     } finally {
       setLoading(false);
     }

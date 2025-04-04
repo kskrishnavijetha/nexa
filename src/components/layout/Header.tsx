@@ -31,6 +31,7 @@ const Header: React.FC = () => {
       
       // Force navigation to home page
       navigate('/', { replace: true });
+      toast.success('Signed out successfully');
     } catch (error) {
       console.error('Header: Error during sign out:', error);
       toast.error('Failed to sign out. Please try again.');
