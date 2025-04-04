@@ -13,7 +13,7 @@ export const generateCookiePolicyPdf = (): Blob => {
   pdf.setFontSize(FONT_SIZES.TITLE);
   const primaryColor = COLORS.PRIMARY;
   pdf.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  pdf.text('CompliZen Cookie Policy', 20, 20);
+  pdf.text('Nexabloom Cookie Policy', 20, 20);
   
   // Date
   pdf.setFontSize(FONT_SIZES.BODY);
@@ -25,63 +25,74 @@ export const generateCookiePolicyPdf = (): Blob => {
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
   const textColor = COLORS.TEXT;
   pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
-  pdf.text('1. What Are Cookies', 20, 45);
+  pdf.text('1. Our No-Cookie Policy', 20, 45);
   
   pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.text('Cookies are small text files that are stored on your computer or mobile device when you', 20, 55);
-  pdf.text('visit a website. They allow the website to recognize your device and remember information', 20, 63);
-  pdf.text('about your visit, such as your preferences and settings.', 20, 71);
+  pdf.text('Nexabloom is committed to user privacy and data protection. We operate with a strict', 20, 55);
+  pdf.text('no-cookie policy, which means we do not use cookies or similar tracking technologies', 20, 63);
+  pdf.text('to collect or store information about your browsing activities on our website.', 20, 71);
   
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.text('2. How We Use Cookies', 20, 86);
+  pdf.text('2. What Are Cookies', 20, 86);
   
   pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.text('CompliZen uses cookies to improve your experience on our platform in various ways:', 20, 96);
-  pdf.text('• Essential cookies: Required for the basic functions of our website to work properly.', 20, 106);
-  pdf.text('• Analytical cookies: Help us understand how visitors interact with our website.', 20, 114);
-  pdf.text('• Functional cookies: Remember your preferences to provide enhanced functionality.', 20, 122);
-  pdf.text('• Targeting cookies: Record your visit, pages visited, and links followed for marketing.', 20, 130);
+  pdf.text('Cookies are small text files that websites place on your device to store information about', 20, 96);
+  pdf.text('your browsing session, preferences, or activity. They are commonly used across the web to', 20, 104);
+  pdf.text('remember user preferences, authenticate users, and collect analytics data.', 20, 112);
   
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.text('3. Types of Cookies We Use', 20, 145);
+  pdf.text('3. Our Approach to Privacy', 20, 127);
   
   pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.text('We use the following types of cookies on our website:', 20, 155);
-  pdf.text('• Session cookies: Temporary cookies that expire when you close your browser.', 20, 163);
-  pdf.text('• Persistent cookies: Remain on your device for a specified period or until manually deleted.', 20, 171);
-  pdf.text('• First-party cookies: Set by our website domain.', 20, 179);
-  pdf.text('• Third-party cookies: Set by other domains that provide services on our website.', 20, 187);
+  pdf.text('Instead of using cookies, our platform operates by processing information locally on your', 20, 137);
+  pdf.text('device. We have designed our service to function without the need to track user activity', 20, 145);
+  pdf.text('or store persistent identifiers on your browser. Your privacy is our priority.', 20, 153);
   
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.text('4. Managing Cookies', 20, 202);
+  pdf.text('4. Essential Technical Functions', 20, 168);
   
   pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.text('You can control and manage cookies in various ways. Most web browsers allow you to manage', 20, 212);
-  pdf.text('your cookie preferences. You can:', 20, 220);
+  pdf.text('While we do not use cookies for tracking or marketing purposes, your browser may store', 20, 178);
+  pdf.text('temporary session information that is necessary for the basic functionality of our website.', 20, 186);
+  pdf.text('This information is not used to identify you and is deleted when you close your browser.', 20, 194);
+  
+  pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
+  pdf.text('5. Third-Party Services', 20, 209);
+  
+  pdf.setFontSize(FONT_SIZES.BODY);
+  pdf.text('If you choose to use third-party integrations with our platform (such as payment processors', 20, 219);
+  pdf.text('or external authentication services), those services may use their own cookies according to', 20, 227);
   
   pdf.addPage();
   
   pdf.setFontSize(FONT_SIZES.BODY);
   pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
-  pdf.text('• Delete cookies from your device', 20, 20);
-  pdf.text('• Block cookies by activating browser settings that allow you to refuse cookies', 20, 28);
-  pdf.text('• Set your browser to notify you when you receive a cookie', 20, 36);
+  pdf.text('their respective privacy policies. We encourage you to review the privacy policies of any', 20, 20);
+  pdf.text('third-party services you connect to our platform.', 20, 28);
   
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.text('5. Changes to Our Cookie Policy', 20, 51);
+  pdf.text('6. Your Browser Settings', 20, 43);
   
   pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.text('We may update our Cookie Policy from time to time. Any changes will be posted on this page with', 20, 61);
-  pdf.text('an updated revision date. We encourage you to review this policy periodically to stay informed', 20, 69);
-  pdf.text('about how we are using cookies.', 20, 77);
+  pdf.text('Most web browsers allow you to control cookies through their settings preferences. You can', 20, 53);
+  pdf.text('typically delete cookies and set your browser to block or notify you when cookies are being', 20, 61);
+  pdf.text('sent to your device. However, as we do not use cookies, changing these settings will not', 20, 69);
+  pdf.text('affect your experience on our platform.', 20, 77);
   
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.text('6. Consent', 20, 92);
+  pdf.text('7. Changes to This Policy', 20, 92);
   
   pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.text('By using our website, you consent to our use of cookies in accordance with this Cookie Policy.', 20, 102);
-  pdf.text('If you do not agree, you can adjust your browser settings to decline cookies, but this may', 20, 110);
-  pdf.text('affect your ability to use some features of our website.', 20, 118);
+  pdf.text('We may update our Cookie Policy from time to time to reflect changes in technology, regulation,', 20, 102);
+  pdf.text('or our business practices. We will notify you of any changes by posting the new policy on our', 20, 110);
+  pdf.text('website and updating the "Last Updated" date.', 20, 118);
+  
+  pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
+  pdf.text('8. Contact Us', 20, 133);
+  
+  pdf.setFontSize(FONT_SIZES.BODY);
+  pdf.text('If you have any questions or concerns about our Cookie Policy or privacy practices, please', 20, 143);
+  pdf.text('contact us at: contact@nexabloom.xyz', 20, 151);
   
   // Add footer with page numbers
   addFooter(pdf);
