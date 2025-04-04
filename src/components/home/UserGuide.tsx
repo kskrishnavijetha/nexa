@@ -2,15 +2,11 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { FileDown, FileText, BookOpen, BookMarked, Eye } from 'lucide-react';
+import { FileDown } from 'lucide-react';
 import { getPdfDownloadUrl } from '@/utils/pdfGuide';
-import { toast } from 'sonner';
-import { generateUserGuide } from '@/utils/pdfGuide'; 
-import DocumentPreview from '@/components/report/UserGuidePreview';
 
 const UserGuide: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
   
   const handleDownload = () => {
     setIsGenerating(true);
@@ -28,137 +24,58 @@ const UserGuide: React.FC = () => {
       // Clean up
       document.body.removeChild(a);
       URL.revokeObjectURL(pdfUrl);
-      
-      toast.success("User guide downloaded successfully!");
     } catch (error) {
       console.error('Error generating PDF', error);
-      toast.error("Failed to generate the guide. Please try again.");
     } finally {
       setIsGenerating(false);
     }
   };
-
-  const handlePreview = () => {
-    setPreviewOpen(true);
-  };
   
   return (
     <div className="my-16">
-      <Card className="bg-gradient-to-r from-primary/10 to-secondary/10 overflow-hidden border-2 border-primary/20">
-        <CardHeader className="pb-2">
-          <div className="flex items-center">
-            <BookMarked className="h-6 w-6 text-primary mr-2" />
-            <div>
-              <CardTitle className="text-2xl">Nexabloom Comprehensive User Guide</CardTitle>
-              <CardDescription className="text-base">
-                Everything you need to know about maximizing your compliance automation
-              </CardDescription>
-            </div>
-          </div>
+      <Card className="bg-gradient-to-r from-primary/5 to-secondary/5">
+        <CardHeader>
+          <CardTitle className="text-2xl">📚 Nexabloom Comprehensive User Guide</CardTitle>
+          <CardDescription>
+            Download our detailed user guide with industry-specific features and regional regulations
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid md:grid-cols-2 gap-6 items-center">
-            <div className="space-y-4">
-              <p className="text-muted-foreground">
-                Our detailed user guide includes step-by-step instructions, best practices, and 
-                industry-specific guidance to help you achieve compliance excellence with Nexabloom.
-              </p>
-              
-              <div className="space-y-3">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center mt-0.5">
-                    <span className="text-primary font-semibold text-sm">1</span>
-                  </div>
-                  <div className="ml-3">
-                    <h4 className="font-medium">Industry-Specific Compliance</h4>
-                    <p className="text-sm text-muted-foreground">Tailored guidance for Finance, Healthcare, SaaS, and more</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center mt-0.5">
-                    <span className="text-primary font-semibold text-sm">2</span>
-                  </div>
-                  <div className="ml-3">
-                    <h4 className="font-medium">Regional Regulation Mapping</h4>
-                    <p className="text-sm text-muted-foreground">Comprehensive coverage of GDPR, HIPAA, SOC 2, and more</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center mt-0.5">
-                    <span className="text-primary font-semibold text-sm">3</span>
-                  </div>
-                  <div className="ml-3">
-                    <h4 className="font-medium">Integration Walkthroughs</h4>
-                    <p className="text-sm text-muted-foreground">Step-by-step setup for all supported platforms</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="relative">
-              <div className="absolute -right-6 -top-10 w-32 h-32 bg-primary/5 rounded-full blur-xl"></div>
-              <div className="absolute -left-6 -bottom-10 w-32 h-32 bg-secondary/5 rounded-full blur-xl"></div>
-              <div className="relative bg-card p-6 rounded-lg border shadow-sm">
-                <BookOpen className="h-8 w-8 text-primary mb-4" />
-                <h3 className="text-lg font-medium mb-2">What's Inside:</h3>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center">
-                    <FileText className="h-4 w-4 text-primary mr-2" />
-                    <span>Implementation Strategies</span>
-                  </li>
-                  <li className="flex items-center">
-                    <FileText className="h-4 w-4 text-primary mr-2" />
-                    <span>Risk Mitigation Techniques</span>
-                  </li>
-                  <li className="flex items-center">
-                    <FileText className="h-4 w-4 text-primary mr-2" />
-                    <span>Compliance Best Practices</span>
-                  </li>
-                  <li className="flex items-center">
-                    <FileText className="h-4 w-4 text-primary mr-2" />
-                    <span>Regulatory Update Guidance</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
+          <p className="text-muted-foreground mb-4">
+            Our comprehensive user guide includes detailed explanations of all features, industry-specific 
+            compliance requirements, region-specific regulations, and best practices for compliance management.
+          </p>
+          <ul className="space-y-2 mb-6">
+            <li className="flex items-start">
+              <span className="mr-2 text-primary">✓</span>
+              <span>Detailed features for each industry (Finance, Healthcare, Cloud & SaaS, etc.)</span>
+            </li>
+            <li className="flex items-start">
+              <span className="mr-2 text-primary">✓</span>
+              <span>Region-specific regulations (US, EU, UK, APAC) and compliance tools</span>
+            </li>
+            <li className="flex items-start">
+              <span className="mr-2 text-primary">✓</span>
+              <span>Step-by-step implementation guides for each regulation</span>
+            </li>
+            <li className="flex items-start">
+              <span className="mr-2 text-primary">✓</span>
+              <span>Integration setup instructions for all supported platforms</span>
+            </li>
+          </ul>
         </CardContent>
-        <CardFooter className="flex justify-center pb-6 pt-4 gap-4">
-          <Button 
-            variant="outline"
-            onClick={handlePreview} 
-            className="gap-2 transition-all hover:scale-105"
-          >
-            <Eye className="h-5 w-5" />
-            Preview Guide
-          </Button>
-          
+        <CardFooter className="flex justify-center">
           <Button 
             onClick={handleDownload} 
             disabled={isGenerating}
-            className="gap-2 transition-all hover:scale-105"
+            size="lg"
+            className="gap-2"
           >
-            {isGenerating ? (
-              <>
-                <div className="h-4 w-4 border-2 border-t-transparent border-white rounded-full animate-spin mr-2" />
-                Generating PDF...
-              </>
-            ) : (
-              <>
-                <FileDown className="h-5 w-5" />
-                Download Complete Guide (PDF)
-              </>
-            )}
+            <FileDown className="h-5 w-5" />
+            {isGenerating ? 'Generating PDF...' : 'Download Comprehensive Guide (PDF)'}
           </Button>
         </CardFooter>
       </Card>
-      
-      <DocumentPreview 
-        isOpen={previewOpen} 
-        onClose={() => setPreviewOpen(false)} 
-      />
     </div>
   );
 };

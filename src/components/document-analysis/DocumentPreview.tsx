@@ -70,31 +70,25 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             <div>
               <h3 className="text-lg font-semibold mb-2">Compliance Scores</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {report.gdprScore !== undefined && (
-                  <div className="bg-gray-50 p-3 rounded-md">
-                    <div className="text-sm text-gray-500">GDPR</div>
-                    <div className={`text-lg font-semibold ${report.gdprScore >= 70 ? 'text-green-600' : 'text-red-600'}`}>
-                      {report.gdprScore}%
-                    </div>
+                <div className="bg-gray-50 p-3 rounded-md">
+                  <div className="text-sm text-gray-500">GDPR</div>
+                  <div className={`text-lg font-semibold ${report.gdprScore >= 70 ? 'text-green-600' : 'text-red-600'}`}>
+                    {report.gdprScore}%
                   </div>
-                )}
-                {report.hipaaScore !== undefined && (
-                  <div className="bg-gray-50 p-3 rounded-md">
-                    <div className="text-sm text-gray-500">HIPAA</div>
-                    <div className={`text-lg font-semibold ${report.hipaaScore >= 70 ? 'text-green-600' : 'text-red-600'}`}>
-                      {report.hipaaScore}%
-                    </div>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-md">
+                  <div className="text-sm text-gray-500">HIPAA</div>
+                  <div className={`text-lg font-semibold ${report.hipaaScore >= 70 ? 'text-green-600' : 'text-red-600'}`}>
+                    {report.hipaaScore}%
                   </div>
-                )}
-                {report.soc2Score !== undefined && (
-                  <div className="bg-gray-50 p-3 rounded-md">
-                    <div className="text-sm text-gray-500">SOC2</div>
-                    <div className={`text-lg font-semibold ${report.soc2Score >= 70 ? 'text-green-600' : 'text-red-600'}`}>
-                      {report.soc2Score}%
-                    </div>
+                </div>
+                <div className="bg-gray-50 p-3 rounded-md">
+                  <div className="text-sm text-gray-500">SOC2</div>
+                  <div className={`text-lg font-semibold ${report.soc2Score >= 70 ? 'text-green-600' : 'text-red-600'}`}>
+                    {report.soc2Score}%
                   </div>
-                )}
-                {report.pciDssScore !== undefined && (
+                </div>
+                {report.pciDssScore && (
                   <div className="bg-gray-50 p-3 rounded-md">
                     <div className="text-sm text-gray-500">PCI DSS</div>
                     <div className={`text-lg font-semibold ${report.pciDssScore >= 70 ? 'text-green-600' : 'text-red-600'}`}>
@@ -111,7 +105,7 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             <div>
               <h3 className="text-lg font-semibold mb-2">Compliance Issues</h3>
               <div className="space-y-3">
-                {report.risks && report.risks.length > 0 ? (
+                {report.risks.length > 0 ? (
                   report.risks.map((risk, index) => (
                     <div key={index} className="bg-gray-50 p-3 rounded-md">
                       <div className="flex items-center justify-between mb-1">

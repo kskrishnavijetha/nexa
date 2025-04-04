@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShieldCheck } from 'lucide-react';
@@ -10,7 +9,6 @@ import { useGoogleServiceConnections } from '@/hooks/useGoogleServiceConnections
 import TabsContainer from './scanner/TabsContainer';
 import ScannerControls from './scanner/ScannerControls';
 import ConnectionStatus from './ConnectionStatus';
-import { SupportedLanguage } from '@/utils/language/types';
 
 const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   industry,
@@ -83,7 +81,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   const handleStartScan = async (
     services: GoogleService[], 
     selectedIndustry: typeof industry, 
-    selectedLanguage: SupportedLanguage = 'en',
+    selectedLanguage = 'en',
     selectedRegion = region
   ) => {
     await handleScan(services, selectedIndustry, selectedLanguage, selectedRegion);

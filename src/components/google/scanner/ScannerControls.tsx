@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { GoogleService } from '../types';
 import { Industry } from '@/utils/types';
-import { SupportedLanguage } from '@/utils/language/types';
+import { SupportedLanguage } from '@/utils/language';
 import { Region } from '@/utils/types';
 
 interface ScannerControlsProps {
@@ -32,7 +31,7 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
   connectedServices,
   isScanning,
   industry,
-  language = 'en',
+  language,
   region,
   file,
   onScan,
