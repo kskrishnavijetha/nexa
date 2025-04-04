@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ShieldCheck } from 'lucide-react';
@@ -59,14 +58,12 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     }
   }, [connectedServices, onServicesUpdate]);
 
-  // Update uploaded file name when file prop changes
   useEffect(() => {
     if (file?.name) {
       setUploadedFileName(file.name);
     }
   }, [file]);
 
-  // Listen for custom file upload event
   useEffect(() => {
     const handleFileUploaded = (e: any) => {
       if (e.detail && e.detail.fileName) {
@@ -84,7 +81,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   const handleStartScan = async (
     services: GoogleService[], 
     selectedIndustry: typeof industry, 
-    selectedLanguage = language, 
+    selectedLanguage = 'en',
     selectedRegion = region
   ) => {
     await handleScan(services, selectedIndustry, selectedLanguage, selectedRegion);
@@ -153,7 +150,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
               connectedServices={connectedServices}
               isScanning={isScanning}
               industry={industry}
-              language={language}
+              language="en"
               region={region}
               file={file}
               onScan={handleStartScan}
@@ -161,7 +158,6 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
               onScanComplete={(itemsScanned, violationsFound) => {
                 console.log(`Scan completed: ${itemsScanned} items scanned, ${violationsFound} violations found`);
                 
-                // Auto-switch to results tab after scan
                 if (scanResults && scanResults.violations.length > 0) {
                   setActiveTab('results');
                 }

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CloudLightning, History, Settings } from 'lucide-react';
@@ -17,11 +18,11 @@ const GoogleServicesPage: React.FC = () => {
   const { 
     industry, 
     region, 
-    language, 
+    language, // Keep for compatibility but don't use it visibly
     selectedFile,
     handleIndustryChange, 
     handleRegionChange, 
-    handleLanguageChange, 
+    handleLanguageChange, // Keep for compatibility
     handleFileSelect 
   } = useGoogleScannerConfig();
   
@@ -54,8 +55,8 @@ const GoogleServicesPage: React.FC = () => {
           setIndustry={handleIndustryChange}
           region={region}
           setRegion={handleRegionChange}
-          language={language}
-          setLanguage={handleLanguageChange}
+          language={language} // Keep for prop compatibility
+          setLanguage={handleLanguageChange} // Keep for prop compatibility
           onFileSelect={handleFileSelect}
         />
       </div>
@@ -85,7 +86,7 @@ const GoogleServicesPage: React.FC = () => {
         <TabsContent value="scanner" className="mt-6">
           <GoogleServicesScanner 
             industry={industry}
-            language={language}
+            language={language} // Keep for prop compatibility
             region={region}
             file={selectedFile}
             persistedConnectedServices={persistedConnectedServices}

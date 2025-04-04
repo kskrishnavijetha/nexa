@@ -8,7 +8,6 @@ import { MessageCircle, Calendar, Shield } from 'lucide-react';
 import { SlackScanOptions } from '@/utils/slack/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { SupportedLanguage } from '@/utils/language';
 
 interface SlackScanOptionsProps {
   options: SlackScanOptions;
@@ -47,13 +46,6 @@ const SlackScanOptionsComponent: React.FC<SlackScanOptionsProps> = ({
     onOptionsChange({ 
       ...options, 
       sensitivityLevel: value as 'strict' | 'standard' | 'relaxed' 
-    });
-  };
-  
-  const handleLanguageChange = (value: string) => {
-    onOptionsChange({
-      ...options,
-      language: value as SupportedLanguage
     });
   };
   
@@ -136,26 +128,6 @@ const SlackScanOptionsComponent: React.FC<SlackScanOptionsProps> = ({
                 <SelectItem value="day">Last 24 Hours</SelectItem>
                 <SelectItem value="week">Last 7 Days</SelectItem>
                 <SelectItem value="month">Last 30 Days</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          {/* Language Configuration */}
-          <div className="space-y-2">
-            <Label>Message Language</Label>
-            <Select
-              disabled={disabled}
-              value={options.language}
-              onValueChange={handleLanguageChange}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select language" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="fr">French</SelectItem>
-                <SelectItem value="de">German</SelectItem>
-                <SelectItem value="es">Spanish</SelectItem>
               </SelectContent>
             </Select>
           </div>
