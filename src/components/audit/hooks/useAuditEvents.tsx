@@ -32,7 +32,10 @@ export function useAuditEvents({ documentName, initialEvents }: UseAuditEventsPr
     const addRealTimeEvent = () => {
       const newEvent = generateRealTimeEvent(documentName);
       setAuditEvents(prev => [newEvent, ...prev]);
-      notifyNewActivity(newEvent); // Show notification with the enhanced function
+      // Force notification display with proper context
+      setTimeout(() => {
+        notifyNewActivity(newEvent);
+      }, 100);
     };
 
     // Set up interval for real-time updates
@@ -59,12 +62,22 @@ export function useAuditEvents({ documentName, initialEvents }: UseAuditEventsPr
         const newEvent = generateInitialRealTimeEvent(documentName);
         setAuditEvents(prev => [newEvent, ...prev]);
         
-        // Use the enhanced notification with rich formatting
+        // Ensure the toast is displayed
         toast.info('Real-time monitoring active', {
           description: 'Audit events will appear automatically',
           icon: <span className="animate-pulse">🔄</span>,
-          duration: 3000,
+          duration: 5000,
+          position: 'top-right',
         });
+        
+        // Add a second toast to confirm notifications are working
+        setTimeout(() => {
+          toast.success('Notification system ready', {
+            description: 'You will receive alerts for important audit events',
+            duration: 3000,
+            position: 'top-right',
+          });
+        }, 1000);
       }, 2000); // Show after 2 seconds
 
       return () => clearTimeout(timer);
