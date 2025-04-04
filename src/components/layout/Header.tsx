@@ -25,7 +25,13 @@ const Header: React.FC = () => {
       console.log('Header: Initiating sign out');
       
       // Call the signOut function from AuthContext
-      await signOut();
+      const { error } = await signOut();
+      
+      if (error) {
+        console.error('Error signing out:', error);
+        toast.error('Failed to sign out. Please try again.');
+        return;
+      }
       
       console.log('Header: Sign out completed successfully');
       
