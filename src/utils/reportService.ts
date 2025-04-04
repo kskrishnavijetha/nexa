@@ -1,4 +1,3 @@
-
 import { ApiResponse, ComplianceReport } from './types';
 import { SupportedLanguage, translate } from './language';
 import jsPDF from 'jspdf';
@@ -128,12 +127,7 @@ export const generateReportPDF = async (
       
       // Add each suggestion
       for (const suggestion of report.suggestions) {
-        // Handle both string and object formats for suggestions
-        const suggestionText = typeof suggestion === 'string' 
-          ? suggestion 
-          : suggestion.title || suggestion.description;
-          
-        const suggestionLines = doc.splitTextToSize(`• ${suggestionText}`, 170);
+        const suggestionLines = doc.splitTextToSize(`• ${suggestion}`, 170);
         doc.text(suggestionLines, 20, yPos);
         yPos += (suggestionLines.length * 7);
         

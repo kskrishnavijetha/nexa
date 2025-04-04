@@ -21,12 +21,7 @@ export const translate = (key: string, language: SupportedLanguage = 'en'): stri
     return key;
   }
   
-  if (!allTranslations[key][language]) {
-    console.warn(`Translation for key "${key}" not found in language "${language}", falling back to English`);
-    return allTranslations[key].en || key;
-  }
-  
-  return allTranslations[key][language];
+  return allTranslations[key][language] || allTranslations[key].en;
 };
 
 // Re-export individual translation modules

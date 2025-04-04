@@ -1,6 +1,5 @@
-
 import { Industry, Region } from './types';
-import { SupportedLanguage, translate } from './language';
+import { SupportedLanguage, translate } from './languageService';
 
 /**
  * Generate a human-readable summary based on compliance scores
@@ -63,15 +62,6 @@ export function generateSummary(
  * Get region-specific text for the introduction
  */
 function getRegionText(region: Region, language: SupportedLanguage = 'en'): string {
-  const key = `region_text_${region.toLowerCase().replace(/\s+/g, '_')}`;
-  const translated = translate(key, language);
-  
-  // If translation exists, use it
-  if (translated !== key) {
-    return translated;
-  }
-  
-  // Fallback translations
   if (language === 'en') {
     return `with a focus on ${region} regulatory requirements,`;
   } else if (language === 'es') {
@@ -90,23 +80,11 @@ function getRegionText(region: Region, language: SupportedLanguage = 'en'): stri
  * Get region-specific compliance summary
  */
 function getRegionComplianceSummary(region: Region, score: number, language: SupportedLanguage = 'en'): string {
-  const goodKey = `region_good_${region.toLowerCase().replace(/\s+/g, '_')}`;
-  const badKey = `region_bad_${region.toLowerCase().replace(/\s+/g, '_')}`;
-  
-  const goodTranslated = translate(goodKey, language);
-  const badTranslated = translate(badKey, language);
-  
-  // If translations exist, use them
-  if (goodTranslated !== goodKey && badTranslated !== badKey) {
-    return score >= 80 ? goodTranslated : badTranslated;
-  }
-  
-  // If only English is available or no translations exist
   if (language !== 'en') {
+    // For simplicity, only English is fully implemented
     return '';
   }
   
-  // Fallback English region-specific summaries
   switch (region) {
     case 'North America':
       return score >= 80 
@@ -145,20 +123,11 @@ function getRegionComplianceSummary(region: Region, score: number, language: Sup
  * Get industry-specific compliance insight
  */
 function getIndustrySpecificInsight(industry: Industry, language: SupportedLanguage = 'en'): string {
-  const key = `industry_insight_${industry.toLowerCase().replace(/\s+/g, '_')}`;
-  const translated = translate(key, language);
-  
-  // If translation exists, use it
-  if (translated !== key) {
-    return translated;
-  }
-  
-  // If only English is available or no translations exist
+  // Implementation left simple for brevity
   if (language !== 'en') {
     return '';
   }
   
-  // Fallback English industry-specific insights
   switch (industry) {
     case 'Healthcare':
       return 'Pay special attention to patient data protection and medical record handling requirements.';

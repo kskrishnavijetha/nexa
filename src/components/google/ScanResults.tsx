@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { ScanViolation } from './types';
 import { Industry } from '@/utils/types';
 import { ViolationItem, NoViolationsFound, ReportActions, FileInfoDisplay } from './scan-results';
-import { SupportedLanguage } from '@/utils/language';
 
 interface ScanResultsProps {
   violations: ScanViolation[];
@@ -12,7 +11,6 @@ interface ScanResultsProps {
   isCompactView?: boolean;
   fileName?: string;
   serviceName?: string;
-  language?: SupportedLanguage;
 }
 
 const ScanResults: React.FC<ScanResultsProps> = ({ 
@@ -20,8 +18,7 @@ const ScanResults: React.FC<ScanResultsProps> = ({
   industry, 
   isCompactView,
   fileName,
-  serviceName,
-  language = 'en'
+  serviceName 
 }) => {
   // Get unique services from violations
   const uniqueServices = [...new Set(violations.map(v => v.service))];
@@ -53,8 +50,7 @@ const ScanResults: React.FC<ScanResultsProps> = ({
           <ReportActions 
             violations={violations} 
             industry={industry} 
-            services={uniqueServices}
-            language={language}
+            services={uniqueServices} 
           />
         </CardFooter>
       )}

@@ -11,15 +11,9 @@ interface ReportActionsProps {
   violations: ScanViolation[];
   industry?: Industry;
   services: string[];
-  language?: SupportedLanguage;
 }
 
-const ReportActions: React.FC<ReportActionsProps> = ({
-  violations,
-  industry,
-  services,
-  language = 'en'
-}) => {
+const ReportActions: React.FC<ReportActionsProps> = ({ violations, industry, services }) => {
   const handleDownloadPDF = async (serviceFilter?: string) => {
     try {
       const filteredViolations = serviceFilter 
@@ -72,7 +66,6 @@ const ReportActions: React.FC<ReportActionsProps> = ({
         'Global' as Industry;
         
       console.log(`[ScanResults] Using industry for report: ${reportIndustry}`);
-      console.log(`[ScanResults] Using language for report: ${language}`);
       
       // Create a mock report structure with the filtered violations data
       const mockReport = {
@@ -102,7 +95,7 @@ const ReportActions: React.FC<ReportActionsProps> = ({
                      ['GDPR', 'ISO/IEC 27001']
       };
       
-      const result = await generateReportPDF(mockReport, language);
+      const result = await generateReportPDF(mockReport, 'en' as SupportedLanguage);
       
       if (result.data) {
         // Create a download link for the PDF

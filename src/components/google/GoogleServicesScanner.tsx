@@ -87,7 +87,6 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     selectedLanguage = language, 
     selectedRegion = region
   ) => {
-    console.log('Starting scan with language:', selectedLanguage);
     await handleScan(services, selectedIndustry, selectedLanguage, selectedRegion);
     
     if (scanResults) {
@@ -106,8 +105,6 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
       console.log('Scan completed and added to history:', documentName);
     }
   };
-
-  console.log("GoogleServicesScanner: Rendering with connected services:", connectedServices);
 
   return (
     <div className="space-y-6">
@@ -151,7 +148,6 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
             onConnectDocs={handleConnectDocs}
             onDisconnect={handleDisconnect}
             isCompactView={isCompactView}
-            language={language}
           >
             <ScannerControls
               connectedServices={connectedServices}
