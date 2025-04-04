@@ -13,7 +13,7 @@ export const generatePrivacyPolicyPdf = (): Blob => {
   pdf.setFontSize(FONT_SIZES.TITLE);
   const primaryColor = COLORS.PRIMARY;
   pdf.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  pdf.text('CompliZen Privacy Policy', 20, 20);
+  pdf.text('Nexabloom Privacy Policy', 20, 20);
   
   // Date
   pdf.setFontSize(FONT_SIZES.BODY);
@@ -25,70 +25,50 @@ export const generatePrivacyPolicyPdf = (): Blob => {
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
   const textColor = COLORS.TEXT;
   pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
-  pdf.text('1. Introduction', 20, 45);
+  pdf.text('1. Our No-Data Collection Policy', 20, 45);
   
   pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.text('CompliZen ("we", "our", or "us") is committed to protecting your privacy. This Privacy', 20, 55);
-  pdf.text('Policy explains how we collect, use, disclose, and safeguard your information when', 20, 63);
-  pdf.text('you use our compliance automation platform and related services.', 20, 71);
+  pdf.text('At Nexabloom, we are committed to your privacy. We have designed our services to operate', 20, 55);
+  pdf.text('without collecting your personal data. We do not track, store, or process any personal', 20, 63);
+  pdf.text('information from our users.', 20, 71);
   
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.text('2. Information We Collect', 20, 86);
+  pdf.text('2. How Our Service Works Without Data Collection', 20, 86);
   
   pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.text('We may collect information about you in various ways, including:', 20, 96);
-  pdf.text('• Personal Information: Name, email address, phone number, and billing information.', 20, 106);
-  pdf.text('• Usage Data: Information on how you use our platform, features accessed, and time spent.', 20, 114);
-  pdf.text('• Compliance Documents: Documents you upload for analysis and compliance assessment.', 20, 122);
+  pdf.text('Our compliance platform operates entirely on your device. Any analysis of your documents', 20, 96);
+  pdf.text('or compliance evaluations are performed locally, and we never transmit or store your', 20, 104);
+  pdf.text('information on our servers. Your documents remain solely in your possession.', 20, 112);
   
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.text('3. How We Use Your Information', 20, 137);
+  pdf.text('3. Cookies and Tracking', 20, 127);
   
   pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.text('We use the information we collect for various purposes, including:', 20, 147);
-  pdf.text('• To provide and maintain our services.', 20, 155);
-  pdf.text('• To process payments and send invoices.', 20, 163);
-  pdf.text('• To improve and personalize your experience.', 20, 171);
-  pdf.text('• To communicate with you about service updates and offers.', 20, 179);
+  pdf.text('We do not use cookies, web beacons, or similar technologies to track your usage of our', 20, 137);
+  pdf.text('service. Our website does not include any third-party analytics or tracking code.', 20, 145);
   
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.text('4. Data Security', 20, 194);
+  pdf.text('4. Third-Party Services', 20, 160);
   
   pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.text('We implement appropriate technical and organizational measures to protect the security', 20, 204);
-  pdf.text('of your personal information. However, no method of transmission over the Internet or', 20, 212);
-  pdf.text('electronic storage is 100% secure, so we cannot guarantee absolute security.', 20, 220);
-  
-  pdf.addPage();
+  pdf.text('While we do not collect your data, if you choose to use third-party integrations (such as', 20, 170);
+  pdf.text('connecting to Google services), those third parties may collect information according to', 20, 178);
+  pdf.text('their own privacy policies. We encourage you to review the privacy policies of any', 20, 186);
+  pdf.text('third-party services you connect to our platform.', 20, 194);
   
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
-  pdf.text('5. Your Rights', 20, 20);
+  pdf.text('5. Changes to This Privacy Policy', 20, 209);
   
   pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.text('Depending on your location, you may have certain rights regarding your personal information:', 20, 30);
-  pdf.text('• Access and receive a copy of your data.', 20, 38);
-  pdf.text('• Rectify inaccurate or incomplete information.', 20, 46);
-  pdf.text('• Request deletion of your personal data.', 20, 54);
-  pdf.text('• Restrict or object to our processing of your data.', 20, 62);
-  pdf.text('• Data portability rights.', 20, 70);
+  pdf.text('We may update our Privacy Policy from time to time. We will notify you of any changes by', 20, 219);
+  pdf.text('posting the new Privacy Policy on this page and updating the "Last Updated" date.', 20, 227);
   
   pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.text('6. Third-Party Services', 20, 85);
+  pdf.text('6. Contact Us', 20, 242);
   
   pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.text('Our services may contain links to third-party websites and services. We are not responsible', 20, 95);
-  pdf.text('for the content or privacy practices of these third parties. We encourage you to read the', 20, 103);
-  pdf.text('privacy policies of any third-party services you access through our platform.', 20, 111);
-  
-  pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
-  pdf.text('7. Changes to This Privacy Policy', 20, 126);
-  
-  pdf.setFontSize(FONT_SIZES.BODY);
-  pdf.text('We may update our Privacy Policy from time to time. We will notify you of any changes by', 20, 136);
-  pdf.text('posting the new Privacy Policy on this page and updating the "Last Updated" date.', 20, 144);
-  
-  // Removed the "8. Contact Us" section as requested
+  pdf.text('If you have any questions about our privacy practices, please contact us at:', 20, 252);
+  pdf.text('privacy@nexabloom.com', 20, 260);
   
   // Add footer with page numbers
   addFooter(pdf);
