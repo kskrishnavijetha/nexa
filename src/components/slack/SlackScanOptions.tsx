@@ -8,7 +8,7 @@ import { MessageCircle, Calendar, Shield } from 'lucide-react';
 import { SlackScanOptions } from '@/utils/slack/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { SupportedLanguage } from '@/utils/language';
+import { SupportedLanguage, supportedLanguages } from '@/utils/language';
 
 interface SlackScanOptionsProps {
   options: SlackScanOptions;
@@ -152,10 +152,11 @@ const SlackScanOptionsComponent: React.FC<SlackScanOptionsProps> = ({
                 <SelectValue placeholder="Select language" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="fr">French</SelectItem>
-                <SelectItem value="de">German</SelectItem>
-                <SelectItem value="es">Spanish</SelectItem>
+                {supportedLanguages.map(lang => (
+                  <SelectItem key={lang.code} value={lang.code}>
+                    {lang.nativeName} ({lang.name})
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

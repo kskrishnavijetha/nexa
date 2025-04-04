@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Industry, Region } from '@/utils/types';
-import { SupportedLanguage } from '@/utils/language';
+import { SupportedLanguage, supportedLanguages } from '@/utils/language';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import IndustrySelector from '../document-uploader/IndustrySelector';
 import RegionSelector from '../document-uploader/RegionSelector';
@@ -55,13 +55,11 @@ const GoogleScannerConfig: React.FC<GoogleScannerConfigProps> = ({
                 <SelectValue placeholder="Select language" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="en">English</SelectItem>
-                <SelectItem value="es">Spanish</SelectItem>
-                <SelectItem value="fr">French</SelectItem>
-                <SelectItem value="de">German</SelectItem>
-                <SelectItem value="it">Italian</SelectItem>
-                <SelectItem value="pt">Portuguese</SelectItem>
-                <SelectItem value="zh">Chinese</SelectItem>
+                {supportedLanguages.map(lang => (
+                  <SelectItem key={lang.code} value={lang.code}>
+                    {lang.nativeName} ({lang.name})
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

@@ -87,6 +87,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     selectedLanguage = language, 
     selectedRegion = region
   ) => {
+    console.log('Starting scan with language:', selectedLanguage);
     await handleScan(services, selectedIndustry, selectedLanguage, selectedRegion);
     
     if (scanResults) {
@@ -148,6 +149,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
             onConnectDocs={handleConnectDocs}
             onDisconnect={handleDisconnect}
             isCompactView={isCompactView}
+            language={language} // Pass language to TabsContainer
           >
             <ScannerControls
               connectedServices={connectedServices}

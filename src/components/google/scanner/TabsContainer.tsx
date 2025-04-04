@@ -1,18 +1,21 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScanResults as ScanResultsType, GoogleService } from '../types';
-import CloudServicesCard from '../CloudServicesCard';
-import ScanResultsComponent from '../ScanResults';
+import { ScanResults } from './types';
+import { ScanResults as ScanResultsComponent } from '../index';
+import ServiceCard from '../service-card/ServiceCard';
+import { GoogleService } from '../types';
+import { Industry } from '@/utils/types';
+import { SupportedLanguage } from '@/utils/language';
 
 interface TabsContainerProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  scanResults: ScanResultsType | null;
-  lastScanTime: Date | undefined;
+  scanResults: ScanResults | null;
+  lastScanTime: Date | null;
   itemsScanned: number;
   violationsFound: number;
-  selectedIndustry: any | undefined;
+  selectedIndustry?: Industry;
   isScanning: boolean;
   connectedServices: GoogleService[];
   isConnectingDrive: boolean;
@@ -22,8 +25,9 @@ interface TabsContainerProps {
   onConnectGmail: () => void;
   onConnectDocs: () => void;
   onDisconnect: (service: GoogleService) => void;
+  isCompactView: boolean;
   children: React.ReactNode;
-  isCompactView?: boolean;
+  language?: SupportedLanguage;
 }
 
 const TabsContainer: React.FC<TabsContainerProps> = ({
@@ -43,75 +47,111 @@ const TabsContainer: React.FC<TabsContainerProps> = ({
   onConnectGmail,
   onConnectDocs,
   onDisconnect,
+  isCompactView,
   children,
-  isCompactView = false
+  language = 'en'
 }) => {
-  const anyServiceConnected = connectedServices.length > 0;
-  
-  // Auto-switch to results tab when scan results become available
-  useEffect(() => {
-    if (scanResults && scanResults.violations.length > 0) {
-      setActiveTab('results');
-    }
-  }, [scanResults, setActiveTab]);
-  
-  // Listen for file upload complete event
-  useEffect(() => {
-    const handleFileUploaded = () => {
-      if (!isScanning) {
-        console.log('File upload detected, auto-switching to results tab after scan');
-      }
-    };
-    
-    window.addEventListener('file-uploaded', handleFileUploaded);
-    return () => {
-      window.removeEventListener('file-uploaded', handleFileUploaded);
-    };
-  }, [isScanning, setActiveTab]);
-  
-  return (
-    <div>
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className={isCompactView ? "w-full mb-4" : ""}>
-          <TabsTrigger value="connect" className={isCompactView ? "flex-1 text-xs" : ""}>
-            Connect Services
-          </TabsTrigger>
-          <TabsTrigger value="results" disabled={!scanResults} className={isCompactView ? "flex-1 text-xs" : ""}>
-            Scan Results
-          </TabsTrigger>
-        </TabsList>
+  if (isCompactView) {
+    // Simplified view with tab content next to scanner controls
+    return (
+      <div className="space-y-6">
+        {children}
         
-        <TabsContent value="connect">
-          <CloudServicesCard
-            isScanning={isScanning}
-            connectedServices={connectedServices}
-            isConnectingDrive={isConnectingDrive}
-            isConnectingGmail={isConnectingGmail}
-            isConnectingDocs={isConnectingDocs}
-            onConnectDrive={onConnectDrive}
-            onConnectGmail={onConnectGmail}
-            onConnectDocs={onConnectDocs}
-            onDisconnect={onDisconnect}
-            onScan={() => setActiveTab('results')}
-            anyServiceConnected={anyServiceConnected}
-            disableScan={isScanning}
-            isCompactView={isCompactView}
-          />
-          
-          {children}
-        </TabsContent>
-        
-        <TabsContent value="results">
-          {scanResults && (
-            <ScanResultsComponent
-              violations={scanResults.violations}
-              industry={selectedIndustry}
-              isCompactView={isCompactView}
+        {activeTab === 'scanner' && (
+          <div className="grid grid-cols-1 gap-4">
+            <ServiceCard 
+              service="drive"
+              isConnected={connectedServices.includes('drive')}
+              isConnecting={isConnectingDrive}
+              isScanning={isScanning && connectedServices.includes('drive')}
+              onConnect={onConnectDrive}
+              onDisconnect={() => onDisconnect('drive')}
+              compact
             />
-          )}
-        </TabsContent>
-      </Tabs>
-    </div>
+            <ServiceCard 
+              service="gmail"
+              isConnected={connectedServices.includes('gmail')}
+              isConnecting={isConnectingGmail}
+              isScanning={isScanning && connectedServices.includes('gmail')}
+              onConnect={onConnectGmail}
+              onDisconnect={() => onDisconnect('gmail')}
+              compact
+            />
+            <ServiceCard 
+              service="docs"
+              isConnected={connectedServices.includes('docs')}
+              isConnecting={isConnectingDocs}
+              isScanning={isScanning && connectedServices.includes('docs')}
+              onConnect={onConnectDocs}
+              onDisconnect={() => onDisconnect('docs')}
+              compact
+            />
+          </div>
+        )}
+        
+        {activeTab === 'results' && scanResults && (
+          <ScanResultsComponent 
+            violations={scanResults.violations} 
+            industry={selectedIndustry}
+            isCompactView={true}
+            language={language}
+          />
+        )}
+      </div>
+    );
+  }
+  
+  // Full view with tabs
+  return (
+    <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <TabsList className="w-full grid grid-cols-2">
+        <TabsTrigger value="scanner">Scanner</TabsTrigger>
+        <TabsTrigger value="results" disabled={!scanResults}>
+          Results{violationsFound > 0 ? ` (${violationsFound})` : ''}
+        </TabsTrigger>
+      </TabsList>
+      
+      <TabsContent value="scanner" className="space-y-6">
+        {children}
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <ServiceCard 
+            service="drive"
+            isConnected={connectedServices.includes('drive')}
+            isConnecting={isConnectingDrive}
+            isScanning={isScanning && connectedServices.includes('drive')}
+            onConnect={onConnectDrive}
+            onDisconnect={() => onDisconnect('drive')}
+          />
+          <ServiceCard 
+            service="gmail"
+            isConnected={connectedServices.includes('gmail')}
+            isConnecting={isConnectingGmail}
+            isScanning={isScanning && connectedServices.includes('gmail')}
+            onConnect={onConnectGmail}
+            onDisconnect={() => onDisconnect('gmail')}
+          />
+          <ServiceCard 
+            service="docs"
+            isConnected={connectedServices.includes('docs')}
+            isConnecting={isConnectingDocs}
+            isScanning={isScanning && connectedServices.includes('docs')}
+            onConnect={onConnectDocs}
+            onDisconnect={() => onDisconnect('docs')}
+          />
+        </div>
+      </TabsContent>
+      
+      <TabsContent value="results">
+        {scanResults && (
+          <ScanResultsComponent 
+            violations={scanResults.violations} 
+            industry={selectedIndustry}
+            language={language}
+          />
+        )}
+      </TabsContent>
+    </Tabs>
   );
 };
 
