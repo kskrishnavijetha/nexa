@@ -21,6 +21,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   isCompactView = false
 }) => {
   const [activeTab, setActiveTab] = useState('scanner');
+  const [uploadedFileName, setUploadedFileName] = useState<string | undefined>(file?.name);
   
   const {
     isConnectingDrive,
@@ -58,6 +59,28 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     }
   }, [connectedServices, onServicesUpdate]);
 
+  // Update uploaded file name when file prop changes
+  useEffect(() => {
+    if (file?.name) {
+      setUploadedFileName(file.name);
+    }
+  }, [file]);
+
+  // Listen for custom file upload event
+  useEffect(() => {
+    const handleFileUploaded = (e: any) => {
+      if (e.detail && e.detail.fileName) {
+        setUploadedFileName(e.detail.fileName);
+        console.log('File uploaded event detected:', e.detail.fileName);
+      }
+    };
+    
+    window.addEventListener('file-uploaded', handleFileUploaded);
+    return () => {
+      window.removeEventListener('file-uploaded', handleFileUploaded);
+    };
+  }, []);
+
   const handleStartScan = async (
     services: GoogleService[], 
     selectedIndustry: typeof industry, 
@@ -67,15 +90,19 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     await handleScan(services, selectedIndustry, selectedLanguage, selectedRegion);
     
     if (scanResults) {
+      const documentName = uploadedFileName || 'Cloud Services Scan';
+      
       addScanHistory({
         serviceId: services.join('-'),
         serviceName: services.map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(', '),
         scanDate: new Date().toISOString(),
         itemsScanned: itemsScanned,
         violationsFound: violationsFound,
-        documentName: 'Cloud Services Scan',
-        fileName: file ? file.name : 'multiple services'
+        documentName: documentName,
+        fileName: uploadedFileName || (file ? file.name : 'multiple services')
       });
+      
+      console.log('Scan completed and added to history:', documentName);
     }
   };
 
@@ -132,8 +159,12 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
               onScan={handleStartScan}
               isCompactView={isCompactView}
               onScanComplete={(itemsScanned, violationsFound) => {
-                // This callback can be used for any post-scan operations
                 console.log(`Scan completed: ${itemsScanned} items scanned, ${violationsFound} violations found`);
+                
+                // Auto-switch to results tab after scan
+                if (scanResults && scanResults.violations.length > 0) {
+                  setActiveTab('results');
+                }
               }}
             />
           </TabsContainer>

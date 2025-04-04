@@ -39,7 +39,8 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
           console.log(`User ID changed from ${currentUserId} to ${id}`);
           
           if (id) {
-            set({ scanHistory: [], userId: id });
+            // Don't clear history if we're just loading a user's data
+            set({ userId: id });
             
             const userHistoryKey = `nexabloom_serviceHistory_${id}`;
             const savedHistory = localStorage.getItem(userHistoryKey);
@@ -110,6 +111,7 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
             
             const newHistory = [item, ...state.scanHistory];
             
+            // Immediately save to localStorage to prevent loss
             const userHistoryKey = `nexabloom_serviceHistory_${userId}`;
             try {
               localStorage.setItem(
@@ -124,6 +126,26 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
           });
         } else {
           console.warn('Attempted to add scan history without a user ID');
+          // Try to store history even without a userId, just with a session ID
+          const sessionId = localStorage.getItem('nexabloom_session_id') || 
+                          `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+          
+          localStorage.setItem('nexabloom_session_id', sessionId);
+          
+          set((state) => {
+            const newHistory = [item, ...state.scanHistory];
+            
+            try {
+              localStorage.setItem(
+                'nexabloom_anonymous_history', 
+                JSON.stringify({ scanHistory: newHistory, sessionId })
+              );
+            } catch (e) {
+              console.error('Error saving anonymous history to localStorage:', e);
+            }
+            
+            return { scanHistory: newHistory };
+          });
         }
       },
       
@@ -134,6 +156,8 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
         if (userId) {
           const userHistoryKey = `nexabloom_serviceHistory_${userId}`;
           localStorage.removeItem(userHistoryKey);
+        } else {
+          localStorage.removeItem('nexabloom_anonymous_history');
         }
         
         set({ scanHistory: [] });
@@ -142,7 +166,9 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
     {
       name: 'nexabloom_serviceHistory',
       partialize: (state) => ({ 
-        userId: state.userId 
+        userId: state.userId,
+        // Now also persist the scan history to prevent it from disappearing
+        scanHistory: state.scanHistory
       }),
     }
   )

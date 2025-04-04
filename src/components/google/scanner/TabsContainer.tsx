@@ -1,7 +1,7 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScanResults as ScanResultsType, GoogleService, Industry } from '../types';
+import { ScanResults as ScanResultsType, GoogleService } from '../types';
 import CloudServicesCard from '../CloudServicesCard';
 import ScanResultsComponent from '../ScanResults';
 
@@ -12,7 +12,7 @@ interface TabsContainerProps {
   lastScanTime: Date | undefined;
   itemsScanned: number;
   violationsFound: number;
-  selectedIndustry: Industry | undefined;
+  selectedIndustry: any | undefined;
   isScanning: boolean;
   connectedServices: GoogleService[];
   isConnectingDrive: boolean;
@@ -48,9 +48,30 @@ const TabsContainer: React.FC<TabsContainerProps> = ({
 }) => {
   const anyServiceConnected = connectedServices.length > 0;
   
+  // Auto-switch to results tab when scan results become available
+  useEffect(() => {
+    if (scanResults && scanResults.violations.length > 0) {
+      setActiveTab('results');
+    }
+  }, [scanResults, setActiveTab]);
+  
+  // Listen for file upload complete event
+  useEffect(() => {
+    const handleFileUploaded = () => {
+      if (!isScanning) {
+        console.log('File upload detected, auto-switching to results tab after scan');
+      }
+    };
+    
+    window.addEventListener('file-uploaded', handleFileUploaded);
+    return () => {
+      window.removeEventListener('file-uploaded', handleFileUploaded);
+    };
+  }, [isScanning, setActiveTab]);
+  
   return (
     <div>
-      <Tabs defaultValue="connect" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className={isCompactView ? "w-full mb-4" : ""}>
           <TabsTrigger value="connect" className={isCompactView ? "flex-1 text-xs" : ""}>
             Connect Services

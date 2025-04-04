@@ -20,6 +20,16 @@ export const useFileUpload = (serviceId: string) => {
           size: formData.file.size
         });
         toast.success(`File "${formData.file.name}" uploaded to Google Drive`);
+        
+        // Auto-trigger scan after upload (this will be handled by the parent component)
+        if (window && typeof window.dispatchEvent === 'function') {
+          window.dispatchEvent(new CustomEvent('file-uploaded', { 
+            detail: { 
+              serviceId, 
+              fileName: formData.file.name 
+            } 
+          }));
+        }
       } else if (serviceId.includes('gmail')) {
         console.log(`Scanning email content: ${formData.emailContent.substring(0, 20)}...`);
         setUploadedFile({

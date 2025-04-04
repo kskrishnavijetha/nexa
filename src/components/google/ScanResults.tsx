@@ -3,15 +3,23 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ScanViolation } from './types';
 import { Industry } from '@/utils/types';
-import { ViolationItem, NoViolationsFound, ReportActions } from './scan-results';
+import { ViolationItem, NoViolationsFound, ReportActions, FileInfoDisplay } from './scan-results';
 
 interface ScanResultsProps {
   violations: ScanViolation[];
   industry?: Industry;
   isCompactView?: boolean;
+  fileName?: string;
+  serviceName?: string;
 }
 
-const ScanResults: React.FC<ScanResultsProps> = ({ violations, industry, isCompactView }) => {
+const ScanResults: React.FC<ScanResultsProps> = ({ 
+  violations, 
+  industry, 
+  isCompactView,
+  fileName,
+  serviceName 
+}) => {
   // Get unique services from violations
   const uniqueServices = [...new Set(violations.map(v => v.service))];
 
@@ -25,6 +33,10 @@ const ScanResults: React.FC<ScanResultsProps> = ({ violations, industry, isCompa
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {fileName && (
+          <FileInfoDisplay fileName={fileName} serviceName={serviceName} />
+        )}
+        
         <div className="space-y-4">
           {violations.map((violation, index) => (
             <ViolationItem key={index} violation={violation} />

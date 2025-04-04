@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Scan } from 'lucide-react';
+import { Scan, FileText } from 'lucide-react';
 
 interface UploadDialogProps {
   isOpen: boolean;
@@ -30,13 +30,22 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
   const [emailContent, setEmailContent] = useState('');
   const [docTitle, setDocTitle] = useState('');
   const [docContent, setDocContent] = useState('');
+  const [fileName, setFileName] = useState('');
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setUploadFile(file);
+      setFileName(file.name);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Collect form data based on service type
     let formData;
     if (serviceId.includes('drive')) {
-      formData = { file: uploadFile };
+      formData = { file: uploadFile, fileName };
     } else if (serviceId.includes('gmail')) {
       formData = { emailContent };
     } else if (serviceId.includes('docs')) {
@@ -45,11 +54,15 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
     
     onSubmit(formData);
     
+    // Auto close dialog after submission
+    onClose();
+    
     // Clear form
     setUploadFile(null);
     setEmailContent('');
     setDocTitle('');
     setDocContent('');
+    setFileName('');
   };
 
   return (
@@ -63,12 +76,20 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
           {serviceId.includes('drive') && (
             <div className="space-y-2">
               <Label htmlFor="file">File</Label>
-              <Input 
-                id="file" 
-                type="file" 
-                onChange={(e) => e.target.files && setUploadFile(e.target.files[0])} 
-                required 
-              />
+              <div className="flex flex-col gap-2">
+                <Input 
+                  id="file" 
+                  type="file" 
+                  onChange={handleFileChange} 
+                  required 
+                />
+                {fileName && (
+                  <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded border border-slate-200">
+                    <FileText className="h-4 w-4 text-blue-500" />
+                    <span className="text-sm">{fileName}</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
           
@@ -93,7 +114,7 @@ const UploadDialog: React.FC<UploadDialogProps> = ({
                 <Input 
                   id="file" 
                   type="file" 
-                  onChange={(e) => e.target.files && setUploadFile(e.target.files[0])} 
+                  onChange={handleFileChange} 
                   accept=".doc,.docx,.pdf,.txt"
                 />
               </div>
