@@ -76,5 +76,30 @@ export const generateInitialRealTimeEvent = (documentName: string): AuditEvent =
  * Notify user of new audit activity
  */
 export const notifyNewActivity = (event: AuditEvent): void => {
-  toast.info(`New activity: ${event.action} by ${event.user}`);
+  const icon = event.icon || <Clock className="h-4 w-4" />;
+  const eventType = getEventType(event.action);
+  
+  toast[eventType](`New activity: ${event.action}`, {
+    description: `By ${event.user} • ${new Date(event.timestamp).toLocaleTimeString()}`,
+    icon: icon,
+    duration: 5000,
+    position: 'top-right',
+  });
+};
+
+/**
+ * Determine the type of toast to display based on the action
+ */
+const getEventType = (action: string): 'info' | 'success' | 'warning' | 'error' => {
+  const actionLower = action.toLowerCase();
+  
+  if (actionLower.includes('completed') || actionLower.includes('verified') || actionLower.includes('updated')) {
+    return 'success';
+  } else if (actionLower.includes('vulnerability') || actionLower.includes('risk') || actionLower.includes('issue')) {
+    return 'warning';
+  } else if (actionLower.includes('error') || actionLower.includes('failed') || actionLower.includes('critical')) {
+    return 'error';
+  } else {
+    return 'info';
+  }
 };
