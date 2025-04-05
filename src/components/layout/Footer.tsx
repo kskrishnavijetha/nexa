@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Globe, Shield, FileText } from 'lucide-react';
+import { Mail, Globe, Shield, FileText, Linkedin, Twitter } from 'lucide-react';
 import { getPrivacyPolicyPdfUrl, getTermsOfServicePdfUrl, getCookiePolicyPdfUrl } from '@/utils/pdfGuide';
 import { toast } from 'sonner';
 
@@ -81,6 +80,28 @@ const Footer: React.FC = () => {
                 <Globe className="h-4 w-4 mr-3 flex-shrink-0" />
                 <a href="https://www.nexabloom.xyz" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
                   www.nexabloom.xyz
+                </a>
+              </li>
+              <li className="flex items-center text-sm text-muted-foreground">
+                <Linkedin className="h-4 w-4 mr-3 flex-shrink-0" />
+                <a 
+                  href="https://linkedin.com/company/nexabloom" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors"
+                >
+                  LinkedIn
+                </a>
+              </li>
+              <li className="flex items-center text-sm text-muted-foreground">
+                <Twitter className="h-4 w-4 mr-3 flex-shrink-0" />
+                <a 
+                  href="https://x.com/nexabloom" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-colors"
+                >
+                  Twitter (X)
                 </a>
               </li>
             </ul>
