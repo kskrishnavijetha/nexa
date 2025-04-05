@@ -44,7 +44,7 @@ export const generateRealTimeEvent = (documentName: string): AuditEvent => {
   ];
 
   return {
-    id: `auto-${Date.now()}`,
+    id: `audit-${Date.now()}`,
     action: actions[Math.floor(Math.random() * actions.length)],
     documentName,
     timestamp: now.toISOString(),
@@ -61,8 +61,8 @@ export const generateRealTimeEvent = (documentName: string): AuditEvent => {
 export const generateInitialRealTimeEvent = (documentName: string): AuditEvent => {
   const now = new Date();
   return {
-    id: `initial-${Date.now()}`,
-    action: 'Real-time compliance monitoring initiated',
+    id: `audit-init-${Date.now()}`,
+    action: 'Real-time compliance monitoring active',
     documentName,
     timestamp: now.toISOString(),
     user: 'System',
@@ -79,7 +79,7 @@ export const notifyNewActivity = (event: AuditEvent): void => {
   const icon = event.icon || <Clock className="h-4 w-4" />;
   const eventType = getEventType(event.action);
   
-  toast[eventType](`New activity: ${event.action}`, {
+  toast[eventType](`${event.action}`, {
     description: `By ${event.user} • ${new Date(event.timestamp).toLocaleTimeString()}`,
     icon: icon,
     duration: 5000,

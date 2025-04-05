@@ -4,11 +4,10 @@ import SlackConnect from './SlackConnect';
 import SlackScanOptions from './SlackScanOptions';
 import SlackViolationsList from './SlackViolationsList';
 import { Button } from '@/components/ui/button';
-import { Loader2, RefreshCw, AlertCircle } from 'lucide-react';
+import { Loader2, RefreshCw } from 'lucide-react';
 import { SlackScanOptions as SlackScanOptionsType, SlackScanResults } from '@/utils/slack/types';
 import { isSlackConnected, scanSlackMessages } from '@/utils/slack/slackService';
 import { toast } from 'sonner';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 
 const SlackMonitor: React.FC = () => {
@@ -57,14 +56,6 @@ const SlackMonitor: React.FC = () => {
         <p className="text-muted-foreground mb-4">
           Monitor your Slack workspace for potential compliance violations in messages and file uploads.
         </p>
-        
-        <Alert className="mb-6">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Real-time Monitoring (Demo Mode)</AlertTitle>
-          <AlertDescription>
-            This demonstration uses simulated data. In a production environment, this would connect to a real Slack workspace through the Slack API.
-          </AlertDescription>
-        </Alert>
       </div>
       
       <SlackConnect />
