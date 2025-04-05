@@ -3,8 +3,10 @@
 export * from './fileUploadService';
 export * from './complianceService';
 export * from './reportService';
-export * from './riskService';
-export * from './suggestionService';
+// Export everything from riskService except generateSuggestions
+export { assessContentRisk, setupRealTimeMonitoring, generateRisks } from './riskService';
+// Export explicitly renamed generateSuggestions from suggestionService to avoid conflict
+export { generateSuggestions as generateComplianceSuggestions } from './suggestionService';
 export * from './summaryService';
 export * from './scoreService';
 export * from './simulationService';

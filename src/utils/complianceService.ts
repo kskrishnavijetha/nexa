@@ -1,6 +1,6 @@
 
 import { ApiResponse, ComplianceReport, Industry, Region } from './types';
-import { generateRisks } from './risk';
+import { generateRisks } from './risk/index';
 import { generateSuggestions } from './suggestionService';
 import { generateSummary } from './summaryService';
 import { generateScores } from './scoreService';
