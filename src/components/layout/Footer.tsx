@@ -53,8 +53,8 @@ const Footer: React.FC = () => {
   return (
     <footer className="bg-slate-50 border-t">
       <div className="container py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="space-y-4 md:col-span-2">
             <div className="flex items-center space-x-2">
               <img 
                 src="/lovable-uploads/02ec954b-2d1e-4c5c-bfbd-f06f37b0329d.png" 
@@ -71,20 +71,20 @@ const Footer: React.FC = () => {
           <div>
             <h3 className="font-medium text-lg mb-4">Contact</h3>
             <ul className="space-y-3">
-              <li className="flex items-center text-sm text-muted-foreground">
-                <Mail className="h-4 w-4 mr-3 flex-shrink-0" />
+              <li className="flex items-start space-x-3 text-sm text-muted-foreground">
+                <Mail className="h-4 w-4 mt-1 flex-shrink-0" />
                 <a href="mailto:contact@nexabloom.xyz" className="hover:text-primary transition-colors">
                   contact@nexabloom.xyz
                 </a>
               </li>
-              <li className="flex items-center text-sm text-muted-foreground">
-                <Globe className="h-4 w-4 mr-3 flex-shrink-0" />
+              <li className="flex items-start space-x-3 text-sm text-muted-foreground">
+                <Globe className="h-4 w-4 mt-1 flex-shrink-0" />
                 <a href="https://www.nexabloom.xyz" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
                   www.nexabloom.xyz
                 </a>
               </li>
-              <li className="flex items-center text-sm text-muted-foreground">
-                <X className="h-4 w-4 mr-3 flex-shrink-0" />
+              <li className="flex items-start space-x-3 text-sm text-muted-foreground">
+                <X className="h-4 w-4 mt-1 flex-shrink-0" />
                 <a 
                   href="https://x.com/nexabloom35511" 
                   target="_blank" 
@@ -104,7 +104,7 @@ const Footer: React.FC = () => {
             <span className="text-sm text-muted-foreground">© {currentYear} Nexabloom. All rights reserved.</span>
           </div>
           
-          <div className="flex space-x-6">
+          <div className="flex flex-wrap space-x-4 md:space-x-6 justify-center">
             <a 
               href="#" 
               onClick={handlePrivacyPolicyClick} 

@@ -1,6 +1,6 @@
 
 // Import and re-export from risk module
-import { generateRisks } from './risk';
+import { generateRisks } from './risk/index';
 import { Risk, Suggestion } from './types';
 
 /**

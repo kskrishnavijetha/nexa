@@ -36,10 +36,18 @@ const ScheduleScanner: React.FC<ScheduleScannerProps> = ({
   const form = useForm<ScheduleFormValues>({
     resolver: zodResolver(scheduleFormSchema),
     defaultValues,
+    mode: 'onChange', // Add real-time validation
   });
 
   const onSubmit = async (data: ScheduleFormValues) => {
-    if (!data.email && data.enabled) {
+    if (!data.enabled) {
+      toast.info("Automated scans are disabled", {
+        description: "Enable scans to schedule compliance checks",
+      });
+      return;
+    }
+    
+    if (!data.email) {
       form.setError("email", { 
         type: "manual", 
         message: "Email is required for notifications" 
@@ -61,6 +69,12 @@ const ScheduleScanner: React.FC<ScheduleScannerProps> = ({
       
       toast.success(`Automated scans scheduled ${data.frequency}`, {
         description: `We'll send reports to ${data.email}`,
+      });
+      
+      // Reset form after successful submission
+      form.reset({
+        ...data,
+        enabled: true,
       });
     } catch (error) {
       toast.error("Failed to schedule automated scan");
@@ -89,7 +103,7 @@ const ScheduleScanner: React.FC<ScheduleScannerProps> = ({
           <Button 
             type="submit" 
             className="w-full"
-            disabled={isSubmitting || !form.watch("enabled")}
+            disabled={isSubmitting}
           >
             {isSubmitting ? 'Scheduling...' : 'Schedule Automated Scans'}
           </Button>
