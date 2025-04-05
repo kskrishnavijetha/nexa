@@ -1,6 +1,7 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, Globe, Shield, FileText } from 'lucide-react';
+import { Mail, Globe, Shield, FileText, Linkedin, Twitter } from 'lucide-react';
 import { getPrivacyPolicyPdfUrl, getTermsOfServicePdfUrl, getCookiePolicyPdfUrl } from '@/utils/pdfGuide';
 import { toast } from 'sonner';
 
@@ -65,22 +66,44 @@ const Footer: React.FC = () => {
             <p className="text-sm text-muted-foreground">
               Automate your compliance monitoring with AI. Stay compliant with GDPR, HIPAA, SOC 2, and PCI-DSS regulations effortlessly.
             </p>
+            
+            {/* Social Media Links */}
+            <div className="flex space-x-4 pt-2">
+              <a 
+                href="https://linkedin.com/company/nexabloom" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                aria-label="LinkedIn"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Linkedin className="h-5 w-5" />
+              </a>
+              <a 
+                href="https://x.com/nexabloom" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                aria-label="X (Twitter)"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Twitter className="h-5 w-5" />
+              </a>
+            </div>
           </div>
           
           <div>
             <h3 className="font-medium text-lg mb-4">Contact</h3>
-            <ul className="space-y-2">
+            <ul className="space-y-3">
               <li className="flex items-center text-sm text-muted-foreground">
-                <Mail className="h-4 w-4 mr-2" />
-                <span>contact@nexabloom.com</span>
+                <Mail className="h-4 w-4 mr-3 flex-shrink-0" />
+                <a href="mailto:contact@nexabloom.xyz" className="hover:text-primary transition-colors">
+                  contact@nexabloom.xyz
+                </a>
               </li>
               <li className="flex items-center text-sm text-muted-foreground">
-                <Phone className="h-4 w-4 mr-2" />
-                <span>+1 (555) 123-4567</span>
-              </li>
-              <li className="flex items-center text-sm text-muted-foreground">
-                <Globe className="h-4 w-4 mr-2" />
-                <span>www.nexabloom.com</span>
+                <Globe className="h-4 w-4 mr-3 flex-shrink-0" />
+                <a href="https://www.nexabloom.xyz" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                  www.nexabloom.xyz
+                </a>
               </li>
             </ul>
           </div>
