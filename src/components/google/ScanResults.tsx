@@ -11,6 +11,7 @@ interface ScanResultsProps {
   isCompactView?: boolean;
   fileName?: string;
   serviceName?: string;
+  documentId?: string; // Add document ID for uniqueness
 }
 
 const ScanResults: React.FC<ScanResultsProps> = ({ 
@@ -18,10 +19,26 @@ const ScanResults: React.FC<ScanResultsProps> = ({
   industry, 
   isCompactView,
   fileName,
-  serviceName 
+  serviceName,
+  documentId
 }) => {
   // Get unique services from violations
   const uniqueServices = [...new Set(violations.map(v => v.service))];
+  
+  // Generate a display name that includes a unique identifier if needed
+  const getDisplayFileName = () => {
+    if (!fileName) return null;
+    
+    // If we have a documentId, add last 4 chars as identifier
+    if (documentId) {
+      const shortId = documentId.slice(-4);
+      return `${fileName} (ID: ${shortId})`;
+    }
+    
+    return fileName;
+  };
+  
+  const displayFileName = getDisplayFileName();
 
   return (
     <Card>
@@ -33,8 +50,8 @@ const ScanResults: React.FC<ScanResultsProps> = ({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {fileName && (
-          <FileInfoDisplay fileName={fileName} serviceName={serviceName} />
+        {displayFileName && (
+          <FileInfoDisplay fileName={displayFileName} serviceName={serviceName} />
         )}
         
         <div className="space-y-4">

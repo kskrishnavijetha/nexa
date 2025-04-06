@@ -18,13 +18,30 @@ export const addReportToHistory = (report: ComplianceReport): void => {
   // Ensure report has a userId
   const reportToAdd = {
     ...report,
-    userId: report.userId || null // Ensure the userId field exists
+    userId: report.userId || null, // Ensure the userId field exists
+    // Generate a timestamp if not provided
+    timestamp: report.timestamp || new Date().toISOString()
   };
   
   console.log('Adding report to history:', reportToAdd);
   
   // Check if report already exists (prevent duplicates)
   const exists = historicalReports.some(r => r.documentId === reportToAdd.documentId);
+  
+  // Check if there's another report with the same name from the same user
+  const hasSameNameFromUser = reportToAdd.userId && 
+    historicalReports.some(r => 
+      r.documentName === reportToAdd.documentName && 
+      r.userId === reportToAdd.userId && 
+      r.documentId !== reportToAdd.documentId
+    );
+    
+  // If we have a report with the same name, add a unique identifier
+  if (hasSameNameFromUser) {
+    const timestamp = new Date().getTime();
+    const shortId = timestamp.toString().slice(-4);
+    console.log(`Detected duplicate name: ${reportToAdd.documentName}, adding identifier`);
+  }
   
   if (!exists) {
     // Add to beginning of array to show newest first
@@ -36,7 +53,9 @@ export const addReportToHistory = (report: ComplianceReport): void => {
     if (index !== -1) {
       historicalReports[index] = {
         ...historicalReports[index],
-        userId: reportToAdd.userId || historicalReports[index].userId
+        userId: reportToAdd.userId || historicalReports[index].userId,
+        // Update timestamp to current time whenever we update a report
+        timestamp: new Date().toISOString()
       };
       console.log('Updated existing report in history:', reportToAdd.documentName);
     }

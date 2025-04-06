@@ -16,6 +16,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface ComplianceScanTableProps {
   scans: ComplianceReport[];
@@ -86,37 +94,54 @@ const ComplianceScanTable: React.FC<ComplianceScanTableProps> = ({
     return 'Low';
   };
 
+  // Find duplicate document names
+  const documentNameCounts: Record<string, number> = {};
+  scans.forEach(scan => {
+    documentNameCounts[scan.documentName] = (documentNameCounts[scan.documentName] || 0) + 1;
+  });
+
   return (
     <>
       <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-200">
-              <th className="py-3 text-left text-sm font-medium text-gray-500">Document</th>
-              <th className="py-3 text-left text-sm font-medium text-gray-500">Date Scanned</th>
-              <th className="py-3 text-left text-sm font-medium text-gray-500">Compliance Score</th>
-              <th className="py-3 text-left text-sm font-medium text-gray-500">Risk Level</th>
-              <th className="py-3 text-left text-sm font-medium text-gray-500">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Document</TableHead>
+              <TableHead>Date Scanned</TableHead>
+              <TableHead>Compliance Score</TableHead>
+              <TableHead>Risk Level</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {scans.map((scan) => {
               const worstRiskLevel = getWorstRiskLevel(scan);
+              const isDuplicate = documentNameCounts[scan.documentName] > 1;
+              
+              // Generate display name with ID for duplicates
+              const displayName = isDuplicate 
+                ? `${scan.documentName} (ID: ${scan.documentId.slice(-4)})` 
+                : scan.documentName;
+                
               return (
-                <tr
-                  key={scan.id}
-                  className="border-b border-gray-200 hover:bg-gray-50 cursor-pointer"
+                <TableRow
+                  key={scan.id || scan.documentId}
+                  className="hover:bg-slate-50 cursor-pointer"
                   onClick={() => handleViewDetails(scan)}
                 >
-                  <td className="py-4 text-sm">{scan.documentName}</td>
-                  <td className="py-4 text-sm">{new Date(scan.timestamp).toLocaleDateString()}</td>
-                  <td className="py-4 text-sm">{scan.overallScore}%</td>
-                  <td className="py-4 text-sm">
+                  <TableCell className="font-medium">
+                    {displayName}
+                  </TableCell>
+                  <TableCell>
+                    {new Date(scan.timestamp).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell>{scan.overallScore}%</TableCell>
+                  <TableCell>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${getSeverityBadgeClass(worstRiskLevel)}`}>
                       {worstRiskLevel}
                     </span>
-                  </td>
-                  <td className="py-4 text-sm">
+                  </TableCell>
+                  <TableCell>
                     <div className="flex space-x-2">
                       {onPreview && (
                         <Button 
@@ -146,12 +171,12 @@ const ComplianceScanTable: React.FC<ComplianceScanTableProps> = ({
                         <ChevronRight className="h-4 w-4" />
                       </Button>
                     </div>
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               );
             })}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </div>
       
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
