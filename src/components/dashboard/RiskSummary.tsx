@@ -20,8 +20,8 @@ const RiskSummary = () => {
   
   useEffect(() => {
     const calculateRiskDistribution = () => {
-      if (user?.uid) {
-        const userReports = getUserHistoricalReports(user.uid);
+      if (user?.id) {
+        const userReports = getUserHistoricalReports(user.id);
         
         if (userReports.length > 0) {
           // Count risks by severity across all reports

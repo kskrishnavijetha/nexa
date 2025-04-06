@@ -21,8 +21,8 @@ const ActionItems = () => {
   
   useEffect(() => {
     const generateActionItems = () => {
-      if (user?.uid) {
-        const userReports = getUserHistoricalReports(user.uid);
+      if (user?.id) {
+        const userReports = getUserHistoricalReports(user.id);
         
         if (userReports.length > 0) {
           // Generate action items from report risks

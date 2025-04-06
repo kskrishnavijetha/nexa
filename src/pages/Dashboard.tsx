@@ -32,8 +32,8 @@ const Dashboard = () => {
   // Check if the user has any scan data
   useEffect(() => {
     const checkUserData = async () => {
-      if (user?.uid) {
-        const userReports = getUserHistoricalReports(user.uid);
+      if (user?.id) {
+        const userReports = getUserHistoricalReports(user.id);
         setHasData(userReports.length > 0);
         
         if (userReports.length === 0) {

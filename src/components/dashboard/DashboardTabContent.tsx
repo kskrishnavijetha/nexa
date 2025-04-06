@@ -18,8 +18,8 @@ const DashboardTabContent: React.FC<DashboardTabContentProps> = ({ activeTab }) 
   
   useEffect(() => {
     const loadReports = () => {
-      if (user?.uid) {
-        const userReports = getUserHistoricalReports(user.uid);
+      if (user?.id) {
+        const userReports = getUserHistoricalReports(user.id);
         setReports(userReports);
       }
     };

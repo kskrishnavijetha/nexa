@@ -11,7 +11,7 @@ const DashboardHeader = () => {
   
   const displayName = user?.email 
     ? user.email.split('@')[0] 
-    : user?.displayName || 'User';
+    : 'User';
 
   return (
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">

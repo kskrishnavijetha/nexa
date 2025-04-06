@@ -13,9 +13,9 @@ const RecentScans = () => {
   
   useEffect(() => {
     const loadRecentScans = () => {
-      if (user?.uid) {
+      if (user?.id) {
         // Get user's historical reports
-        const userReports = getUserHistoricalReports(user.uid);
+        const userReports = getUserHistoricalReports(user.id);
         
         // Sort by timestamp (most recent first) and take top 3
         const sortedReports = [...userReports].sort((a, b) => {

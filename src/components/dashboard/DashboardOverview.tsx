@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BarChart3, FileText, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,8 +22,8 @@ const DashboardOverview = () => {
   useEffect(() => {
     // Load real data from the user's historical reports
     const loadDashboardData = async () => {
-      if (user?.uid) {
-        const userReports = getUserHistoricalReports(user.uid);
+      if (user?.id) {
+        const userReports = getUserHistoricalReports(user.id);
         
         if (userReports.length > 0) {
           // Calculate the average compliance score

@@ -11,8 +11,8 @@ const ComplianceScore = () => {
   
   useEffect(() => {
     const generateScoreData = () => {
-      if (user?.uid) {
-        const userReports = getUserHistoricalReports(user.uid);
+      if (user?.id) {
+        const userReports = getUserHistoricalReports(user.id);
         
         if (userReports.length > 0) {
           // Group reports by month and calculate average score per month
