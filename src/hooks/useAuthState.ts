@@ -10,20 +10,19 @@ export function useAuthState() {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [initializeCount, setInitializeCount] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     console.log('Auth provider initializing...');
     
-    // If we've been loading for more than 10 seconds, reset the loading state
+    // If we've been loading for more than 5 seconds (reduced from 10), reset the loading state
     if (loading) {
       const timeoutId = setTimeout(() => {
         if (loading) {
           console.log('Auth loading timeout reached, resetting loading state');
           setLoading(false);
         }
-      }, 10000);
+      }, 5000);
       
       return () => clearTimeout(timeoutId);
     }
@@ -37,7 +36,7 @@ export function useAuthState() {
         console.log('Auth state changed:', event);
         
         if (event === 'SIGNED_IN') {
-          // Update session and user
+          // Update session and user immediately
           setSession(newSession);
           setUser(newSession?.user ?? null);
           setLoading(false);
@@ -76,15 +75,12 @@ export function useAuthState() {
       setSession(initialSession);
       setUser(initialSession?.user ?? null);
       setLoading(false);
-      
-      setInitializeCount(prev => prev + 1);
-      console.log('Auth initialization complete, count:', initializeCount + 1);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, initializeCount]);
+  }, [navigate]);
 
   const signUp = async (email: string, password: string) => {
     const { error } = await supabase.auth.signUp({
@@ -103,8 +99,6 @@ export function useAuthState() {
     setLoading(true);
     
     try {
-      // Prevent state flashing during sign in
-      // Don't clear existing data until we have a successful sign in
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,

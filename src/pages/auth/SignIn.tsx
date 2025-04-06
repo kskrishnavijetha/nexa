@@ -14,19 +14,18 @@ const SignIn: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
-  const [loginAttempt, setLoginAttempt] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
   const { signIn, user, loading } = useAuth();
 
-  // Reset loading state if stuck for more than 10 seconds
+  // Reset loading state if stuck for more than 5 seconds (reduced from 10)
   useEffect(() => {
     if (isLoading) {
       const timeoutId = setTimeout(() => {
         setIsLoading(false);
         console.log('Sign-in loading timeout reached, resetting loading state');
         toast.error('Login is taking longer than expected. Please try again.');
-      }, 10000);
+      }, 5000);
       
       return () => clearTimeout(timeoutId);
     }
@@ -58,12 +57,8 @@ const SignIn: React.FC = () => {
         }
       }
       
-      // Use a timeout to prevent UI flickering
-      const redirectTimer = setTimeout(() => {
-        navigate(redirectPath, { replace: true });
-      }, 300);
-      
-      return () => clearTimeout(redirectTimer);
+      // Don't use a timeout here - redirect immediately to prevent delays
+      navigate(redirectPath, { replace: true });
     }
   }, [user, navigate, isRedirecting, loading]);
 
@@ -78,10 +73,9 @@ const SignIn: React.FC = () => {
     if (isLoading) return; // Prevent multiple submissions
     
     setIsLoading(true);
-    setLoginAttempt(prev => prev + 1);
     
     try {
-      console.log(`Login attempt ${loginAttempt + 1} for ${email}`);
+      console.log(`Login attempt for ${email}`);
       const { error } = await signIn(email, password);
       
       if (error) {
@@ -91,7 +85,7 @@ const SignIn: React.FC = () => {
       } else {
         // Don't set loading to false here - we're going to redirect which will unmount this component
         console.log('Sign in successful, waiting for auth state to update');
-        setIsRedirecting(true);
+        // Redirect happens in the useEffect when user state updates
       }
     } catch (error: any) {
       console.error('Unexpected sign in error:', error);
@@ -140,7 +134,7 @@ const SignIn: React.FC = () => {
             <div>
               <div className="flex justify-between">
                 <Label htmlFor="password">Password</Label>
-                <Link to="/auth/forgot-password" className="text-sm text-primary hover:underline">
+                <Link to="/forgot-password" className="text-sm text-primary hover:underline">
                   Forgot password?
                 </Link>
               </div>
