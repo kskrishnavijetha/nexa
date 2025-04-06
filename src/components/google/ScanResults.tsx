@@ -11,7 +11,7 @@ interface ScanResultsProps {
   isCompactView?: boolean;
   fileName?: string;
   serviceName?: string;
-  documentId?: string; // Add document ID for uniqueness
+  documentId?: string;
 }
 
 const ScanResults: React.FC<ScanResultsProps> = ({ 
@@ -25,16 +25,9 @@ const ScanResults: React.FC<ScanResultsProps> = ({
   // Get unique services from violations
   const uniqueServices = [...new Set(violations.map(v => v.service))];
   
-  // Generate a display name that includes a unique identifier if needed
+  // Generate a display name without ID suffix for cleaner UI
   const getDisplayFileName = () => {
     if (!fileName) return null;
-    
-    // If we have a documentId, add last 4 chars as identifier
-    if (documentId) {
-      const shortId = documentId.slice(-4);
-      return `${fileName} (ID: ${shortId})`;
-    }
-    
     return fileName;
   };
   

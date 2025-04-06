@@ -1,4 +1,3 @@
-
 import { ComplianceReport } from './types';
 import { mockScans } from './historyMocks';
 
@@ -25,40 +24,22 @@ export const addReportToHistory = (report: ComplianceReport): void => {
   
   console.log('Adding report to history:', reportToAdd);
   
-  // Check if report already exists (prevent duplicates)
-  const exists = historicalReports.some(r => r.documentId === reportToAdd.documentId);
+  // For documents with the same name and same user, update instead of creating duplicate
+  const existingReportIndex = historicalReports.findIndex(
+    r => r.documentName === reportToAdd.documentName && r.userId === reportToAdd.userId
+  );
   
-  // Check if there's another report with the same name from the same user
-  const hasSameNameFromUser = reportToAdd.userId && 
-    historicalReports.some(r => 
-      r.documentName === reportToAdd.documentName && 
-      r.userId === reportToAdd.userId && 
-      r.documentId !== reportToAdd.documentId
-    );
-    
-  // If we have a report with the same name, add a unique identifier
-  if (hasSameNameFromUser) {
-    const timestamp = new Date().getTime();
-    const shortId = timestamp.toString().slice(-4);
-    console.log(`Detected duplicate name: ${reportToAdd.documentName}, adding identifier`);
-  }
-  
-  if (!exists) {
-    // Add to beginning of array to show newest first
-    historicalReports = [reportToAdd, ...historicalReports];
-    console.log('Report added to history:', reportToAdd.documentName, 'for user:', reportToAdd.userId);
+  if (existingReportIndex !== -1) {
+    // Update the existing report 
+    historicalReports[existingReportIndex] = {
+      ...reportToAdd,
+      documentId: historicalReports[existingReportIndex].documentId // Keep the original document ID
+    };
+    console.log('Updated existing document in history:', reportToAdd.documentName);
   } else {
-    // Update the existing report if it exists but might need a userId update
-    const index = historicalReports.findIndex(r => r.documentId === reportToAdd.documentId);
-    if (index !== -1) {
-      historicalReports[index] = {
-        ...historicalReports[index],
-        userId: reportToAdd.userId || historicalReports[index].userId,
-        // Update timestamp to current time whenever we update a report
-        timestamp: new Date().toISOString()
-      };
-      console.log('Updated existing report in history:', reportToAdd.documentName);
-    }
+    // Add as a new document
+    historicalReports = [reportToAdd, ...historicalReports];
+    console.log('Added new document to history:', reportToAdd.documentName, 'for user:', reportToAdd.userId);
   }
 };
 
@@ -79,19 +60,33 @@ export const getUserHistoricalReports = (userId: string | null | undefined): Com
     return [];
   }
   
-  const userReports = historicalReports.filter(report => report.userId === userId);
-  console.log(`Fetching reports for user ${userId}, found:`, userReports.length);
+  // Ensure only one instance of each document name per user
+  const seen = new Set<string>();
+  const uniqueUserReports = historicalReports
+    .filter(report => report.userId === userId)
+    .filter(report => {
+      // If we've already seen this document name for this user, skip it
+      const key = `${report.userId}-${report.documentName}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
   
-  if (userReports.length === 0) {
+  console.log(`Fetching unique reports for user ${userId}, found:`, uniqueUserReports.length);
+  
+  if (uniqueUserReports.length === 0) {
     // For demo purposes, assign some reports to this user if none exist
     const reportsToAssign = historicalReports.slice(0, 3);
     reportsToAssign.forEach(report => {
       report.userId = userId;
     });
     console.log(`Assigned ${reportsToAssign.length} reports to user ${userId}`);
+    
+    // Return only unique documents for this user after assignment
+    return getUserHistoricalReports(userId);
   }
   
-  return historicalReports.filter(report => report.userId === userId);
+  return uniqueUserReports;
 };
 
 /**

@@ -24,23 +24,9 @@ const DocumentSelector: React.FC<DocumentSelectorProps> = ({
   onSelectDocument,
   analyzingDocument
 }) => {
-  // Find duplicate document names
-  const documentNameCounts: Record<string, number> = {};
-  reports.forEach(report => {
-    documentNameCounts[report.documentName] = (documentNameCounts[report.documentName] || 0) + 1;
-  });
-
-  // Get display name for selected document
   const getSelectedDisplayName = () => {
     if (!selectedDocument) return 'Select Document';
-    
-    const matchingReport = reports.find(r => r.documentName === selectedDocument);
-    if (!matchingReport) return selectedDocument;
-    
-    const isDuplicate = documentNameCounts[selectedDocument] > 1;
-    return isDuplicate
-      ? `${selectedDocument} (ID: ${matchingReport.documentId.slice(-4)})`
-      : selectedDocument;
+    return selectedDocument;
   };
 
   return (
@@ -56,13 +42,6 @@ const DocumentSelector: React.FC<DocumentSelectorProps> = ({
               {reports.length > 0 ? (
                 <ul className="space-y-2 max-h-[300px] overflow-y-auto">
                   {reports.map((scan) => {
-                    const isDuplicate = documentNameCounts[scan.documentName] > 1;
-                    
-                    // Generate display name with ID for duplicates
-                    const displayName = isDuplicate 
-                      ? `${scan.documentName} (ID: ${scan.documentId.slice(-4)})` 
-                      : scan.documentName;
-                      
                     return (
                       <li 
                         key={scan.documentId}
@@ -72,7 +51,7 @@ const DocumentSelector: React.FC<DocumentSelectorProps> = ({
                         <div className="flex items-center justify-between">
                           <span className="flex items-center">
                             <FileText className="h-4 w-4 mr-2 text-blue-500" />
-                            {displayName}
+                            {scan.documentName}
                           </span>
                           {scan.documentName === selectedDocument && (
                             <Badge variant="outline" className="ml-2">Selected</Badge>

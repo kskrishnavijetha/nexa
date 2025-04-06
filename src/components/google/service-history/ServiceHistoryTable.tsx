@@ -23,12 +23,7 @@ export const ServiceHistoryTable: React.FC<ServiceHistoryTableProps> = ({
   onDocumentClick,
   onDeleteClick
 }) => {
-  // Find duplicate document names
-  const documentNameCounts: Record<string, number> = {};
-  scanHistory.forEach(scan => {
-    documentNameCounts[scan.documentName] = (documentNameCounts[scan.documentName] || 0) + 1;
-  });
-
+  // Display only the document name without suffixes for cleaner UI
   return (
     <div className="overflow-x-auto">
       <Table>
@@ -42,17 +37,10 @@ export const ServiceHistoryTable: React.FC<ServiceHistoryTableProps> = ({
         </TableHeader>
         <TableBody>
           {scanHistory.map((scan) => {
-            const isDuplicate = documentNameCounts[scan.documentName] > 1;
-            
-            // Generate display name with ID for duplicates
-            const displayName = isDuplicate 
-              ? `${scan.documentName} (ID: ${scan.documentId.slice(-4)})` 
-              : scan.documentName;
-              
             return (
               <TableRow key={scan.id || scan.documentId} className="hover:bg-slate-50">
                 <TableCell className="font-medium">
-                  {displayName}
+                  {scan.documentName}
                 </TableCell>
                 <TableCell>
                   {new Date(scan.timestamp).toLocaleDateString()}

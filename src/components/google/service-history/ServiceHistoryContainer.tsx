@@ -36,7 +36,6 @@ const ServiceHistoryContainer: React.FC = () => {
       loadReports();
     } else {
       // For anonymous users, try to load from local storage
-      const sessionId = localStorage.getItem('nexabloom_session_id');
       const anonymousHistoryStr = localStorage.getItem('nexabloom_anonymous_history');
       
       if (anonymousHistoryStr) {
