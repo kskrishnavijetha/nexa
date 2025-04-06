@@ -34,8 +34,10 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
     
     // Load PayPal script
     const initializePayPal = async () => {
+      setLoading(true);
       try {
         await loadPayPalScript();
+        console.log('PayPal script loaded, creating buttons');
         
         // Create PayPal buttons
         createPayPalButtons(
@@ -44,7 +46,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
           'monthly', // Always use monthly
           // On approve handler
           async (data) => {
-            setLoading(true);
+            console.log('PayPal subscription approved', data);
             try {
               // Call your backend to verify and record the subscription
               const result = await createSubscription('paypal_subscription', `price_${tier}_monthly`);
@@ -71,6 +73,8 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
       } catch (error) {
         console.error('Failed to load PayPal:', error);
         toast.error('Failed to load PayPal. Please try again later.');
+      } finally {
+        setLoading(false);
       }
     };
     
@@ -121,17 +125,19 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   
   // For paid plans, render the PayPal button container
   return (
-    <div 
-      id="paypal-button-container" 
-      ref={paypalContainerRef}
-      className="w-full min-h-[40px]"
-    >
-      {loading && (
-        <div className="flex items-center justify-center py-2">
-          <Loader2 className="h-4 w-4 animate-spin mr-2" />
-          <span>Loading PayPal...</span>
-        </div>
-      )}
+    <div className="w-full">
+      <div 
+        id="paypal-button-container" 
+        ref={paypalContainerRef}
+        className="w-full min-h-[50px] bg-gray-50 rounded-md border border-gray-200 p-2"
+      >
+        {loading && (
+          <div className="flex items-center justify-center py-2">
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            <span>Loading PayPal...</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

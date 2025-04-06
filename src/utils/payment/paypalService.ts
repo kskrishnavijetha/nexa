@@ -1,3 +1,4 @@
+
 /**
  * Service for PayPal payment processing
  */
@@ -37,11 +38,26 @@ export const loadPayPalScript = (): Promise<void> => {
       return;
     }
 
+    // Remove any existing PayPal scripts to prevent conflicts
+    const existingScript = document.querySelector('script[src*="paypal.com/sdk/js"]');
+    if (existingScript) {
+      document.body.removeChild(existingScript);
+    }
+
     const script = document.createElement('script');
-    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription`;
+    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&components=buttons`;
     script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load PayPal SDK'));
+    
+    script.onload = () => {
+      console.log('PayPal SDK loaded successfully');
+      resolve();
+    };
+    
+    script.onerror = (error) => {
+      console.error('Failed to load PayPal SDK:', error);
+      reject(new Error('Failed to load PayPal SDK'));
+    };
+    
     document.body.appendChild(script);
   });
 };
@@ -56,16 +72,21 @@ export const createPayPalButtons = (
   onApprove: (data: any) => void,
   onError: (err: any) => void
 ): void => {
-  if (!window.paypal) {
-    console.error('PayPal SDK not loaded');
+  // Ensure PayPal SDK is loaded
+  if (!window.paypal || !window.paypal.Buttons) {
+    console.error('PayPal SDK not loaded or Buttons component missing');
+    onError(new Error('PayPal SDK not loaded properly'));
     return;
   }
 
   // Clear existing buttons if any
   const container = document.getElementById(containerId);
-  if (container) {
-    container.innerHTML = '';
+  if (!container) {
+    console.error(`Container #${containerId} not found`);
+    return;
   }
+  
+  container.innerHTML = '';
 
   // Skip PayPal integration for free plan
   if (plan === 'free') {
@@ -76,10 +97,13 @@ export const createPayPalButtons = (
   const planId = PAYPAL_PLAN_IDS[plan as keyof typeof PAYPAL_PLAN_IDS]?.monthly;
   if (!planId) {
     console.error(`No PayPal plan ID found for plan: ${plan} (monthly)`);
+    onError(new Error(`Invalid plan selected: ${plan}`));
     return;
   }
 
   try {
+    console.log(`Creating PayPal buttons for plan: ${plan}, ID: ${planId}`);
+    
     window.paypal.Buttons({
       style: {
         layout: 'vertical',
