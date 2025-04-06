@@ -46,6 +46,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         
         // Redirect immediately to pricing page, not payment
         navigate('/pricing', { replace: true });
+        return;
       }
     }
   }, [user, loading, navigate, isRedirecting, location]);
