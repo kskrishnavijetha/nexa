@@ -26,6 +26,8 @@ function App() {
         <Route path="/" element={<Index />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
+        
+        {/* Pricing page is accessible to everyone, but will show different states based on auth */}
         <Route path="/pricing" element={<PricingPlans />} />
         
         {/* Payment page is protected but doesn't require an active subscription */}

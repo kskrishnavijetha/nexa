@@ -27,21 +27,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         console.log('Storing redirect path:', location.pathname);
       }
       
-      // Redirect immediately, don't use setTimeout
+      // Redirect immediately to sign-in
       navigate('/sign-in', { replace: true });
       return;
     }
     
-    // Check if user has an active subscription on protected routes except payment page
-    if (!loading && user && !isRedirecting && location.pathname !== '/payment') {
+    // Check if user has an active subscription on protected routes except pricing and payment pages
+    if (!loading && user && !isRedirecting && 
+        location.pathname !== '/payment' && 
+        location.pathname !== '/pricing') {
+      
       const hasSubscription = hasActiveSubscription();
       
       if (!hasSubscription) {
-        console.log('ProtectedRoute: User has no active subscription, redirecting to payment page');
+        console.log('ProtectedRoute: User has no active subscription, redirecting to pricing page');
         setIsRedirecting(true);
         
-        // Redirect immediately, don't use setTimeout
-        navigate('/payment', { replace: true });
+        // Redirect immediately to pricing page, not payment
+        navigate('/pricing', { replace: true });
       }
     }
   }, [user, loading, navigate, isRedirecting, location]);

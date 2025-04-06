@@ -34,30 +34,32 @@ const SignIn: React.FC = () => {
   // Redirect if already logged in, but only if we're not already redirecting
   useEffect(() => {
     if (user && !isRedirecting && !loading) {
-      console.log('User already logged in, checking subscription status');
+      console.log('User logged in, checking subscription status');
       setIsRedirecting(true);
+      
+      // Always redirect to pricing page for new users
+      let redirectPath = '/pricing';
       
       // Check if user has an active subscription
       const hasSubscription = hasActiveSubscription();
       
-      let redirectPath = '/dashboard';
-      
-      // If no active subscription, redirect to payment page
-      if (!hasSubscription) {
-        redirectPath = '/payment';
-        console.log('No active subscription found, redirecting to payment page');
+      // If has active subscription, redirect to dashboard
+      if (hasSubscription) {
+        redirectPath = '/dashboard';
+        console.log('Active subscription found, redirecting to dashboard');
       } else {
         // Check if there's a saved redirect path from a protected route
         const savedRedirectPath = sessionStorage.getItem('redirectAfterLogin');
-        if (savedRedirectPath) {
-          redirectPath = savedRedirectPath;
-          // Clear the saved path
-          sessionStorage.removeItem('redirectAfterLogin');
-          console.log('Redirecting to saved path:', redirectPath);
+        if (savedRedirectPath && savedRedirectPath !== '/pricing') {
+          // Save the path but still redirect to pricing first
+          sessionStorage.setItem('redirectAfterSuccessfulPayment', savedRedirectPath);
+          console.log('Saved path for after payment:', savedRedirectPath);
         }
+        
+        console.log('No active subscription, redirecting to pricing page');
       }
       
-      // Don't use a timeout here - redirect immediately to prevent delays
+      // Immediate redirect
       navigate(redirectPath, { replace: true });
     }
   }, [user, navigate, isRedirecting, loading]);
