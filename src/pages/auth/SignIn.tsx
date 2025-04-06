@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { hasActiveSubscription } from '@/utils/paymentService';
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -34,15 +35,28 @@ const SignIn: React.FC = () => {
   // Redirect if already logged in, but only if we're not already redirecting
   useEffect(() => {
     if (user && !isRedirecting && !loading) {
-      console.log('User already logged in, redirecting to dashboard');
+      console.log('User already logged in, checking subscription status');
       setIsRedirecting(true);
       
-      // Check if there's a saved redirect path
-      const redirectPath = sessionStorage.getItem('redirectAfterLogin') || '/dashboard';
-      console.log('Redirecting to:', redirectPath);
+      // Check if user has an active subscription
+      const hasSubscription = hasActiveSubscription();
       
-      // Clear the saved path
-      sessionStorage.removeItem('redirectAfterLogin');
+      let redirectPath = '/dashboard';
+      
+      // If no active subscription, redirect to payment page
+      if (!hasSubscription) {
+        redirectPath = '/payment';
+        console.log('No active subscription found, redirecting to payment page');
+      } else {
+        // Check if there's a saved redirect path from a protected route
+        const savedRedirectPath = sessionStorage.getItem('redirectAfterLogin');
+        if (savedRedirectPath) {
+          redirectPath = savedRedirectPath;
+          // Clear the saved path
+          sessionStorage.removeItem('redirectAfterLogin');
+          console.log('Redirecting to saved path:', redirectPath);
+        }
+      }
       
       // Use a timeout to prevent UI flickering
       const redirectTimer = setTimeout(() => {
@@ -55,6 +69,7 @@ const SignIn: React.FC = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!email || !password) {
       toast.error('Please fill in all fields');
       return;
@@ -77,14 +92,6 @@ const SignIn: React.FC = () => {
         // Don't set loading to false here - we're going to redirect which will unmount this component
         console.log('Sign in successful, waiting for auth state to update');
         setIsRedirecting(true);
-        
-        // Fallback: if redirection doesn't happen in 3 seconds, force it
-        setTimeout(() => {
-          if (document.location.pathname === '/sign-in') {
-            console.log('Forcing navigation to dashboard after timeout');
-            navigate('/dashboard', { replace: true });
-          }
-        }, 3000);
       }
     } catch (error: any) {
       console.error('Unexpected sign in error:', error);

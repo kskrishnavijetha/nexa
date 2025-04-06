@@ -27,6 +27,8 @@ function App() {
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/pricing" element={<PricingPlans />} />
+        
+        {/* Payment page is protected but doesn't require an active subscription */}
         <Route path="/payment" element={
           <ProtectedRoute>
             <Payment />

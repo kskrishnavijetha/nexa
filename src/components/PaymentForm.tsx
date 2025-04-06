@@ -11,11 +11,13 @@ interface PaymentFormProps {
 }
 
 const PaymentForm: React.FC<PaymentFormProps> = (props) => {
-  const hasActiveSubscription = !!getSubscription()?.active;
+  const subscription = getSubscription();
+  const isRenewal = subscription && !subscription.active;
+  const isNewSignup = !subscription;
   
   return (
     <div className="max-w-md w-full mx-auto">
-      <PaymentPageHeader isRenewal={false} isNewSignup={!hasActiveSubscription} />
+      <PaymentPageHeader isRenewal={isRenewal} isNewSignup={isNewSignup} />
       <CheckoutForm {...props} />
     </div>
   );

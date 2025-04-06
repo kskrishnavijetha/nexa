@@ -5,18 +5,24 @@ import PaymentForm from '@/components/PaymentForm';
 import { getSubscription, hasActiveSubscription } from '@/utils/paymentService';
 import SubscriptionStatus from '@/components/payment/SubscriptionStatus';
 import FeatureSummary from '@/components/payment/FeatureSummary';
-import PaymentPageHeader from '@/components/payment/PaymentPageHeader';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
 
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const [subscription, setSubscription] = useState(getSubscription());
   const [isRenewal, setIsRenewal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
 
   useEffect(() => {
+    // Check if user has an active subscription and redirected from another page
+    if (hasActiveSubscription() && location.state?.fromProtectedRoute) {
+      navigate('/dashboard');
+    }
+    
     // Check if a plan was selected from the pricing page
     if (location.state?.selectedPlan) {
       setSelectedPlan(location.state.selectedPlan);
@@ -33,7 +39,7 @@ const Payment = () => {
       setIsRenewal(true);
     }
     setSubscription(currentSubscription);
-  }, [location.state]);
+  }, [location.state, navigate]);
 
   const handlePaymentSuccess = (paymentId: string) => {
     console.log('Payment successful:', paymentId);
@@ -42,15 +48,31 @@ const Payment = () => {
     // Update subscription state
     setSubscription(getSubscription());
     
-    // Redirect to document analysis page after 2 seconds
+    // Redirect to dashboard page after 1.5 seconds
     setTimeout(() => {
-      navigate('/document-analysis');
-    }, 2000);
+      navigate('/dashboard');
+    }, 1500);
   };
 
   const handleRenewClick = () => {
     setIsRenewal(true);
   };
+
+  // If user is not authenticated, they shouldn't be on this page
+  if (!user) {
+    return (
+      <div className="container mx-auto py-12 text-center">
+        <h1 className="text-3xl font-bold mb-4">Please sign in to continue</h1>
+        <p className="mb-4">You need to sign in to access subscription options.</p>
+        <button 
+          className="bg-primary text-white px-4 py-2 rounded"
+          onClick={() => navigate('/sign-in')}
+        >
+          Sign In
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-12">

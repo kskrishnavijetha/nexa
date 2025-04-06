@@ -66,9 +66,9 @@ const SignUp: React.FC = () => {
         // Send welcome email after successful signup
         await sendWelcomeEmail(email);
         
-        // After successful signup, redirect to payment page for subscription selection
-        toast.success('Signup successful! Select a subscription plan.');
-        navigate('/payment');
+        // After successful signup, redirect to home page
+        toast.success('Signup successful! Please check your email to verify your account.');
+        navigate('/');
       }
     } catch (error: any) {
       toast.error(error.message || 'An error occurred during sign up');

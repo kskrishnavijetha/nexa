@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
+import { hasActiveSubscription } from '@/utils/paymentService';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -33,6 +34,23 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       }, 300);
       
       return () => clearTimeout(redirectTimer);
+    }
+    
+    // Check if user has an active subscription on protected routes except payment page
+    if (!loading && user && !isRedirecting && location.pathname !== '/payment') {
+      const hasSubscription = hasActiveSubscription();
+      
+      if (!hasSubscription) {
+        console.log('ProtectedRoute: User has no active subscription, redirecting to payment page');
+        setIsRedirecting(true);
+        
+        // Use setTimeout to prevent UI flickering from immediate redirects
+        const redirectTimer = setTimeout(() => {
+          navigate('/payment', { replace: true });
+        }, 300);
+        
+        return () => clearTimeout(redirectTimer);
+      }
     }
     
     // If we're stuck in a loading state for too long, reset the state
