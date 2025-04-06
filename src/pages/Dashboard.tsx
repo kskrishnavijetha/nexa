@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { shouldUpgrade } from '@/utils/paymentService';
 import { toast } from 'sonner';
@@ -8,9 +8,13 @@ import { Clock } from 'lucide-react';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardTabContent from '@/components/dashboard/DashboardTabContent';
+import { useAuth } from '@/contexts/AuthContext';
+import { getUserHistoricalReports } from '@/utils/historyService';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [hasData, setHasData] = useState<boolean>(false);
 
   // Check if user needs to upgrade on component mount
   useEffect(() => {
@@ -24,6 +28,28 @@ const Dashboard = () => {
       });
     }
   }, [navigate]);
+
+  // Check if the user has any scan data
+  useEffect(() => {
+    const checkUserData = async () => {
+      if (user?.uid) {
+        const userReports = getUserHistoricalReports(user.uid);
+        setHasData(userReports.length > 0);
+        
+        if (userReports.length === 0) {
+          toast.info('Welcome to your dashboard! Start by running a document scan.', {
+            action: {
+              label: 'Scan Document',
+              onClick: () => navigate('/document-analysis'),
+            },
+            duration: 5000,
+          });
+        }
+      }
+    };
+    
+    checkUserData();
+  }, [user, navigate]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -53,6 +79,20 @@ const Dashboard = () => {
           <DashboardTabContent activeTab="actions" />
         </TabsContent>
       </Tabs>
+      
+      {!hasData && (
+        <div className="mt-8 p-4 border border-dashed rounded-md text-center">
+          <p className="text-muted-foreground">
+            Your dashboard will display real-time compliance data once you've performed document scans.
+          </p>
+          <button 
+            onClick={() => navigate('/document-analysis')}
+            className="mt-2 text-primary hover:underline"
+          >
+            Start your first document scan →
+          </button>
+        </div>
+      )}
     </div>
   );
 };
