@@ -1,4 +1,3 @@
-
 /**
  * Service for PayPal payment processing
  */
@@ -14,10 +13,10 @@ const PAYPAL_PLAN_IDS = {
     monthly: 'P-0G576384KT1375804M7UPCYY',
   },
   pro: {
-    monthly: 'P-3NN72537D3262274CMUSBMDI',
+    monthly: 'P-0F289070AR785993EM7UO47Y',
   },
   enterprise: {
-    monthly: 'P-5GJ8318862350144UMUSBMEI',
+    monthly: 'P-76C19200WU898035NM7UO5YQ',
   }
 };
 
