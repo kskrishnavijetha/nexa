@@ -14,7 +14,7 @@ export const PAYPAL_PLAN_IDS = {
     annually: 'P-0F289070AR785993EM7UO47Y'
   },
   pro: {
-    monthly: 'P-3NN72537D3262274CMUSBMDI',
+    monthly: 'P-3HC49424F5082825FM7ZKZCI',
     annually: 'P-ANNUAL72537D3262274CMUSBMDI'
   },
   enterprise: {
