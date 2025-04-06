@@ -18,19 +18,21 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   initialPlan, 
   initialBillingCycle 
 }) => {
-  const [selectedTier, setSelectedTier] = useState<string>(initialPlan || 'free');
+  const [selectedTier, setSelectedTier] = useState<'free' | 'basic' | 'premium' | 'enterprise'>(
+    (initialPlan as 'free' | 'basic' | 'premium' | 'enterprise') || 'free'
+  );
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>(initialBillingCycle || 'monthly');
   const [loading, setLoading] = useState(false);
   const currentSubscription = getSubscription();
   
   // If initialPlan is provided or user has an existing subscription, preselect that tier
   useEffect(() => {
-    if (initialPlan) {
+    if (initialPlan && (initialPlan === 'free' || initialPlan === 'basic' || initialPlan === 'premium' || initialPlan === 'enterprise')) {
       setSelectedTier(initialPlan);
     } else if (currentSubscription?.plan) {
       setSelectedTier(currentSubscription.plan);
       // If free plan has expired, suggest the basic plan as the next step
-      if (currentSubscription.plan === 'free' && !currentSubscription.active) {
+      if (currentSubscription.plan === 'free' && currentSubscription.status !== 'active') {
         setSelectedTier('basic');
       }
     }

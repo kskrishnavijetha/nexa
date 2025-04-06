@@ -12,7 +12,7 @@ interface PaymentFormProps {
 
 const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   const subscription = getSubscription();
-  const isRenewal = subscription && !subscription.active;
+  const isRenewal = subscription && subscription.status !== 'active';
   const isNewSignup = !subscription;
   
   return (
