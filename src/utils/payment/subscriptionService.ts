@@ -2,10 +2,11 @@
 /**
  * Service for managing user subscriptions
  */
+import { PlanName } from './planTypes';
 
 export interface SubscriptionInfo {
   active: boolean;
-  plan: string;
+  plan: PlanName;
   scansUsed: number;
   scansLimit: number;
   expirationDate: Date;
@@ -13,7 +14,7 @@ export interface SubscriptionInfo {
 }
 
 // Store the user's current subscription in localStorage
-export const saveSubscription = (plan: string, paymentId: string, billingCycle: 'monthly' | 'annually' = 'monthly') => {
+export const saveSubscription = (plan: PlanName, paymentId: string, billingCycle: 'monthly' | 'annually' = 'monthly') => {
   const pricingTiers = {
     free: { scans: 1, days: 30 },
     basic: { scans: 10, days: billingCycle === 'monthly' ? 30 : 365 },
@@ -21,7 +22,7 @@ export const saveSubscription = (plan: string, paymentId: string, billingCycle: 
     enterprise: { scans: 999, days: billingCycle === 'monthly' ? 30 : 365 }, // Using 999 to represent unlimited
   };
   
-  const selectedTier = pricingTiers[plan as keyof typeof pricingTiers];
+  const selectedTier = pricingTiers[plan];
   const expirationDate = new Date();
   expirationDate.setDate(expirationDate.getDate() + selectedTier.days);
   

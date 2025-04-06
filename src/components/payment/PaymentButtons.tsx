@@ -8,10 +8,11 @@ import {
   createSubscription
 } from '@/utils/paymentService';
 import { toast } from 'sonner';
+import { PlanName } from '@/utils/payment/planTypes';
 
 interface PaymentButtonsProps {
   onSuccess?: (paymentId: string) => void;  // Changed to optional
-  tier: string;
+  tier: PlanName;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   billingCycle: 'monthly' | 'annually';
