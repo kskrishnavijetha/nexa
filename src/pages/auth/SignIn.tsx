@@ -37,19 +37,17 @@ const SignIn: React.FC = () => {
       console.log('User logged in, checking subscription status');
       setIsRedirecting(true);
       
-      // Always redirect to pricing page for new users or users without subscription
-      // This explicit redirect ensures users see the pricing page
+      // Always redirect to pricing page for new users
       let redirectPath = '/pricing';
       
       // Check if user has an active subscription
       const hasSubscription = hasActiveSubscription();
       
-      // Only if has active subscription, redirect to dashboard
+      // If has active subscription, redirect to dashboard
       if (hasSubscription) {
         redirectPath = '/dashboard';
         console.log('Active subscription found, redirecting to dashboard');
       } else {
-        console.log('No active subscription found, redirecting to pricing page');
         // Check if there's a saved redirect path from a protected route
         const savedRedirectPath = sessionStorage.getItem('redirectAfterLogin');
         if (savedRedirectPath && savedRedirectPath !== '/pricing') {
@@ -57,10 +55,11 @@ const SignIn: React.FC = () => {
           sessionStorage.setItem('redirectAfterSuccessfulPayment', savedRedirectPath);
           console.log('Saved path for after payment:', savedRedirectPath);
         }
+        
+        console.log('No active subscription, redirecting to pricing page');
       }
       
       // Immediate redirect
-      console.log(`Redirecting user to: ${redirectPath}`);
       navigate(redirectPath, { replace: true });
     }
   }, [user, navigate, isRedirecting, loading]);

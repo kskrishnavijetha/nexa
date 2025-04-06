@@ -24,8 +24,9 @@ const PricingPlans = () => {
 
   useEffect(() => {
     // Check subscription status when component mounts
-    if (!loading) {
-      console.log('PricingPlans: User state loaded, auth status:', user ? 'Logged in' : 'Not logged in');
+    if (user && !loading) {
+      setCheckingSubscription(false);
+    } else if (!loading && !user) {
       setCheckingSubscription(false);
     }
   }, [user, loading]);
@@ -33,12 +34,10 @@ const PricingPlans = () => {
   const handleSelectPlan = (plan: string) => {
     if (!user) {
       // Redirect non-logged in users to sign up
-      console.log('PricingPlans: No user, redirecting to sign-up');
       navigate('/sign-up');
       toast.info('Please sign up to subscribe to a plan');
     } else {
       // For logged in users, redirect to payment with plan details
-      console.log(`PricingPlans: User selected plan: ${plan} (${billingCycle})`);
       navigate('/payment', { 
         state: { 
           selectedPlan: plan,
