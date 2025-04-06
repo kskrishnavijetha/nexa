@@ -1,3 +1,4 @@
+
 /**
  * Service for PayPal payment processing
  */
@@ -11,7 +12,7 @@ const PAYPAL_CLIENT_ID = 'AXKd2EHw7ySZihlaN06rqnABzzQdhD8ueu738V8iCtC93o8PwlZdjO
 const PAYPAL_PLAN_IDS = {
   basic: {
     monthly: 'P-0G576384KT1375804M7UPCYY', // Updated with the plan ID you provided
-    annually: 'P-ANNUAL8411875146223CMUSBMCA'
+    annually: 'P-0F289070AR785993EM7UO47Y' // Updated with the new annual plan ID you provided
   },
   pro: {
     monthly: 'P-3NN72537D3262274CMUSBMDI',
