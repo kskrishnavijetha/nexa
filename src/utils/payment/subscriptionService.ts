@@ -73,6 +73,30 @@ export const recordScanUsage = (): void => {
   const subscription = getSubscription();
   if (subscription && subscription.active) {
     subscription.scansUsed += 1;
+    
+    // Check if scans limit reached
+    if (subscription.scansUsed >= subscription.scansLimit) {
+      // Mark as inactive if it's a free plan and limit reached
+      if (subscription.plan === 'free') {
+        subscription.active = false;
+      }
+    }
+    
     localStorage.setItem('subscription', JSON.stringify(subscription));
   }
+};
+
+// Check if user needs to upgrade (free plan with no scans left or expired)
+export const shouldUpgrade = (): boolean => {
+  const subscription = getSubscription();
+  
+  if (!subscription) {
+    return false; // No subscription yet, they'll be directed to pricing anyway
+  }
+  
+  // If free plan and either expired or no scans left
+  return (
+    subscription.plan === 'free' && 
+    (!subscription.active || subscription.scansUsed >= subscription.scansLimit)
+  );
 };

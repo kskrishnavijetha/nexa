@@ -29,6 +29,10 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       setSelectedTier(initialPlan);
     } else if (currentSubscription?.plan) {
       setSelectedTier(currentSubscription.plan);
+      // If free plan has expired, suggest the basic plan as the next step
+      if (currentSubscription.plan === 'free' && !currentSubscription.active) {
+        setSelectedTier('basic');
+      }
     }
   }, [initialPlan, currentSubscription]);
 

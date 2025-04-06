@@ -7,6 +7,7 @@ import {
   createPayPalButtons
 } from '@/utils/paymentService';
 import { toast } from 'sonner';
+import { shouldUpgrade } from '@/utils/paymentService'; // Add this import
 
 interface PaymentButtonsProps {
   onSuccess?: (paymentId: string) => void;
@@ -88,6 +89,9 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   
   // For free tier, use a regular button
   if (tier === 'free') {
+    const needsUpgrade = shouldUpgrade();
+    const buttonText = needsUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan';
+    
     return (
       <Button 
         className="w-full"
@@ -97,6 +101,13 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
           setLoading(true);
           
           try {
+            if (needsUpgrade) {
+              // If they need to upgrade, just show paid plans
+              toast.info('Please select a paid plan to continue');
+              setLoading(false);
+              return;
+            }
+            
             // For free tier, just create a local subscription record
             const subscriptionId = 'free_' + Math.random().toString(36).substring(2, 15);
             toast.success('Free plan activated!');
@@ -111,7 +122,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
         {loading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : null}
-        {loading ? 'Processing...' : 'Activate Free Plan'}
+        {loading ? 'Processing...' : buttonText}
       </Button>
     );
   }
