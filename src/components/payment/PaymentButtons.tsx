@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { 
   loadPayPalScript,
-  createPayPalButtons,
-  createSubscription
-} from '@/utils/paymentService';
+  createPayPalButtons
+} from '@/utils/payment/paypalService';
+import { createSubscription } from '@/utils/payment/paymentProcessor';
 import { toast } from 'sonner';
 
 interface PaymentButtonsProps {

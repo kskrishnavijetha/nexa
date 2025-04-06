@@ -46,6 +46,7 @@ export const loadPayPalScript = (): Promise<void> => {
 
     const script = document.createElement('script');
     script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&vault=true&intent=subscription`;
+    script.dataset.sdkIntegrationSource = 'button-factory';
     script.async = true;
     
     script.onload = () => {
@@ -101,6 +102,14 @@ export const createPayPalButtons = (
     return;
   }
 
+  // Create a specific container ID for this plan
+  const specificContainerId = `paypal-button-container-${planId}`;
+  
+  // Create the specific container element
+  const specificContainer = document.createElement('div');
+  specificContainer.id = specificContainerId;
+  container.appendChild(specificContainer);
+
   try {
     console.log(`Creating PayPal buttons for plan: ${plan}, ID: ${planId}`);
     
@@ -109,10 +118,11 @@ export const createPayPalButtons = (
         shape: 'rect',
         color: 'gold',
         layout: 'vertical',
-        label: 'paypal'
+        label: 'subscribe'
       },
       createSubscription: function(data: any, actions: any) {
         return actions.subscription.create({
+          /* Creates the subscription */
           plan_id: planId
         });
       },
@@ -124,7 +134,9 @@ export const createPayPalButtons = (
         console.error('PayPal error:', err);
         onError(err);
       }
-    }).render(`#${containerId}`);
+    }).render(`#${specificContainerId}`);
+    
+    console.log(`PayPal button rendered to #${specificContainerId}`);
   } catch (error) {
     console.error('Error rendering PayPal buttons:', error);
     onError(error);
