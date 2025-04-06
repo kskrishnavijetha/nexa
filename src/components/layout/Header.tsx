@@ -37,6 +37,7 @@ const Header: React.FC = () => {
       
       // Force navigation to home page
       navigate('/', { replace: true });
+      toast.success('Signed out successfully');
     } catch (error) {
       console.error('Header: Error during sign out:', error);
       toast.error('Failed to sign out. Please try again.');
@@ -100,7 +101,7 @@ const Header: React.FC = () => {
                   <Link to="/dashboard" className="w-full cursor-pointer">Dashboard</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/pricing" className="w-full cursor-pointer">Subscription</Link>
+                  <Link to="/payment" className="w-full cursor-pointer">Subscription</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-red-500 cursor-pointer">

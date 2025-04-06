@@ -15,7 +15,7 @@ export function useAuthState() {
   useEffect(() => {
     console.log('Auth provider initializing...');
     
-    // If we've been loading for more than 5 seconds, reset the loading state
+    // If we've been loading for more than 5 seconds (reduced from 10), reset the loading state
     if (loading) {
       const timeoutId = setTimeout(() => {
         if (loading) {
@@ -40,6 +40,9 @@ export function useAuthState() {
           setSession(newSession);
           setUser(newSession?.user ?? null);
           setLoading(false);
+          
+          // Clear any previous user data first
+          clearUserData();
           
           toast.success('Signed in successfully!');
           
@@ -101,7 +104,10 @@ export function useAuthState() {
         password,
       });
 
-      if (error) {
+      if (!error) {
+        // Only clear user data on successful sign in
+        clearUserData();
+      } else {
         // Make sure to stop loading on error
         setLoading(false);
       }
@@ -116,32 +122,35 @@ export function useAuthState() {
 
   const signOut = useCallback(async () => {
     console.log('Signing out...');
+    setLoading(true);
     
     try {
+      // Clear user data from localStorage before signing out from Supabase
+      clearUserData();
+      
       // Execute the signOut call to Supabase
       const { error } = await supabase.auth.signOut();
       
       if (error) {
         console.error('Error from Supabase during sign out:', error);
-        toast.error('Failed to sign out. Please try again.');
-        return { error };
+        toast.error('Error signing out: ' + error.message);
+        setLoading(false);
+        throw error;
       }
-      
-      // Clear user data explicitly for redundancy
-      clearUserData();
       
       // Force update local state
       setSession(null);
       setUser(null);
       
       console.log('Signout completed successfully');
-      toast.success('Signed out successfully');
       return { error: null };
       
     } catch (error) {
       console.error('Exception during sign out:', error);
-      toast.error('Failed to sign out. Please try again.');
-      return { error };
+      setLoading(false);
+      throw error;
+    } finally {
+      setLoading(false);
     }
   }, []);
 
