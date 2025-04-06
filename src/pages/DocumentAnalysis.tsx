@@ -8,27 +8,12 @@ import AnalysisResults from '@/components/document-analysis/AnalysisResults';
 import { addReportToHistory } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
-import { getSubscription } from '@/utils/paymentService';
-import { useNavigate } from 'react-router-dom';
 
 const DocumentAnalysis = () => {
   const [report, setReport] = useState<ComplianceReport | null>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const { user } = useAuth();
   const { addScanHistory } = useServiceHistoryStore();
-  const navigate = useNavigate();
-  
-  // Check if user has a free plan and should be redirected to pricing
-  useEffect(() => {
-    const subscription = getSubscription();
-    console.log("DocumentAnalysis: Current subscription plan:", subscription?.plan);
-    
-    if (subscription?.active && subscription?.plan === 'free') {
-      console.log("DocumentAnalysis: User has free plan, redirecting to pricing");
-      toast.info("Free plan doesn't include document analysis. Please upgrade your plan.");
-      navigate('/pricing');
-    }
-  }, [navigate]);
 
   const handleReportGenerated = (reportData: ComplianceReport) => {
     // Add user ID to the report if available

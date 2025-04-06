@@ -13,7 +13,6 @@ interface PricingCardProps {
   onSelectPlan: () => void;
   buttonText: string;
   buttonVariant?: 'default' | 'outline';
-  disabled?: boolean;
 }
 
 const PricingCard: React.FC<PricingCardProps> = ({
@@ -24,8 +23,7 @@ const PricingCard: React.FC<PricingCardProps> = ({
   isRecommended = false,
   onSelectPlan,
   buttonText,
-  buttonVariant = 'default',
-  disabled = false
+  buttonVariant = 'default'
 }) => {
   return (
     <Card className={`flex flex-col ${isRecommended 
@@ -52,7 +50,6 @@ const PricingCard: React.FC<PricingCardProps> = ({
           variant={buttonVariant} 
           className="w-full"
           onClick={onSelectPlan}
-          disabled={disabled}
         >
           {buttonText}
         </Button>

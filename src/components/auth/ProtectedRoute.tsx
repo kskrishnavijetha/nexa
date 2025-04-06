@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
-import { hasActiveSubscription, getSubscription } from '@/utils/paymentService';
+import { hasActiveSubscription } from '@/utils/paymentService';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -53,21 +53,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
           navigate('/pricing', { replace: true });
         }, 100);
         return;
-      }
-      
-      // Check if user has free plan and is trying to access premium feature pages
-      const subscription = getSubscription();
-      if (subscription?.active && subscription?.plan === 'free') {
-        const premiumRoutes = ['/document-analysis', '/google-services', '/slack-monitoring', '/audit-reports'];
-        
-        if (premiumRoutes.includes(location.pathname)) {
-          console.log('ProtectedRoute: Free user trying to access premium feature, redirecting to pricing');
-          setIsRedirecting(true);
-          setTimeout(() => {
-            navigate('/pricing', { replace: true });
-          }, 100);
-          return;
-        }
       }
     }
   }, [user, loading, navigate, isRedirecting, location]);
