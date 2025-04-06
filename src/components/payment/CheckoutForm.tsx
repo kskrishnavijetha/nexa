@@ -6,7 +6,6 @@ import PaymentBillingToggle from './PaymentBillingToggle';
 import PaymentButtons from './PaymentButtons';
 import PaymentSummary from './PaymentSummary';
 import { getPrice } from '@/utils/pricingData';
-import { PlanName, isValidPlanName } from '@/utils/payment/planTypes';
 
 interface CheckoutFormProps {
   onSuccess?: (paymentId: string) => void;  // Changed from required to optional with '?'
@@ -19,16 +18,16 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   initialPlan, 
   initialBillingCycle 
 }) => {
-  const [selectedTier, setSelectedTier] = useState<PlanName>('free');
+  const [selectedTier, setSelectedTier] = useState<string>('free');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>(initialBillingCycle || 'monthly');
   const [loading, setLoading] = useState(false);
   const currentSubscription = getSubscription();
   
   // If initialPlan is provided or user has an existing subscription, preselect that tier
   useEffect(() => {
-    if (initialPlan && isValidPlanName(initialPlan)) {
+    if (initialPlan) {
       setSelectedTier(initialPlan);
-    } else if (currentSubscription?.plan && isValidPlanName(currentSubscription.plan)) {
+    } else if (currentSubscription?.plan) {
       setSelectedTier(currentSubscription.plan);
     }
   }, [initialPlan, currentSubscription]);
@@ -36,13 +35,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   // Helper function to get price for the selected tier
   const getPriceForTier = (tier: string) => {
     return getPrice(tier, billingCycle);
-  };
-
-  // Handler that ensures type safety when selecting tiers
-  const handleSelectTier = (tier: string) => {
-    if (isValidPlanName(tier)) {
-      setSelectedTier(tier);
-    }
   };
 
   return (
@@ -58,7 +50,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         <PaymentTierSelector
           selectedTier={selectedTier}
           billingCycle={billingCycle}
-          onSelectTier={handleSelectTier}
+          onSelectTier={setSelectedTier}
           getPrice={getPriceForTier}
         />
       </div>

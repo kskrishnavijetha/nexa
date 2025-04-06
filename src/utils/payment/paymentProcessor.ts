@@ -4,7 +4,6 @@
  */
 import { saveSubscription } from './subscriptionService';
 import { supabase } from '@/integrations/supabase/client';
-import { PlanName, isValidPlanName } from './planTypes';
 
 export interface PaymentResult {
   success: boolean;
@@ -101,6 +100,7 @@ export const createSubscription = async (
   paymentMethodId: string,
   priceId: string
 ): Promise<PaymentResult> => {
+  // This is a mock implementation. In a real app, you would call your backend.
   try {
     // Extract billing cycle from priceId if present (e.g., price_basic_annually)
     let planName = priceId.split('_')[1];
@@ -111,19 +111,8 @@ export const createSubscription = async (
       billingCycle = 'annually';
     }
     
-    // Validate plan name
-    if (!isValidPlanName(planName)) {
-      return {
-        success: false,
-        error: `Invalid plan name: ${planName}`
-      };
-    }
-
-    // Now planName is safely typed as PlanName
-    const validPlanName: PlanName = planName;
-    
     // Free tier doesn't need subscription processing
-    if (validPlanName === 'free') {
+    if (planName === 'free') {
       const paymentId = 'free_sub_' + Math.random().toString(36).substring(2, 15);
       
       // Save the free subscription
@@ -143,14 +132,14 @@ export const createSubscription = async (
       const paymentId = 'sub_' + Math.random().toString(36).substring(2, 15);
       
       // Save the subscription with billing cycle
-      saveSubscription(validPlanName, paymentId, billingCycle);
+      saveSubscription(planName, paymentId, billingCycle);
       
       // Get current user email for confirmation
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user?.email) {
         // Send payment confirmation email
-        await sendPaymentConfirmationEmail(user.email, validPlanName, billingCycle);
+        await sendPaymentConfirmationEmail(user.email, planName, billingCycle);
       }
       
       return {

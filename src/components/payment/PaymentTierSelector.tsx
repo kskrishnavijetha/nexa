@@ -2,10 +2,9 @@
 import React from 'react';
 import { Check } from 'lucide-react';
 import { pricingTiers } from '@/utils/pricingData';
-import { PlanName } from '@/utils/payment/planTypes';
 
 interface PaymentTierSelectorProps {
-  selectedTier: PlanName;
+  selectedTier: string;
   billingCycle: 'monthly' | 'annually';
   onSelectTier: (tier: string) => void;
   getPrice: (tier: string) => number;
