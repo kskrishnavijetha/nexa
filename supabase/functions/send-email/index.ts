@@ -45,7 +45,7 @@ const handler = async (req: Request): Promise<Response> => {
             <h1 style="color: #4F46E5;">Welcome to Nexabloom!</h1>
             <p>Hello${name ? ` ${name}` : ""},</p>
             <p>Thank you for signing up with Nexabloom! We're excited to have you on board.</p>
-            <p>Please verify your email to get started with our compliance automation platform. You can access your dashboard once verified.</p>
+            <p>To get started with our compliance automation platform, please select a subscription plan that suits your needs.</p>
             <p>If you have any questions, feel free to reach out to our support team.</p>
             <p>Best regards,<br>The Nexabloom Team</p>
           </div>

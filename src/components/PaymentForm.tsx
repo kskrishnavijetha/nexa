@@ -15,7 +15,7 @@ const PaymentForm: React.FC<PaymentFormProps> = (props) => {
   
   return (
     <div className="max-w-md w-full mx-auto">
-      <PaymentPageHeader isRenewal={false} />
+      <PaymentPageHeader isRenewal={false} isNewSignup={!hasActiveSubscription} />
       <CheckoutForm {...props} />
     </div>
   );

@@ -85,9 +85,9 @@ const sendPaymentConfirmationEmail = async (email: string, plan: string, billing
 const calculatePlanAmount = (plan: string, billingCycle: 'monthly' | 'annually'): number => {
   const pricing = {
     free: 0,
-    basic: billingCycle === 'monthly' ? 999 : 9990,
-    pro: billingCycle === 'monthly' ? 1999 : 19990,
-    enterprise: billingCycle === 'monthly' ? 4999 : 49990,
+    basic: billingCycle === 'monthly' ? 3500 : 37800,
+    pro: billingCycle === 'monthly' ? 11000 : 118800,
+    enterprise: billingCycle === 'monthly' ? 39900 : 430900,
   };
   
   return pricing[plan as keyof typeof pricing] || 0;

@@ -19,6 +19,7 @@ const SignUp: React.FC = () => {
 
   const sendWelcomeEmail = async (email: string) => {
     try {
+      console.log('Sending welcome email to:', email);
       const { error } = await supabase.functions.invoke('send-email', {
         body: { 
           type: 'welcome',
@@ -66,7 +67,7 @@ const SignUp: React.FC = () => {
         await sendWelcomeEmail(email);
         
         // After successful signup, redirect to payment page for subscription selection
-        toast.success('Please check your email to verify your account, then subscribe to a plan');
+        toast.success('Signup successful! Select a subscription plan.');
         navigate('/payment');
       }
     } catch (error: any) {
