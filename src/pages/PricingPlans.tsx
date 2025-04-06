@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { hasActiveSubscription } from '@/utils/paymentService';
+import { hasActiveSubscription, getSubscription } from '@/utils/paymentService';
 import BillingToggle from '@/components/pricing/BillingToggle';
 import PricingCard from '@/components/pricing/PricingCard';
 import { toast } from 'sonner';
@@ -22,6 +22,7 @@ const PricingPlans = () => {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
   const [checkingSubscription, setCheckingSubscription] = useState(true);
   const [hasSubscription, setHasSubscription] = useState(false);
+  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
 
   useEffect(() => {
     // Check subscription status when component mounts
@@ -30,14 +31,20 @@ const PricingPlans = () => {
       
       // Force clear any cached subscription data to ensure fresh check
       if (user) {
+        const subscription = getSubscription();
         const subscriptionActive = hasActiveSubscription();
         console.log('PricingPlans: User subscription status:', subscriptionActive ? 'Active' : 'Inactive');
         setHasSubscription(subscriptionActive);
         
-        // If user has active subscription and they're on pricing page, redirect to dashboard
-        if (subscriptionActive) {
-          console.log('PricingPlans: User has active subscription, redirecting to dashboard');
-          navigate('/dashboard');
+        if (subscription) {
+          console.log('PricingPlans: Current plan:', subscription.plan);
+          setCurrentPlan(subscription.plan);
+          
+          // If user has active subscription (not free) and they're on pricing page, redirect to dashboard
+          if (subscriptionActive && subscription.plan !== 'free') {
+            console.log('PricingPlans: User has paid active subscription, redirecting to dashboard');
+            navigate('/dashboard');
+          }
         }
       }
       
@@ -63,9 +70,18 @@ const PricingPlans = () => {
     }
   };
 
-  const getButtonText = () => {
+  const getButtonText = (planType: string) => {
     if (!user) return 'Sign Up & Subscribe';
+    
+    if (currentPlan === planType) {
+      return planType === 'free' ? 'Upgrade Now' : 'Current Plan';
+    }
+    
     return hasSubscription ? 'Change Plan' : 'Subscribe';
+  };
+
+  const shouldDisableButton = (planType: string) => {
+    return currentPlan === planType && planType !== 'free';
   };
 
   if (loading || checkingSubscription) {
@@ -90,6 +106,14 @@ const PricingPlans = () => {
           onChange={setBillingCycle} 
         />
         
+        {user && currentPlan === 'free' && (
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
+            <p className="text-amber-700 font-medium">
+              You are currently on the Free plan. Upgrade to access premium features like Document Analysis.
+            </p>
+          </div>
+        )}
+        
         {user && !hasSubscription && (
           <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
             <p className="text-amber-700">
@@ -106,9 +130,10 @@ const PricingPlans = () => {
           description="Get started with basic compliance checks"
           price={formatPrice(pricing.free[billingCycle], billingCycle)}
           features={freeFeatures}
-          buttonText={getButtonText()}
-          buttonVariant="outline"
+          buttonText={getButtonText('free')}
+          buttonVariant={currentPlan === 'free' ? "default" : "outline"}
           onSelectPlan={() => handleSelectPlan('free')}
+          disabled={false}
         />
 
         {/* Basic Plan */}
@@ -117,8 +142,9 @@ const PricingPlans = () => {
           description="Essential compliance tools for small businesses"
           price={formatPrice(pricing.basic[billingCycle], billingCycle)}
           features={basicFeatures}
-          buttonText={getButtonText()}
+          buttonText={getButtonText('basic')}
           onSelectPlan={() => handleSelectPlan('basic')}
+          disabled={shouldDisableButton('basic')}
         />
 
         {/* Pro Plan - Highlighted as recommended */}
@@ -128,8 +154,9 @@ const PricingPlans = () => {
           price={formatPrice(pricing.pro[billingCycle], billingCycle)}
           features={proFeatures}
           isRecommended={true}
-          buttonText={getButtonText()}
+          buttonText={getButtonText('pro')}
           onSelectPlan={() => handleSelectPlan('pro')}
+          disabled={shouldDisableButton('pro')}
         />
 
         {/* Enterprise Plan */}
@@ -138,8 +165,9 @@ const PricingPlans = () => {
           description="Complete compliance solution for large enterprises"
           price={formatPrice(pricing.enterprise[billingCycle], billingCycle)}
           features={enterpriseFeatures}
-          buttonText={getButtonText()}
+          buttonText={getButtonText('enterprise')}
           onSelectPlan={() => handleSelectPlan('enterprise')}
+          disabled={shouldDisableButton('enterprise')}
         />
       </div>
     </div>

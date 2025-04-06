@@ -76,6 +76,14 @@ export const hasActiveSubscription = (): boolean => {
   return result;
 };
 
+// Check if user has a paid active subscription (not free)
+export const hasPaidSubscription = (): boolean => {
+  const subscription = getSubscription();
+  const result = !!subscription && subscription.active && subscription.plan !== 'free';
+  console.log('hasPaidSubscription check result:', result, subscription?.plan);
+  return result;
+};
+
 // Check if user has scans remaining
 export const hasScansRemaining = (): boolean => {
   const subscription = getSubscription();
