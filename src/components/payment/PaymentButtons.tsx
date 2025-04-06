@@ -1,5 +1,5 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { 
@@ -25,20 +25,30 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   billingCycle
 }) => {
   const paypalContainerRef = useRef<HTMLDivElement>(null);
+  const [paypalInitialized, setPaypalInitialized] = useState(false);
   
+  // Initialize PayPal when component mounts or when plan changes
   useEffect(() => {
     // For free tier, create a custom button instead of PayPal
     if (tier === 'free') {
+      setPaypalInitialized(false);
       return;
     }
     
     // Load PayPal script
     const initializePayPal = async () => {
+      if (paypalInitialized) return;
+      
       setLoading(true);
       try {
         console.log('Loading PayPal script...');
         await loadPayPalScript();
         console.log('PayPal script loaded, creating buttons');
+        
+        if (!paypalContainerRef.current) {
+          console.error('PayPal container not found');
+          return;
+        }
         
         // Create PayPal buttons
         createPayPalButtons(
@@ -74,6 +84,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
             setLoading(false);
           }
         );
+        setPaypalInitialized(true);
       } catch (error) {
         console.error('Failed to load PayPal:', error);
         toast.error('Failed to load PayPal. Please try again later.');
@@ -82,17 +93,16 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
       }
     };
     
-    if (!loading) {
-      initializePayPal();
-    }
+    initializePayPal();
     
     // Cleanup function
     return () => {
       if (paypalContainerRef.current) {
         paypalContainerRef.current.innerHTML = '';
+        setPaypalInitialized(false);
       }
     };
-  }, [tier, onSuccess, loading, setLoading]);
+  }, [tier, onSuccess, setLoading, paypalInitialized]);
   
   // For free tier, use a regular button
   if (tier === 'free') {

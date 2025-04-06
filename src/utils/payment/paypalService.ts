@@ -104,16 +104,13 @@ export const createPayPalButtons = (
     return;
   }
 
-  // Create a specific container ID for this plan
-  const specificContainerId = `paypal-button-container-${planId}`;
-  
-  // Create the specific container element
-  const specificContainer = document.createElement('div');
-  specificContainer.id = specificContainerId;
-  container.appendChild(specificContainer);
-
   try {
     console.log(`Creating PayPal buttons for plan: ${plan}, ID: ${planId}`);
+    
+    // Create a specific container element for this instance
+    const buttonContainer = document.createElement('div');
+    buttonContainer.id = `paypal-button-${Date.now()}`;
+    container.appendChild(buttonContainer);
     
     window.paypal.Buttons({
       style: {
@@ -140,9 +137,9 @@ export const createPayPalButtons = (
       onCancel: function() {
         console.log('Subscription canceled');
       }
-    }).render(`#${specificContainerId}`);
+    }).render(`#${buttonContainer.id}`);
     
-    console.log(`PayPal button rendered to #${specificContainerId}`);
+    console.log(`PayPal button rendered to #${buttonContainer.id}`);
   } catch (error) {
     console.error('Error rendering PayPal buttons:', error);
     onError(error);
