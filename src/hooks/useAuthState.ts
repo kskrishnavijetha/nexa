@@ -53,6 +53,7 @@ export function useAuthState() {
           clearUserData();
           
           console.log('User signed out, state cleared');
+          toast.success('Signed out successfully');
         } else if (event === 'TOKEN_REFRESHED') {
           // Update session with refreshed token
           setSession(newSession);
@@ -116,34 +117,50 @@ export function useAuthState() {
 
   const signOut = useCallback(async () => {
     console.log('Signing out...');
+    setLoading(true);
     
     try {
+      // First manually clear all user data to ensure clean state
+      clearUserData();
+      
       // Execute the signOut call to Supabase
-      const { error } = await supabase.auth.signOut();
+      const { error } = await supabase.auth.signOut({
+        scope: 'local' // Only sign out from this device
+      });
       
       if (error) {
         console.error('Error from Supabase during sign out:', error);
         toast.error('Failed to sign out. Please try again.');
+        setLoading(false);
         return { error };
       }
       
-      // Clear user data explicitly for redundancy
-      clearUserData();
-      
-      // Force update local state
+      // Force update local state regardless of response
       setSession(null);
       setUser(null);
       
       console.log('Signout completed successfully');
       toast.success('Signed out successfully');
+      setLoading(false);
+      
+      // Navigate to home page
+      navigate('/', { replace: true });
+      
       return { error: null };
       
     } catch (error) {
       console.error('Exception during sign out:', error);
       toast.error('Failed to sign out. Please try again.');
+      setLoading(false);
+      
+      // Still clear local state even if there's an error
+      setSession(null);
+      setUser(null);
+      clearUserData();
+      
       return { error };
     }
-  }, []);
+  }, [navigate]);
 
   return {
     session,

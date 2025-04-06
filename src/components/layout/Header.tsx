@@ -20,12 +20,26 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   
-  const handleSignOut = async () => {
+  const handleSignOut = async (event: React.MouseEvent) => {
+    event.preventDefault();
+    
     try {
       console.log('Header: Initiating sign out');
       
+      if (!signOut) {
+        console.error('signOut function is not available');
+        toast.error('Something went wrong. Please try again.');
+        return;
+      }
+      
+      // Show loading toast
+      const loadingToast = toast.loading('Signing out...');
+      
       // Call the signOut function from AuthContext
       const { error } = await signOut();
+      
+      // Dismiss the loading toast
+      toast.dismiss(loadingToast);
       
       if (error) {
         console.error('Error signing out:', error);
@@ -34,11 +48,8 @@ const Header: React.FC = () => {
       }
       
       console.log('Header: Sign out completed successfully');
-      
-      // Force navigation to home page
-      navigate('/', { replace: true });
     } catch (error) {
-      console.error('Header: Error during sign out:', error);
+      console.error('Header: Unexpected error during sign out:', error);
       toast.error('Failed to sign out. Please try again.');
     }
   };

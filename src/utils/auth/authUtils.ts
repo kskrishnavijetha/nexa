@@ -7,6 +7,9 @@
 export const clearUserData = () => {
   console.log('Clearing user data from localStorage');
   
+  // Clear auth tokens
+  localStorage.removeItem('sb-sbsnnlhjhlifoqrvoixb-auth-token');
+  
   // Clear subscription data
   localStorage.removeItem('subscription');
   
