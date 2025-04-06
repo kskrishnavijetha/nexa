@@ -11,7 +11,7 @@ export const PAYPAL_CLIENT_ID = 'AXKd2EHw7ySZihlaN06rqnABzzQdhD8ueu738V8iCtC93o8
 export const PAYPAL_PLAN_IDS = {
   basic: {
     monthly: 'P-0G576384KT1375804M7UPCYY',
-    annually: 'P-0F289070AR785993EM7UO47Y'
+    annually: 'P-ANNUAL8411875146223CMUSBMCA'
   },
   pro: {
     monthly: 'P-3NN72537D3262274CMUSBMDI',
