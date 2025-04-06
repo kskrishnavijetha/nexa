@@ -1,13 +1,13 @@
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { 
   loadPayPalScript,
   createPayPalButtons
-} from '@/utils/payment/paypalService';
-import { createSubscription } from '@/utils/payment/paymentProcessor';
+} from '@/utils/paymentService';
 import { toast } from 'sonner';
+import { shouldUpgrade } from '@/utils/paymentService'; // Add this import
 
 interface PaymentButtonsProps {
   onSuccess?: (paymentId: string) => void;
@@ -25,54 +25,39 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   billingCycle
 }) => {
   const paypalContainerRef = useRef<HTMLDivElement>(null);
-  const [paypalInitialized, setPaypalInitialized] = useState(false);
   
-  // Initialize PayPal when component mounts or when plan changes
   useEffect(() => {
     // For free tier, create a custom button instead of PayPal
     if (tier === 'free') {
-      setPaypalInitialized(false);
       return;
     }
     
+    // Only proceed if not already loading
+    if (loading) return;
+    
     // Load PayPal script
     const initializePayPal = async () => {
-      if (paypalInitialized) return;
-      
-      setLoading(true);
       try {
-        console.log('Loading PayPal script...');
+        console.log(`Initializing PayPal for tier: ${tier}, billing cycle: ${billingCycle}`);
+        setLoading(true);
         await loadPayPalScript();
-        console.log('PayPal script loaded, creating buttons');
-        
-        if (!paypalContainerRef.current) {
-          console.error('PayPal container not found');
-          return;
-        }
         
         // Create PayPal buttons
         createPayPalButtons(
           'paypal-button-container',
           tier,
-          'monthly', // Always use monthly
+          billingCycle,
           // On approve handler
           async (data) => {
-            console.log('PayPal subscription approved', data);
+            console.log('PayPal subscription approved:', data);
             try {
-              // Call your backend to verify and record the subscription
-              const subscriptionId = data.subscriptionID || 'unknown';
-              console.log('Creating subscription with ID:', subscriptionId);
-              
-              const result = await createSubscription('paypal_subscription', `price_${tier}_monthly`);
-              if (result.success) {
-                toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
-                onSuccess(result.paymentId || subscriptionId);
-              } else {
-                toast.error(result.error || 'Payment failed. Please try again.');
-              }
-            } catch (error: any) {
+              // Save the subscription locally
+              const subscriptionId = data.subscriptionID || 'paypal_sub_id';
+              toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
+              onSuccess(subscriptionId);
+            } catch (error) {
+              console.error('Subscription processing error:', error);
               toast.error('Failed to process subscription. Please try again.');
-              console.error('Subscription error:', error);
             } finally {
               setLoading(false);
             }
@@ -84,11 +69,10 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
             setLoading(false);
           }
         );
-        setPaypalInitialized(true);
+        setLoading(false);
       } catch (error) {
         console.error('Failed to load PayPal:', error);
         toast.error('Failed to load PayPal. Please try again later.');
-      } finally {
         setLoading(false);
       }
     };
@@ -99,13 +83,15 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
     return () => {
       if (paypalContainerRef.current) {
         paypalContainerRef.current.innerHTML = '';
-        setPaypalInitialized(false);
       }
     };
-  }, [tier, onSuccess, setLoading, paypalInitialized]);
+  }, [tier, billingCycle, onSuccess, loading, setLoading]);
   
   // For free tier, use a regular button
   if (tier === 'free') {
+    const needsUpgrade = shouldUpgrade();
+    const buttonText = needsUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan';
+    
     return (
       <Button 
         className="w-full"
@@ -115,13 +101,17 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
           setLoading(true);
           
           try {
-            const result = await createSubscription('mock_payment_method', `price_${tier}`);
-            if (result.success) {
-              toast.success('Free plan activated!');
-              onSuccess(result.paymentId || 'unknown');
-            } else {
-              toast.error(result.error || 'Failed to activate free plan. Please try again.');
+            if (needsUpgrade) {
+              // If they need to upgrade, just show paid plans
+              toast.info('Please select a paid plan to continue');
+              setLoading(false);
+              return;
             }
+            
+            // For free tier, just create a local subscription record
+            const subscriptionId = 'free_' + Math.random().toString(36).substring(2, 15);
+            toast.success('Free plan activated!');
+            onSuccess(subscriptionId);
           } catch (error) {
             toast.error('Failed to activate free plan. Please try again.');
           } finally {
@@ -132,7 +122,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
         {loading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : null}
-        {loading ? 'Processing...' : 'Activate Free Plan'}
+        {loading ? 'Processing...' : buttonText}
       </Button>
     );
   }
@@ -140,18 +130,17 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   // For paid plans, render the PayPal button container
   return (
     <div className="w-full">
+      {loading && (
+        <div className="flex items-center justify-center py-2 mb-4">
+          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          <span>Preparing payment options...</span>
+        </div>
+      )}
       <div 
         id="paypal-button-container" 
         ref={paypalContainerRef}
-        className="w-full min-h-[50px] bg-gray-50 rounded-md border border-gray-200 p-2"
-      >
-        {loading && (
-          <div className="flex items-center justify-center py-2">
-            <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            <span>Loading PayPal...</span>
-          </div>
-        )}
-      </div>
+        className="w-full min-h-[40px]"
+      />
     </div>
   );
 };

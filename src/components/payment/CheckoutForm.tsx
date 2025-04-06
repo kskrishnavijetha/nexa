@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { getSubscription } from '@/utils/paymentService';
 import PaymentTierSelector from './PaymentTierSelector';
+import PaymentBillingToggle from './PaymentBillingToggle';
 import PaymentButtons from './PaymentButtons';
 import PaymentSummary from './PaymentSummary';
 import { getPrice } from '@/utils/pricingData';
@@ -13,12 +14,12 @@ interface CheckoutFormProps {
 }
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ 
-  onSuccess = () => {}, 
+  onSuccess = () => {},
   initialPlan, 
   initialBillingCycle 
 }) => {
-  const [selectedTier, setSelectedTier] = useState<string>('free');
-  const billingCycle = 'monthly'; // Fixed to monthly
+  const [selectedTier, setSelectedTier] = useState<string>(initialPlan || 'free');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>(initialBillingCycle || 'monthly');
   const [loading, setLoading] = useState(false);
   const currentSubscription = getSubscription();
   
@@ -28,18 +29,39 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       setSelectedTier(initialPlan);
     } else if (currentSubscription?.plan) {
       setSelectedTier(currentSubscription.plan);
+      // If free plan has expired, suggest the basic plan as the next step
+      if (currentSubscription.plan === 'free' && !currentSubscription.active) {
+        setSelectedTier('basic');
+      }
     }
   }, [initialPlan, currentSubscription]);
 
   // Helper function to get price for the selected tier
   const getPriceForTier = (tier: string) => {
-    return getPrice(tier, 'monthly');
+    return getPrice(tier, billingCycle);
+  };
+
+  const handleSuccess = (paymentId: string) => {
+    // Create local subscription record
+    import('@/utils/payment/subscriptionService').then(({ saveSubscription }) => {
+      saveSubscription(selectedTier, paymentId, billingCycle);
+      
+      // Call the onSuccess callback
+      if (onSuccess) {
+        onSuccess(paymentId);
+      }
+    });
   };
 
   return (
     <div className="space-y-6">
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Select a Plan</h3>
+        
+        <PaymentBillingToggle 
+          billingCycle={billingCycle}
+          setBillingCycle={setBillingCycle}
+        />
         
         <PaymentTierSelector
           selectedTier={selectedTier}
@@ -57,7 +79,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           }
         </p>
         <PaymentButtons 
-          onSuccess={onSuccess}
+          onSuccess={handleSuccess}
           tier={selectedTier}
           loading={loading}
           setLoading={setLoading}
