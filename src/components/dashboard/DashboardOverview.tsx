@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { BarChart3, FileText, AlertCircle, CheckCircle2, Clock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -63,7 +64,7 @@ const DashboardOverview = () => {
         } else {
           // Default values if no reports are found
           setDashboardData({
-            complianceScore: 78,
+            complianceScore: 0,
             documentsScanned: 0,
             criticalIssues: 0,
             resolvedItems: 0,
@@ -77,6 +78,8 @@ const DashboardOverview = () => {
     loadDashboardData();
   }, [user]);
 
+  const hasData = dashboardData.documentsScanned > 0;
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -88,10 +91,16 @@ const DashboardOverview = () => {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.complianceScore}%</div>
-            <p className="text-xs text-muted-foreground">
-              {dashboardData.complianceChange > 0 ? '+' : ''}{dashboardData.complianceChange}% from last month
-            </p>
+            {hasData ? (
+              <>
+                <div className="text-2xl font-bold">{dashboardData.complianceScore}%</div>
+                <p className="text-xs text-muted-foreground">
+                  {dashboardData.complianceChange > 0 ? '+' : ''}{dashboardData.complianceChange}% from last month
+                </p>
+              </>
+            ) : (
+              <div className="text-muted-foreground text-sm">No data available</div>
+            )}
           </CardContent>
         </Card>
         
@@ -103,10 +112,16 @@ const DashboardOverview = () => {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.documentsScanned}</div>
-            <p className="text-xs text-muted-foreground">
-              {dashboardData.recentScans} in the last 7 days
-            </p>
+            {hasData ? (
+              <>
+                <div className="text-2xl font-bold">{dashboardData.documentsScanned}</div>
+                <p className="text-xs text-muted-foreground">
+                  {dashboardData.recentScans} in the last 7 days
+                </p>
+              </>
+            ) : (
+              <div className="text-muted-foreground text-sm">No documents scanned</div>
+            )}
           </CardContent>
         </Card>
         
@@ -118,10 +133,16 @@ const DashboardOverview = () => {
             <AlertCircle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.criticalIssues}</div>
-            <p className="text-xs text-muted-foreground">
-              {dashboardData.criticalIssues > 0 ? 'Needs attention' : 'No critical issues'}
-            </p>
+            {hasData ? (
+              <>
+                <div className="text-2xl font-bold">{dashboardData.criticalIssues}</div>
+                <p className="text-xs text-muted-foreground">
+                  {dashboardData.criticalIssues > 0 ? 'Needs attention' : 'No critical issues'}
+                </p>
+              </>
+            ) : (
+              <div className="text-muted-foreground text-sm">No issues detected</div>
+            )}
           </CardContent>
         </Card>
         
@@ -133,10 +154,16 @@ const DashboardOverview = () => {
             <CheckCircle2 className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{dashboardData.resolvedItems}</div>
-            <p className="text-xs text-muted-foreground">
-              {dashboardData.resolvedItems > 0 ? 'Items resolved' : 'No resolved items yet'}
-            </p>
+            {hasData ? (
+              <>
+                <div className="text-2xl font-bold">{dashboardData.resolvedItems}</div>
+                <p className="text-xs text-muted-foreground">
+                  {dashboardData.resolvedItems > 0 ? 'Items resolved' : 'No resolved items yet'}
+                </p>
+              </>
+            ) : (
+              <div className="text-muted-foreground text-sm">No items resolved</div>
+            )}
           </CardContent>
         </Card>
       </div>

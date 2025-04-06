@@ -45,46 +45,22 @@ const ComplianceScore = () => {
           };
           
           chartData.sort((a, b) => (monthOrder[a.month] || 0) - (monthOrder[b.month] || 0));
-          
-          // If we have fewer than 6 data points, generate some historical data
-          if (chartData.length < 6) {
-            const months = ['Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
-            const currentMonth = new Date().getMonth();
-            const lastSixMonths = Array.from({ length: 6 }, (_, i) => {
-              const monthIndex = (currentMonth - i + 12) % 12;
-              return months[monthIndex];
-            }).reverse();
-            
-            const baseScore = userReports[0].overallScore;
-            const completeData = lastSixMonths.map((month, index) => {
-              const existing = chartData.find(data => data.month === month);
-              if (existing) return existing;
-              
-              // Generate slightly lower scores for earlier months to show improvement
-              return {
-                month,
-                score: Math.max(50, Math.round(baseScore - (6 - index) * 3))
-              };
-            });
-            
-            setScoreData(completeData);
-          } else {
-            setScoreData(chartData.slice(-6)); // Take the last 6 months of data
-          }
-        } else {
-          // Generate demo data if no reports are available
-          const months = ['Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr'];
-          const demoData = months.map((month, index) => ({
-            month,
-            score: 62 + (index * 3) // Start at 62 and increase by 3 each month
-          }));
-          setScoreData(demoData);
+          setScoreData(chartData);
         }
       }
     };
     
     generateScoreData();
   }, [user]);
+
+  if (scoreData.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full">
+        <p className="text-muted-foreground">No compliance data available</p>
+        <p className="text-xs text-muted-foreground mt-1">Run document scans to see your compliance score trend</p>
+      </div>
+    );
+  }
 
   return (
     <ResponsiveContainer width="100%" height="100%">
