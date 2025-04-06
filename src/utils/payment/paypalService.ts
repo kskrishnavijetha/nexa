@@ -34,6 +34,7 @@ declare global {
 export const loadPayPalScript = (): Promise<void> => {
   return new Promise((resolve, reject) => {
     if (window.paypal) {
+      console.log('PayPal SDK already loaded, using existing instance');
       resolve();
       return;
     }
@@ -44,6 +45,7 @@ export const loadPayPalScript = (): Promise<void> => {
       document.body.removeChild(existingScript);
     }
 
+    console.log('Loading PayPal SDK...');
     const script = document.createElement('script');
     script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&vault=true&intent=subscription`;
     script.dataset.sdkIntegrationSource = 'button-factory';
@@ -121,6 +123,7 @@ export const createPayPalButtons = (
         label: 'subscribe'
       },
       createSubscription: function(data: any, actions: any) {
+        console.log('Creating subscription with plan ID:', planId);
         return actions.subscription.create({
           /* Creates the subscription */
           plan_id: planId
@@ -133,6 +136,9 @@ export const createPayPalButtons = (
       onError: function(err: any) {
         console.error('PayPal error:', err);
         onError(err);
+      },
+      onCancel: function() {
+        console.log('Subscription canceled');
       }
     }).render(`#${specificContainerId}`);
     

@@ -36,6 +36,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
     const initializePayPal = async () => {
       setLoading(true);
       try {
+        console.log('Loading PayPal script...');
         await loadPayPalScript();
         console.log('PayPal script loaded, creating buttons');
         
@@ -49,14 +50,17 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
             console.log('PayPal subscription approved', data);
             try {
               // Call your backend to verify and record the subscription
+              const subscriptionId = data.subscriptionID || 'unknown';
+              console.log('Creating subscription with ID:', subscriptionId);
+              
               const result = await createSubscription('paypal_subscription', `price_${tier}_monthly`);
               if (result.success) {
                 toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
-                onSuccess(result.paymentId || data.subscriptionID || 'unknown');
+                onSuccess(result.paymentId || subscriptionId);
               } else {
                 toast.error(result.error || 'Payment failed. Please try again.');
               }
-            } catch (error) {
+            } catch (error: any) {
               toast.error('Failed to process subscription. Please try again.');
               console.error('Subscription error:', error);
             } finally {
