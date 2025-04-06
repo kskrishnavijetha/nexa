@@ -24,6 +24,11 @@ const Header: React.FC = () => {
     try {
       console.log('Header: Initiating sign out');
       
+      // Clear user data before signing out
+      localStorage.removeItem('subscription');
+      sessionStorage.removeItem('redirectAfterLogin');
+      sessionStorage.removeItem('redirectAfterSuccessfulPayment');
+      
       // Call the signOut function from AuthContext
       const { error } = await signOut();
       
@@ -101,7 +106,7 @@ const Header: React.FC = () => {
                   <Link to="/dashboard" className="w-full cursor-pointer">Dashboard</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link to="/payment" className="w-full cursor-pointer">Subscription</Link>
+                  <Link to="/pricing" className="w-full cursor-pointer">Subscription</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-red-500 cursor-pointer">
