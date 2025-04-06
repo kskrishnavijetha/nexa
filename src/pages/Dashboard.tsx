@@ -1,19 +1,21 @@
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ComplianceReport } from '@/utils/types';
-import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import ComplianceScanTable from '@/components/dashboard/ComplianceScanTable';
-import DocumentPreview from '@/components/document-analysis/DocumentPreview';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { generateReportPDF } from '@/utils/reportService';
 import { toast } from 'sonner';
 import { getHistoricalReports, deleteReportFromHistory } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
+import DashboardStats from '@/components/dashboard/DashboardStats';
+import RecentScansList from '@/components/dashboard/RecentScansList';
+import ComplianceScoreChart from '@/components/dashboard/ComplianceScoreChart';
+import DocumentPreview from '@/components/document-analysis/DocumentPreview';
 
 const Dashboard: React.FC = () => {
-  const [riskFilter, setRiskFilter] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState<string>('overview');
   const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
@@ -35,20 +37,6 @@ const Dashboard: React.FC = () => {
   useEffect(() => {
     loadReports();
   }, [user]);
-
-  // Define the function to get worst risk level for filtering
-  const getWorstRiskLevel = (scan: ComplianceReport): string => {
-    if (scan.risks.some(risk => risk.severity === 'high')) return 'high';
-    if (scan.risks.some(risk => risk.severity === 'medium')) return 'medium';
-    if (scan.risks.some(risk => risk.severity === 'low')) return 'low';
-    return 'low';
-  };
-
-  const filteredScans = scans.filter(scan => {
-    if (riskFilter === 'all') return true;
-    const worstRiskLevel = getWorstRiskLevel(scan);
-    return worstRiskLevel === riskFilter.toLowerCase();
-  });
 
   const handlePreviewReport = (report: ComplianceReport) => {
     console.log('Previewing report:', report.documentName);
@@ -108,30 +96,72 @@ const Dashboard: React.FC = () => {
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-6 text-left">Compliance Dashboard</h1>
       
-      <DashboardHeader
-        riskFilter={riskFilter}
-        setRiskFilter={setRiskFilter}
-      />
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Compliance Scan Results</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {filteredScans.length === 0 ? (
-            <div className="text-center p-8">
-              <p className="text-slate-500">No compliance reports found that match your filters.</p>
-              <p className="text-sm mt-2 text-slate-400">Upload and analyze documents to see them here.</p>
-            </div>
-          ) : (
-            <ComplianceScanTable 
-              scans={filteredScans} 
-              onPreview={handlePreviewReport}
-              onDelete={handleDocumentDeleted}
-            />
-          )}
-        </CardContent>
-      </Card>
+      <Tabs 
+        defaultValue="overview" 
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="mb-6"
+      >
+        <TabsList className="grid w-full max-w-md grid-cols-4">
+          <TabsTrigger value="overview">Overview</TabsTrigger>
+          <TabsTrigger value="compliance">Compliance</TabsTrigger>
+          <TabsTrigger value="risks">Risks</TabsTrigger>
+          <TabsTrigger value="actions">Actions</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="overview" className="mt-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <DashboardStats />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-xl font-semibold mb-2">Recent Scans</h2>
+                <p className="text-sm text-muted-foreground mb-6">Your latest document compliance scans</p>
+                
+                <RecentScansList 
+                  scans={scans.slice(0, 5)} 
+                  onPreview={handlePreviewReport}
+                />
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <h2 className="text-xl font-semibold mb-2">Compliance Score</h2>
+                <p className="text-sm text-muted-foreground mb-6">Your compliance score over time</p>
+                
+                <ComplianceScoreChart scans={scans} />
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="compliance">
+          <h2 className="text-xl font-semibold mb-4">Compliance Details</h2>
+          <p className="text-muted-foreground mb-6">
+            View detailed compliance information across different regulations and standards.
+          </p>
+          {/* Compliance content will be implemented in future updates */}
+        </TabsContent>
+
+        <TabsContent value="risks">
+          <h2 className="text-xl font-semibold mb-4">Risk Analysis</h2>
+          <p className="text-muted-foreground mb-6">
+            View detailed risk assessment and vulnerability reports.
+          </p>
+          {/* Risks content will be implemented in future updates */}
+        </TabsContent>
+
+        <TabsContent value="actions">
+          <h2 className="text-xl font-semibold mb-4">Recommended Actions</h2>
+          <p className="text-muted-foreground mb-6">
+            View and manage recommended actions to improve compliance.
+          </p>
+          {/* Actions content will be implemented in future updates */}
+        </TabsContent>
+      </Tabs>
 
       <DocumentPreview 
         report={selectedReport}
