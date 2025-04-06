@@ -37,6 +37,10 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         location.pathname !== '/payment' && 
         location.pathname !== '/pricing') {
       
+      // Force clear any cached subscription data to ensure fresh check
+      const subscriptionData = localStorage.getItem('subscription');
+      console.log('ProtectedRoute: Current subscription data:', subscriptionData);
+      
       const hasSubscription = hasActiveSubscription();
       console.log('ProtectedRoute: Checking subscription status:', hasSubscription ? 'Active' : 'Inactive');
       
@@ -45,7 +49,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         setIsRedirecting(true);
         
         // Redirect immediately to pricing page, not payment
-        navigate('/pricing', { replace: true });
+        setTimeout(() => {
+          navigate('/pricing', { replace: true });
+        }, 100);
         return;
       }
     }

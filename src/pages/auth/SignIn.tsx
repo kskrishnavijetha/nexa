@@ -37,11 +37,15 @@ const SignIn: React.FC = () => {
       console.log('User logged in, checking subscription status');
       setIsRedirecting(true);
       
-      // ALWAYS redirect to pricing page first for users without a subscription
+      // Force clear any existing subscription data to ensure fresh check
+      localStorage.removeItem('subscription');
+      
+      // ALWAYS redirect to pricing page for users without a subscription
       const hasSubscription = hasActiveSubscription();
       console.log('SignIn: Subscription check result:', hasSubscription ? 'Active' : 'No active subscription');
       
-      let redirectPath = hasSubscription ? '/dashboard' : '/pricing';
+      // IMPORTANT: Always go to pricing for new users
+      const redirectPath = hasSubscription ? '/dashboard' : '/pricing';
       
       // If no active subscription, check for any saved redirect paths
       if (!hasSubscription) {
@@ -55,7 +59,9 @@ const SignIn: React.FC = () => {
       
       // Immediate redirect with console logging for debugging
       console.log('SignIn: Final redirect destination:', redirectPath);
-      navigate(redirectPath, { replace: true });
+      setTimeout(() => {
+        navigate(redirectPath, { replace: true });
+      }, 100);
     }
   }, [user, navigate, isRedirecting, loading]);
 

@@ -35,6 +35,7 @@ export const saveSubscription = (plan: string, paymentId: string, billingCycle: 
   };
   
   localStorage.setItem('subscription', JSON.stringify(subscription));
+  console.log('Saved subscription:', JSON.stringify(subscription));
   return subscription;
 };
 
@@ -42,24 +43,37 @@ export const saveSubscription = (plan: string, paymentId: string, billingCycle: 
 export const getSubscription = (): SubscriptionInfo | null => {
   const subscription = localStorage.getItem('subscription');
   if (!subscription) {
+    console.log('No subscription found in localStorage');
     return null;
   }
   
-  const parsedSubscription = JSON.parse(subscription);
-  parsedSubscription.expirationDate = new Date(parsedSubscription.expirationDate);
-  
-  // Check if subscription is expired
-  if (parsedSubscription.expirationDate < new Date()) {
-    parsedSubscription.active = false;
+  try {
+    const parsedSubscription = JSON.parse(subscription);
+    parsedSubscription.expirationDate = new Date(parsedSubscription.expirationDate);
+    
+    // Check if subscription is expired
+    const isExpired = parsedSubscription.expirationDate < new Date();
+    if (isExpired) {
+      console.log('Subscription found but expired. Expiration date:', parsedSubscription.expirationDate);
+      parsedSubscription.active = false;
+    } else {
+      console.log('Active subscription found. Expiration date:', parsedSubscription.expirationDate);
+    }
+    
+    return parsedSubscription;
+  } catch (error) {
+    console.error('Error parsing subscription:', error);
+    localStorage.removeItem('subscription');
+    return null;
   }
-  
-  return parsedSubscription;
 };
 
 // Check if user has an active subscription
 export const hasActiveSubscription = (): boolean => {
   const subscription = getSubscription();
-  return !!subscription && subscription.active;
+  const result = !!subscription && subscription.active;
+  console.log('hasActiveSubscription check result:', result);
+  return result;
 };
 
 // Check if user has scans remaining

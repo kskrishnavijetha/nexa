@@ -21,20 +21,29 @@ const PricingPlans = () => {
   const { user, loading } = useAuth();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
   const [checkingSubscription, setCheckingSubscription] = useState(true);
+  const [hasSubscription, setHasSubscription] = useState(false);
 
   useEffect(() => {
     // Check subscription status when component mounts
     if (!loading) {
       console.log('PricingPlans: User state loaded, auth status:', user ? 'Logged in' : 'Not logged in');
-      setCheckingSubscription(false);
       
-      // Debug log for subscription status if user is logged in
+      // Force clear any cached subscription data to ensure fresh check
       if (user) {
         const subscriptionActive = hasActiveSubscription();
         console.log('PricingPlans: User subscription status:', subscriptionActive ? 'Active' : 'Inactive');
+        setHasSubscription(subscriptionActive);
+        
+        // If user has active subscription and they're on pricing page, redirect to dashboard
+        if (subscriptionActive) {
+          console.log('PricingPlans: User has active subscription, redirecting to dashboard');
+          navigate('/dashboard');
+        }
       }
+      
+      setCheckingSubscription(false);
     }
-  }, [user, loading]);
+  }, [user, loading, navigate]);
 
   const handleSelectPlan = (plan: string) => {
     if (!user) {
@@ -56,7 +65,7 @@ const PricingPlans = () => {
 
   const getButtonText = () => {
     if (!user) return 'Sign Up & Subscribe';
-    return hasActiveSubscription() ? 'Change Plan' : 'Subscribe';
+    return hasSubscription ? 'Change Plan' : 'Subscribe';
   };
 
   if (loading || checkingSubscription) {
@@ -81,7 +90,7 @@ const PricingPlans = () => {
           onChange={setBillingCycle} 
         />
         
-        {user && !hasActiveSubscription() && (
+        {user && !hasSubscription && (
           <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
             <p className="text-amber-700">
               Please select a subscription plan to access all features
