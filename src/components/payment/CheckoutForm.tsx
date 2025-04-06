@@ -2,24 +2,23 @@
 import React, { useState, useEffect } from 'react';
 import { getSubscription } from '@/utils/paymentService';
 import PaymentTierSelector from './PaymentTierSelector';
-import PaymentBillingToggle from './PaymentBillingToggle';
 import PaymentButtons from './PaymentButtons';
 import PaymentSummary from './PaymentSummary';
 import { getPrice } from '@/utils/pricingData';
 
 interface CheckoutFormProps {
-  onSuccess?: (paymentId: string) => void;  // Changed from required to optional with '?'
+  onSuccess?: (paymentId: string) => void;
   initialPlan?: string | null;
   initialBillingCycle?: 'monthly' | 'annually';
 }
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ 
-  onSuccess = () => {}, // Add a default empty function 
+  onSuccess = () => {}, 
   initialPlan, 
   initialBillingCycle 
 }) => {
   const [selectedTier, setSelectedTier] = useState<string>('free');
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>(initialBillingCycle || 'monthly');
+  const billingCycle = 'monthly'; // Fixed to monthly
   const [loading, setLoading] = useState(false);
   const currentSubscription = getSubscription();
   
@@ -34,18 +33,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   // Helper function to get price for the selected tier
   const getPriceForTier = (tier: string) => {
-    return getPrice(tier, billingCycle);
+    return getPrice(tier, 'monthly');
   };
 
   return (
     <div className="space-y-6">
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Select a Plan</h3>
-        
-        <PaymentBillingToggle 
-          billingCycle={billingCycle}
-          setBillingCycle={setBillingCycle}
-        />
         
         <PaymentTierSelector
           selectedTier={selectedTier}

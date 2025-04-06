@@ -8,19 +8,16 @@ import type { PaymentResult } from './paymentProcessor';
 // PayPal client ID - Replace with your actual PayPal client ID
 const PAYPAL_CLIENT_ID = 'AXKd2EHw7ySZihlaN06rqnABzzQdhD8ueu738V8iCtC93o8PwlZdjO7hwVITJgTsmjOq8dHJaC1vMMKT';
 
-// PayPal plan IDs - Replace with your actual plan IDs
+// PayPal plan IDs - Monthly plans only
 const PAYPAL_PLAN_IDS = {
   basic: {
-    monthly: 'P-9HD8411875146223CMUSBMCA',
-    annually: 'P-ANNUAL8411875146223CMUSBMCA'
+    monthly: 'P-0G576384KT1375804M7UPCYY',
   },
   pro: {
     monthly: 'P-3NN72537D3262274CMUSBMDI',
-    annually: 'P-ANNUAL72537D3262274CMUSBMDI'
   },
   enterprise: {
     monthly: 'P-5GJ8318862350144UMUSBMEI',
-    annually: 'P-ANNUAL8318862350144UMUSBMEI'
   }
 };
 
@@ -76,10 +73,10 @@ export const createPayPalButtons = (
     return;
   }
 
-  // Get plan ID based on selected plan and billing cycle
-  const planId = PAYPAL_PLAN_IDS[plan as keyof typeof PAYPAL_PLAN_IDS]?.[billingCycle];
+  // Get plan ID based on selected plan - always use monthly
+  const planId = PAYPAL_PLAN_IDS[plan as keyof typeof PAYPAL_PLAN_IDS]?.monthly;
   if (!planId) {
-    console.error(`No PayPal plan ID found for plan: ${plan} (${billingCycle})`);
+    console.error(`No PayPal plan ID found for plan: ${plan} (monthly)`);
     return;
   }
 

@@ -55,9 +55,9 @@ export const processOneTimePayment = async (
 /**
  * Send payment confirmation email
  */
-const sendPaymentConfirmationEmail = async (email: string, plan: string, billingCycle: 'monthly' | 'annually') => {
+const sendPaymentConfirmationEmail = async (email: string, plan: string) => {
   try {
-    const amount = calculatePlanAmount(plan, billingCycle);
+    const amount = calculatePlanAmount(plan);
     
     const { error } = await supabase.functions.invoke('send-email', {
       body: {
@@ -65,7 +65,7 @@ const sendPaymentConfirmationEmail = async (email: string, plan: string, billing
         email,
         planDetails: {
           plan,
-          billingCycle,
+          billingCycle: 'monthly',
           amount
         }
       }
@@ -82,12 +82,12 @@ const sendPaymentConfirmationEmail = async (email: string, plan: string, billing
 /**
  * Helper to calculate plan amount in cents
  */
-const calculatePlanAmount = (plan: string, billingCycle: 'monthly' | 'annually'): number => {
+const calculatePlanAmount = (plan: string): number => {
   const pricing = {
     free: 0,
-    basic: billingCycle === 'monthly' ? 3500 : 37800,
-    pro: billingCycle === 'monthly' ? 11000 : 118800,
-    enterprise: billingCycle === 'monthly' ? 39900 : 430900,
+    basic: 3500,
+    pro: 11000,
+    enterprise: 39900,
   };
   
   return pricing[plan as keyof typeof pricing] || 0;
@@ -102,14 +102,9 @@ export const createSubscription = async (
 ): Promise<PaymentResult> => {
   // This is a mock implementation. In a real app, you would call your backend.
   try {
-    // Extract billing cycle from priceId if present (e.g., price_basic_annually)
+    // Extract plan name from priceId
     let planName = priceId.split('_')[1];
-    let billingCycle: 'monthly' | 'annually' = 'monthly';
-    
-    // Check if there's a billing cycle in the price ID
-    if (priceId.includes('_annually')) {
-      billingCycle = 'annually';
-    }
+    const billingCycle = 'monthly';
     
     // Free tier doesn't need subscription processing
     if (planName === 'free') {
@@ -139,7 +134,7 @@ export const createSubscription = async (
       
       if (user?.email) {
         // Send payment confirmation email
-        await sendPaymentConfirmationEmail(user.email, planName, billingCycle);
+        await sendPaymentConfirmationEmail(user.email, planName);
       }
       
       return {

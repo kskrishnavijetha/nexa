@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { hasActiveSubscription } from '@/utils/paymentService';
-import BillingToggle from '@/components/pricing/BillingToggle';
 import PricingCard from '@/components/pricing/PricingCard';
 import { toast } from 'sonner';
 import { 
@@ -19,8 +18,8 @@ import { Loader2 } from 'lucide-react';
 const PricingPlans = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
   const [checkingSubscription, setCheckingSubscription] = useState(true);
+  const billingCycle = 'monthly'; // Fixed to monthly
 
   useEffect(() => {
     // Check subscription status when component mounts
@@ -69,11 +68,6 @@ const PricingPlans = () => {
           Get started with our free plan or upgrade to premium features for comprehensive compliance coverage.
         </p>
         
-        <BillingToggle 
-          billingCycle={billingCycle} 
-          onChange={setBillingCycle} 
-        />
-        
         {user && !hasActiveSubscription() && (
           <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
             <p className="text-amber-700">
@@ -88,7 +82,7 @@ const PricingPlans = () => {
         <PricingCard
           title="Free"
           description="Get started with basic compliance checks"
-          price={formatPrice(pricing.free[billingCycle], billingCycle)}
+          price={formatPrice(pricing.free.monthly, 'monthly')}
           features={freeFeatures}
           buttonText={getButtonText()}
           buttonVariant="outline"
@@ -99,7 +93,7 @@ const PricingPlans = () => {
         <PricingCard
           title="Basic"
           description="Essential compliance tools for small businesses"
-          price={formatPrice(pricing.basic[billingCycle], billingCycle)}
+          price={formatPrice(pricing.basic.monthly, 'monthly')}
           features={basicFeatures}
           buttonText={getButtonText()}
           onSelectPlan={() => handleSelectPlan('basic')}
@@ -109,7 +103,7 @@ const PricingPlans = () => {
         <PricingCard
           title="Pro"
           description="Advanced compliance for growing organizations"
-          price={formatPrice(pricing.pro[billingCycle], billingCycle)}
+          price={formatPrice(pricing.pro.monthly, 'monthly')}
           features={proFeatures}
           isRecommended={true}
           buttonText={getButtonText()}
@@ -120,7 +114,7 @@ const PricingPlans = () => {
         <PricingCard
           title="Enterprise"
           description="Complete compliance solution for large enterprises"
-          price={formatPrice(pricing.enterprise[billingCycle], billingCycle)}
+          price={formatPrice(pricing.enterprise.monthly, 'monthly')}
           features={enterpriseFeatures}
           buttonText={getButtonText()}
           onSelectPlan={() => handleSelectPlan('enterprise')}

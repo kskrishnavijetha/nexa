@@ -10,7 +10,7 @@ import {
 import { toast } from 'sonner';
 
 interface PaymentButtonsProps {
-  onSuccess?: (paymentId: string) => void;  // Changed to optional
+  onSuccess?: (paymentId: string) => void;
   tier: string;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -18,7 +18,7 @@ interface PaymentButtonsProps {
 }
 
 const PaymentButtons: React.FC<PaymentButtonsProps> = ({
-  onSuccess = () => {},  // Added default empty function
+  onSuccess = () => {},
   tier,
   loading,
   setLoading,
@@ -41,13 +41,13 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
         createPayPalButtons(
           'paypal-button-container',
           tier,
-          billingCycle,
+          'monthly', // Always use monthly
           // On approve handler
           async (data) => {
             setLoading(true);
             try {
               // Call your backend to verify and record the subscription
-              const result = await createSubscription('paypal_subscription', `price_${tier}_${billingCycle}`);
+              const result = await createSubscription('paypal_subscription', `price_${tier}_monthly`);
               if (result.success) {
                 toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
                 onSuccess(result.paymentId || data.subscriptionID || 'unknown');
@@ -84,7 +84,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
         paypalContainerRef.current.innerHTML = '';
       }
     };
-  }, [tier, onSuccess, loading, setLoading, billingCycle]);
+  }, [tier, onSuccess, loading, setLoading]);
   
   // For free tier, use a regular button
   if (tier === 'free') {

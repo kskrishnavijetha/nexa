@@ -15,7 +15,7 @@ const Payment = () => {
   const [subscription, setSubscription] = useState(getSubscription());
   const [isRenewal, setIsRenewal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
+  const billingCycle = 'monthly'; // Fixed to monthly
 
   useEffect(() => {
     // Check if user has an active subscription and redirected from another page
@@ -26,11 +26,6 @@ const Payment = () => {
     // Check if a plan was selected from the pricing page
     if (location.state?.selectedPlan) {
       setSelectedPlan(location.state.selectedPlan);
-    }
-    
-    // Check if billing cycle was selected
-    if (location.state?.billingCycle) {
-      setBillingCycle(location.state.billingCycle);
     }
     
     // Check if user has a subscription but it's expired (renewal case)

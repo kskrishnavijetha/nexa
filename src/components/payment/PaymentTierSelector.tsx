@@ -40,7 +40,7 @@ const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
           <div className="mt-2 font-semibold">
             {getPrice(key) === 0 
               ? 'Free' 
-              : `$${getPrice(key)}/${billingCycle === 'monthly' ? 'month' : 'year'}`
+              : `$${getPrice(key)}/month`
             }
           </div>
         </div>
