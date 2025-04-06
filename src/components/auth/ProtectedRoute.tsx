@@ -3,8 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
-import { hasActiveSubscription, shouldUpgrade } from '@/utils/paymentService';
-import { toast } from 'sonner';
+import { hasActiveSubscription } from '@/utils/paymentService';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -39,17 +38,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         location.pathname !== '/pricing') {
       
       const hasSubscription = hasActiveSubscription();
-      
-      // Check if user needs to upgrade (free plan with no scans left or expired)
-      const needsUpgrade = shouldUpgrade();
-      
-      if (needsUpgrade) {
-        console.log('ProtectedRoute: User has reached free plan limits, redirecting to pricing page');
-        toast.info('Your free plan usage is complete. Please upgrade to continue.');
-        setIsRedirecting(true);
-        navigate('/pricing', { replace: true });
-        return;
-      }
       
       if (!hasSubscription) {
         console.log('ProtectedRoute: User has no active subscription, redirecting to pricing page');

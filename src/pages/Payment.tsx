@@ -35,7 +35,7 @@ const Payment = () => {
     
     // Check if user has a subscription but it's expired (renewal case)
     const currentSubscription = getSubscription();
-    if (currentSubscription && currentSubscription.status !== 'active') {
+    if (currentSubscription && !currentSubscription.active) {
       setIsRenewal(true);
     }
     setSubscription(currentSubscription);

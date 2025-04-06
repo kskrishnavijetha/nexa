@@ -8,60 +8,33 @@ import PaymentSummary from './PaymentSummary';
 import { getPrice } from '@/utils/pricingData';
 
 interface CheckoutFormProps {
-  onSuccess?: (paymentId: string) => void;
+  onSuccess?: (paymentId: string) => void;  // Changed from required to optional with '?'
   initialPlan?: string | null;
   initialBillingCycle?: 'monthly' | 'annually';
 }
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ 
-  onSuccess = () => {},
+  onSuccess = () => {}, // Add a default empty function 
   initialPlan, 
   initialBillingCycle 
 }) => {
-  const [selectedTier, setSelectedTier] = useState<'free' | 'basic' | 'premium' | 'enterprise'>(
-    (initialPlan as 'free' | 'basic' | 'premium' | 'enterprise') || 'free'
-  );
+  const [selectedTier, setSelectedTier] = useState<string>('free');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>(initialBillingCycle || 'monthly');
   const [loading, setLoading] = useState(false);
   const currentSubscription = getSubscription();
   
   // If initialPlan is provided or user has an existing subscription, preselect that tier
   useEffect(() => {
-    if (initialPlan && (initialPlan === 'free' || initialPlan === 'basic' || initialPlan === 'premium' || initialPlan === 'enterprise')) {
-      setSelectedTier(initialPlan as 'free' | 'basic' | 'premium' | 'enterprise');
+    if (initialPlan) {
+      setSelectedTier(initialPlan);
     } else if (currentSubscription?.plan) {
       setSelectedTier(currentSubscription.plan);
-      // If free plan has expired, suggest the basic plan as the next step
-      if (currentSubscription.plan === 'free' && currentSubscription.status !== 'active') {
-        setSelectedTier('basic');
-      }
     }
   }, [initialPlan, currentSubscription]);
 
   // Helper function to get price for the selected tier
   const getPriceForTier = (tier: string) => {
     return getPrice(tier, billingCycle);
-  };
-
-  const handleSuccess = (paymentId: string) => {
-    // Create local subscription record
-    import('@/utils/payment/subscriptionService').then(({ saveSubscription }) => {
-      // Ensure we pass a valid plan type
-      const validPlan = selectedTier as 'free' | 'basic' | 'premium' | 'enterprise';
-      saveSubscription(validPlan, paymentId, billingCycle);
-      
-      // Call the onSuccess callback
-      if (onSuccess) {
-        onSuccess(paymentId);
-      }
-    });
-  };
-
-  // Type-safe handler for selecting tier
-  const handleTierSelection = (tier: string) => {
-    if (tier === 'free' || tier === 'basic' || tier === 'premium' || tier === 'enterprise') {
-      setSelectedTier(tier);
-    }
   };
 
   return (
@@ -77,7 +50,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         <PaymentTierSelector
           selectedTier={selectedTier}
           billingCycle={billingCycle}
-          onSelectTier={handleTierSelection}
+          onSelectTier={setSelectedTier}
           getPrice={getPriceForTier}
         />
       </div>
@@ -90,7 +63,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           }
         </p>
         <PaymentButtons 
-          onSuccess={handleSuccess}
+          onSuccess={onSuccess}
           tier={selectedTier}
           loading={loading}
           setLoading={setLoading}

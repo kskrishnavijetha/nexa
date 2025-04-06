@@ -9,8 +9,7 @@ export {
   getSubscription,
   hasActiveSubscription,
   hasScansRemaining,
-  recordScanUsage,
-  shouldUpgrade
+  recordScanUsage
 } from './payment/subscriptionService';
 
 // Export type separately to avoid TypeScript isolatedModules error

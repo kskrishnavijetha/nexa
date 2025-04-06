@@ -55,7 +55,7 @@ export const processOneTimePayment = async (
 /**
  * Send payment confirmation email
  */
-const sendPaymentConfirmationEmail = async (email: string, plan: 'free' | 'basic' | 'premium' | 'enterprise', billingCycle: 'monthly' | 'annually') => {
+const sendPaymentConfirmationEmail = async (email: string, plan: string, billingCycle: 'monthly' | 'annually') => {
   try {
     const amount = calculatePlanAmount(plan, billingCycle);
     
@@ -111,18 +111,12 @@ export const createSubscription = async (
       billingCycle = 'annually';
     }
     
-    // Convert planName to a valid plan type
-    const validPlan = (planName === 'free' || planName === 'basic' || 
-                       planName === 'premium' || planName === 'enterprise') 
-                       ? planName as 'free' | 'basic' | 'premium' | 'enterprise' 
-                       : 'free';
-    
     // Free tier doesn't need subscription processing
-    if (validPlan === 'free') {
+    if (planName === 'free') {
       const paymentId = 'free_sub_' + Math.random().toString(36).substring(2, 15);
       
       // Save the free subscription
-      saveSubscription(validPlan, paymentId);
+      saveSubscription('free', paymentId);
       
       return {
         success: true,
@@ -138,14 +132,14 @@ export const createSubscription = async (
       const paymentId = 'sub_' + Math.random().toString(36).substring(2, 15);
       
       // Save the subscription with billing cycle
-      saveSubscription(validPlan, paymentId, billingCycle);
+      saveSubscription(planName, paymentId, billingCycle);
       
       // Get current user email for confirmation
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user?.email) {
         // Send payment confirmation email
-        await sendPaymentConfirmationEmail(user.email, validPlan, billingCycle);
+        await sendPaymentConfirmationEmail(user.email, planName, billingCycle);
       }
       
       return {

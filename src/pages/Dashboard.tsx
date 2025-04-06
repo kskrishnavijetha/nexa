@@ -1,61 +1,161 @@
 
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { shouldUpgrade } from '@/utils/paymentService';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Download } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ComplianceReport } from '@/utils/types';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
-import DashboardOverview from '@/components/dashboard/DashboardOverview';
-import DashboardTabContent from '@/components/dashboard/DashboardTabContent';
+import ComplianceScanTable from '@/components/dashboard/ComplianceScanTable';
+import DocumentPreview from '@/components/document-analysis/DocumentPreview';
+import { generateReportPDF } from '@/utils/reportService';
+import { toast } from 'sonner';
+import { getHistoricalReports, deleteReportFromHistory } from '@/utils/historyService';
+import { useAuth } from '@/contexts/AuthContext';
 
-const Dashboard = () => {
-  const navigate = useNavigate();
+const Dashboard: React.FC = () => {
+  const [riskFilter, setRiskFilter] = useState<string>('all');
+  const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [scans, setScans] = useState<ComplianceReport[]>([]);
   const { user } = useAuth();
 
-  // Check if user needs to upgrade on component mount
+  const loadReports = () => {
+    // Load reports from history service
+    const historicalReports = getHistoricalReports();
+    console.log('Dashboard loaded reports (total):', historicalReports.length);
+    
+    // Filter reports by current user's ID
+    const userReports = user ? historicalReports.filter(report => report.userId === user.id) : [];
+    console.log(`Filtered reports for user ${user?.id}:`, userReports.length);
+    
+    setScans(userReports);
+  };
+
   useEffect(() => {
+    loadReports();
+  }, [user]);
+
+  // Define the function to get worst risk level for filtering
+  const getWorstRiskLevel = (scan: ComplianceReport): string => {
+    if (scan.risks.some(risk => risk.severity === 'high')) return 'high';
+    if (scan.risks.some(risk => risk.severity === 'medium')) return 'medium';
+    if (scan.risks.some(risk => risk.severity === 'low')) return 'low';
+    return 'low';
+  };
+
+  const filteredScans = scans.filter(scan => {
+    if (riskFilter === 'all') return true;
+    const worstRiskLevel = getWorstRiskLevel(scan);
+    return worstRiskLevel === riskFilter.toLowerCase();
+  });
+
+  const handlePreviewReport = (report: ComplianceReport) => {
+    console.log('Previewing report:', report.documentName);
+    setSelectedReport(report);
+    setPreviewOpen(true);
+  };
+
+  const handleDownloadReport = async () => {
+    if (!selectedReport) return;
+    
+    setIsGeneratingPDF(true);
+    try {
+      const result = await generateReportPDF(selectedReport);
+      if (result.data) {
+        // Create a URL for the blob
+        const url = URL.createObjectURL(result.data);
+        
+        // Create a link element
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${selectedReport.documentName.replace(/\s+/g, '_')}_compliance_report.pdf`;
+        
+        // Append to the document, click it, and remove it
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Release the object URL
+        URL.revokeObjectURL(url);
+        
+        toast.success('Report downloaded successfully');
+      } else if (result.error) {
+        toast.error(result.error);
+      }
+    } catch (error) {
+      toast.error('Failed to generate the PDF report');
+      console.error('Download error:', error);
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
+  const handleDocumentDeleted = (documentId: string) => {
     if (user) {
-      const needsUpgrade = shouldUpgrade(user.id);
-      if (needsUpgrade) {
-        toast.info('Your free plan usage is complete. Please upgrade to continue.', {
-          action: {
-            label: 'Upgrade',
-            onClick: () => navigate('/pricing'),
-          },
-        });
+      const deleted = deleteReportFromHistory(documentId, user.id);
+      if (deleted) {
+        toast.success(`Document has been deleted from dashboard`);
+        // Refresh reports list
+        loadReports();
+      } else {
+        toast.error("Failed to delete document");
       }
     }
-  }, [navigate, user]);
+  };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <DashboardHeader />
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-6 text-left">Compliance Dashboard</h1>
+      
+      <DashboardHeader
+        riskFilter={riskFilter}
+        setRiskFilter={setRiskFilter}
+      />
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Compliance Scan Results</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {filteredScans.length === 0 ? (
+            <div className="text-center p-8">
+              <p className="text-slate-500">No compliance reports found that match your filters.</p>
+              <p className="text-sm mt-2 text-slate-400">Upload and analyze documents to see them here.</p>
+            </div>
+          ) : (
+            <ComplianceScanTable 
+              scans={filteredScans} 
+              onPreview={handlePreviewReport}
+              onDelete={handleDocumentDeleted}
+            />
+          )}
+        </CardContent>
+      </Card>
 
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="compliance">Compliance</TabsTrigger>
-          <TabsTrigger value="risks">Risks</TabsTrigger>
-          <TabsTrigger value="actions">Actions</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="overview">
-          <DashboardOverview />
-        </TabsContent>
-        
-        <TabsContent value="compliance">
-          <DashboardTabContent activeTab="compliance" />
-        </TabsContent>
-        
-        <TabsContent value="risks">
-          <DashboardTabContent activeTab="risks" />
-        </TabsContent>
-        
-        <TabsContent value="actions">
-          <DashboardTabContent activeTab="actions" />
-        </TabsContent>
-      </Tabs>
+      <DocumentPreview 
+        report={selectedReport}
+        isOpen={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        footer={
+          selectedReport && (
+            <div className="flex justify-end mt-4">
+              <Button 
+                onClick={handleDownloadReport}
+                disabled={isGeneratingPDF}
+                className="flex items-center"
+              >
+                {isGeneratingPDF ? (
+                  <span className="mr-2 animate-spin">⏳</span>
+                ) : (
+                  <Download className="h-4 w-4 mr-2" />
+                )}
+                {isGeneratingPDF ? 'Generating PDF...' : 'Download Audit Report'}
+              </Button>
+            </div>
+          )
+        }
+      />
     </div>
   );
 };

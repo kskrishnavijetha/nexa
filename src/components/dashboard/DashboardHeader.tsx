@@ -2,30 +2,28 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
+import RiskFilterControl from './RiskFilterControl';
 
-const DashboardHeader = () => {
+interface DashboardHeaderProps {
+  riskFilter: string;
+  setRiskFilter: (value: string) => void;
+}
+
+const DashboardHeader: React.FC<DashboardHeaderProps> = ({ 
+  riskFilter, 
+  setRiskFilter 
+}) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-
+  
   return (
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-      <div>
-        <h1 className="text-3xl font-bold">Dashboard</h1>
-        <p className="text-muted-foreground">
-          Welcome back, {user?.email?.split('@')[0] || 'User'}! Here's an overview of your compliance status.
-        </p>
-      </div>
-      <div className="mt-4 md:mt-0 flex space-x-2">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate('/document-analysis')}
-        >
-          New Scan
-        </Button>
-        <Button onClick={() => navigate('/audit-reports')}>
-          View Reports
-        </Button>
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-xl font-semibold">Recent Compliance Scans</h2>
+      <div className="flex items-center gap-4">
+        <RiskFilterControl 
+          riskFilter={riskFilter} 
+          setRiskFilter={setRiskFilter} 
+        />
+        <Button onClick={() => navigate('/history')}>View History</Button>
       </div>
     </div>
   );
