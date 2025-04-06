@@ -10,7 +10,7 @@ export const PAYPAL_CLIENT_ID = 'AXKd2EHw7ySZihlaN06rqnABzzQdhD8ueu738V8iCtC93o8
 // PayPal plan IDs - Replace with your actual plan IDs
 export const PAYPAL_PLAN_IDS = {
   basic: {
-    monthly: 'P-9HD8411875146223CMUSBMCA',
+    monthly: 'P-0G576384KT1375804M7UPCYY',
     annually: 'P-ANNUAL8411875146223CMUSBMCA'
   },
   pro: {
