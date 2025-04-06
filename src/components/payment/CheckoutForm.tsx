@@ -28,7 +28,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   // If initialPlan is provided or user has an existing subscription, preselect that tier
   useEffect(() => {
     if (initialPlan && (initialPlan === 'free' || initialPlan === 'basic' || initialPlan === 'premium' || initialPlan === 'enterprise')) {
-      setSelectedTier(initialPlan);
+      setSelectedTier(initialPlan as 'free' | 'basic' | 'premium' | 'enterprise');
     } else if (currentSubscription?.plan) {
       setSelectedTier(currentSubscription.plan);
       // If free plan has expired, suggest the basic plan as the next step
@@ -55,6 +55,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     });
   };
 
+  // Type-safe handler for selecting tier
+  const handleTierSelection = (tier: string) => {
+    if (tier === 'free' || tier === 'basic' || tier === 'premium' || tier === 'enterprise') {
+      setSelectedTier(tier);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -68,7 +75,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         <PaymentTierSelector
           selectedTier={selectedTier}
           billingCycle={billingCycle}
-          onSelectTier={setSelectedTier}
+          onSelectTier={handleTierSelection}
           getPrice={getPriceForTier}
         />
       </div>
