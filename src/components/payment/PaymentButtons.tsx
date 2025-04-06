@@ -4,13 +4,12 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { 
   loadPayPalScript,
-  createPayPalButtons,
-  createSubscription
+  createPayPalButtons
 } from '@/utils/paymentService';
 import { toast } from 'sonner';
 
 interface PaymentButtonsProps {
-  onSuccess?: (paymentId: string) => void;  // Changed to optional
+  onSuccess?: (paymentId: string) => void;
   tier: string;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -18,7 +17,7 @@ interface PaymentButtonsProps {
 }
 
 const PaymentButtons: React.FC<PaymentButtonsProps> = ({
-  onSuccess = () => {},  // Added default empty function
+  onSuccess = () => {},
   tier,
   loading,
   setLoading,
@@ -32,9 +31,14 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
       return;
     }
     
+    // Only proceed if not already loading
+    if (loading) return;
+    
     // Load PayPal script
     const initializePayPal = async () => {
       try {
+        console.log(`Initializing PayPal for tier: ${tier}, billing cycle: ${billingCycle}`);
+        setLoading(true);
         await loadPayPalScript();
         
         // Create PayPal buttons
@@ -44,19 +48,15 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
           billingCycle,
           // On approve handler
           async (data) => {
-            setLoading(true);
+            console.log('PayPal subscription approved:', data);
             try {
-              // Call your backend to verify and record the subscription
-              const result = await createSubscription('paypal_subscription', `price_${tier}_${billingCycle}`);
-              if (result.success) {
-                toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
-                onSuccess(result.paymentId || data.subscriptionID || 'unknown');
-              } else {
-                toast.error(result.error || 'Payment failed. Please try again.');
-              }
+              // Save the subscription locally
+              const subscriptionId = data.subscriptionID || 'paypal_sub_id';
+              toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
+              onSuccess(subscriptionId);
             } catch (error) {
+              console.error('Subscription processing error:', error);
               toast.error('Failed to process subscription. Please try again.');
-              console.error('Subscription error:', error);
             } finally {
               setLoading(false);
             }
@@ -68,15 +68,15 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
             setLoading(false);
           }
         );
+        setLoading(false);
       } catch (error) {
         console.error('Failed to load PayPal:', error);
         toast.error('Failed to load PayPal. Please try again later.');
+        setLoading(false);
       }
     };
     
-    if (!loading) {
-      initializePayPal();
-    }
+    initializePayPal();
     
     // Cleanup function
     return () => {
@@ -84,7 +84,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
         paypalContainerRef.current.innerHTML = '';
       }
     };
-  }, [tier, onSuccess, loading, setLoading, billingCycle]);
+  }, [tier, billingCycle, onSuccess, loading, setLoading]);
   
   // For free tier, use a regular button
   if (tier === 'free') {
@@ -97,13 +97,10 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
           setLoading(true);
           
           try {
-            const result = await createSubscription('mock_payment_method', `price_${tier}`);
-            if (result.success) {
-              toast.success('Free plan activated!');
-              onSuccess(result.paymentId || 'unknown');
-            } else {
-              toast.error(result.error || 'Failed to activate free plan. Please try again.');
-            }
+            // For free tier, just create a local subscription record
+            const subscriptionId = 'free_' + Math.random().toString(36).substring(2, 15);
+            toast.success('Free plan activated!');
+            onSuccess(subscriptionId);
           } catch (error) {
             toast.error('Failed to activate free plan. Please try again.');
           } finally {
@@ -121,17 +118,18 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   
   // For paid plans, render the PayPal button container
   return (
-    <div 
-      id="paypal-button-container" 
-      ref={paypalContainerRef}
-      className="w-full min-h-[40px]"
-    >
+    <div className="w-full">
       {loading && (
-        <div className="flex items-center justify-center py-2">
+        <div className="flex items-center justify-center py-2 mb-4">
           <Loader2 className="h-4 w-4 animate-spin mr-2" />
-          <span>Loading PayPal...</span>
+          <span>Preparing payment options...</span>
         </div>
       )}
+      <div 
+        id="paypal-button-container" 
+        ref={paypalContainerRef}
+        className="w-full min-h-[40px]"
+      />
     </div>
   );
 };

@@ -62,6 +62,7 @@ export const createPayPalButtons = (
 ): void => {
   if (!window.paypal) {
     console.error('PayPal SDK not loaded');
+    onError(new Error('PayPal SDK not loaded'));
     return;
   }
 
@@ -69,10 +70,15 @@ export const createPayPalButtons = (
   const container = document.getElementById(containerId);
   if (container) {
     container.innerHTML = '';
+  } else {
+    console.error(`Container with ID ${containerId} not found`);
+    onError(new Error(`Container with ID ${containerId} not found`));
+    return;
   }
 
   // Skip PayPal integration for free plan
   if (plan === 'free') {
+    console.log('Free plan selected, skipping PayPal integration');
     return;
   }
 
@@ -80,8 +86,11 @@ export const createPayPalButtons = (
   const planId = PAYPAL_PLAN_IDS[plan as keyof typeof PAYPAL_PLAN_IDS]?.[billingCycle];
   if (!planId) {
     console.error(`No PayPal plan ID found for plan: ${plan} (${billingCycle})`);
+    onError(new Error(`No PayPal plan ID found for plan: ${plan} (${billingCycle})`));
     return;
   }
+
+  console.log(`Creating PayPal buttons for plan: ${plan}, cycle: ${billingCycle}, planId: ${planId}`);
 
   try {
     window.paypal.Buttons({
@@ -92,12 +101,14 @@ export const createPayPalButtons = (
         label: 'subscribe'
       },
       createSubscription: function(data: any, actions: any) {
+        console.log('Creating subscription with plan ID:', planId);
         return actions.subscription.create({
           plan_id: planId
         });
       },
       onApprove: function(data: any, actions: any) {
         console.log('Subscription approved:', data);
+        // Handle subscription success
         onApprove(data);
       },
       onError: function(err: any) {
@@ -105,6 +116,8 @@ export const createPayPalButtons = (
         onError(err);
       }
     }).render(`#${containerId}`);
+    
+    console.log(`PayPal buttons rendered in #${containerId}`);
   } catch (error) {
     console.error('Error rendering PayPal buttons:', error);
     onError(error);

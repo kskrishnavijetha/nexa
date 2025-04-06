@@ -8,17 +8,17 @@ import PaymentSummary from './PaymentSummary';
 import { getPrice } from '@/utils/pricingData';
 
 interface CheckoutFormProps {
-  onSuccess?: (paymentId: string) => void;  // Changed from required to optional with '?'
+  onSuccess?: (paymentId: string) => void;
   initialPlan?: string | null;
   initialBillingCycle?: 'monthly' | 'annually';
 }
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ 
-  onSuccess = () => {}, // Add a default empty function 
+  onSuccess = () => {},
   initialPlan, 
   initialBillingCycle 
 }) => {
-  const [selectedTier, setSelectedTier] = useState<string>('free');
+  const [selectedTier, setSelectedTier] = useState<string>(initialPlan || 'free');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>(initialBillingCycle || 'monthly');
   const [loading, setLoading] = useState(false);
   const currentSubscription = getSubscription();
@@ -35,6 +35,18 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   // Helper function to get price for the selected tier
   const getPriceForTier = (tier: string) => {
     return getPrice(tier, billingCycle);
+  };
+
+  const handleSuccess = (paymentId: string) => {
+    // Create local subscription record
+    import('@/utils/payment/subscriptionService').then(({ saveSubscription }) => {
+      saveSubscription(selectedTier, paymentId, billingCycle);
+      
+      // Call the onSuccess callback
+      if (onSuccess) {
+        onSuccess(paymentId);
+      }
+    });
   };
 
   return (
@@ -63,7 +75,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           }
         </p>
         <PaymentButtons 
-          onSuccess={onSuccess}
+          onSuccess={handleSuccess}
           tier={selectedTier}
           loading={loading}
           setLoading={setLoading}
