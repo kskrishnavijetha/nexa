@@ -45,7 +45,7 @@ export const loadPayPalScript = (): Promise<void> => {
     }
 
     const script = document.createElement('script');
-    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&components=buttons`;
+    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&vault=true&intent=subscription`;
     script.async = true;
     
     script.onload = () => {
@@ -106,17 +106,17 @@ export const createPayPalButtons = (
     
     window.paypal.Buttons({
       style: {
-        layout: 'vertical',
-        color: 'blue',
         shape: 'rect',
-        label: 'subscribe'
+        color: 'gold',
+        layout: 'vertical',
+        label: 'paypal'
       },
       createSubscription: function(data: any, actions: any) {
         return actions.subscription.create({
           plan_id: planId
         });
       },
-      onApprove: function(data: any, actions: any) {
+      onApprove: function(data: any) {
         console.log('Subscription approved:', data);
         onApprove(data);
       },
