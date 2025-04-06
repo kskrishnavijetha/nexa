@@ -27,12 +27,6 @@ const PricingPlans = () => {
     if (!loading) {
       console.log('PricingPlans: User state loaded, auth status:', user ? 'Logged in' : 'Not logged in');
       setCheckingSubscription(false);
-      
-      // Debug log for subscription status if user is logged in
-      if (user) {
-        const subscriptionActive = hasActiveSubscription();
-        console.log('PricingPlans: User subscription status:', subscriptionActive ? 'Active' : 'Inactive');
-      }
     }
   }, [user, loading]);
 
