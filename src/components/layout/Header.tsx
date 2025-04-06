@@ -24,11 +24,6 @@ const Header: React.FC = () => {
     try {
       console.log('Header: Initiating sign out');
       
-      // Clear user data before signing out
-      localStorage.removeItem('subscription');
-      sessionStorage.removeItem('redirectAfterLogin');
-      sessionStorage.removeItem('redirectAfterSuccessfulPayment');
-      
       // Call the signOut function from AuthContext
       const { error } = await signOut();
       
@@ -42,7 +37,6 @@ const Header: React.FC = () => {
       
       // Force navigation to home page
       navigate('/', { replace: true });
-      toast.success('Signed out successfully');
     } catch (error) {
       console.error('Header: Error during sign out:', error);
       toast.error('Failed to sign out. Please try again.');

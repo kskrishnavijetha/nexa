@@ -123,7 +123,7 @@ export function useAuthState() {
       
       if (error) {
         console.error('Error from Supabase during sign out:', error);
-        setLoading(false);
+        toast.error('Failed to sign out. Please try again.');
         return { error };
       }
       
@@ -135,11 +135,12 @@ export function useAuthState() {
       setUser(null);
       
       console.log('Signout completed successfully');
+      toast.success('Signed out successfully');
       return { error: null };
       
     } catch (error) {
       console.error('Exception during sign out:', error);
-      setLoading(false);
+      toast.error('Failed to sign out. Please try again.');
       return { error };
     }
   }, []);
