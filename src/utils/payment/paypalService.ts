@@ -8,19 +8,19 @@ import type { PaymentResult } from './paymentProcessor';
 // PayPal client ID - Replace with your actual PayPal client ID
 const PAYPAL_CLIENT_ID = 'AXKd2EHw7ySZihlaN06rqnABzzQdhD8ueu738V8iCtC93o8PwlZdjO7hwVITJgTsmjOq8dHJaC1vMMKT';
 
-// PayPal plan IDs - Replace with your actual plan IDs
+// PayPal plan IDs - Updated with actual plan IDs
 const PAYPAL_PLAN_IDS = {
   basic: {
-    monthly: 'P-9HD8411875146223CMUSBMCA',
-    annually: 'P-ANNUAL8411875146223CMUSBMCA'
+    monthly: 'P-0G576384KT1375804M7UPCYY',
+    annually: 'P-0G576384KT1375804M7UPCYY'
   },
   pro: {
-    monthly: 'P-3NN72537D3262274CMUSBMDI',
-    annually: 'P-ANNUAL72537D3262274CMUSBMDI'
+    monthly: 'P-0F289070AR785993EM7UO47Y',
+    annually: 'P-0F289070AR785993EM7UO47Y'
   },
   enterprise: {
-    monthly: 'P-5GJ8318862350144UMUSBMEI',
-    annually: 'P-ANNUAL8318862350144UMUSBMEI'
+    monthly: 'P-76C19200WU898035NM7UO5YQ',
+    annually: 'P-76C19200WU898035NM7UO5YQ'
   }
 };
 
