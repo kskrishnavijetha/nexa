@@ -46,7 +46,9 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const handleSuccess = (paymentId: string) => {
     // Create local subscription record
     import('@/utils/payment/subscriptionService').then(({ saveSubscription }) => {
-      saveSubscription(selectedTier, paymentId, billingCycle);
+      // Ensure we pass a valid plan type
+      const validPlan = selectedTier as 'free' | 'basic' | 'premium' | 'enterprise';
+      saveSubscription(validPlan, paymentId, billingCycle);
       
       // Call the onSuccess callback
       if (onSuccess) {
