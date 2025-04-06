@@ -2,28 +2,31 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { shouldUpgrade } from '@/utils/paymentService';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Clock } from 'lucide-react';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardTabContent from '@/components/dashboard/DashboardTabContent';
 
 const Dashboard = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // Check if user needs to upgrade on component mount
   useEffect(() => {
-    const needsUpgrade = shouldUpgrade();
-    if (needsUpgrade) {
-      toast.info('Your free plan usage is complete. Please upgrade to continue.', {
-        action: {
-          label: 'Upgrade',
-          onClick: () => navigate('/pricing'),
-        },
-      });
+    if (user) {
+      const needsUpgrade = shouldUpgrade(user.id);
+      if (needsUpgrade) {
+        toast.info('Your free plan usage is complete. Please upgrade to continue.', {
+          action: {
+            label: 'Upgrade',
+            onClick: () => navigate('/pricing'),
+          },
+        });
+      }
     }
-  }, [navigate]);
+  }, [navigate, user]);
 
   return (
     <div className="container mx-auto px-4 py-8">

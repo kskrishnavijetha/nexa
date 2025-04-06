@@ -2,6 +2,7 @@
 import React from 'react';
 import { Check, Clock, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 const ActionItems = () => {
   // Mock data for action items
@@ -49,6 +50,11 @@ const ActionItems = () => {
     }
   };
 
+  const handleResolve = (id: number, title: string) => {
+    toast.success(`${title} marked as resolved`);
+    // In a real app, we would update the action item status in the database
+  };
+
   return (
     <div className="space-y-4">
       {actionItems.map((item) => (
@@ -62,7 +68,13 @@ const ActionItems = () => {
                 <span className="text-xs text-muted-foreground">
                   Due: {new Date(item.dueDate).toLocaleDateString()}
                 </span>
-                <Button size="sm" variant="outline">Resolve</Button>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  onClick={() => handleResolve(item.id, item.title)}
+                >
+                  Resolve
+                </Button>
               </div>
             </div>
           </div>

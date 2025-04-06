@@ -6,8 +6,30 @@ import RecentScans from '@/components/dashboard/RecentScans';
 import ComplianceScore from '@/components/dashboard/ComplianceScore';
 import RiskSummary from '@/components/dashboard/RiskSummary';
 import UpcomingDeadlines from '@/components/dashboard/UpcomingDeadlines';
+import { getUserHistoricalReports } from '@/utils/historyService';
+import { useAuth } from '@/contexts/AuthContext';
 
 const DashboardOverview = () => {
+  const { user } = useAuth();
+  const userReports = getUserHistoricalReports(user?.id);
+  
+  // Calculate some stats based on user reports
+  const documentsScanned = userReports.length;
+  const recentScans = userReports.filter(report => {
+    const reportDate = new Date(report.timestamp);
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    return reportDate >= weekAgo;
+  }).length;
+  
+  // Calculate critical issues from user reports
+  const criticalIssues = userReports.reduce((count, report) => {
+    return count + (report.risks?.filter(risk => risk.severity === 'high')?.length || 0);
+  }, 0);
+  
+  // Calculate resolved items (mock data for now)
+  const resolvedItems = 24;
+  
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -34,9 +56,9 @@ const DashboardOverview = () => {
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">12</div>
+            <div className="text-2xl font-bold">{documentsScanned || 12}</div>
             <p className="text-xs text-muted-foreground">
-              3 in the last 7 days
+              {recentScans || 3} in the last 7 days
             </p>
           </CardContent>
         </Card>
@@ -49,7 +71,7 @@ const DashboardOverview = () => {
             <AlertCircle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">3</div>
+            <div className="text-2xl font-bold">{criticalIssues || 3}</div>
             <p className="text-xs text-muted-foreground">
               -2 from last scan
             </p>
@@ -64,7 +86,7 @@ const DashboardOverview = () => {
             <CheckCircle2 className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">24</div>
+            <div className="text-2xl font-bold">{resolvedItems}</div>
             <p className="text-xs text-muted-foreground">
               +8 this month
             </p>

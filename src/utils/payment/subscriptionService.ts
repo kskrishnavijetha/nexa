@@ -1,102 +1,150 @@
 
 /**
- * Service for managing user subscriptions
+ * Mock subscription service implementation
+ * In a real app, this would be integrated with a real payment provider
  */
 
+import { toast } from 'sonner';
+
 export interface SubscriptionInfo {
-  active: boolean;
-  plan: string;
-  scansUsed: number;
-  scansLimit: number;
-  expirationDate: Date;
-  billingCycle?: 'monthly' | 'annually';
+  id: string;
+  userId: string;
+  plan: 'free' | 'basic' | 'premium' | 'enterprise';
+  status: 'active' | 'cancelled' | 'expired';
+  expiresAt: string;
+  scansRemaining: number;
+  maxScans: number;
+  autoRenew: boolean;
+  customerId?: string;
 }
 
-// Store the user's current subscription in localStorage
-export const saveSubscription = (plan: string, paymentId: string, billingCycle: 'monthly' | 'annually' = 'monthly') => {
-  const pricingTiers = {
-    free: { scans: 1, days: 30 },
-    basic: { scans: 10, days: billingCycle === 'monthly' ? 30 : 365 },
-    pro: { scans: 50, days: billingCycle === 'monthly' ? 30 : 365 },
-    enterprise: { scans: 999, days: billingCycle === 'monthly' ? 30 : 365 }, // Using 999 to represent unlimited
-  };
+// In-memory store for subscriptions (in a real app, this would be in a database)
+const subscriptions: Record<string, SubscriptionInfo> = {};
+
+/**
+ * Check if a user should upgrade (has reached free usage limits)
+ */
+export const shouldUpgrade = (userId?: string | null): boolean => {
+  if (!userId) return false;
   
-  const selectedTier = pricingTiers[plan as keyof typeof pricingTiers];
-  const expirationDate = new Date();
-  expirationDate.setDate(expirationDate.getDate() + selectedTier.days);
+  const subscription = getSubscription(userId);
   
+  // If no subscription exists, the user is on the free plan and should upgrade
+  if (!subscription) {
+    return false; // No subscription yet, user is just starting
+  }
+  
+  // If the user's subscription has expired, they should upgrade
+  if (subscription.status === 'expired') {
+    return true;
+  }
+  
+  // If the user has used all their scans, they should upgrade
+  if (subscription.plan === 'free' && subscription.scansRemaining <= 0) {
+    return true;
+  }
+  
+  return false;
+};
+
+/**
+ * Create or update a subscription for a user
+ */
+export const saveSubscription = (
+  userId: string,
+  plan: 'free' | 'basic' | 'premium' | 'enterprise',
+  status: 'active' | 'cancelled' | 'expired' = 'active',
+  customerId?: string
+): SubscriptionInfo => {
+  // Set scans based on plan
+  const maxScans = 
+    plan === 'free' ? 5 : 
+    plan === 'basic' ? 50 : 
+    plan === 'premium' ? 500 : 
+    Infinity;
+  
+  // Calculate expiration (30 days from now)
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 30);
+  
+  // Create or update subscription
   const subscription: SubscriptionInfo = {
-    active: true,
-    plan: plan,
-    scansUsed: 0,
-    scansLimit: selectedTier.scans,
-    expirationDate: expirationDate,
-    billingCycle: billingCycle
+    id: subscriptions[userId]?.id || `sub_${Math.random().toString(36).substring(2, 15)}`,
+    userId,
+    plan,
+    status,
+    expiresAt: expiresAt.toISOString(),
+    scansRemaining: maxScans,
+    maxScans,
+    autoRenew: plan !== 'free',
+    customerId
   };
   
-  localStorage.setItem('subscription', JSON.stringify(subscription));
+  subscriptions[userId] = subscription;
+  
+  console.log(`Subscription saved for user ${userId}:`, subscription);
   return subscription;
 };
 
-// Get the current subscription from localStorage
-export const getSubscription = (): SubscriptionInfo | null => {
-  const subscription = localStorage.getItem('subscription');
-  if (!subscription) {
-    return null;
+/**
+ * Get a user's subscription information
+ */
+export const getSubscription = (userId?: string | null): SubscriptionInfo | null => {
+  if (!userId) return null;
+  
+  // If user doesn't have a subscription yet, create a free one
+  if (!subscriptions[userId]) {
+    return saveSubscription(userId, 'free');
   }
   
-  const parsedSubscription = JSON.parse(subscription);
-  parsedSubscription.expirationDate = new Date(parsedSubscription.expirationDate);
+  return subscriptions[userId];
+};
+
+/**
+ * Check if a user has an active subscription
+ */
+export const hasActiveSubscription = (userId?: string | null): boolean => {
+  if (!userId) return false;
   
-  // Check if subscription is expired
-  if (parsedSubscription.expirationDate < new Date()) {
-    parsedSubscription.active = false;
+  const subscription = getSubscription(userId);
+  if (!subscription) return false;
+  
+  return subscription.status === 'active';
+};
+
+/**
+ * Check if a user has any scans remaining in their subscription
+ */
+export const hasScansRemaining = (userId?: string | null): boolean => {
+  if (!userId) return false;
+  
+  const subscription = getSubscription(userId);
+  if (!subscription) return false;
+  
+  return subscription.scansRemaining > 0;
+};
+
+/**
+ * Record usage of a scan, decrementing the scans remaining
+ */
+export const recordScanUsage = (userId?: string | null): boolean => {
+  if (!userId) return false;
+  
+  const subscription = getSubscription(userId);
+  if (!subscription) return false;
+  
+  if (subscription.scansRemaining <= 0) {
+    toast.error('You have no scans remaining. Please upgrade your plan.');
+    return false;
   }
   
-  return parsedSubscription;
-};
-
-// Check if user has an active subscription
-export const hasActiveSubscription = (): boolean => {
-  const subscription = getSubscription();
-  return !!subscription && subscription.active;
-};
-
-// Check if user has scans remaining
-export const hasScansRemaining = (): boolean => {
-  const subscription = getSubscription();
-  return !!subscription && subscription.active && subscription.scansUsed < subscription.scansLimit;
-};
-
-// Record a scan usage
-export const recordScanUsage = (): void => {
-  const subscription = getSubscription();
-  if (subscription && subscription.active) {
-    subscription.scansUsed += 1;
-    
-    // Check if scans limit reached
-    if (subscription.scansUsed >= subscription.scansLimit) {
-      // Mark as inactive if it's a free plan and limit reached
-      if (subscription.plan === 'free') {
-        subscription.active = false;
-      }
-    }
-    
-    localStorage.setItem('subscription', JSON.stringify(subscription));
-  }
-};
-
-// Check if user needs to upgrade (free plan with no scans left or expired)
-export const shouldUpgrade = (): boolean => {
-  const subscription = getSubscription();
+  subscription.scansRemaining--;
+  console.log(`Recorded scan usage for ${userId}. Remaining: ${subscription.scansRemaining}`);
   
-  if (!subscription) {
-    return false; // No subscription yet, they'll be directed to pricing anyway
+  // Show a warning when running low on scans
+  if (subscription.plan === 'free' && subscription.scansRemaining <= 1) {
+    toast.warning(`You have ${subscription.scansRemaining} scan${subscription.scansRemaining === 1 ? '' : 's'} remaining on your free plan.`);
   }
   
-  // If free plan and either expired or no scans left
-  return (
-    subscription.plan === 'free' && 
-    (!subscription.active || subscription.scansUsed >= subscription.scansLimit)
-  );
+  return true;
 };
