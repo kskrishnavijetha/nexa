@@ -38,6 +38,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         location.pathname !== '/pricing') {
       
       const hasSubscription = hasActiveSubscription();
+      console.log('ProtectedRoute: Checking subscription status:', hasSubscription ? 'Active' : 'Inactive');
       
       if (!hasSubscription) {
         console.log('ProtectedRoute: User has no active subscription, redirecting to pricing page');
