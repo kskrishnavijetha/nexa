@@ -71,7 +71,7 @@ const History: React.FC = () => {
   useEffect(() => {
     if (!locationState?.preventBlink) {
       updateUrl();
-    } else if (locationState.from === 'audit-reports') {
+    } else if (locationState.from === 'action-items' || locationState.from === 'audit-reports') {
       navigate(location.pathname + location.search, {
         replace: true,
         state: null

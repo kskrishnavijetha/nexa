@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -91,7 +92,13 @@ const ActionItemsContainer: React.FC = () => {
   };
 
   const handleViewAll = () => {
-    navigate('/history?tab=audit'); // Navigate to audit tab in history page
+    // Navigate to audit tab in history page with preventBlink state to avoid page reload
+    navigate('/history?tab=audit', { 
+      state: { 
+        preventBlink: true,
+        from: 'action-items'
+      }
+    });
     toast.info("Viewing all action items");
   };
 
