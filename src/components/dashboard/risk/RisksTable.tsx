@@ -3,7 +3,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from '@/components/ui/button';
 import { ComplianceRisk, ComplianceReport } from '@/utils/types';
-import { getSeverityIcon } from './RiskSummaryUtils';
+import { getSeverityIcon } from './utils';
 import { useNavigate } from 'react-router-dom';
 
 interface RisksTableProps {

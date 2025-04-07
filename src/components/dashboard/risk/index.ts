@@ -7,4 +7,4 @@ export { default as SpecificReportView } from './SpecificReportView';
 export { default as OverallRiskView } from './OverallRiskView';
 export { default as EmptyRiskView } from './EmptyRiskView';
 export * from './types';
-export * from './RiskSummaryUtils';
+export * from './utils';
