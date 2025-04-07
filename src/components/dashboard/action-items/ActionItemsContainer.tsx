@@ -7,6 +7,7 @@ import { getUserHistoricalReports } from '@/utils/historyService';
 import { ActionItem } from './types';
 import ActionItemsList from './ActionItemsList';
 import { ComplianceReport } from '@/utils/types';
+import DocumentPreview from '@/components/document-analysis/DocumentPreview';
 
 interface ActionItemsContainerProps {
   selectedReport?: ComplianceReport | null;
@@ -16,6 +17,7 @@ const ActionItemsContainer: React.FC<ActionItemsContainerProps> = ({ selectedRep
   const { user } = useAuth();
   const navigate = useNavigate();
   const [actionItems, setActionItems] = useState<ActionItem[]>([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
   
   useEffect(() => {
     const generateActionItems = () => {
@@ -113,24 +115,40 @@ const ActionItemsContainer: React.FC<ActionItemsContainerProps> = ({ selectedRep
   };
 
   const handleViewAll = () => {
-    // Navigate to audit tab in history page with preventBlink state to avoid page reload
-    navigate('/history?tab=audit', { 
-      state: { 
-        preventBlink: true,
-        from: 'action-items',
-        documentId: selectedReport?.documentId
-      }
-    });
-    toast.info(`Viewing all action items${selectedReport ? ` for ${selectedReport.documentName}` : ''}`);
+    // Show document preview for the selected report
+    if (selectedReport) {
+      setPreviewOpen(true);
+      toast.info(`Viewing document: ${selectedReport.documentName}`);
+    } else {
+      // Navigate to audit tab in history page with preventBlink state to avoid page reload
+      navigate('/history?tab=audit', { 
+        state: { 
+          preventBlink: true,
+          from: 'action-items',
+          documentId: selectedReport?.documentId
+        }
+      });
+      toast.info(`Viewing all action items`);
+    }
   };
 
   return (
-    <ActionItemsList 
-      actionItems={actionItems}
-      onResolve={handleResolve}
-      onViewAll={handleViewAll}
-      selectedReport={selectedReport}
-    />
+    <>
+      <ActionItemsList 
+        actionItems={actionItems}
+        onResolve={handleResolve}
+        onViewAll={handleViewAll}
+        selectedReport={selectedReport}
+      />
+      
+      {selectedReport && (
+        <DocumentPreview
+          report={selectedReport}
+          isOpen={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+        />
+      )}
+    </>
   );
 };
 
