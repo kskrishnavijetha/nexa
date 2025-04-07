@@ -23,7 +23,7 @@ const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report }) => {
       setIsDownloading(true);
       toast.info(`Preparing download for "${report.documentName}"...`);
       
-      // Pass industry and region from the report to ensure consistency
+      // Pass the complete report to ensure all data is available
       const result = await generateReportPDF(report, 'en');
       
       if (result.data) {
@@ -68,7 +68,14 @@ const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report }) => {
     <Card>
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
-          <span>{report.documentName}</span>
+          <div className="flex flex-col">
+            <span>{report.documentName}</span>
+            {report.industry && (
+              <span className="text-sm text-muted-foreground">
+                Industry: {report.industry} {report.region && `| Region: ${report.region}`}
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
