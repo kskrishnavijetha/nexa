@@ -15,6 +15,10 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({ report }) => {
         documentName={report.documentName}
         industry={report.industry}
       />
+      
+      <div className="text-sm text-muted-foreground mt-4">
+        <p>Scheduled scans will run automatically and send email notifications even when you're signed out.</p>
+      </div>
     </div>
   );
 };
