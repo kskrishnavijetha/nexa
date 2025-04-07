@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ComplianceReport } from '@/utils/types';
@@ -31,7 +32,6 @@ const History: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
   const [analyzingDocument, setAnalyzingDocument] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [isDownloading, setIsDownloading] = useState(false);
   
   const location = useLocation();
   const navigate = useNavigate();
@@ -166,12 +166,6 @@ const History: React.FC = () => {
 
   const selectedReport = getSelectedReport();
 
-  const handleViewAnalysis = () => {
-    if (selectedReport) {
-      navigate(`/document-analysis?id=${selectedReport.documentId}`);
-    }
-  };
-
   return (
     <div className="container mx-auto p-6">
       <HistoryHeader 
@@ -232,12 +226,6 @@ const History: React.FC = () => {
               {selectedReport ? (
                 <div className="grid grid-cols-1 gap-6">
                   <ComplianceDetails report={selectedReport} />
-                  
-                  <div className="mt-4 flex justify-center">
-                    <Button onClick={handleViewAnalysis}>
-                      View Full Analysis
-                    </Button>
-                  </div>
                 </div>
               ) : (
                 <div className="p-4 border rounded-md bg-slate-50 text-center">
