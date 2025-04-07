@@ -2,7 +2,8 @@
 // Main API service file that exports all service modules
 export * from './fileUploadService';
 export * from './complianceService';
-export * from './reports';
+// Import and re-export specifically from reports to avoid conflicts
+export { generateReportPDF } from './reports'; 
 // Export everything from riskService except generateSuggestions
 export { assessContentRisk, setupRealTimeMonitoring, generateRisks } from './riskService';
 // Export explicitly renamed generateSuggestions from suggestionService to avoid conflict
