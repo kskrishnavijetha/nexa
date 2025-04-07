@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { getUserHistoricalReports } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
-import { ComplianceReport } from '@/utils/types';
+import { getScoreColor } from '@/utils/scoreService';
 
 const ComplianceScore = () => {
   const { user } = useAuth();
@@ -63,48 +63,55 @@ const ComplianceScore = () => {
   }
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <LineChart
-        data={scoreData}
-        margin={{
-          top: 5,
-          right: 30,
-          left: 20,
-          bottom: 5,
-        }}
-      >
-        <XAxis 
-          dataKey="month" 
-          tick={{ fontSize: 12 }}
-          axisLine={{ stroke: '#E5E7EB' }}
-          tickLine={false}
-        />
-        <YAxis 
-          domain={[40, 100]}
-          tick={{ fontSize: 12 }} 
-          axisLine={{ stroke: '#E5E7EB' }}
-          tickLine={false}
-          tickCount={6}
-        />
-        <Tooltip 
-          contentStyle={{ 
-            borderRadius: '4px', 
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
-            borderColor: '#E5E7EB'
-          }} 
-          formatter={(value) => [`${value}%`, 'Compliance Score']}
-          labelStyle={{ fontWeight: 600 }}
-        />
-        <Line 
-          type="monotone" 
-          dataKey="score" 
-          stroke="#2563EB" 
-          strokeWidth={2}
-          dot={{ strokeWidth: 2, r: 4 }}
-          activeDot={{ r: 6, strokeWidth: 0 }}
-        />
-      </LineChart>
-    </ResponsiveContainer>
+    <div className="h-full w-full flex flex-col">
+      <h3 className="text-xl font-bold text-center mb-0">Compliance Score</h3>
+      <p className="text-sm text-muted-foreground text-center mb-4">Your compliance score over time</p>
+      <div className="flex-1">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart
+            data={scoreData}
+            margin={{
+              top: 10,
+              right: 20,
+              left: 10,
+              bottom: 5,
+            }}
+          >
+            <XAxis 
+              dataKey="month" 
+              tick={{ fontSize: 12 }}
+              axisLine={{ stroke: '#E5E7EB' }}
+              tickLine={false}
+            />
+            <YAxis 
+              domain={[40, 100]}
+              tick={{ fontSize: 12 }} 
+              axisLine={{ stroke: '#E5E7EB' }}
+              tickLine={false}
+              tickCount={5}
+              ticks={[40, 55, 70, 85, 100]}
+            />
+            <Tooltip 
+              contentStyle={{ 
+                borderRadius: '4px', 
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+                borderColor: '#E5E7EB'
+              }} 
+              formatter={(value) => [`${value}%`, 'Compliance Score']}
+              labelStyle={{ fontWeight: 600 }}
+            />
+            <Line 
+              type="monotone" 
+              dataKey="score" 
+              stroke="#3B82F6" 
+              strokeWidth={2}
+              dot={{ fill: '#3B82F6', strokeWidth: 2, r: 6, stroke: 'white' }}
+              activeDot={{ r: 8, strokeWidth: 0 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
   );
 };
 

@@ -4,12 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { shouldUpgrade } from '@/utils/paymentService';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Clock } from 'lucide-react';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardTabContent from '@/components/dashboard/DashboardTabContent';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserHistoricalReports } from '@/utils/historyService';
+import { SelectedReportProvider } from '@/components/dashboard/RecentScans';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -52,48 +52,50 @@ const Dashboard = () => {
   }, [user, navigate]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <DashboardHeader />
+    <SelectedReportProvider>
+      <div className="container mx-auto px-4 py-8">
+        <DashboardHeader />
 
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="compliance">Compliance</TabsTrigger>
-          <TabsTrigger value="risks">Risks</TabsTrigger>
-          <TabsTrigger value="actions">Actions</TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="compliance">Compliance</TabsTrigger>
+            <TabsTrigger value="risks">Risks</TabsTrigger>
+            <TabsTrigger value="actions">Actions</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="overview">
+            <DashboardOverview />
+          </TabsContent>
+          
+          <TabsContent value="compliance">
+            <DashboardTabContent activeTab="compliance" />
+          </TabsContent>
+          
+          <TabsContent value="risks">
+            <DashboardTabContent activeTab="risks" />
+          </TabsContent>
+          
+          <TabsContent value="actions">
+            <DashboardTabContent activeTab="actions" />
+          </TabsContent>
+        </Tabs>
         
-        <TabsContent value="overview">
-          <DashboardOverview />
-        </TabsContent>
-        
-        <TabsContent value="compliance">
-          <DashboardTabContent activeTab="compliance" />
-        </TabsContent>
-        
-        <TabsContent value="risks">
-          <DashboardTabContent activeTab="risks" />
-        </TabsContent>
-        
-        <TabsContent value="actions">
-          <DashboardTabContent activeTab="actions" />
-        </TabsContent>
-      </Tabs>
-      
-      {!hasData && (
-        <div className="mt-8 p-4 border border-dashed rounded-md text-center">
-          <p className="text-muted-foreground">
-            Your dashboard will display real-time compliance data once you've performed document scans.
-          </p>
-          <button 
-            onClick={() => navigate('/document-analysis')}
-            className="mt-2 text-primary hover:underline"
-          >
-            Start your first document scan →
-          </button>
-        </div>
-      )}
-    </div>
+        {!hasData && (
+          <div className="mt-8 p-4 border border-dashed rounded-md text-center">
+            <p className="text-muted-foreground">
+              Your dashboard will display real-time compliance data once you've performed document scans.
+            </p>
+            <button 
+              onClick={() => navigate('/document-analysis')}
+              className="mt-2 text-primary hover:underline"
+            >
+              Start your first document scan →
+            </button>
+          </div>
+        )}
+      </div>
+    </SelectedReportProvider>
   );
 };
 
