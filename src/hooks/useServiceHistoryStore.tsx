@@ -57,6 +57,7 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
               }
             }
             
+            // We only log the number of reports found, but don't trigger any actions that might cause recursion
             const userReports = getUserHistoricalReports(id);
             if (userReports && userReports.length > 0) {
               console.log(`Found ${userReports.length} reports in memory for user ${id}`);

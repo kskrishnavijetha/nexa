@@ -53,13 +53,13 @@ const ServiceHistoryContainer: React.FC = () => {
         setReports([]);
       }
     }
-  }, [user, setUserId, loadReports]);
+  }, [user, setUserId, loadReports, setReports]);
   
-  // Force a refresh of reports periodically
+  // Force a refresh of reports periodically, but use a longer interval to prevent excessive renders
   useEffect(() => {
     const interval = setInterval(() => {
       loadReports();
-    }, 2000);
+    }, 5000); // Increased to 5 seconds to reduce potential recursive renders
     return () => clearInterval(interval);
   }, [loadReports]);
   
