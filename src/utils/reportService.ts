@@ -93,29 +93,34 @@ export const generateReportPDF = async (
     
     // Overall score
     const overallScoreColor = getScoreColor(report.overallScore);
-    doc.setTextColor(...overallScoreColor);
+    // Fix: Use apply to spread the array properly
+    doc.setTextColor.apply(doc, overallScoreColor);
     doc.text(`${translate('overall_compliance', language)}: ${report.overallScore}%`, 25, yPos);
     yPos += 8;
     
     // Add standard scores
     const gdprColor = getScoreColor(report.gdprScore);
-    doc.setTextColor(...gdprColor);
+    // Fix: Use apply to spread the array properly
+    doc.setTextColor.apply(doc, gdprColor);
     doc.text(`${translate('gdpr_compliance', language)}: ${report.gdprScore}%`, 25, yPos);
     yPos += 8;
     
     const hipaaColor = getScoreColor(report.hipaaScore);
-    doc.setTextColor(...hipaaColor);
+    // Fix: Use apply to spread the array properly
+    doc.setTextColor.apply(doc, hipaaColor);
     doc.text(`${translate('hipaa_compliance', language)}: ${report.hipaaScore}%`, 25, yPos);
     yPos += 8;
     
     const soc2Color = getScoreColor(report.soc2Score);
-    doc.setTextColor(...soc2Color);
+    // Fix: Use apply to spread the array properly
+    doc.setTextColor.apply(doc, soc2Color);
     doc.text(`${translate('soc2_compliance', language)}: ${report.soc2Score}%`, 25, yPos);
     yPos += 8;
     
     if (report.pciDssScore) {
       const pciColor = getScoreColor(report.pciDssScore);
-      doc.setTextColor(...pciColor);
+      // Fix: Use apply to spread the array properly
+      doc.setTextColor.apply(doc, pciColor);
       doc.text(`${translate('pci_dss_compliance', language)}: ${report.pciDssScore}%`, 25, yPos);
       yPos += 8;
     }
@@ -132,7 +137,8 @@ export const generateReportPDF = async (
       
       for (const [regulation, score] of Object.entries(report.industryScores)) {
         const color = getScoreColor(score as number);
-        doc.setTextColor(...color);
+        // Fix: Use apply to spread the array properly
+        doc.setTextColor.apply(doc, color);
         doc.text(`${regulation}: ${score}%`, 30, yPos);
         yPos += 7;
         
@@ -173,7 +179,7 @@ export const generateReportPDF = async (
       }
       
       // Add risk title with severity indicator
-      let severityColor: number[];
+      let severityColor: [number, number, number];
       if (risk.severity === 'high') {
         severityColor = [187, 10, 30]; // Red
       } else if (risk.severity === 'medium') {
@@ -182,8 +188,8 @@ export const generateReportPDF = async (
         severityColor = [0, 102, 51]; // Green
       }
       
-      // Draw severity indicator
-      doc.setFillColor(...severityColor);
+      // Draw severity indicator - Fix: Use apply to spread the array properly
+      doc.setFillColor.apply(doc, severityColor);
       doc.circle(20, yPos - 3, 2, 'F');
       
       // Add risk title
@@ -247,7 +253,8 @@ export const generateReportPDF = async (
         doc.text('•', 20, yPos);
         
         // Add suggestion text with wrapping
-        const suggestionLines = doc.splitTextToSize(suggestion, 165);
+        // Fix: Use suggestion.description instead of suggestion directly
+        const suggestionLines = doc.splitTextToSize(suggestion.description, 165);
         doc.text(suggestionLines, 25, yPos);
         yPos += (suggestionLines.length * 5) + 5;
       }
@@ -284,7 +291,7 @@ export const generateReportPDF = async (
 /**
  * Get RGB color based on compliance score
  */
-const getScoreColor = (score: number): number[] => {
+const getScoreColor = (score: number): [number, number, number] => {
   if (score >= 80) {
     return [0, 128, 0]; // Green for good scores
   } else if (score >= 60) {
