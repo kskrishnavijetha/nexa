@@ -21,9 +21,9 @@ const BottomSection: React.FC = () => {
       </Card>
       
       <Card className="col-span-1">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <div>
-            <CardTitle>Upcoming Deadlines</CardTitle>
+            <CardTitle className="text-md">Upcoming Deadlines</CardTitle>
             <CardDescription>
               Action items due soon
             </CardDescription>
