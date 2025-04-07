@@ -21,7 +21,14 @@ const DocumentInfoHeader: React.FC<DocumentInfoHeaderProps> = ({
     <div className="flex justify-between items-center mb-4">
       <div className="flex items-center">
         <FileText className="h-6 w-6 text-primary mr-2" />
-        <h2 className="text-xl font-semibold">{report.documentName}</h2>
+        <div>
+          <h2 className="text-xl font-semibold">{report.documentName}</h2>
+          {report.industry && (
+            <p className="text-sm text-muted-foreground">
+              Industry: {report.industry} {report.region && `| Region: ${report.region}`}
+            </p>
+          )}
+        </div>
       </div>
       <div className="flex space-x-2">
         <Button 

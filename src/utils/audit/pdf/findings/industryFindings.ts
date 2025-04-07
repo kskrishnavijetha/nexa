@@ -18,6 +18,8 @@ import { generatePharmaFindings } from './pharmaFindings';
  * Generate industry-specific findings
  */
 export const generateIndustryFindings = (stats: AuditReportStatistics, industry: Industry): ComplianceFinding[] => {
+  console.log(`[generateIndustryFindings] Generating findings for industry: ${industry}`);
+  
   switch (industry) {
     case 'Healthcare':
       return generateHealthcareFindings(stats);
@@ -43,6 +45,7 @@ export const generateIndustryFindings = (stats: AuditReportStatistics, industry:
     case 'Pharmaceutical & Biotech':
       return generatePharmaFindings(stats);
     default:
+      console.log(`[generateIndustryFindings] No specific findings for ${industry}, using default findings`);
       return generateDefaultFindings(stats);
   }
 };

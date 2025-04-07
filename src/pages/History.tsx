@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ComplianceReport } from '@/utils/types';
@@ -236,8 +235,11 @@ const History: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="audit" className="mt-6">
-            {selectedDocument && (
-              <AuditTrail documentName={selectedDocument} />
+            {selectedDocument && selectedReport && (
+              <AuditTrail 
+                documentName={selectedDocument} 
+                industry={selectedReport.industry}
+              />
             )}
           </TabsContent>
         </Tabs>

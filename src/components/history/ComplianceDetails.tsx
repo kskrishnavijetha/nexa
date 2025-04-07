@@ -23,6 +23,7 @@ const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report }) => {
       setIsDownloading(true);
       toast.info(`Preparing download for "${report.documentName}"...`);
       
+      // Pass industry and region from the report to ensure consistency
       const result = await generateReportPDF(report, 'en');
       
       if (result.data) {

@@ -41,6 +41,7 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
   const handleDownloadPDF = async () => {
     setIsDownloading(true);
     try {
+      // Make sure we pass the report with industry and region
       const response = await generateReportPDF(report, language);
       
       if (response.error) {

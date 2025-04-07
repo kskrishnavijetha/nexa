@@ -1,3 +1,4 @@
+
 import { Industry, Region } from './types';
 import { SupportedLanguage, translate } from './languageService';
 
@@ -15,8 +16,12 @@ export function generateSummary(
 ): string {
   let summary = '';
   
-  // Start with the introduction
-  summary = `${translate('based_on_analysis', language)} ${industry ? industry + ' ' : ''}${translate('industry_compliance', language)} `;
+  // Start with the introduction, now with more emphasis on industry context
+  if (industry) {
+    summary = `${translate('based_on_analysis', language)} ${industry} ${translate('industry_compliance', language)} `;
+  } else {
+    summary = `${translate('based_on_analysis', language)} ${translate('industry_compliance', language)} `;
+  }
   
   // Add region-specific context if available
   if (region) {
@@ -135,6 +140,18 @@ function getIndustrySpecificInsight(industry: Industry, language: SupportedLangu
       return 'Focus on financial data security and transaction integrity requirements.';
     case 'Cloud & SaaS':
       return 'Consider data processing agreements and security controls for digital services.';
+    case 'E-Commerce':
+      return 'Ensure customer data protection and payment processing security are properly addressed.';
+    case 'Government & Defense':
+      return 'Address the stringent security and data handling requirements specific to government operations.';
+    case 'Telecom':
+      return 'Focus on customer data protection and communication privacy regulations.';
+    case 'Retail & Consumer':
+      return 'Prioritize consumer data protection and privacy consent management.';
+    case 'Education':
+      return 'Address student data privacy concerns and educational record protection requirements.';
+    case 'Energy & Utilities':
+      return 'Focus on critical infrastructure protection and operational data security.';
     default:
       return '';
   }
