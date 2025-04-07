@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserHistoricalReports } from '@/utils/historyService';
@@ -12,7 +11,7 @@ import {
   RiskCategory
 } from './risk';
 import LoadingRiskView from './risk/LoadingRiskView';
-import { useSelectedReport } from './RecentScans';
+import { useSelectedReport } from './context/SelectedReportContext';
 
 interface RiskSummaryProps {
   selectedReport?: ComplianceReport | null;
@@ -27,7 +26,6 @@ const RiskSummary = ({ selectedReport: propSelectedReport }: RiskSummaryProps) =
   const [loading, setLoading] = useState<boolean>(true);
   const [userReports, setUserReports] = useState<ComplianceReport[]>([]);
   
-  // Use either the prop selectedReport or the context selectedReport
   const selectedReport = propSelectedReport || contextSelectedReport;
   
   useEffect(() => {
@@ -40,7 +38,6 @@ const RiskSummary = ({ selectedReport: propSelectedReport }: RiskSummaryProps) =
 
     loadUserReports();
     
-    // Set up a timer to periodically update the reports
     const timer = setInterval(loadUserReports, 30000); // 30 seconds
     
     return () => clearInterval(timer);
@@ -64,7 +61,6 @@ const RiskSummary = ({ selectedReport: propSelectedReport }: RiskSummaryProps) =
     calculateRisks();
   }, [selectedReport, userReports]);
 
-  // Check if there's no actual risk data (all zeros)
   const hasRiskData = riskData.some(item => item.value > 0);
   
   if (loading) {

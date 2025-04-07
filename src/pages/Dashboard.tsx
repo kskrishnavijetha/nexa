@@ -8,7 +8,7 @@ import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardTabContent from '@/components/dashboard/DashboardTabContent';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserHistoricalReports } from '@/utils/historyService';
-import { SelectedReportProvider } from '@/components/dashboard/RecentScans';
+import { SelectedReportProvider } from '@/components/dashboard/context/SelectedReportContext';
 
 const Dashboard = () => {
   const navigate = useNavigate();

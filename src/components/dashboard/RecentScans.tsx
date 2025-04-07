@@ -1,45 +1,21 @@
 
-import React, { useState, useEffect, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { getUserHistoricalReports } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
 import { ComplianceReport } from '@/utils/types';
 import DocumentPreview from '@/components/document-analysis/DocumentPreview';
-import { Eye, ChevronRight } from 'lucide-react';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { useSelectedReport } from './context/SelectedReportContext';
+import AllScansSheet from './recent-scans/AllScansSheet';
+import ScanItem from './recent-scans/ScanItem';
+import EmptyScans from './recent-scans/EmptyScans';
+import { SheetTrigger } from '@/components/ui/sheet';
 
-// Create a context to manage the selected report
-const SelectedReportContext = React.createContext<{
-  selectedReport: ComplianceReport | null;
-  setSelectedReport: React.Dispatch<React.SetStateAction<ComplianceReport | null>>;
-}>({
-  selectedReport: null,
-  setSelectedReport: () => {},
-});
-
-// Custom hook to use the selected report context
-export const useSelectedReport = () => useContext(SelectedReportContext);
-
-// Provider component
-export const SelectedReportProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
-  const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
-  
-  return (
-    <SelectedReportContext.Provider value={{ selectedReport, setSelectedReport }}>
-      {children}
-    </SelectedReportContext.Provider>
-  );
-};
+// Export the provider from the context file
+export { SelectedReportProvider } from './context/SelectedReportContext';
+export { useSelectedReport } from './context/SelectedReportContext';
 
 const RecentScans = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [recentScans, setRecentScans] = useState<ComplianceReport[]>([]);
   const [allScans, setAllScans] = useState<ComplianceReport[]>([]);
@@ -138,129 +114,38 @@ const RecentScans = () => {
       <div className="flex justify-between items-center">
         <h3 className="font-medium text-lg">Recent Scans</h3>
         
-        <Sheet open={showAllScans} onOpenChange={setShowAllScans}>
-          <SheetTrigger asChild>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={handleViewAllClick}
-            >
-              View All
-            </Button>
-          </SheetTrigger>
-          <SheetContent>
-            <SheetHeader>
-              <SheetTitle>All Document Scans</SheetTitle>
-            </SheetHeader>
-            <div className="py-4 space-y-2">
-              {allScans.length > 0 ? (
-                allScans.map((scan) => (
-                  <div 
-                    key={scan.documentId}
-                    className="flex justify-between items-center p-3 border rounded-md hover:bg-slate-50 cursor-pointer"
-                    onClick={() => handleSelectScan(scan)}
-                  >
-                    <div>
-                      <p className="font-medium">{scan.documentName}</p>
-                      <p className="text-sm text-muted-foreground">{formatDate(scan.timestamp)}</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div>
-                        <span className={`font-medium ${
-                          scan.overallScore >= 90 ? 'text-green-600' : 
-                          scan.overallScore >= 75 ? 'text-amber-600' : 
-                          'text-red-600'
-                        }`}>
-                          {scan.overallScore}%
-                        </span>
-                      </div>
-                      <div className="flex space-x-1">
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          className="text-blue-600 hover:text-blue-800 h-7"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleSelectScan(scan, 'actions');
-                          }}
-                        >
-                          Actions
-                        </Button>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <p className="text-center text-muted-foreground py-8">No scan history available.</p>
-              )}
-            </div>
-          </SheetContent>
-        </Sheet>
+        <SheetTrigger asChild>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={handleViewAllClick}
+          >
+            View All
+          </Button>
+        </SheetTrigger>
       </div>
       
       {recentScans.length > 0 ? (
         recentScans.map((scan) => (
-          <div 
+          <ScanItem 
             key={scan.documentId}
-            className="flex justify-between items-center p-3 border rounded-md hover:bg-slate-50 cursor-pointer"
-            onClick={() => handleViewClick(scan)}
-          >
-            <div>
-              <p className="font-medium">{scan.documentName}</p>
-              <p className="text-sm text-muted-foreground">{formatDate(scan.timestamp)}</p>
-            </div>
-            <div className="flex items-center gap-2">
-              <div>
-                <span className={`font-medium ${
-                  scan.overallScore >= 90 ? 'text-green-600' : 
-                  scan.overallScore >= 75 ? 'text-amber-600' : 
-                  'text-red-600'
-                }`}>
-                  {scan.overallScore}%
-                </span>
-              </div>
-              <div className="flex space-x-1">
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="text-primary h-7"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleViewClick(scan);
-                  }}
-                >
-                  <Eye className="h-4 w-4 mr-1" />
-                  View
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  className="text-blue-600 hover:text-blue-800 h-7"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleViewClick(scan, 'actions');
-                  }}
-                >
-                  Actions
-                </Button>
-              </div>
-            </div>
-          </div>
+            scan={scan}
+            onViewClick={handleViewClick}
+            formatDate={formatDate}
+          />
         ))
       ) : (
-        <div className="text-center py-6 text-muted-foreground">
-          <p>No scan history available yet.</p>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="mt-2"
-            onClick={() => navigate('/document-analysis')}
-          >
-            Perform your first scan
-          </Button>
-        </div>
+        <EmptyScans />
       )}
+      
+      {/* All Scans Sheet */}
+      <AllScansSheet 
+        isOpen={showAllScans}
+        onOpenChange={setShowAllScans}
+        scans={allScans}
+        onSelectScan={handleSelectScan}
+        formatDate={formatDate}
+      />
       
       {/* Document Preview Dialog */}
       <DocumentPreview 
