@@ -47,6 +47,7 @@ const RecentScans = () => {
   const [previewOpen, setPreviewOpen] = useState<boolean>(false);
   const [currentPreviewReport, setCurrentPreviewReport] = useState<ComplianceReport | null>(null);
   const [showAllScans, setShowAllScans] = useState<boolean>(false);
+  const [showActionItems, setShowActionItems] = useState<boolean>(false);
   
   useEffect(() => {
     const loadRecentScans = () => {
@@ -77,7 +78,7 @@ const RecentScans = () => {
     return new Date(dateString).toISOString().split('T')[0];
   };
   
-  const handleViewClick = (report: ComplianceReport) => {
+  const handleViewClick = (report: ComplianceReport, tabToNavigate: string = 'compliance') => {
     // Set the selected report for the risk summary section
     setSelectedReport(report);
     
@@ -103,11 +104,14 @@ const RecentScans = () => {
     // Also open the preview dialog
     setPreviewOpen(true);
 
-    // Navigate to compliance tab to show details
-    const complianceTabTrigger = document.querySelector('[data-value="compliance"]');
-    if (complianceTabTrigger && complianceTabTrigger instanceof HTMLElement) {
-      complianceTabTrigger.click();
+    // Navigate to selected tab to show details
+    const tabTrigger = document.querySelector(`[data-value="${tabToNavigate}"]`);
+    if (tabTrigger && tabTrigger instanceof HTMLElement) {
+      tabTrigger.click();
     }
+    
+    // Set flag to show action items if we're viewing the actions tab
+    setShowActionItems(tabToNavigate === 'actions');
   };
 
   const handleViewAllClick = (e: React.MouseEvent) => {
@@ -115,15 +119,18 @@ const RecentScans = () => {
     setShowAllScans(true);
   };
 
-  const handleSelectScan = (report: ComplianceReport) => {
+  const handleSelectScan = (report: ComplianceReport, tabToNavigate: string = 'compliance') => {
     setSelectedReport(report);
     setShowAllScans(false);
     
-    // Navigate to compliance tab to show details
-    const complianceTabTrigger = document.querySelector('[data-value="compliance"]');
-    if (complianceTabTrigger && complianceTabTrigger instanceof HTMLElement) {
-      complianceTabTrigger.click();
+    // Navigate to selected tab to show details
+    const tabTrigger = document.querySelector(`[data-value="${tabToNavigate}"]`);
+    if (tabTrigger && tabTrigger instanceof HTMLElement) {
+      tabTrigger.click();
     }
+    
+    // Set flag to show action items if we're viewing the actions tab
+    setShowActionItems(tabToNavigate === 'actions');
   };
 
   return (
@@ -157,8 +164,8 @@ const RecentScans = () => {
                       <p className="font-medium">{scan.documentName}</p>
                       <p className="text-sm text-muted-foreground">{formatDate(scan.timestamp)}</p>
                     </div>
-                    <div className="flex items-center">
-                      <div className="mr-4">
+                    <div className="flex items-center gap-2">
+                      <div>
                         <span className={`font-medium ${
                           scan.overallScore >= 90 ? 'text-green-600' : 
                           scan.overallScore >= 75 ? 'text-amber-600' : 
@@ -166,6 +173,19 @@ const RecentScans = () => {
                         }`}>
                           {scan.overallScore}%
                         </span>
+                      </div>
+                      <div className="flex space-x-1">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          className="text-blue-600 hover:text-blue-800 h-7"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleSelectScan(scan, 'actions');
+                          }}
+                        >
+                          Actions
+                        </Button>
                       </div>
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     </div>
@@ -190,8 +210,8 @@ const RecentScans = () => {
               <p className="font-medium">{scan.documentName}</p>
               <p className="text-sm text-muted-foreground">{formatDate(scan.timestamp)}</p>
             </div>
-            <div className="flex items-center">
-              <div className="mr-4">
+            <div className="flex items-center gap-2">
+              <div>
                 <span className={`font-medium ${
                   scan.overallScore >= 90 ? 'text-green-600' : 
                   scan.overallScore >= 75 ? 'text-amber-600' : 
@@ -200,18 +220,31 @@ const RecentScans = () => {
                   {scan.overallScore}%
                 </span>
               </div>
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="text-primary"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleViewClick(scan);
-                }}
-              >
-                <Eye className="h-4 w-4 mr-1" />
-                View
-              </Button>
+              <div className="flex space-x-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-primary h-7"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleViewClick(scan);
+                  }}
+                >
+                  <Eye className="h-4 w-4 mr-1" />
+                  View
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-blue-600 hover:text-blue-800 h-7"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleViewClick(scan, 'actions');
+                  }}
+                >
+                  Actions
+                </Button>
+              </div>
             </div>
           </div>
         ))

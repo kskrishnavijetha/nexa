@@ -5,20 +5,23 @@ import { Button } from '@/components/ui/button';
 import ActionItemCard from './ActionItemCard';
 import EmptyActionItems from './EmptyActionItems';
 import { ActionItem } from './types';
+import { ComplianceReport } from '@/utils/types';
 
 interface ActionItemsListProps {
   actionItems: ActionItem[];
   onResolve: (id: string) => void;
   onViewAll: () => void;
+  selectedReport?: ComplianceReport | null;
 }
 
 const ActionItemsList: React.FC<ActionItemsListProps> = ({ 
   actionItems, 
   onResolve,
-  onViewAll 
+  onViewAll,
+  selectedReport
 }) => {
   if (actionItems.length === 0) {
-    return <EmptyActionItems />;
+    return <EmptyActionItems selectedReport={selectedReport} />;
   }
 
   return (
@@ -33,7 +36,7 @@ const ActionItemsList: React.FC<ActionItemsListProps> = ({
         className="w-full flex items-center justify-center"
         onClick={onViewAll}
       >
-        <span>View All Action Items</span>
+        <span>View All Action Items{selectedReport ? ` for ${selectedReport.documentName}` : ''}</span>
         <ExternalLink className="ml-1 h-3 w-3" />
       </Button>
     </div>

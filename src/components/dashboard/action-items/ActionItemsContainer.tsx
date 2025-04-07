@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -5,8 +6,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getUserHistoricalReports } from '@/utils/historyService';
 import { ActionItem } from './types';
 import ActionItemsList from './ActionItemsList';
+import { ComplianceReport } from '@/utils/types';
 
-const ActionItemsContainer: React.FC = () => {
+interface ActionItemsContainerProps {
+  selectedReport?: ComplianceReport | null;
+}
+
+const ActionItemsContainer: React.FC<ActionItemsContainerProps> = ({ selectedReport }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [actionItems, setActionItems] = useState<ActionItem[]>([]);
@@ -20,7 +26,12 @@ const ActionItemsContainer: React.FC = () => {
           // Generate action items from report risks
           const items: ActionItem[] = [];
           
-          userReports.forEach(report => {
+          // If a selectedReport is provided, only generate items for that report
+          const reportsToProcess = selectedReport 
+            ? [selectedReport] 
+            : userReports;
+          
+          reportsToProcess.forEach(report => {
             // Take higher severity risks and convert them to action items
             report.risks.forEach((risk, index) => {
               if (risk.severity === 'high' || (risk.severity === 'medium' && index % 3 === 0)) {
@@ -43,7 +54,9 @@ const ActionItemsContainer: React.FC = () => {
                   severity: risk.severity,
                   dueDate: dueDate.toISOString().split('T')[0],
                   completed: false,
-                  resolutionSteps: resolutionSteps
+                  resolutionSteps: resolutionSteps,
+                  documentId: report.documentId,
+                  documentName: report.documentName
                 });
               }
             });
@@ -51,7 +64,11 @@ const ActionItemsContainer: React.FC = () => {
           
           // Take most recent items (max 4)
           if (items.length > 0) {
-            setActionItems(items.slice(0, 4));
+            if (selectedReport) {
+              setActionItems(items.filter(item => item.documentId === selectedReport.documentId));
+            } else {
+              setActionItems(items.slice(0, 4));
+            }
           }
         }
       }
@@ -65,7 +82,7 @@ const ActionItemsContainer: React.FC = () => {
     }, 30000); // Update every 30 seconds
     
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user, selectedReport]);
 
   const handleResolve = (id: string) => {
     setActionItems(prevItems => 
@@ -100,10 +117,11 @@ const ActionItemsContainer: React.FC = () => {
     navigate('/history?tab=audit', { 
       state: { 
         preventBlink: true,
-        from: 'action-items'
+        from: 'action-items',
+        documentId: selectedReport?.documentId
       }
     });
-    toast.info("Viewing all action items");
+    toast.info(`Viewing all action items${selectedReport ? ` for ${selectedReport.documentName}` : ''}`);
   };
 
   return (
@@ -111,6 +129,7 @@ const ActionItemsContainer: React.FC = () => {
       actionItems={actionItems}
       onResolve={handleResolve}
       onViewAll={handleViewAll}
+      selectedReport={selectedReport}
     />
   );
 };

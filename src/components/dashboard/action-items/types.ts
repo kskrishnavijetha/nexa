@@ -8,4 +8,6 @@ export interface ActionItem {
   completed: boolean;
   resolutionSteps?: string[];
   currentStep?: number;
+  documentId?: string;  // Add document reference
+  documentName?: string; // Add document name
 }

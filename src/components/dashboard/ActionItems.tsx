@@ -1,6 +1,13 @@
 
-import ActionItemsContainer from './action-items';
+import ActionItemsContainer from './action-items/ActionItemsContainer';
+import { ComplianceReport } from '@/utils/types';
 
-const ActionItems = ActionItemsContainer;
+interface ActionItemsProps {
+  selectedReport?: ComplianceReport | null;
+}
+
+const ActionItems = ({ selectedReport }: ActionItemsProps) => {
+  return <ActionItemsContainer selectedReport={selectedReport} />;
+};
 
 export default ActionItems;

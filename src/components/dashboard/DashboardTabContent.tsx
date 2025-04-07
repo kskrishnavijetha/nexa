@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -133,9 +134,15 @@ const DashboardTabContent: React.FC<DashboardTabContentProps> = ({ activeTab }) 
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Action Items</CardTitle>
+              <CardTitle>
+                {selectedReport ? 
+                  `Action Items for ${selectedReport.documentName}` : 
+                  'Action Items'}
+              </CardTitle>
               <CardDescription>
-                Tasks that need your attention to improve compliance
+                {selectedReport ? 
+                  `Tasks that need attention to improve compliance for this document` : 
+                  'Tasks that need your attention to improve compliance'}
               </CardDescription>
             </div>
             <Button size="sm" className="flex items-center gap-1">
@@ -145,7 +152,7 @@ const DashboardTabContent: React.FC<DashboardTabContentProps> = ({ activeTab }) 
           </div>
         </CardHeader>
         <CardContent>
-          <ActionItems />
+          <ActionItems selectedReport={selectedReport} />
         </CardContent>
       </Card>
     );
