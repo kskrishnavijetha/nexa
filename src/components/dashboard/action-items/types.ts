@@ -3,9 +3,9 @@ export interface ActionItem {
   id: string;
   title: string;
   description: string;
-  severity: string;
+  severity: 'high' | 'medium' | 'low';
   dueDate: string;
-  completed?: boolean;
+  completed: boolean;
   resolutionSteps?: string[];
   currentStep?: number;
 }

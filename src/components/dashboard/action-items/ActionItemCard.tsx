@@ -34,8 +34,8 @@ const ActionItemCard: React.FC<ActionItemCardProps> = ({ item, onResolve }) => {
           <p className="text-sm text-muted-foreground mb-2">{item.description}</p>
           
           {/* Resolution Progress Section */}
-          {!item.completed && item.resolutionSteps && (
-            <div className="bg-slate-50 p-2 rounded-md mb-2">
+          {item.resolutionSteps && (
+            <div className={`bg-slate-50 p-2 rounded-md mb-2 ${item.currentStep === undefined ? 'hidden' : ''}`}>
               <p className="text-xs font-medium mb-1">Resolution progress:</p>
               <div className="space-y-1">
                 {item.resolutionSteps.map((step, index) => (
@@ -81,7 +81,7 @@ const ActionItemCard: React.FC<ActionItemCardProps> = ({ item, onResolve }) => {
                 className="text-xs h-7 px-2"
                 onClick={() => onResolve(item.id)}
               >
-                {item.currentStep === 0 ? 'Start Resolution' : 
+                {item.currentStep === undefined ? 'Start Resolution' : 
                  item.currentStep === (item.resolutionSteps?.length || 0) - 1 ? 'Complete' : 
                  `Complete Step ${(item.currentStep || 0) + 1}`}
               </Button>

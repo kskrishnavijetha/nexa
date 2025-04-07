@@ -35,8 +35,9 @@ const RecentScans = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [recentScans, setRecentScans] = useState<ComplianceReport[]>([]);
-  const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
+  const { setSelectedReport } = useSelectedReport();
   const [previewOpen, setPreviewOpen] = useState<boolean>(false);
+  const [currentPreviewReport, setCurrentPreviewReport] = useState<ComplianceReport | null>(null);
   
   useEffect(() => {
     const loadRecentScans = () => {
@@ -64,7 +65,11 @@ const RecentScans = () => {
   };
   
   const handleViewClick = (report: ComplianceReport) => {
+    // Set the selected report for the risk summary section
     setSelectedReport(report);
+    
+    // Store the current report for preview
+    setCurrentPreviewReport(report);
     
     // Find the global context to update the selected report
     const dashboardBottomSection = document.getElementById('dashboard-bottom-section');
@@ -152,7 +157,7 @@ const RecentScans = () => {
       
       {/* Document Preview Dialog */}
       <DocumentPreview 
-        report={selectedReport} 
+        report={currentPreviewReport} 
         isOpen={previewOpen} 
         onClose={() => {
           setPreviewOpen(false);

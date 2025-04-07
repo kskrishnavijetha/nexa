@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -44,8 +43,7 @@ const ActionItemsContainer: React.FC = () => {
                   severity: risk.severity,
                   dueDate: dueDate.toISOString().split('T')[0],
                   completed: false,
-                  resolutionSteps: resolutionSteps,
-                  currentStep: 0
+                  resolutionSteps: resolutionSteps
                 });
               }
             });
@@ -73,6 +71,12 @@ const ActionItemsContainer: React.FC = () => {
     setActionItems(prevItems => 
       prevItems.map(item => {
         if (item.id === id) {
+          // If current step is not defined, set it to 0 to start the resolution process
+          if (item.currentStep === undefined) {
+            toast.success("Starting resolution process");
+            return { ...item, currentStep: 0 };
+          }
+          
           const nextStep = (item.currentStep || 0) + 1;
           const totalSteps = item.resolutionSteps?.length || 0;
           
