@@ -9,7 +9,7 @@ import { useSelectedReport } from './context/SelectedReportContext';
 import AllScansSheet from './recent-scans/AllScansSheet';
 import ScanItem from './recent-scans/ScanItem';
 import EmptyScans from './recent-scans/EmptyScans';
-import { SheetTrigger } from '@/components/ui/sheet';
+import { Sheet } from '@/components/ui/sheet';
 
 // Export the provider from the context file
 export { SelectedReportProvider } from './context/SelectedReportContext';
@@ -114,7 +114,7 @@ const RecentScans = () => {
       <div className="flex justify-between items-center">
         <h3 className="font-medium text-lg">Recent Scans</h3>
         
-        <SheetTrigger asChild>
+        <Sheet open={showAllScans} onOpenChange={setShowAllScans}>
           <Button 
             variant="ghost" 
             size="sm"
@@ -122,7 +122,15 @@ const RecentScans = () => {
           >
             View All
           </Button>
-        </SheetTrigger>
+          
+          <AllScansSheet 
+            isOpen={showAllScans}
+            onOpenChange={setShowAllScans}
+            scans={allScans}
+            onSelectScan={handleSelectScan}
+            formatDate={formatDate}
+          />
+        </Sheet>
       </div>
       
       {recentScans.length > 0 ? (
@@ -137,15 +145,6 @@ const RecentScans = () => {
       ) : (
         <EmptyScans />
       )}
-      
-      {/* All Scans Sheet */}
-      <AllScansSheet 
-        isOpen={showAllScans}
-        onOpenChange={setShowAllScans}
-        scans={allScans}
-        onSelectScan={handleSelectScan}
-        formatDate={formatDate}
-      />
       
       {/* Document Preview Dialog */}
       <DocumentPreview 

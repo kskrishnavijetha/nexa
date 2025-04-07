@@ -95,7 +95,7 @@ const ScanFilters: React.FC<ScanFiltersProps> = ({
               </span>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
+          <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
             <Calendar
               initialFocus
               mode="range"
@@ -111,6 +111,7 @@ const ScanFilters: React.FC<ScanFiltersProps> = ({
                 })
               }
               numberOfMonths={2}
+              className="pointer-events-auto"
             />
             <div className="p-3 border-t border-border">
               <Button 
