@@ -73,7 +73,7 @@ const DocumentInfoHeader: React.FC<DocumentInfoHeaderProps> = ({
         body: {
           type: 'compliance-report',
           email: recipientEmail,
-          name: user?.name || '',
+          name: user?.email || '', // Use email instead of name
           reportDetails
         }
       });

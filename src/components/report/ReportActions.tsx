@@ -124,7 +124,7 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
         body: {
           type: 'compliance-report',
           email: recipientEmail,
-          name: user?.name || '',
+          name: user?.email || '', // Use email instead of name
           reportDetails
         }
       });

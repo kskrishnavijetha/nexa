@@ -92,6 +92,9 @@ const handler = async (req: Request): Promise<Response> => {
         reportDetails.complianceScore >= 80 ? "#22c55e" : 
         reportDetails.complianceScore >= 60 ? "#f59e0b" : "#ef4444";
       
+      // Get user's display name or use their email
+      const displayName = name ? name.includes('@') ? name.split('@')[0] : name : '';
+      
       emailResponse = await resend.emails.send({
         from: "Nexabloom <reports@resend.dev>",
         to: [email],
@@ -99,7 +102,7 @@ const handler = async (req: Request): Promise<Response> => {
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
             <h1 style="color: #4F46E5;">Compliance Report</h1>
-            <p>Hello${name ? ` ${name}` : ""},</p>
+            <p>Hello${displayName ? ` ${displayName}` : ""},</p>
             <p>Your requested compliance report for <strong>${reportDetails.documentName}</strong> is ready.</p>
             
             <div style="background-color: #f8fafc; border-radius: 8px; padding: 20px; margin: 20px 0;">
