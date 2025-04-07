@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { shouldUpgrade } from '@/utils/paymentService';
@@ -16,7 +15,6 @@ const Dashboard = () => {
   const { user } = useAuth();
   const [hasData, setHasData] = useState<boolean>(false);
 
-  // Check if user needs to upgrade on component mount
   useEffect(() => {
     const needsUpgrade = shouldUpgrade();
     if (needsUpgrade) {
@@ -29,7 +27,6 @@ const Dashboard = () => {
     }
   }, [navigate]);
 
-  // Check if the user has any scan data
   useEffect(() => {
     const checkUserData = async () => {
       if (user?.id) {

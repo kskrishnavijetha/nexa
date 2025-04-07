@@ -12,18 +12,23 @@ import {
   RiskCategory
 } from './risk';
 import LoadingRiskView from './risk/LoadingRiskView';
+import { useSelectedReport } from './RecentScans';
 
 interface RiskSummaryProps {
   selectedReport?: ComplianceReport | null;
 }
 
-const RiskSummary = ({ selectedReport }: RiskSummaryProps) => {
+const RiskSummary = ({ selectedReport: propSelectedReport }: RiskSummaryProps) => {
   const { user } = useAuth();
+  const { selectedReport: contextSelectedReport } = useSelectedReport();
   const [riskData, setRiskData] = useState<RiskCount[]>([]);
   const [categoryData, setCategoryData] = useState<RiskCategory[]>([]);
   const [risks, setRisks] = useState<ComplianceReport['risks']>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [userReports, setUserReports] = useState<ComplianceReport[]>([]);
+  
+  // Use either the prop selectedReport or the context selectedReport
+  const selectedReport = propSelectedReport || contextSelectedReport;
   
   useEffect(() => {
     const loadUserReports = () => {

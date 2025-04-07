@@ -99,7 +99,8 @@ const RecentScans = () => {
         recentScans.map((scan) => (
           <div 
             key={scan.documentId}
-            className="flex justify-between items-center p-3 border rounded-md hover:bg-slate-50"
+            className="flex justify-between items-center p-3 border rounded-md hover:bg-slate-50 cursor-pointer"
+            onClick={() => handleViewClick(scan)}
           >
             <div>
               <p className="font-medium">{scan.documentName}</p>
