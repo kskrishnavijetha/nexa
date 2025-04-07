@@ -12,13 +12,22 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  type: "welcome" | "payment-confirmation";
+  type: "welcome" | "payment-confirmation" | "compliance-report";
   email: string;
   name?: string;
   planDetails?: {
     plan: string;
     billingCycle: string;
     amount: number;
+  };
+  reportDetails?: {
+    documentName: string;
+    complianceScore: number;
+    risks: number;
+    date: string;
+    reportLink?: string;
+    industry?: string;
+    regulations?: string[];
   };
 }
 
@@ -29,7 +38,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { type, email, name, planDetails }: EmailRequest = await req.json();
+    const { type, email, name, planDetails, reportDetails }: EmailRequest = await req.json();
     let emailResponse;
 
     console.log(`Processing ${type} email for ${email}`);
@@ -71,6 +80,47 @@ const handler = async (req: Request): Promise<Response> => {
             </ul>
             <p>You now have full access to all features included in your plan. You can access your dashboard to start using Nexabloom's compliance tools right away.</p>
             <p>If you have any questions about your subscription, please contact our support team.</p>
+            <p>Best regards,<br>The Nexabloom Team</p>
+          </div>
+        `,
+      });
+    }
+    // Send compliance report email
+    else if (type === "compliance-report" && reportDetails) {
+      // Generate color based on compliance score
+      const scoreColor = 
+        reportDetails.complianceScore >= 80 ? "#22c55e" : 
+        reportDetails.complianceScore >= 60 ? "#f59e0b" : "#ef4444";
+      
+      emailResponse = await resend.emails.send({
+        from: "Nexabloom <reports@resend.dev>",
+        to: [email],
+        subject: `Compliance Report: ${reportDetails.documentName}`,
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <h1 style="color: #4F46E5;">Compliance Report</h1>
+            <p>Hello${name ? ` ${name}` : ""},</p>
+            <p>Your requested compliance report for <strong>${reportDetails.documentName}</strong> is ready.</p>
+            
+            <div style="background-color: #f8fafc; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h2 style="margin-top: 0; color: #0f172a;">Report Summary</h2>
+              <p><strong>Document:</strong> ${reportDetails.documentName}</p>
+              <p><strong>Date Generated:</strong> ${reportDetails.date}</p>
+              ${reportDetails.industry ? `<p><strong>Industry:</strong> ${reportDetails.industry}</p>` : ''}
+              <p><strong>Compliance Score:</strong> <span style="font-weight: bold; color: ${scoreColor};">${reportDetails.complianceScore}%</span></p>
+              <p><strong>Risks Identified:</strong> ${reportDetails.risks}</p>
+              ${reportDetails.regulations ? 
+                `<p><strong>Applicable Regulations:</strong> ${reportDetails.regulations.join(', ')}</p>` : 
+                ''}
+            </div>
+            
+            <p>This report contains a detailed analysis of your document's compliance status and identified risks.</p>
+            
+            ${reportDetails.reportLink ? 
+              `<p style="margin: 20px 0;"><a href="${reportDetails.reportLink}" style="background-color: #4F46E5; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px; font-weight: bold;">View Full Report</a></p>` : 
+              ''}
+            
+            <p>For any questions regarding this report or for assistance in improving your compliance score, please contact our support team.</p>
             <p>Best regards,<br>The Nexabloom Team</p>
           </div>
         `,
