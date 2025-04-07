@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
@@ -9,7 +8,7 @@ import { EmptyState } from './EmptyState';
 import { AuditTrailDialog } from './AuditTrailDialog';
 import { DeleteConfirmationDialog } from './DeleteConfirmationDialog';
 import { ComplianceReport } from '@/utils/types';
-import { deleteReportFromHistory, getUserHistoricalReports } from '@/utils/historyService';
+import { deleteReportFromHistory, getUserHistoricalReports, getReportById } from '@/utils/historyService';
 import { toast } from 'sonner';
 import { useLanguagePreference } from '@/hooks/useLanguagePreference';
 import { translate } from '@/utils/language';
@@ -25,17 +24,14 @@ const ServiceHistoryContainer: React.FC = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState<{id: string, name: string} | null>(null);
   
-  // Use our custom hook to manage report state and loading
   const { reports, setReports, loadReports } = useReportState(user, scanHistory);
   
-  // Update the user ID in the store when the user changes
   useEffect(() => {
     console.log('ServiceHistory: User changed, updating history store with user ID:', user?.id);
     if (user) {
       setUserId(user.id);
       loadReports();
     } else {
-      // For anonymous users, try to load from local storage
       const anonymousHistoryStr = localStorage.getItem('nexabloom_anonymous_history');
       
       if (anonymousHistoryStr) {
@@ -55,17 +51,34 @@ const ServiceHistoryContainer: React.FC = () => {
     }
   }, [user, setUserId, loadReports, setReports]);
   
-  // Force a refresh of reports periodically, but use a longer interval to prevent excessive renders
   useEffect(() => {
     const interval = setInterval(() => {
       loadReports();
-    }, 5000); // Increased to 5 seconds to reduce potential recursive renders
+    }, 5000);
     return () => clearInterval(interval);
   }, [loadReports]);
   
   const handleDocumentClick = (document: string, report?: ComplianceReport) => {
     setSelectedDocument(document);
-    setSelectedReport(report || null);
+    
+    if (report && report.risks && report.risks.length > 0) {
+      setSelectedReport(report);
+      setAuditDialogOpen(true);
+      return;
+    }
+    
+    if (report?.documentId) {
+      const completeReport = getReportById(report.documentId);
+      if (completeReport) {
+        console.log('Found more complete report data:', completeReport.documentName);
+        setSelectedReport(completeReport);
+      } else {
+        setSelectedReport(report);
+      }
+    } else {
+      setSelectedReport(report || null);
+    }
+    
     setAuditDialogOpen(true);
   };
 
@@ -80,13 +93,11 @@ const ServiceHistoryContainer: React.FC = () => {
         const deleted = deleteReportFromHistory(documentToDelete.id, user.id);
         if (deleted) {
           toast.success(`Document "${documentToDelete.name}" has been permanently deleted from history`);
-          // Refresh the reports
           setReports(getUserHistoricalReports(user.id));
         } else {
           toast.error("Failed to delete document");
         }
       } else {
-        // Handle anonymous deletes
         const anonymousHistoryStr = localStorage.getItem('nexabloom_anonymous_history');
         if (anonymousHistoryStr) {
           try {
@@ -98,7 +109,6 @@ const ServiceHistoryContainer: React.FC = () => {
               anonHistory.scanHistory = newHistory;
               localStorage.setItem('nexabloom_anonymous_history', JSON.stringify(anonHistory));
               
-              // Update local state
               setReports(prev => prev.filter(r => r.documentId !== documentToDelete.id));
               toast.success(`Document "${documentToDelete.name}" has been deleted`);
             }
@@ -113,7 +123,6 @@ const ServiceHistoryContainer: React.FC = () => {
     setDocumentToDelete(null);
   };
 
-  // Use scanHistory for rendering if no reports but scanHistory exists
   const displayReports = reports.length > 0 ? reports : 
     scanHistory.length > 0 ? scanHistory.map((item: any) => ({
       documentId: item.serviceId,
@@ -131,7 +140,6 @@ const ServiceHistoryContainer: React.FC = () => {
       regulations: ['GDPR']
     })) : [];
 
-  // Render empty state when nothing to show
   if (displayReports.length === 0) {
     return (
       <EmptyState 
@@ -157,7 +165,6 @@ const ServiceHistoryContainer: React.FC = () => {
         />
       </CardContent>
 
-      {/* Audit Trail Dialog */}
       <AuditTrailDialog
         isOpen={auditDialogOpen}
         onOpenChange={setAuditDialogOpen}
@@ -165,7 +172,6 @@ const ServiceHistoryContainer: React.FC = () => {
         report={selectedReport}
       />
       
-      {/* Delete Confirmation Dialog */}
       <DeleteConfirmationDialog 
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}

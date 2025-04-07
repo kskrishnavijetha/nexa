@@ -27,17 +27,20 @@ const DocumentAnalysis = () => {
     addReportToHistory(reportWithUser);
     console.log('Report saved to history in DocumentAnalysis:', reportWithUser.documentName);
     
-    // Also add to the scan history store
+    // Also add to the scan history store - ensure all the same data is available in both places
     if (user) {
       addScanHistory({
-        serviceId: 'document-analysis',
+        serviceId: reportWithUser.documentId,
         serviceName: 'Document Analysis',
         scanDate: new Date().toISOString(),
         itemsScanned: reportWithUser.pageCount || 1,
         violationsFound: (reportWithUser.risks || []).length,
         documentName: reportWithUser.documentName,
         fileName: reportWithUser.originalFileName || reportWithUser.documentName,
-        report: reportWithUser
+        report: reportWithUser,
+        industry: reportWithUser.industry,
+        organization: reportWithUser.organization,
+        regulations: reportWithUser.regulations
       });
     }
     

@@ -1,4 +1,3 @@
-
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { ComplianceReport } from '@/utils/types';
@@ -39,7 +38,6 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
           console.log(`User ID changed from ${currentUserId} to ${id}`);
           
           if (id) {
-            // Don't clear history if we're just loading a user's data
             set({ userId: id });
             
             const userHistoryKey = `nexabloom_serviceHistory_${id}`;
@@ -57,7 +55,6 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
               }
             }
             
-            // We only log the number of reports found, but don't trigger any actions that might cause recursion
             const userReports = getUserHistoricalReports(id);
             if (userReports && userReports.length > 0) {
               console.log(`Found ${userReports.length} reports in memory for user ${id}`);
@@ -77,9 +74,9 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
           set((state) => {
             const isDuplicate = state.scanHistory.some(
               existingItem => 
-                existingItem.serviceId === item.serviceId && 
-                existingItem.scanDate === item.scanDate &&
-                existingItem.documentName === item.documentName
+                existingItem.serviceId === item.serviceId || 
+                (existingItem.documentName === item.documentName && 
+                existingItem.scanDate === item.scanDate)
             );
             
             if (isDuplicate) {
@@ -87,9 +84,18 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
               return state;
             }
             
-            if (item.documentName) {
+            if (item.report) {
+              const reportWithUserId = {
+                ...item.report,
+                userId: userId
+              };
+              
+              addReportToHistory(reportWithUserId);
+              console.log(`Added complete report to global history: ${reportWithUserId.documentName}`);
+            } 
+            else if (item.documentName) {
               const report: ComplianceReport = {
-                documentId: `${userId}-${item.documentName}-${Date.now()}`,
+                documentId: item.serviceId || `${userId}-${item.documentName}-${Date.now()}`,
                 documentName: item.documentName,
                 scanDate: item.scanDate,
                 timestamp: new Date().toISOString(),
@@ -107,12 +113,11 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
               };
               
               addReportToHistory(report);
-              console.log(`Added report to global history: ${report.documentName}`);
+              console.log(`Added minimal report to global history: ${report.documentName}`);
             }
             
             const newHistory = [item, ...state.scanHistory];
             
-            // Immediately save to localStorage to prevent loss
             const userHistoryKey = `nexabloom_serviceHistory_${userId}`;
             try {
               localStorage.setItem(
@@ -127,7 +132,6 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
           });
         } else {
           console.warn('Attempted to add scan history without a user ID');
-          // Try to store history even without a userId, just with a session ID
           const sessionId = localStorage.getItem('nexabloom_session_id') || 
                           `session_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
           
@@ -168,7 +172,6 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
       name: 'nexabloom_serviceHistory',
       partialize: (state) => ({ 
         userId: state.userId,
-        // Now also persist the scan history to prevent it from disappearing
         scanHistory: state.scanHistory
       }),
     }
