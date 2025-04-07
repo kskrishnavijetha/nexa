@@ -1,3 +1,4 @@
+
 import { ComplianceReport } from './types';
 import { mockScans } from './historyMocks';
 
@@ -74,16 +75,19 @@ export const getUserHistoricalReports = (userId: string | null | undefined): Com
   
   console.log(`Fetching unique reports for user ${userId}, found:`, uniqueUserReports.length);
   
+  // FIXED: Remove the recursive call and instead directly assign reports if needed
   if (uniqueUserReports.length === 0) {
-    // For demo purposes, assign some reports to this user if none exist
-    const reportsToAssign = historicalReports.slice(0, 3);
-    reportsToAssign.forEach(report => {
-      report.userId = userId;
-    });
-    console.log(`Assigned ${reportsToAssign.length} reports to user ${userId}`);
+    // For demo purposes, create new reports for this user but don't modify the original array yet
+    const reportsToAssign = mockScans.slice(0, 3).map(report => ({
+      ...report,
+      userId: userId
+    }));
     
-    // Return only unique documents for this user after assignment
-    return getUserHistoricalReports(userId);
+    console.log(`Created ${reportsToAssign.length} demo reports for user ${userId}`);
+    
+    // Return the demo reports without adding them to historicalReports
+    // This prevents the infinite recursion issue
+    return reportsToAssign;
   }
   
   return uniqueUserReports;
