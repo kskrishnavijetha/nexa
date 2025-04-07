@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { FileText, Download } from 'lucide-react';
 import { toast } from 'sonner';
-import { generateReportPDF } from '@/utils/reportService';
+import { generateReportPDF } from '@/utils/reports';
 import { ScanViolation, SupportedLanguage } from '../types';
 import { ComplianceRisk, Industry, Region, Suggestion } from '@/utils/types';
 

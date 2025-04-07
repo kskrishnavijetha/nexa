@@ -2,6 +2,7 @@
 import { jsPDF } from 'jspdf';
 import { ComplianceReport } from '@/utils/types';
 import { SupportedLanguage, translate } from '@/utils/language';
+import { getScoreColor } from '../utils/colorUtils';
 
 /**
  * Render the compliance issues section in the PDF
