@@ -5,11 +5,14 @@ import { Button } from '@/components/ui/button';
 import { getUserHistoricalReports } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
 import { ComplianceReport } from '@/utils/types';
+import DocumentPreview from '@/components/document-analysis/DocumentPreview';
 
 const RecentScans = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [recentScans, setRecentScans] = useState<ComplianceReport[]>([]);
+  const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
+  const [previewOpen, setPreviewOpen] = useState<boolean>(false);
   
   useEffect(() => {
     const loadRecentScans = () => {
@@ -35,6 +38,11 @@ const RecentScans = () => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toISOString().split('T')[0];
   };
+  
+  const handleViewClick = (report: ComplianceReport) => {
+    setSelectedReport(report);
+    setPreviewOpen(true);
+  };
 
   return (
     <div className="space-y-4">
@@ -42,8 +50,7 @@ const RecentScans = () => {
         recentScans.map((scan) => (
           <div 
             key={scan.documentId}
-            className="flex justify-between items-center p-3 border rounded-md hover:bg-slate-50 cursor-pointer"
-            onClick={() => navigate(`/document-analysis?id=${scan.documentId}`)}
+            className="flex justify-between items-center p-3 border rounded-md hover:bg-slate-50"
           >
             <div>
               <p className="font-medium">{scan.documentName}</p>
@@ -65,7 +72,7 @@ const RecentScans = () => {
                 className="text-primary"
                 onClick={(e) => {
                   e.stopPropagation();
-                  navigate(`/document-analysis?id=${scan.documentId}`);
+                  handleViewClick(scan);
                 }}
               >
                 View
@@ -97,6 +104,13 @@ const RecentScans = () => {
           View All Scans
         </Button>
       )}
+      
+      {/* Document Preview Dialog */}
+      <DocumentPreview 
+        report={selectedReport} 
+        isOpen={previewOpen} 
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   );
 };
