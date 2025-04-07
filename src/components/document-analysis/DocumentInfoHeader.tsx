@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText, Download, Eye } from 'lucide-react';
+import { FileText, Download, Eye, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ComplianceReport } from '@/utils/types';
 
@@ -39,7 +39,7 @@ const DocumentInfoHeader: React.FC<DocumentInfoHeaderProps> = ({
         >
           {isGeneratingPDF ? (
             <>
-              <span className="animate-spin mr-2">⏳</span> Generating PDF...
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating PDF...
             </>
           ) : (
             <>

@@ -1,21 +1,26 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { ComplianceReport } from '@/utils/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ComplianceScoreCards from './ComplianceScoreCards';
 import RiskAnalysis from '@/components/RiskAnalysis';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, Eye, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateReportPDF } from '@/utils/reportService';
+import DocumentPreview from '@/components/document-analysis/DocumentPreview';
 
 interface ComplianceDetailsProps {
   report: ComplianceReport;
 }
 
 const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  
   const handleDownloadReport = async () => {
     try {
+      setIsDownloading(true);
       toast.info(`Preparing download for "${report.documentName}"...`);
       
       const result = await generateReportPDF(report, 'en');
@@ -40,6 +45,8 @@ const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report }) => {
     } catch (error) {
       console.error('Error downloading report:', error);
       toast.error('Failed to download the report. Please try again.');
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -66,10 +73,29 @@ const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report }) => {
               variant="outline"
               size="sm"
               className="flex items-center gap-2"
-              onClick={handleDownloadReport}
+              onClick={() => setPreviewOpen(true)}
             >
-              <Download className="h-4 w-4" />
-              Download Report
+              <Eye className="h-4 w-4" />
+              Preview
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+              onClick={handleDownloadReport}
+              disabled={isDownloading}
+            >
+              {isDownloading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4" />
+                  Download Report
+                </>
+              )}
             </Button>
             <span className={
               report.overallScore >= 80 ? 'text-green-500' : 
@@ -90,6 +116,13 @@ const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report }) => {
         />
         <RiskAnalysis risks={report.risks} />
       </CardContent>
+
+      {/* Document Preview Modal */}
+      <DocumentPreview
+        report={report}
+        isOpen={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
     </Card>
   );
 };

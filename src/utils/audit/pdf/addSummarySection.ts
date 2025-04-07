@@ -42,4 +42,4 @@ export const addSummarySection = (
   yPos = addStatisticsSection(doc, stats, findings, yPos);
   
   return yPos;
-};
+}

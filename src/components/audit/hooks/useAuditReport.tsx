@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { generatePDFReport, getAuditReportFileName } from '@/utils/audit';
+import { generateAuditReport, getAuditReportFileName } from '@/utils/auditReportService';
 import { AuditEvent } from '../types';
 import { toast } from 'sonner';
 import { Industry } from '@/utils/types';
@@ -19,7 +19,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       console.log(`[useAuditReport] Industry explicitly selected: ${industry || 'not specified'}`);
       
       // Make sure we're using the industry from props first, before trying to detect it
-      const reportBlob = await generatePDFReport(documentName, auditEvents, industry);
+      const reportBlob = await generateAuditReport(documentName, auditEvents, industry);
       
       // Create download link
       const url = window.URL.createObjectURL(reportBlob);
