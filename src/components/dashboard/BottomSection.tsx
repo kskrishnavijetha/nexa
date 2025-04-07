@@ -1,13 +1,28 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import RiskSummary from '@/components/dashboard/RiskSummary';
 import UpcomingDeadlines from '@/components/dashboard/UpcomingDeadlines';
 import { Clock, ShieldAlert } from 'lucide-react';
 import { ComplianceReport } from '@/utils/types';
+import { useAuth } from '@/contexts/AuthContext';
+import { getUserHistoricalReports } from '@/utils/historyService';
 
 const BottomSection: React.FC = () => {
+  const { user } = useAuth();
   const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
+  const [hasReports, setHasReports] = useState<boolean>(false);
+  
+  useEffect(() => {
+    // Load most recent report for initial display
+    if (user?.id) {
+      const userReports = getUserHistoricalReports(user.id);
+      if (userReports.length > 0) {
+        setSelectedReport(userReports[0]);
+        setHasReports(true);
+      }
+    }
+  }, [user]);
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -18,7 +33,7 @@ const BottomSection: React.FC = () => {
             <CardDescription>
               {selectedReport 
                 ? `Risks for document: ${selectedReport.documentName}` 
-                : 'Breakdown of compliance risks by category'}
+                : hasReports ? 'Breakdown of compliance risks by category' : 'No risks data available'}
             </CardDescription>
           </div>
           <ShieldAlert className="h-4 w-4 text-muted-foreground" />

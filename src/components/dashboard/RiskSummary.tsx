@@ -37,9 +37,12 @@ const RiskSummary = ({ selectedReport }: RiskSummaryProps) => {
   const [categoryData, setCategoryData] = useState<RiskCategory[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
   const [risks, setRisks] = useState<ComplianceRisk[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
   
   useEffect(() => {
     const calculateRiskDistribution = () => {
+      setLoading(true);
+      
       if (selectedReport) {
         // Use the selected report's risks
         const risks = selectedReport.risks;
@@ -124,7 +127,7 @@ const RiskSummary = ({ selectedReport }: RiskSummaryProps) => {
               category,
               count,
               color: categoryColors[index % categoryColors.length]
-            }));
+            })).sort((a, b) => b.count - a.count);
             
             setCategoryData(categories);
           }
@@ -135,16 +138,24 @@ const RiskSummary = ({ selectedReport }: RiskSummaryProps) => {
           // Sort by severity (high first)
           const sortedRisks = allRisks.sort((a, b) => {
             const severityValue = { high: 3, medium: 2, low: 1 };
-            return (severityValue[b.severity] || 0) - (severityValue[a.severity] || 0);
+            return (severityValue[b.severity as keyof typeof severityValue] || 0) - 
+                   (severityValue[a.severity as keyof typeof severityValue] || 0);
           });
           
           // Limit to top 5 risks
           setRisks(sortedRisks.slice(0, 5));
         }
       }
+      
+      setLoading(false);
     };
     
     calculateRiskDistribution();
+    
+    // Set up a timer to periodically update the risk distribution
+    const timer = setInterval(calculateRiskDistribution, 30000); // 30 seconds
+    
+    return () => clearInterval(timer);
   }, [user, selectedReport]);
 
   const onPieEnter = (_: any, index: number) => {
@@ -200,7 +211,14 @@ const RiskSummary = ({ selectedReport }: RiskSummaryProps) => {
   
   return (
     <div className="h-full flex flex-col">
-      {hasRiskData ? (
+      {loading ? (
+        <div className="flex items-center justify-center h-full">
+          <div className="animate-pulse text-center">
+            <div className="h-32 w-32 mx-auto rounded-full bg-slate-200 mb-4"></div>
+            <div className="h-4 w-24 mx-auto bg-slate-200 rounded"></div>
+          </div>
+        </div>
+      ) : hasRiskData ? (
         selectedReport ? (
           <div className="flex flex-col h-full">
             <div className="mb-3 text-sm font-medium">
@@ -212,7 +230,7 @@ const RiskSummary = ({ selectedReport }: RiskSummaryProps) => {
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={riskData}
+                        data={riskData.filter(item => item.value > 0)}
                         cx="50%"
                         cy="50%"
                         innerRadius={45}
@@ -237,6 +255,11 @@ const RiskSummary = ({ selectedReport }: RiskSummaryProps) => {
                         verticalAlign="middle" 
                         align="right"
                         formatter={(value) => <span className="text-xs">{value}</span>}
+                      />
+                      <Tooltip 
+                        formatter={(value) => [`${value} issues`, '']}
+                        contentStyle={{ backgroundColor: 'white', borderRadius: '4px', border: '1px solid #e2e8f0' }}
+                        labelStyle={{ display: 'none' }}
                       />
                     </PieChart>
                   </ResponsiveContainer>
@@ -282,7 +305,7 @@ const RiskSummary = ({ selectedReport }: RiskSummaryProps) => {
                             variant="outline" 
                             size="sm" 
                             className="h-7 text-xs"
-                            onClick={() => navigate('/document-analysis')}
+                            onClick={() => navigate('/history?document=' + encodeURIComponent(selectedReport.documentName))}
                           >
                             Review
                           </Button>
@@ -303,7 +326,7 @@ const RiskSummary = ({ selectedReport }: RiskSummaryProps) => {
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={riskData}
+                    data={riskData.filter(item => item.value > 0)}
                     cx="50%"
                     cy="50%"
                     innerRadius={55}
@@ -314,6 +337,8 @@ const RiskSummary = ({ selectedReport }: RiskSummaryProps) => {
                     activeShape={renderActiveShape}
                     onMouseEnter={onPieEnter}
                     onMouseLeave={onPieLeave}
+                    label={({name, value}) => `${name}: ${value}`}
+                    labelLine={false}
                   >
                     {riskData.map((entry, index) => (
                       <Cell 
@@ -368,7 +393,7 @@ const RiskSummary = ({ selectedReport }: RiskSummaryProps) => {
                             variant="outline" 
                             size="sm" 
                             className="h-7 text-xs"
-                            onClick={() => navigate('/document-analysis')}
+                            onClick={() => navigate('/history')}
                           >
                             Review
                           </Button>

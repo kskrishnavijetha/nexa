@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Check, Clock, AlertCircle, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getUserHistoricalReports } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 interface ActionItem {
   id: string;
@@ -18,6 +20,7 @@ interface ActionItem {
 
 const ActionItems = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [actionItems, setActionItems] = useState<ActionItem[]>([]);
   
   useEffect(() => {
@@ -68,6 +71,13 @@ const ActionItems = () => {
     };
     
     generateActionItems();
+    
+    // Set up interval for real-time updates
+    const interval = setInterval(() => {
+      generateActionItems();
+    }, 30000); // Update every 30 seconds
+    
+    return () => clearInterval(interval);
   }, [user]);
 
   const handleResolve = (id: string) => {
@@ -103,6 +113,11 @@ const ActionItems = () => {
       default:
         return <Clock className="h-4 w-4 text-blue-500" />;
     }
+  };
+  
+  const handleViewAll = () => {
+    navigate('/history?tab=audit'); // Navigate to audit tab in history page
+    toast.info("Viewing all action items");
   };
 
   return (
@@ -189,6 +204,7 @@ const ActionItems = () => {
           variant="outline" 
           size="sm" 
           className="w-full flex items-center justify-center"
+          onClick={handleViewAll}
         >
           <span>View All Action Items</span>
           <ExternalLink className="ml-1 h-3 w-3" />
