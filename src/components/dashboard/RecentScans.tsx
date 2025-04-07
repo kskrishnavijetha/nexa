@@ -6,7 +6,14 @@ import { getUserHistoricalReports } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
 import { ComplianceReport } from '@/utils/types';
 import DocumentPreview from '@/components/document-analysis/DocumentPreview';
-import { Eye } from 'lucide-react';
+import { Eye, ChevronRight } from 'lucide-react';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 // Create a context to manage the selected report
 const SelectedReportContext = React.createContext<{
@@ -35,9 +42,11 @@ const RecentScans = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [recentScans, setRecentScans] = useState<ComplianceReport[]>([]);
+  const [allScans, setAllScans] = useState<ComplianceReport[]>([]);
   const { setSelectedReport } = useSelectedReport();
   const [previewOpen, setPreviewOpen] = useState<boolean>(false);
   const [currentPreviewReport, setCurrentPreviewReport] = useState<ComplianceReport | null>(null);
+  const [showAllScans, setShowAllScans] = useState<boolean>(false);
   
   useEffect(() => {
     const loadRecentScans = () => {
@@ -45,14 +54,18 @@ const RecentScans = () => {
         // Get user's historical reports
         const userReports = getUserHistoricalReports(user.id);
         
-        // Sort by timestamp (most recent first) and take top 3
+        // Sort by timestamp (most recent first)
         const sortedReports = [...userReports].sort((a, b) => {
           const dateA = new Date(a.timestamp || '').getTime();
           const dateB = new Date(b.timestamp || '').getTime();
           return dateB - dateA;
-        }).slice(0, 3);
+        });
+
+        // Set recent scans (top 3)
+        setRecentScans(sortedReports.slice(0, 3));
         
-        setRecentScans(sortedReports);
+        // Set all scans for the sidebar drawer
+        setAllScans(sortedReports);
       }
     };
     
@@ -89,11 +102,82 @@ const RecentScans = () => {
     
     // Also open the preview dialog
     setPreviewOpen(true);
+
+    // Navigate to compliance tab to show details
+    const complianceTabTrigger = document.querySelector('[data-value="compliance"]');
+    if (complianceTabTrigger && complianceTabTrigger instanceof HTMLElement) {
+      complianceTabTrigger.click();
+    }
+  };
+
+  const handleViewAllClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setShowAllScans(true);
+  };
+
+  const handleSelectScan = (report: ComplianceReport) => {
+    setSelectedReport(report);
+    setShowAllScans(false);
+    
+    // Navigate to compliance tab to show details
+    const complianceTabTrigger = document.querySelector('[data-value="compliance"]');
+    if (complianceTabTrigger && complianceTabTrigger instanceof HTMLElement) {
+      complianceTabTrigger.click();
+    }
   };
 
   return (
     <div className="space-y-4">
-      <h3 className="font-medium text-lg">Recent Scans</h3>
+      <div className="flex justify-between items-center">
+        <h3 className="font-medium text-lg">Recent Scans</h3>
+        
+        <Sheet open={showAllScans} onOpenChange={setShowAllScans}>
+          <SheetTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={handleViewAllClick}
+            >
+              View All
+            </Button>
+          </SheetTrigger>
+          <SheetContent>
+            <SheetHeader>
+              <SheetTitle>All Document Scans</SheetTitle>
+            </SheetHeader>
+            <div className="py-4 space-y-2">
+              {allScans.length > 0 ? (
+                allScans.map((scan) => (
+                  <div 
+                    key={scan.documentId}
+                    className="flex justify-between items-center p-3 border rounded-md hover:bg-slate-50 cursor-pointer"
+                    onClick={() => handleSelectScan(scan)}
+                  >
+                    <div>
+                      <p className="font-medium">{scan.documentName}</p>
+                      <p className="text-sm text-muted-foreground">{formatDate(scan.timestamp)}</p>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="mr-4">
+                        <span className={`font-medium ${
+                          scan.overallScore >= 90 ? 'text-green-600' : 
+                          scan.overallScore >= 75 ? 'text-amber-600' : 
+                          'text-red-600'
+                        }`}>
+                          {scan.overallScore}%
+                        </span>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-muted-foreground py-8">No scan history available.</p>
+              )}
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
       
       {recentScans.length > 0 ? (
         recentScans.map((scan) => (
@@ -143,17 +227,6 @@ const RecentScans = () => {
             Perform your first scan
           </Button>
         </div>
-      )}
-      
-      {recentScans.length > 0 && (
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="w-full"
-          onClick={() => navigate('/history')}
-        >
-          View All Scans
-        </Button>
       )}
       
       {/* Document Preview Dialog */}
