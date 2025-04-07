@@ -7,7 +7,7 @@ import RiskAnalysis from '@/components/RiskAnalysis';
 import { Button } from '@/components/ui/button';
 import { Download, Eye, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { generateReportPDF } from '@/utils/reportService';
+import { generateReportPDF } from '@/utils/reports';
 import DocumentPreview from '@/components/document-analysis/DocumentPreview';
 
 interface ComplianceDetailsProps {

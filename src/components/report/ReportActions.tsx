@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Download, Send, Eye, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ComplianceReport } from '@/utils/apiService';
-import { generateReportPDF } from '@/utils/reportService';
+import { generateReportPDF } from '@/utils/reports';
 import { SupportedLanguage } from '@/utils/language';
 import DocumentPreview from '@/components/document-analysis/DocumentPreview';
 
