@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { FileDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,7 +29,9 @@ const AuditExportMenu: React.FC<AuditExportMenuProps> = ({
   
   const handleExport = (format: AuditExportFormat) => {
     try {
+      toast.info(`Exporting audit logs as ${format.toUpperCase()}...`);
       exportAuditLogs(format);
+      toast.success(`Audit logs exported as ${format.toUpperCase()}`);
     } catch (error) {
       console.error('Error exporting audit logs:', error);
       toast.error(`Failed to export as ${format.toUpperCase()}`);
@@ -40,7 +42,7 @@ const AuditExportMenu: React.FC<AuditExportMenuProps> = ({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant={variant} size={size} className="flex gap-2 items-center">
-          <Download className="h-4 w-4" />
+          <FileDown className="h-4 w-4" />
           {label}
         </Button>
       </DropdownMenuTrigger>
@@ -48,13 +50,13 @@ const AuditExportMenu: React.FC<AuditExportMenuProps> = ({
         <DropdownMenuLabel>Export Format</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => handleExport('pdf')}>
-          PDF Format
+          PDF Report
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleExport('csv')}>
           CSV Spreadsheet
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => handleExport('json')}>
-          JSON Format
+          JSON Data
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

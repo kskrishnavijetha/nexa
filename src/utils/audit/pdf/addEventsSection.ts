@@ -13,16 +13,16 @@ export const addEventsSection = (
   let yPos = startY;
   
   // Add section header
-  doc.setFontSize(14);
+  doc.setFontSize(16);
   doc.setTextColor(0, 51, 102);
   doc.text('Audit Events Log', 20, yPos);
   yPos += 10;
   
   // Add description
-  doc.setFontSize(10);
+  doc.setFontSize(11);
   doc.setTextColor(0, 0, 0);
-  doc.text('Complete log of all recorded audit events in chronological order:', 25, yPos);
-  yPos += 7;
+  doc.text('Complete log of all recorded audit events in chronological order:', 20, yPos);
+  yPos += 12;
   
   // Add event entries with pagination awareness
   const eventsPerPage = 8; // Limit events per page to avoid overflow
@@ -41,7 +41,7 @@ export const addEventsSection = (
       yPos = 20;
       
       // Repeat section header on new page
-      doc.setFontSize(14);
+      doc.setFontSize(16);
       doc.setTextColor(0, 51, 102);
       doc.text('Audit Events Log (Continued)', 20, yPos);
       yPos += 10;
@@ -50,51 +50,30 @@ export const addEventsSection = (
     // Format date
     const eventDate = new Date(event.timestamp).toLocaleString();
     
-    // Add event entry - Using 'action' instead of 'eventType'
-    doc.setFontSize(10);
+    // Add event entry with numbering and formatted timestamp
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.setTextColor(0, 0, 0);
-    doc.text(`${i + 1}. ${eventDate} - ${event.action}`, 25, yPos);
-    yPos += 6;
+    doc.text(`${i + 1}. ${eventDate} - ${event.action}`, 20, yPos);
+    yPos += 7;
     
-    // Add event description - Since there's no direct 'description' property, we'll use action as a fallback
-    // or create a descriptive text from other properties
+    // Add document name and status
     doc.setFont('helvetica', 'normal');
-    let description = '';
+    let statusText = event.status ? `Status: ${event.status}` : '';
+    doc.text(`Document: ${event.documentName || ''} - ${statusText}`, 25, yPos);
+    yPos += 7;
     
-    // Check if there's a documentName to include
-    if (event.documentName) {
-      description = `Document: ${event.documentName}`;
-      if (event.status) {
-        description += ` - Status: ${event.status}`;
-      }
-    } else {
-      description = event.action; // Use action as fallback description
-    }
-    
-    if (description.length > 100) {
-      description = description.substring(0, 97) + '...';
-    }
-    
-    const descriptionLines = doc.splitTextToSize(description, 160);
-    doc.text(descriptionLines, 30, yPos);
-    
-    // Adjust yPos based on number of lines
-    yPos += Math.max(6, descriptionLines.length * 5);
-    
-    // Add user info if available
-    if (event.user) {
-      doc.setFont('helvetica', 'italic');
-      doc.setTextColor(100, 100, 100);
-      doc.text(`User: ${event.user}`, 30, yPos);
-      yPos += 6;
-    }
+    // Add user info
+    doc.setFont('helvetica', 'italic');
+    doc.setTextColor(100, 100, 100);
+    doc.text(`User: ${event.user}`, 25, yPos);
+    yPos += 10;
     
     // Add separator except for last item
     if (i < recentEvents.length - 1) {
       doc.setDrawColor(230, 230, 230);
       doc.setLineWidth(0.1);
-      doc.line(25, yPos, 185, yPos);
+      doc.line(25, yPos - 4, 185, yPos - 4);
       yPos += 6;
     }
   }

@@ -75,7 +75,7 @@ export const exportAuditLogsAsPDF = (
   documentName: string,
   auditEvents: AuditEvent[]
 ): void => {
-  // Create PDF with a slightly larger page size (a4+ format)
+  // Create PDF with a slightly larger page size (a4 format)
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -92,77 +92,85 @@ export const exportAuditLogsAsPDF = (
   });
   
   // Add title
-  pdf.setFontSize(16);
+  pdf.setFontSize(24);
   pdf.setTextColor(0, 51, 102);
-  pdf.text(`Audit Logs: ${documentName}`, 20, 20);
+  pdf.text(`Audit Logs Report`, 20, 20);
+  
+  // Add document name
+  pdf.setFontSize(14);
+  pdf.setTextColor(0, 0, 0);
+  pdf.text(`Document: ${documentName}`, 20, 35);
   
   // Add timestamp
-  pdf.setFontSize(10);
+  const currentDate = new Date();
+  const formattedDateTime = `${currentDate.toLocaleDateString()} at ${currentDate.toLocaleTimeString()}`;
+  pdf.setFontSize(11);
   pdf.setTextColor(100, 100, 100);
-  pdf.text(`Generated: ${new Date().toLocaleString()}`, 20, 30);
+  pdf.text(`Generated on: ${formattedDateTime}`, 20, 45);
+  
+  // Add total events count
+  pdf.text(`Total events: ${auditEvents.length}`, 20, 53);
   
   // Add horizontal line
   pdf.setDrawColor(200, 200, 200);
   pdf.setLineWidth(0.2);
-  pdf.line(20, 35, 190, 35);
+  pdf.line(20, 60, 190, 60);
   
-  // Add logs
-  let yPos = 45;
-  pdf.setFontSize(10);
+  // Add Audit Events Log header
+  pdf.setFontSize(16);
+  pdf.setTextColor(0, 51, 102);
+  pdf.text('Audit Events Log', 20, 70);
+  
+  // Add description
+  pdf.setFontSize(11);
   pdf.setTextColor(0, 0, 0);
-  
-  // Column headers
-  pdf.setFont(undefined, 'bold');
-  pdf.text('Timestamp', 20, yPos);
-  pdf.text('Action', 70, yPos);
-  pdf.text('User', 130, yPos);
-  pdf.text('Status', 175, yPos);
-  pdf.setFont(undefined, 'normal');
-  yPos += 10;
+  pdf.text('Complete log of all recorded audit events in chronological order:', 20, 80);
   
   // Sort events by timestamp (newest first)
   const sortedEvents = [...auditEvents].sort((a, b) => 
     new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
   
-  // Add each event as a row
+  // Add each event as a section
+  let yPos = 90;
   sortedEvents.forEach((event, index) => {
     // Check if we need a new page
-    if (yPos > 270) {
+    if (yPos > 250) {
       pdf.addPage();
       yPos = 20;
     }
     
     // Format timestamp
     const date = new Date(event.timestamp);
-    const timestamp = `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+    const timestamp = `${date.toLocaleDateString()}, ${date.toLocaleTimeString()}`;
     
-    // Add alternating row background
-    if (index % 2 === 1) {
-      pdf.setFillColor(240, 240, 240);
-      pdf.rect(20, yPos - 5, 170, 8, 'F');
-    }
-    
-    // Add row data
-    pdf.text(timestamp, 20, yPos);
-    pdf.text(truncateText(event.action, 12), 70, yPos);
-    pdf.text(truncateText(event.user, 9), 130, yPos);
-    
-    // Status with color
-    const statusColor = event.status === 'completed' 
-      ? [0, 128, 0] 
-      : event.status === 'in-progress' 
-      ? [0, 0, 255] 
-      : [128, 128, 128];
-    
-    pdf.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
-    pdf.text(event.status, 175, yPos);
+    // Event number and timestamp
+    pdf.setFontSize(11);
+    pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(0, 0, 0);
+    pdf.text(`${index + 1}. ${timestamp} - ${event.action}`, 20, yPos);
+    yPos += 7;
     
-    yPos += 8;
+    // Document name and status
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Document: ${documentName} - Status: ${event.status || 'N/A'}`, 25, yPos);
+    yPos += 7;
+    
+    // User info
+    pdf.setFontSize(10);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text(`User: ${event.user}`, 25, yPos);
+    yPos += 12;
+    
+    // Add separator except for last item
+    if (index < sortedEvents.length - 1) {
+      pdf.setDrawColor(230, 230, 230);
+      pdf.setLineWidth(0.1);
+      pdf.line(20, yPos - 6, 190, yPos - 6);
+    }
   });
   
-  // Add footer
+  // Add footer with page numbers
   addFooter(pdf);
   
   // Save the PDF
@@ -173,15 +181,6 @@ export const exportAuditLogsAsPDF = (
   
   pdf.save(fileName);
 };
-
-// Helper function to truncate text to fit in columns
-function truncateText(text: string, maxWords: number): string {
-  const words = text.split(' ');
-  if (words.length <= maxWords) {
-    return text;
-  }
-  return words.slice(0, maxWords).join(' ') + '...';
-}
 
 /**
  * Export audit logs in the specified format

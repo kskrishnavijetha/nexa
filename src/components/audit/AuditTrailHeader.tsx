@@ -2,7 +2,7 @@
 import React from 'react';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { FileDown, Download } from 'lucide-react';
+import { FileDown, Download, FileText } from 'lucide-react';
 import { useAuditTrail } from './AuditTrailProvider';
 import { formatTimestamp } from './auditUtils';
 import AuditExportMenu from './AuditExportMenu';
@@ -20,7 +20,7 @@ interface AuditTrailHeaderProps {
 }
 
 const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => {
-  const { auditEvents, isGeneratingReport, downloadAuditReport } = useAuditTrail();
+  const { auditEvents, isGeneratingReport, downloadAuditReport, exportAuditLogs } = useAuditTrail();
   const lastActivityTimestamp = auditEvents.length > 0 ? auditEvents[0].timestamp : null;
 
   return (
@@ -37,7 +37,7 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="default" size="sm" className="flex gap-2 items-center" disabled={isGeneratingReport}>
-              <FileDown className="h-4 w-4" />
+              <FileText className="h-4 w-4" />
               {isGeneratingReport ? 'Generating...' : 'Download Reports'}
             </Button>
           </DropdownMenuTrigger>
@@ -47,7 +47,7 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
             <DropdownMenuItem onClick={downloadAuditReport}>
               Full Audit Trail Report
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => useAuditTrail().exportAuditLogs('pdf')}>
+            <DropdownMenuItem onClick={() => exportAuditLogs('pdf')}>
               Audit Logs Report
             </DropdownMenuItem>
           </DropdownMenuContent>
