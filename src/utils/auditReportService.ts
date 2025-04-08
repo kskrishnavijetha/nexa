@@ -1,6 +1,6 @@
 
 import { AuditEvent } from '@/components/audit/types';
-import { generatePDFReport, getAuditReportFileName as getFileName } from './audit';
+import { generatePDFReport, generateLogReport, getAuditReportFileName as getFileName } from './audit';
 import { Industry } from '@/utils/types';
 
 /**
@@ -22,6 +22,23 @@ export const generateAuditReport = async (
     return await generatePDFReport(documentName, auditEvents, industry, complianceScore, complianceStatus);
   } catch (error) {
     console.error('Error generating PDF report:', error);
+    throw error;
+  }
+};
+
+/**
+ * Generate a downloadable audit logs report PDF (simplified, without AI insights)
+ */
+export const generateAuditLogReport = async (
+  documentName: string,
+  auditEvents: AuditEvent[]
+): Promise<Blob> => {
+  try {
+    console.log(`Generating audit logs report for ${documentName} with ${auditEvents.length} events`);
+    
+    return await generateLogReport(documentName, auditEvents);
+  } catch (error) {
+    console.error('Error generating logs report:', error);
     throw error;
   }
 };

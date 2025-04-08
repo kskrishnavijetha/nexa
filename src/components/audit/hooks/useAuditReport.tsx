@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { generateAuditReport, getAuditReportFileName } from '@/utils/auditReportService';
+import { generateAuditReport, generateAuditLogReport, getAuditReportFileName } from '@/utils/auditReportService';
 import { AuditEvent } from '../types';
 import { toast } from 'sonner';
 import { Industry } from '@/utils/types';
@@ -12,7 +12,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
     if (isGeneratingReport) return;
     
     setIsGeneratingReport(true);
-    toast.info('Generating audit report...');
+    toast.info('Generating full audit report...');
     
     try {
       console.log(`[useAuditReport] Generating report for ${documentName} with ${auditEvents.length} events`);
@@ -56,8 +56,41 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
     }
   };
 
+  const downloadAuditLogReport = async () => {
+    if (isGeneratingReport) return;
+    
+    setIsGeneratingReport(true);
+    toast.info('Generating audit logs report...');
+    
+    try {
+      console.log(`[useAuditReport] Generating logs-only report for ${documentName} with ${auditEvents.length} events`);
+      
+      // Make sure we're using the industry from props first, before trying to detect it
+      const reportBlob = await generateAuditLogReport(documentName, auditEvents);
+      
+      // Create download link
+      const url = window.URL.createObjectURL(reportBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `audit-logs-${documentName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`;
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success('Audit logs report downloaded successfully');
+    } catch (error) {
+      console.error('[useAuditReport] Error generating logs report:', error);
+      toast.error('Failed to generate audit logs report');
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
   return {
     isGeneratingReport,
-    downloadAuditReport
+    downloadAuditReport,
+    downloadAuditLogReport
   };
 }

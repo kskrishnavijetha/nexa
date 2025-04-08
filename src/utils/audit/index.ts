@@ -1,5 +1,6 @@
 
 export { generatePDFReport } from './pdfGenerator';
+export { generateLogReport } from './logPdfGenerator';
 export { getAuditReportFileName } from './fileUtils';
 export { generateAIInsights } from './insights';
 export { calculateReportStatistics } from './reportStatistics';
