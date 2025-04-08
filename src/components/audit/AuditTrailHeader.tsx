@@ -6,13 +6,14 @@ import { Download, RefreshCw } from 'lucide-react';
 import { useAuditTrail } from './AuditTrailProvider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
+import { getScoreColor } from '@/utils/reports';
 
 interface AuditTrailHeaderProps {
   documentName: string;
 }
 
 const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => {
-  const { auditEvents, isGeneratingReport, downloadAuditReport, setLastActivity } = useAuditTrail();
+  const { auditEvents, isGeneratingReport, downloadAuditReport, setLastActivity, industry } = useAuditTrail();
 
   const handleRefresh = () => {
     // Just update the last activity timestamp to trigger new events
@@ -20,12 +21,32 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
     setLastActivity(new Date());
   };
 
+  // Calculate compliance score based on audit events
+  const calculateComplianceScore = (): number => {
+    if (auditEvents.length === 0) return 100;
+    
+    const completedEvents = auditEvents.filter(event => event.status === 'completed').length;
+    const totalEvents = auditEvents.length;
+    
+    return Math.round((completedEvents / totalEvents) * 100);
+  };
+
+  const complianceScore = calculateComplianceScore();
+  const scoreColorClass = getScoreColor(complianceScore);
+
   return (
     <CardHeader className="flex flex-col space-y-2 md:flex-row md:justify-between md:items-center md:space-y-0">
       <div>
-        <CardTitle className="text-xl font-semibold">Audit Trail</CardTitle>
+        <CardTitle className="text-xl font-semibold flex items-center gap-3">
+          Audit Trail
+          <div className="flex items-center gap-2 ml-3 bg-slate-50 px-3 py-1 rounded-md border">
+            <span className="text-sm text-slate-500">Overall Score:</span>
+            <span className={`font-bold ${scoreColorClass}`}>{complianceScore}%</span>
+          </div>
+        </CardTitle>
         <CardDescription className="flex items-center mt-1">
           Compliance tracking for {documentName}
+          {industry && <span className="ml-1 text-blue-600">({industry})</span>}
           <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200">
             {auditEvents.length} events
           </Badge>
