@@ -1,4 +1,3 @@
-
 export interface AIInsight {
   text: string;
   type: 'info' | 'warning' | 'success' | 'observation' | 'recommendation';
