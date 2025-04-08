@@ -3,7 +3,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuditTrail } from './AuditTrailProvider';
 import { formatTimestamp } from './auditUtils';
-import { File, Eye, ArrowRight, FileJson, FileCsv, FilePdf } from 'lucide-react';
+import { File, Eye, ArrowRight, FileJson, FileText, FileDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
   DropdownMenu, 
@@ -53,11 +53,11 @@ const AuditLogs: React.FC = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent>
             <DropdownMenuItem onClick={() => handleExport('pdf')}>
-              <FilePdf className="mr-2 h-4 w-4" />
+              <FileDown className="mr-2 h-4 w-4" />
               <span>Export as PDF</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleExport('csv')}>
-              <FileCsv className="mr-2 h-4 w-4" />
+              <FileText className="mr-2 h-4 w-4" />
               <span>Export as CSV</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleExport('json')}>
