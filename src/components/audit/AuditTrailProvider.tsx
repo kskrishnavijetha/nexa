@@ -8,6 +8,7 @@ import { AuditEvent } from './types';
 import { Industry } from '@/utils/types';
 import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
+import { getAuditReportFileName } from '@/utils/auditReportService';
 
 interface AuditTrailProviderProps {
   documentName: string;
@@ -41,7 +42,13 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
     try {
       const jsonData = JSON.stringify(auditEvents, null, 2);
       const blob = new Blob([jsonData], { type: 'application/json' });
-      const filename = `audit-logs-${documentName.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.json`;
+      
+      // Use consistent naming pattern based on date
+      const date = new Date();
+      const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const sanitizedDocName = documentName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+      const filename = `audit-logs-${sanitizedDocName}-${formattedDate}.json`;
+      
       saveAs(blob, filename);
       toast.success('Audit logs downloaded as JSON');
     } catch (error) {
@@ -66,7 +73,13 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
       });
       
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const filename = `audit-logs-${documentName.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.csv`;
+      
+      // Use consistent naming pattern based on date
+      const date = new Date();
+      const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      const sanitizedDocName = documentName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
+      const filename = `audit-logs-${sanitizedDocName}-${formattedDate}.csv`;
+      
       saveAs(blob, filename);
       toast.success('Audit logs downloaded as CSV');
     } catch (error) {

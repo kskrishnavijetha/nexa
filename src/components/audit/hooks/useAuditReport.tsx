@@ -26,8 +26,8 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       const link = document.createElement('a');
       link.href = url;
       
-      // Update the filename to specify "audit-logs" instead of "audit-trail"
-      link.download = `audit-logs-${documentName.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`;
+      // Use the proper filename function from auditReportService
+      link.download = getAuditReportFileName(documentName);
       
       // Trigger download
       document.body.appendChild(link);
