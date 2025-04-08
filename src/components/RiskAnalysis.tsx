@@ -2,7 +2,7 @@
 import React from 'react';
 import { ComplianceRisk } from '@/utils/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, Info, CheckCircle, Tool, ArrowRight, FileText, HelpCircle } from 'lucide-react';
+import { AlertTriangle, Info, CheckCircle, Wrench, ArrowRight, FileText, HelpCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -72,7 +72,7 @@ const RiskAnalysis: React.FC<RiskAnalysisProps> = ({ risks }) => {
                   className="flex items-center gap-1 text-xs h-7"
                   onClick={() => handleMitigationAction(risk)}
                 >
-                  <Tool className="h-3 w-3" />
+                  <Wrench className="h-3 w-3" />
                   Create Mitigation Plan
                 </Button>
                 
