@@ -9,12 +9,17 @@ import { Industry } from '@/utils/types';
 export const generateAuditReport = async (
   documentName: string,
   auditEvents: AuditEvent[],
-  industry?: Industry
+  industry?: Industry,
+  complianceScore?: number,
+  complianceStatus?: string
 ): Promise<Blob> => {
   try {
     console.log(`Generating audit report for ${documentName} with ${auditEvents.length} events`);
     console.log(`Industry for audit report: ${industry || 'not specified'}`);
-    return await generatePDFReport(documentName, auditEvents, industry);
+    console.log(`Compliance score: ${complianceScore !== undefined ? complianceScore + '%' : 'not specified'}`);
+    console.log(`Compliance status: ${complianceStatus || 'not specified'}`);
+    
+    return await generatePDFReport(documentName, auditEvents, industry, complianceScore, complianceStatus);
   } catch (error) {
     console.error('Error generating PDF report:', error);
     throw error;
