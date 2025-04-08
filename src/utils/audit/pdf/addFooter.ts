@@ -23,15 +23,8 @@ export const addFooter = (doc: jsPDF): void => {
     // Add page numbers with more space
     doc.text(`Page ${i} of ${pageCount}`, 20, footerPosition);
     
-    // Add Nexabloom branding with logo and website
+    // Add Nexabloom branding and website
     doc.setTextColor(79, 70, 229); // Indigo color for branding
-    
-    // Add small logo (N emoji as a placeholder)
-    doc.setFontSize(10);
-    doc.text('N', 95, brandingPosition);
-    
-    // Add brand name next to logo
-    doc.setFontSize(8);
     doc.text('Nexabloom', 100, brandingPosition, { align: 'center' });
     doc.text('nexabloom.xyz', 180, brandingPosition, { align: 'right' });
     
