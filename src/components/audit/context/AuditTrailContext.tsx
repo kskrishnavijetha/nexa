@@ -2,17 +2,19 @@
 import { createContext, useContext } from 'react';
 import { AuditEvent } from '../types';
 import { Industry } from '@/utils/types';
+import { AuditExportFormat } from '@/utils/audit/exportUtils';
 
 interface AuditTrailContextType {
   auditEvents: AuditEvent[];
   isLoading: boolean;
   isGeneratingReport: boolean;
   downloadAuditReport: () => void;
+  exportAuditLogs: (format: AuditExportFormat) => void;
   addAuditEvent: (event: Omit<AuditEvent, 'id' | 'timestamp'>) => void;
   updateTaskStatus: (eventId: string, status: 'pending' | 'in-progress' | 'completed') => void;
   updateAuditEvents: (events: AuditEvent[]) => void;
   setLastActivity: (date: Date) => void;
-  industry?: Industry; // Add industry to context
+  industry?: Industry;
 }
 
 const AuditTrailContext = createContext<AuditTrailContextType | undefined>(undefined);

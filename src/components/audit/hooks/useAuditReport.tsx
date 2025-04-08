@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
-import { generateAuditReport, getAuditReportFileName } from '@/utils/auditReportService';
+import { generateAuditReport, getAuditReportFileName, exportAuditLogsInFormat } from '@/utils/auditReportService';
 import { AuditEvent } from '../types';
 import { toast } from 'sonner';
 import { Industry } from '@/utils/types';
+import { AuditExportFormat } from '@/utils/audit/exportUtils';
 
 export function useAuditReport(documentName: string, auditEvents: AuditEvent[], industry?: Industry) {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
@@ -42,9 +43,21 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       setIsGeneratingReport(false);
     }
   };
+  
+  const exportAuditLogs = (format: AuditExportFormat) => {
+    try {
+      toast.info(`Exporting audit logs as ${format.toUpperCase()}...`);
+      exportAuditLogsInFormat(documentName, auditEvents, format);
+      toast.success(`Audit logs exported successfully as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error(`[useAuditReport] Error exporting logs as ${format}:`, error);
+      toast.error(`Failed to export audit logs as ${format.toUpperCase()}`);
+    }
+  };
 
   return {
     isGeneratingReport,
-    downloadAuditReport
+    downloadAuditReport,
+    exportAuditLogs
   };
 }

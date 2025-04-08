@@ -7,4 +7,5 @@ export { addExecutiveSummary } from './pdf/addExecutiveSummary';
 export { addInsightsSection } from './pdf/addInsightsSection';
 export { addSummarySection } from './pdf/addSummarySection';
 export { mapToIndustryType } from './industryUtils';
+export { exportAuditLogs, type AuditExportFormat } from './exportUtils';
 export type { AIInsight, AuditReportStatistics } from './types';

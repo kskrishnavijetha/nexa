@@ -4,6 +4,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useAuditTrail } from './AuditTrailProvider';
 import { formatTimestamp } from './auditUtils';
 import { File, Eye, ArrowRight } from 'lucide-react';
+import AuditExportMenu from './AuditExportMenu';
 
 const AuditLogs: React.FC = () => {
   const { auditEvents } = useAuditTrail();
@@ -18,7 +19,10 @@ const AuditLogs: React.FC = () => {
 
   return (
     <div className="mt-4">
-      <h3 className="text-sm font-medium mb-2">Detailed Audit Logs</h3>
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="text-sm font-medium">Detailed Audit Logs</h3>
+        <AuditExportMenu />
+      </div>
       <div className="border rounded-md overflow-hidden">
         <Table>
           <TableHeader>
