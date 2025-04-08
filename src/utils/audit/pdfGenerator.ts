@@ -7,7 +7,9 @@ import { generateAIInsights } from './insights';
 import { addExecutiveSummary } from './pdf/addExecutiveSummary';
 import { addInsightsSection } from './pdf/addInsightsSection';
 import { addSummarySection } from './pdf/addSummarySection';
+import { addEventsSection } from './pdf/addEventsSection';
 import { addFooter } from './pdf/addFooter';
+import { generateChainHash } from './logIntegrity';
 import { Industry } from '@/utils/types';
 
 /**
@@ -16,10 +18,17 @@ import { Industry } from '@/utils/types';
 export const generatePDFReport = async (
   documentName: string,
   auditEvents: AuditEvent[],
-  selectedIndustry?: Industry
+  selectedIndustry?: Industry,
+  complianceScore?: number,
+  complianceStatus?: string
 ): Promise<Blob> => {
   console.log(`[pdfGenerator] Generating PDF report for ${documentName}`);
   console.log(`[pdfGenerator] Selected industry parameter: ${selectedIndustry || 'not specified'}`);
+  console.log(`[pdfGenerator] Compliance score: ${complianceScore !== undefined ? complianceScore + '%' : 'not calculated'}`);
+  console.log(`[pdfGenerator] Compliance status: ${complianceStatus || 'not specified'}`);
+  
+  // Generate integrity hash for the events
+  const integrityHash = await generateChainHash(auditEvents);
   
   // Create PDF with a slightly larger page size (a4+ format)
   const pdf = new jsPDF({
@@ -35,11 +44,12 @@ export const generatePDFReport = async (
   pdf.setProperties({
     title: `Audit Report - ${documentName}`,
     subject: 'AI-Enhanced Compliance Report',
-    creator: 'Compliance Report Generator'
+    creator: 'Nexabloom Compliance Report Generator'
   });
   
   // Add executive summary with document info - pass the industry explicitly
-  let yPos = addExecutiveSummary(pdf, auditEvents, documentName, selectedIndustry);
+  // Also pass compliance score and status if available
+  let yPos = addExecutiveSummary(pdf, auditEvents, documentName, selectedIndustry, complianceScore, complianceStatus);
   
   // Report Statistics
   const stats = calculateReportStatistics(auditEvents);
@@ -55,10 +65,29 @@ export const generatePDFReport = async (
   // Pass document name and selected industry to allow industry-specific findings
   yPos = addSummarySection(pdf, stats, yPos + 10, documentName, selectedIndustry);
   
-  // We've removed the audit events section as requested
+  // Add a selection of events from the audit trail
+  // But only if we have enough space on the current page, otherwise start a new page
+  if (yPos > 220) {
+    pdf.addPage();
+    yPos = 20;
+  }
   
-  // Add footer with page numbers to all pages - must be last operation
-  addFooter(pdf);
+  // Add events section with proper pagination
+  yPos = addEventsSection(pdf, auditEvents, yPos + 10);
+  
+  // Add integrity verification section
+  pdf.setFontSize(14);
+  pdf.setTextColor(0, 102, 0);
+  pdf.text('Log Integrity Verification', 20, yPos);
+  
+  pdf.setFontSize(10);
+  pdf.setTextColor(0, 0, 0);
+  pdf.text(`This report's integrity is verified using SHA-256 cryptographic hashing.`, 20, yPos + 7);
+  pdf.text(`Verification Hash: ${integrityHash.substring(0, 32)}...`, 20, yPos + 14);
+  pdf.text(`Generation Timestamp: ${new Date().toISOString()}`, 20, yPos + 21);
+  
+  // Add footer with integrity hash to all pages - must be last operation
+  addFooter(pdf, integrityHash);
   
   // Return the PDF as a blob
   return pdf.output('blob');

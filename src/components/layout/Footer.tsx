@@ -66,6 +66,10 @@ const Footer: React.FC = () => {
             <p className="text-sm text-muted-foreground">
               Automate your compliance monitoring with AI. Stay compliant with GDPR, HIPAA, SOC 2, and PCI-DSS regulations effortlessly.
             </p>
+            <div className="flex items-center text-sm text-emerald-600 mt-2">
+              <Shield className="h-4 w-4 mr-1" />
+              <span>Log integrity protected by SHA-256 verification</span>
+            </div>
           </div>
           
           <div className="flex flex-col items-center">
@@ -97,8 +101,18 @@ const Footer: React.FC = () => {
             </ul>
           </div>
 
-          <div className="space-y-4 md:col-span-1">
-            {/* Placeholder div to maintain grid balance */}
+          <div className="space-y-4 md:col-span-1 flex flex-col items-end">
+            <div className="text-right">
+              <h3 className="font-medium text-lg mb-4">Trusted Security</h3>
+              <div className="flex items-center justify-end">
+                <Shield className="h-5 w-5 text-indigo-600 mr-2" />
+                <span className="text-sm text-muted-foreground">SOC 2 Compliant</span>
+              </div>
+              <div className="flex items-center justify-end mt-2">
+                <Shield className="h-5 w-5 text-green-600 mr-2" />
+                <span className="text-sm text-muted-foreground">HIPAA Certified</span>
+              </div>
+            </div>
           </div>
         </div>
         

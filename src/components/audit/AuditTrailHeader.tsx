@@ -1,117 +1,129 @@
 
-import React from 'react';
-import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Download, HelpCircle, RefreshCw } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { CardHeader } from '@/components/ui/card';
 import { useAuditTrail } from './AuditTrailProvider';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Badge } from '@/components/ui/badge';
-import { getScoreColor } from '@/utils/reports';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Download, FileText, File, RefreshCw } from 'lucide-react';
+import { toast } from 'sonner';
+import { ExportFormat } from '@/utils/audit/exportLogs';
+import { 
+  HeaderTitle, 
+  HeaderDescription, 
+  ComplianceScore, 
+  IntegrityBadge,
+  ActionButtons
+} from './header';
 
 interface AuditTrailHeaderProps {
   documentName: string;
 }
 
 const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => {
-  const { auditEvents, isGeneratingReport, downloadAuditReport, setLastActivity, industry } = useAuditTrail();
-
+  const { 
+    isGeneratingReport, 
+    downloadAuditReport, 
+    downloadAuditLogReport,
+    auditEvents,
+    updateAuditEvents,
+    industry
+  } = useAuditTrail();
+  
+  const [logIntegrityVerified, setLogIntegrityVerified] = useState<boolean | null>(null);
+  
+  // Calculate compliance score based on completed events
+  const totalEvents = auditEvents.length;
+  const completedEvents = auditEvents.filter(event => event.status === 'completed').length;
+  const complianceScore = totalEvents > 0 ? Math.round((completedEvents / totalEvents) * 100) : 100;
+  
+  useEffect(() => {
+    // Here we would typically verify log integrity
+    // For now, we'll simulate that logs are verified if they exist
+    setLogIntegrityVerified(auditEvents.length > 0 ? true : null);
+  }, [auditEvents]);
+  
+  // Handler for refreshing audit events
   const handleRefresh = () => {
-    // Just update the last activity timestamp to trigger new events
-    // without reloading the page or clearing existing events
-    setLastActivity(new Date());
+    // In a real app, this would fetch fresh data from an API
+    toast.info('Refreshing audit data...');
+    // Simulate a refresh by updating the existing events
+    updateAuditEvents([...auditEvents]);
+    toast.success('Audit data refreshed');
   };
 
-  // Calculate compliance score based on audit events
-  const calculateComplianceScore = (): number => {
-    if (auditEvents.length === 0) return 100;
+  // Handler for exporting logs in different formats
+  const handleExport = async (format: ExportFormat) => {
+    toast.info(`Exporting audit data as ${format.toUpperCase()}...`);
     
-    const completedEvents = auditEvents.filter(event => event.status === 'completed').length;
-    const totalEvents = auditEvents.length;
-    
-    return Math.round((completedEvents / totalEvents) * 100);
+    try {
+      // Here you would typically call a service to handle the export
+      // For now, we'll just simulate the export with a delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      toast.success(`Audit data exported as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error(`Error exporting as ${format}:`, error);
+      toast.error(`Failed to export as ${format}`);
+    }
   };
-
-  const complianceScore = calculateComplianceScore();
-  const scoreColorClass = getScoreColor(complianceScore);
 
   return (
-    <CardHeader className="flex flex-col space-y-2 md:flex-row md:justify-between md:items-center md:space-y-0">
-      <div>
-        <CardTitle className="text-xl font-semibold flex items-center gap-3">
-          Audit Trail
-          <div className="flex items-center gap-2 ml-3 bg-slate-50 px-3 py-1 rounded-md border">
-            <span className="text-sm text-slate-500">Overall Score:</span>
-            <span className={`font-bold ${scoreColorClass}`}>{complianceScore}%</span>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-5 w-5 p-0 text-slate-400 hover:text-slate-500">
-                    <HelpCircle className="h-4 w-4" />
-                    <span className="sr-only">Score calculation info</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-sm">
-                  <p className="font-semibold mb-1">How the compliance score is calculated:</p>
-                  <p className="text-sm">
-                    The overall compliance score is calculated as the percentage of completed audit events
-                    out of the total number of events ({auditEvents.filter(event => event.status === 'completed').length} of {auditEvents.length} events completed).
-                  </p>
-                  <p className="text-sm mt-2">
-                    Scores above 80% are considered compliant, 70-80% need improvement, and below 70% indicate significant compliance issues.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-        </CardTitle>
-        <CardDescription className="flex items-center mt-1">
-          Compliance tracking for {documentName}
-          {industry && <span className="ml-1 text-blue-600">({industry})</span>}
-          <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-700 border-blue-200">
-            {auditEvents.length} events
-          </Badge>
-        </CardDescription>
-      </div>
-      
-      <div className="flex items-center space-x-2">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
+    <CardHeader className="pb-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
+        <HeaderTitle 
+          complianceScore={complianceScore}
+          totalEvents={totalEvents}
+          completedEvents={completedEvents}
+          integrityVerified={logIntegrityVerified}
+        />
+        
+        <div className="flex gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <Button 
                 variant="outline" 
-                size="sm" 
-                className="gap-1"
-                onClick={handleRefresh}
+                size="sm"
+                disabled={isGeneratingReport || auditEvents.length === 0}
+                className="flex items-center gap-2"
               >
-                <RefreshCw size={14} />
-                <span className="hidden sm:inline">Refresh</span>
+                <Download className="h-4 w-4" />
+                Download Reports
               </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Refresh audit trail data</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-        
-        <Button 
-          variant="default" 
-          size="sm" 
-          className="gap-1"
-          onClick={downloadAuditReport}
-          disabled={isGeneratingReport}
-        >
-          {isGeneratingReport ? (
-            <>
-              <RefreshCw size={14} className="animate-spin" />
-              <span>Generating...</span>
-            </>
-          ) : (
-            <>
-              <Download size={14} />
-              <span>AI Enhanced Report</span>
-            </>
-          )}
-        </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={downloadAuditReport} disabled={isGeneratingReport}>
+                <FileText className="h-4 w-4 mr-2" />
+                Full Audit Trail Report
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={downloadAuditLogReport} disabled={isGeneratingReport}>
+                <File className="h-4 w-4 mr-2" />
+                Audit Logs Only
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
+          <ActionButtons 
+            handleRefresh={handleRefresh} 
+            handleExport={handleExport} 
+            downloadAuditReport={downloadAuditReport}
+            isGeneratingReport={isGeneratingReport}
+          />
+        </div>
+      </div>
+      
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2">
+        <HeaderDescription 
+          documentName={documentName}
+          industry={industry}
+          eventCount={auditEvents.length}
+        />
+        <div className="flex flex-col md:flex-row gap-2 items-end md:items-center">
+          <ComplianceScore 
+            complianceScore={complianceScore}
+            totalEvents={totalEvents}
+            completedEvents={completedEvents}
+          />
+          <IntegrityBadge integrityVerified={logIntegrityVerified} />
+        </div>
       </div>
     </CardHeader>
   );

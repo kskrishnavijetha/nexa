@@ -7,23 +7,27 @@ interface AuditTrailContextType {
   auditEvents: AuditEvent[];
   isLoading: boolean;
   isGeneratingReport: boolean;
-  documentName: string;
-  downloadAuditReport: () => void;
-  addAuditEvent: (event: Omit<AuditEvent, 'id' | 'timestamp'>) => void;
+  downloadAuditReport: () => Promise<void>;
+  downloadAuditLogReport: () => Promise<void>;
+  addAuditEvent: (event: Omit<AuditEvent, 'id'>) => void;
   updateTaskStatus: (eventId: string, status: 'pending' | 'in-progress' | 'completed') => void;
   updateAuditEvents: (events: AuditEvent[]) => void;
-  setLastActivity: (date: Date) => void;
-  industry?: Industry; // Add industry to context
+  setLastActivity: (activity: Date) => void;
+  industry?: Industry;
 }
 
-const AuditTrailContext = createContext<AuditTrailContextType | undefined>(undefined);
+const AuditTrailContext = createContext<AuditTrailContextType>({
+  auditEvents: [],
+  isLoading: false,
+  isGeneratingReport: false,
+  downloadAuditReport: async () => {},
+  downloadAuditLogReport: async () => {},
+  addAuditEvent: () => {},
+  updateTaskStatus: () => {},
+  updateAuditEvents: () => {},
+  setLastActivity: () => {},
+});
+
+export const useAuditTrail = () => useContext(AuditTrailContext);
 
 export default AuditTrailContext;
-
-export const useAuditTrail = () => {
-  const context = useContext(AuditTrailContext);
-  if (context === undefined) {
-    throw new Error('useAuditTrail must be used within a AuditTrailProvider');
-  }
-  return context;
-};

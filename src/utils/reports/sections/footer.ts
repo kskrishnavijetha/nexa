@@ -15,6 +15,18 @@ export const addFooter = (doc: jsPDF): void => {
     doc.text(`Page ${i} of ${pageCount}`, 105, 280, { align: 'center' });
     doc.text(`Generated on ${new Date().toLocaleDateString()}`, 190, 280, { align: 'right' });
     
+    // Add Nexabloom branding
+    doc.setTextColor(79, 70, 229); // Indigo color for branding
+    doc.text('Nexabloom', 105, 274, { align: 'center' });
+    doc.text('www.nexabloom.xyz', 190, 274, { align: 'right' });
+    
+    // Try to add logo 
+    try {
+      doc.addImage("/lovable-uploads/02ec954b-2d1e-4c5c-bfbd-f06f37b0329d.png", "PNG", 20, 270, 5, 5);
+    } catch (error) {
+      console.error("Failed to add logo to PDF:", error);
+    }
+    
     // Legal disclaimer
     doc.setFontSize(6);
     doc.setTextColor(100, 100, 100);
