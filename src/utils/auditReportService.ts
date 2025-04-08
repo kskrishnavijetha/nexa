@@ -1,7 +1,8 @@
 
 import { AuditEvent } from '@/components/audit/types';
-import { generatePDFReport, getAuditReportFileName as getFileName } from './audit';
+import { generatePDFReport } from './audit';
 import { Industry } from '@/utils/types';
+import { getAuditReportFileName as getFileName } from './audit/fileUtils';
 
 /**
  * Generate a downloadable audit logs report PDF with AI insights
