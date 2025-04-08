@@ -8,6 +8,12 @@ import { ComplianceFinding } from '../../types';
 export const createFindingsTable = (doc: jsPDF, findings: ComplianceFinding[], startY: number): number => {
   let yPos = startY;
   
+  // Check if we need to start on a new page
+  if (yPos > 220) {
+    doc.addPage();
+    yPos = 20;
+  }
+  
   // Set column headers
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
@@ -29,11 +35,35 @@ export const createFindingsTable = (doc: jsPDF, findings: ComplianceFinding[], s
   doc.setFont('helvetica', 'normal');
   
   // Add each finding row
-  findings.forEach(finding => {
-    // Check if we need a new page
-    if (yPos > 270) {
+  for (let i = 0; i < findings.length; i++) {
+    const finding = findings[i];
+    
+    // Check if we need a new page - use a lower threshold (250) to ensure room for content
+    if (yPos > 250) {
       doc.addPage();
+      
+      // Reset position for the new page
       yPos = 20;
+      
+      // Re-add column headers on the new page for readability
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(80, 80, 80);
+      
+      doc.text('Category', 20, yPos);
+      doc.text('Status', 80, yPos);
+      doc.text('Criticality', 110, yPos);
+      doc.text('Details', 150, yPos);
+      
+      // Draw header underline
+      yPos += 2;
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.2);
+      doc.line(20, yPos, 190, yPos);
+      yPos += 5;
+      
+      // Reset font
+      doc.setFont('helvetica', 'normal');
     }
     
     doc.setTextColor(0, 0, 0);
@@ -75,7 +105,7 @@ export const createFindingsTable = (doc: jsPDF, findings: ComplianceFinding[], s
     // Adjust yPos based on length of wrapped text - ensure enough space
     const textHeight = Math.max(7, detailsText.length * 5);
     yPos += textHeight;
-  });
+  }
   
   // Draw table bottom line
   doc.setDrawColor(200, 200, 200);

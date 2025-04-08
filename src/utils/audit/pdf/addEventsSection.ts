@@ -12,6 +12,12 @@ export const addEventsSection = (
 ): number => {
   let yPos = startY;
   
+  // Check if we need to start on a new page
+  if (yPos > 220) {
+    doc.addPage();
+    yPos = 20;
+  }
+  
   // Add section header
   doc.setFontSize(14);
   doc.setTextColor(0, 51, 102);
@@ -35,8 +41,9 @@ export const addEventsSection = (
   for (let i = 0; i < recentEvents.length; i++) {
     const event = recentEvents[i];
     
-    // Check if we need a new page - leave enough space for the event entry
-    if (i > 0 && i % eventsPerPage === 0 || yPos > 250) {
+    // Check if we need a new page - use a lower threshold to ensure there's enough room
+    // Also check if we've reached our events-per-page limit
+    if ((i > 0 && i % eventsPerPage === 0) || yPos > 240) {
       doc.addPage();
       yPos = 20;
       

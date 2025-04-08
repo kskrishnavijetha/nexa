@@ -52,6 +52,12 @@ export const generateLogReport = async (
   // Add events section starting at position 60
   let yPos = addEventsSection(pdf, auditEvents, 60);
   
+  // Check if we need a new page for integrity verification
+  if (yPos > 240) {
+    pdf.addPage();
+    yPos = 20;
+  }
+  
   // Add integrity verification section
   pdf.setFontSize(14);
   pdf.setTextColor(0, 102, 0);

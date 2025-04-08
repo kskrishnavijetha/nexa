@@ -18,6 +18,12 @@ export const addSummarySection = (
 ): number => {
   let yPos = startY;
   
+  // Check if we need a new page for this section
+  if (yPos > 220) {
+    doc.addPage();
+    yPos = 20;
+  }
+  
   // Add horizontal line after insights
   doc.setDrawColor(200, 200, 200);
   doc.setLineWidth(0.2);
@@ -35,8 +41,14 @@ export const addSummarySection = (
   // Create compliance findings - pass both document name and industry
   const findings = generateComplianceFindings(stats, documentName, industry);
   
-  // Create findings table
+  // Create findings table - Check for page overflow within this function
   yPos = createFindingsTable(doc, findings, yPos);
+  
+  // Check if there's enough space for the statistics section, otherwise add a page
+  if (yPos > 220) {
+    doc.addPage();
+    yPos = 20;
+  }
   
   // Add statistics section - pass just the required 3 arguments
   yPos = addStatisticsSection(doc, stats, yPos);

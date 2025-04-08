@@ -57,12 +57,30 @@ export const generatePDFReport = async (
   // Use the document name and industry to help determine the insights
   const insights: AIInsight[] = generateAIInsights(auditEvents, documentName, selectedIndustry);
   
+  // Check if we need a new page before insights section
+  if (yPos > 220) {
+    pdf.addPage();
+    yPos = 20;
+  }
+  
   // Add risk and recommendation insights section with padding
   yPos = addInsightsSection(pdf, insights, yPos + 10);
+  
+  // Check if we need a new page before summary section
+  if (yPos > 220) {
+    pdf.addPage();
+    yPos = 20;
+  }
   
   // Add summary statistics and findings section with padding
   // Pass document name and selected industry to allow industry-specific findings
   yPos = addSummarySection(pdf, stats, yPos + 10, documentName, selectedIndustry);
+  
+  // Check if we need a new page for integrity verification
+  if (yPos > 240) {
+    pdf.addPage();
+    yPos = 20;
+  }
   
   // Add integrity verification section
   pdf.setFontSize(14);

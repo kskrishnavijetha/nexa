@@ -10,6 +10,12 @@ export const addStatisticsSection = (
   statistics: AuditReportStatistics, 
   yPos: number
 ): number => {
+  // Check if we need to add a new page if the stats section is too close to the bottom
+  if (yPos > 240) {
+    doc.addPage();
+    yPos = 20;
+  }
+  
   // Set section title
   doc.setFontSize(16);
   doc.setTextColor(0, 51, 102);
