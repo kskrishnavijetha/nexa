@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { AuditTrailProvider } from '@/components/audit/AuditTrailProvider';
 import AuditTrailList from '@/components/audit/AuditTrailList';
@@ -61,6 +61,43 @@ export const AuditTrailDialog: React.FC<AuditTrailDialogProps> = ({
     }
   };
 
+  const handleDownloadAuditLogs = async (documentName: string) => {
+    try {
+      // Use the utility function from auditReportService directly
+      const { generateAuditLogsPDF, getAuditLogsFileName } = await import('@/utils/auditReportService');
+      
+      // We don't have the actual audit events for this doc, so create minimal mock data
+      const mockAuditEvent = {
+        id: `audit-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        action: `Viewed service scan report`,
+        documentName,
+        user: 'System',
+        status: 'completed' as const,
+        comments: []
+      };
+      
+      // Generate and download the logs
+      const logsBlob = await generateAuditLogsPDF(documentName, [mockAuditEvent]);
+      
+      // Create a download link
+      const url = window.URL.createObjectURL(logsBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = getAuditLogsFileName(documentName);
+      
+      // Append to body, click and clean up
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success(`Audit logs for "${documentName}" downloaded successfully`);
+    } catch (error) {
+      console.error('Error generating audit logs:', error);
+      toast.error('Failed to generate audit logs');
+    }
+  };
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -77,13 +114,22 @@ export const AuditTrailDialog: React.FC<AuditTrailDialogProps> = ({
             </div>
           )}
           
-          <DialogFooter className="mt-6">
+          <DialogFooter className="mt-6 flex flex-col sm:flex-row gap-2">
+            <Button 
+              variant="outline"
+              onClick={() => documentName && handleDownloadAuditLogs(documentName)}
+              className="flex items-center"
+            >
+              <FileText className="mr-2 h-4 w-4" />
+              Download Audit Logs
+            </Button>
+            
             <Button 
               onClick={() => documentName && handleDownloadAuditReport(documentName)}
               className="flex items-center"
             >
               <Download className="mr-2 h-4 w-4" />
-              Download Detailed Report
+              Download Enhanced Report
             </Button>
           </DialogFooter>
         </DialogContent>

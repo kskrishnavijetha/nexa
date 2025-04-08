@@ -30,14 +30,18 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
 
   const {
     isGeneratingReport,
-    downloadAuditReport
+    isGeneratingLogs,
+    downloadAuditReport,
+    downloadAuditLogs
   } = useAuditReport(documentName, auditEvents, industry);
 
   const value = {
     auditEvents,
     isLoading,
     isGeneratingReport,
+    isGeneratingLogs,
     downloadAuditReport,
+    downloadAuditLogs,
     addAuditEvent,
     updateTaskStatus,
     updateAuditEvents,

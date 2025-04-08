@@ -2,18 +2,27 @@
 import React from 'react';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, HelpCircle, RefreshCw } from 'lucide-react';
+import { Download, FileText, HelpCircle, RefreshCw } from 'lucide-react';
 import { useAuditTrail } from './AuditTrailProvider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { getScoreColor } from '@/utils/reports';
+import { Separator } from '@/components/ui/separator';
 
 interface AuditTrailHeaderProps {
   documentName: string;
 }
 
 const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => {
-  const { auditEvents, isGeneratingReport, downloadAuditReport, setLastActivity, industry } = useAuditTrail();
+  const { 
+    auditEvents, 
+    isGeneratingReport, 
+    isGeneratingLogs, 
+    downloadAuditReport, 
+    downloadAuditLogs, 
+    setLastActivity, 
+    industry 
+  } = useAuditTrail();
 
   const handleRefresh = () => {
     // Just update the last activity timestamp to trigger new events
@@ -89,6 +98,35 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
             </TooltipTrigger>
             <TooltipContent>
               <p>Refresh audit trail data</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-1"
+                onClick={downloadAuditLogs}
+                disabled={isGeneratingLogs}
+              >
+                {isGeneratingLogs ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin" />
+                    <span>Generating...</span>
+                  </>
+                ) : (
+                  <>
+                    <FileText size={14} />
+                    <span>Download Logs</span>
+                  </>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Download audit logs as PDF</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
