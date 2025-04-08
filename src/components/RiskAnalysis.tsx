@@ -2,7 +2,9 @@
 import React from 'react';
 import { ComplianceRisk } from '@/utils/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertTriangle, Info, CheckCircle } from 'lucide-react';
+import { AlertTriangle, Info, CheckCircle, Tool, ArrowRight, FileText, HelpCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 interface RiskAnalysisProps {
   risks: ComplianceRisk[];
@@ -27,10 +29,22 @@ const RiskAnalysis: React.FC<RiskAnalysisProps> = ({ risks }) => {
     }
   };
 
+  const handleMitigationAction = (risk: ComplianceRisk) => {
+    toast.success(`Mitigation plan created for: ${risk.title || risk.description.substring(0, 30)}...`);
+  };
+  
+  const handleViewRegulation = (regulation: string) => {
+    toast.info(`Opening documentation for ${regulation}`);
+  };
+
+  const handleGetHelp = (risk: ComplianceRisk) => {
+    toast.info(`Requesting expert assistance for ${risk.regulation} compliance`);
+  };
+
   const renderRiskGroup = (risksGroup: ComplianceRisk[], title: string) => (
     <div className="mb-4">
       <h4 className="font-medium text-lg mb-2 flex items-center gap-2">
-        {getSeverityIcon(risksGroup[0]?.severity || '')}
+        {risksGroup.length > 0 && getSeverityIcon(risksGroup[0]?.severity || '')}
         {title} ({risksGroup.length})
       </h4>
       {risksGroup.length > 0 ? (
@@ -49,11 +63,44 @@ const RiskAnalysis: React.FC<RiskAnalysisProps> = ({ risks }) => {
                 <span className="font-medium">{risk.regulation}</span>
                 {risk.section && ` - ${risk.section}`}
               </p>
+              
+              {/* Action Tools for Risk Mitigation */}
+              <div className="flex flex-wrap gap-2 mt-3">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex items-center gap-1 text-xs h-7"
+                  onClick={() => handleMitigationAction(risk)}
+                >
+                  <Tool className="h-3 w-3" />
+                  Create Mitigation Plan
+                </Button>
+                
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex items-center gap-1 text-xs h-7"
+                  onClick={() => handleViewRegulation(risk.regulation || '')}
+                >
+                  <FileText className="h-3 w-3" />
+                  View Regulation
+                </Button>
+                
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="flex items-center gap-1 text-xs h-7"
+                  onClick={() => handleGetHelp(risk)}
+                >
+                  <HelpCircle className="h-3 w-3" />
+                  Get Expert Help
+                </Button>
+              </div>
             </div>
           ))}
         </div>
       ) : (
-        <p className="text-muted-foreground">No {title.toLowerCase()} severity issues found.</p>
+        <p className="text-muted-foreground">No {title.toLowerCase()} issues found.</p>
       )}
     </div>
   );
