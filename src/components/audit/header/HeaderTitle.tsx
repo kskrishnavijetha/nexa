@@ -1,8 +1,6 @@
 
 import React from 'react';
 import { CardTitle } from '@/components/ui/card';
-import ComplianceScore from './ComplianceScore';
-import IntegrityBadge from './IntegrityBadge';
 
 interface HeaderTitleProps {
   complianceScore: number;
@@ -20,12 +18,22 @@ const HeaderTitle: React.FC<HeaderTitleProps> = ({
   return (
     <CardTitle className="text-xl font-semibold flex items-center gap-3">
       Audit Trail
-      <ComplianceScore 
-        complianceScore={complianceScore} 
-        totalEvents={totalEvents}
-        completedEvents={completedEvents}
-      />
-      <IntegrityBadge integrityVerified={integrityVerified} />
+      {complianceScore !== undefined && (
+        <span className={`text-sm px-2 py-0.5 rounded ${
+          complianceScore >= 80 
+            ? 'bg-green-100 text-green-700' 
+            : complianceScore >= 70 
+              ? 'bg-yellow-100 text-yellow-700' 
+              : 'bg-red-100 text-red-700'
+        }`}>
+          {complianceScore}%
+        </span>
+      )}
+      {integrityVerified === true && (
+        <span className="text-xs text-green-600 bg-green-50 px-1.5 py-0.5 rounded border border-green-200">
+          Verified
+        </span>
+      )}
     </CardTitle>
   );
 };
