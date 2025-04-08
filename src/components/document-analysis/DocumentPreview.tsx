@@ -5,6 +5,7 @@ import { ComplianceReport } from '@/utils/types';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import ComplianceDisclaimer from '@/components/report/ComplianceDisclaimer';
 
 interface DocumentPreviewProps {
   report: ComplianceReport | null;
@@ -137,6 +138,10 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                 </div>
               </>
             )}
+            
+            {/* Legal Disclaimer */}
+            <Separator />
+            <ComplianceDisclaimer compact={false} />
           </div>
         </ScrollArea>
         

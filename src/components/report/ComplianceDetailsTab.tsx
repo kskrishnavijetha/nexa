@@ -8,6 +8,7 @@ import IssuesSummary from './IssuesSummary';
 import RegulationRisks from './RegulationRisks';
 import ReportActions from './ReportActions';
 import { SupportedLanguage } from '@/utils/language';
+import ComplianceDisclaimer from './ComplianceDisclaimer';
 
 interface ComplianceDetailsTabProps {
   report: ComplianceReportType;
@@ -51,6 +52,8 @@ const ComplianceDetailsTab: React.FC<ComplianceDetailsTabProps> = ({
       </div>
       
       <ReportActions report={report} language={language} />
+      
+      <ComplianceDisclaimer language={language} />
       
       <div className="flex justify-end mt-8">
         <Button variant="outline" onClick={onClose}>
