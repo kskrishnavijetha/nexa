@@ -1,14 +1,12 @@
 
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useAuditTrail } from './context/AuditTrailContext';
+import { useAuditTrail } from './AuditTrailProvider';
 import { formatTimestamp } from './auditUtils';
-import { File, Eye, ArrowRight, Download, FileText } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { File, Eye, ArrowRight } from 'lucide-react';
 
 const AuditLogs: React.FC = () => {
-  const { auditEvents, downloadJSON, downloadCSV, downloadPDF } = useAuditTrail();
+  const { auditEvents } = useAuditTrail();
 
   if (auditEvents.length === 0) {
     return (
@@ -20,32 +18,7 @@ const AuditLogs: React.FC = () => {
 
   return (
     <div className="mt-4">
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-sm font-medium">Detailed Audit Logs</h3>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="flex items-center gap-2">
-              <Download className="h-4 w-4" />
-              Export Logs
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={downloadJSON} className="cursor-pointer">
-              <File className="mr-2 h-4 w-4" />
-              <span>Download JSON</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={downloadCSV} className="cursor-pointer">
-              <FileText className="mr-2 h-4 w-4" />
-              <span>Download CSV</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={downloadPDF} className="cursor-pointer">
-              <File className="mr-2 h-4 w-4" />
-              <span>Download PDF</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-
+      <h3 className="text-sm font-medium mb-2">Detailed Audit Logs</h3>
       <div className="border rounded-md overflow-hidden">
         <Table>
           <TableHeader>
