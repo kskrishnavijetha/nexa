@@ -1,16 +1,17 @@
 
 import React from 'react';
-import { ComplianceReport } from '@/utils/types';
+import { ComplianceReport as ComplianceReportType } from '@/utils/types';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import DocumentSelector from './DocumentSelector';
+import ComplianceReportComponent from './ComplianceReport';
 
 interface ComplianceDetailsProps {
-  selectedReport: ComplianceReport | null;
+  selectedReport: ComplianceReportType | null;
   selectedDocument: string | null;
   onDelete: () => void;
   analyzingDocument: string | null;
-  reports: ComplianceReport[];
+  reports: ComplianceReportType[];
   onDocumentSelect: (document: string) => void;
 }
 
@@ -49,7 +50,7 @@ const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({
       
       {selectedReport ? (
         <div className="grid grid-cols-1 gap-6">
-          <ComplianceReport report={selectedReport} />
+          <ComplianceReportComponent report={selectedReport} />
         </div>
       ) : (
         <div className="p-4 border rounded-md bg-slate-50 text-center">
