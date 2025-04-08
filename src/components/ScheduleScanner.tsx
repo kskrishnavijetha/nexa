@@ -1,7 +1,6 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { toast } from 'sonner';
 import { Form } from '@/components/ui/form';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,10 +11,9 @@ import TimeSelector from './schedule/TimeSelector';
 import DocumentNameInput from './schedule/DocumentNameInput';
 import EmailNotificationInput from './schedule/EmailNotificationInput';
 import { useAuth } from '@/contexts/AuthContext';
-import { saveSchedule, loadSchedule } from '@/utils/schedule/scheduleStorage';
-import { registerScheduleWorker } from '@/utils/schedule/scheduleWorker';
+import { loadSchedule } from '@/utils/schedule/scheduleStorage';
 import { checkScheduledTasks } from '@/utils/schedule/scheduleChecker';
-import { sendScheduledEmailNotification } from '@/utils/schedule/scheduleNotification';
+import { useScheduleForm } from '@/hooks/useScheduleForm';
 
 interface ScheduleScannerProps {
   documentId: string;
@@ -28,7 +26,6 @@ const ScheduleScanner: React.FC<ScheduleScannerProps> = ({
   documentName, 
   industry 
 }) => {
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
   
   const savedSchedule = loadSchedule(documentId);
@@ -50,73 +47,19 @@ const ScheduleScanner: React.FC<ScheduleScannerProps> = ({
   const watchEnabled = form.watch("enabled");
   const watchEmail = form.watch("email");
   
+  const { isSubmitting, onSubmit } = useScheduleForm({
+    documentId,
+    industry,
+    userEmail: user?.email,
+    form
+  });
+  
   useEffect(() => {
     const intervalId = setInterval(checkScheduledTasks, 60000);
     checkScheduledTasks();
     
     return () => clearInterval(intervalId);
   }, []);
-
-  const onSubmit = async (data: ScheduleFormValues) => {
-    if (!data.enabled) {
-      toast.info("Automated scans are disabled", {
-        description: "Enable scans to schedule compliance checks",
-      });
-      
-      const schedule = {
-        ...data,
-        documentId,
-        industry,
-        scheduledBy: user?.email || 'anonymous',
-        createdAt: new Date().toISOString(),
-      };
-      
-      saveSchedule(schedule);
-      return;
-    }
-    
-    if (!data.email) {
-      form.setError("email", { 
-        type: "manual", 
-        message: "Email is required for notifications" 
-      });
-      return;
-    }
-    
-    setIsSubmitting(true);
-    try {
-      const schedule = {
-        ...data,
-        documentId,
-        industry,
-        scheduledBy: user?.email || 'anonymous',
-        createdAt: new Date().toISOString(),
-      };
-      
-      saveSchedule(schedule);
-      
-      registerScheduleWorker(schedule);
-      
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const emailSent = await sendScheduledEmailNotification(schedule);
-      
-      if (emailSent) {
-        toast.success(`Automated scans scheduled ${data.frequency}`, {
-          description: `We'll send reports to ${data.email}`,
-        });
-      } else {
-        toast.error("Failed to send test notification");
-      }
-      
-      form.reset(data);
-    } catch (error) {
-      toast.error("Failed to schedule automated scan");
-      console.error(error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   return (
     <div className="p-4 border rounded-lg bg-card">
