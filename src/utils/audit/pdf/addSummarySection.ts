@@ -33,13 +33,13 @@ export const addSummarySection = (
   console.log(`[addSummarySection] Generating findings with industry: ${industry || 'not specified'}`);
   
   // Create compliance findings - pass both document name and industry
-  const findings = generateComplianceFindings(stats, documentName, undefined, industry);
+  const findings = generateComplianceFindings(stats, documentName, industry);
   
   // Create findings table
   yPos = createFindingsTable(doc, findings, yPos);
   
-  // Add statistics section
-  yPos = addStatisticsSection(doc, stats, findings, yPos);
+  // Add statistics section - pass just the required 3 arguments
+  yPos = addStatisticsSection(doc, stats, yPos);
   
   return yPos;
 }

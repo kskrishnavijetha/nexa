@@ -2,7 +2,7 @@
 import React from 'react';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, HelpCircle, RefreshCw, FileJson, FileSpreadsheet, FilePdf } from 'lucide-react';
+import { Download, HelpCircle, RefreshCw, FileText, FileSpreadsheet, File } from 'lucide-react';
 import { useAuditTrail } from './AuditTrailProvider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
@@ -128,7 +128,7 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
             <DropdownMenuLabel>Export Format</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => handleExport('json')} className="cursor-pointer">
-              <FileJson className="h-4 w-4 mr-2" />
+              <FileText className="h-4 w-4 mr-2" />
               JSON Format
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleExport('csv')} className="cursor-pointer">
@@ -136,7 +136,7 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
               CSV Spreadsheet
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleExport('pdf')} className="cursor-pointer">
-              <FilePdf className="h-4 w-4 mr-2" />
+              <File className="h-4 w-4 mr-2" />
               PDF Document
             </DropdownMenuItem>
           </DropdownMenuContent>
