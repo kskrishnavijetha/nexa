@@ -7,6 +7,7 @@ interface AuditTrailContextType {
   auditEvents: AuditEvent[];
   isLoading: boolean;
   isGeneratingReport: boolean;
+  documentName: string;
   downloadAuditReport: () => void;
   addAuditEvent: (event: Omit<AuditEvent, 'id' | 'timestamp'>) => void;
   updateTaskStatus: (eventId: string, status: 'pending' | 'in-progress' | 'completed') => void;
