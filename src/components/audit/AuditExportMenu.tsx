@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuditTrail } from './AuditTrailProvider';
-import { AuditExportFormat } from '@/utils/audit/exportUtils';
+import { AuditExportFormat } from '@/utils/audit/export/types';
 import { toast } from 'sonner';
 
 interface AuditExportMenuProps {

@@ -1,228 +1,178 @@
 
+import { jsPDF } from "jspdf";
 import { AuditEvent } from '@/components/audit/types';
-import { jsPDF } from 'jspdf';
-import { calculateReportStatistics } from './reportStatistics';
-import { AIInsight } from './types';
-import { generateAIInsights } from './insights';
+import { AuditReportStatistics, AIInsight } from './types';
+import { Industry } from '@/utils/types';
 import { addExecutiveSummary } from './pdf/addExecutiveSummary';
 import { addInsightsSection } from './pdf/addInsightsSection';
 import { addSummarySection } from './pdf/addSummarySection';
+import { addEventsSection } from './pdf/addEventsSection';
 import { addFooter } from './pdf/addFooter';
-import { Industry } from '@/utils/types';
-import { calculateComplianceScore } from './pdf/findings/calculateComplianceScore';
-import { generateComplianceFindings } from './pdf/findings/generateComplianceFindings';
+import { generateAIInsights } from './insights';
+import { calculateReportStatistics } from './reportStatistics';
 
 /**
- * Generate a PDF report with AI-enhanced insights from audit events
+ * Generate a PDF report from audit trail events
  */
 export const generatePDFReport = async (
   documentName: string,
   auditEvents: AuditEvent[],
-  selectedIndustry?: Industry
+  industry?: Industry
 ): Promise<Blob> => {
-  console.log(`[pdfGenerator] Generating PDF report for ${documentName}`);
-  console.log(`[pdfGenerator] Selected industry parameter: ${selectedIndustry || 'not specified'}`);
-  
-  // Create PDF with a slightly larger page size (a4+ format)
-  const pdf = new jsPDF({
+  // Create a new PDF document
+  const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4',
-    compress: true,
-    putOnlyUsedFonts: true
+    compress: true
   });
   
-  // Set reasonable margins
-  const margin = 20; // 20mm margins
-  pdf.setProperties({
-    title: `Audit Report - ${documentName}`,
-    subject: 'AI-Enhanced Compliance Report',
-    creator: 'Compliance Report Generator'
-  });
-  
-  // Add executive summary with document info - pass the industry explicitly
-  let yPos = addExecutiveSummary(pdf, auditEvents, documentName, selectedIndustry);
-  
-  // Report Statistics
-  const stats = calculateReportStatistics(auditEvents);
-  
-  // AI-Generated Insights based on industry and document
-  // Use the document name and industry to help determine the insights
-  const insights: AIInsight[] = generateAIInsights(auditEvents, documentName, selectedIndustry);
-  
-  // Add risk and recommendation insights section with padding
-  yPos = addInsightsSection(pdf, insights, yPos + 10);
-  
-  // Add summary statistics and findings section with padding
-  // Pass document name and selected industry to allow industry-specific findings
-  yPos = addSummarySection(pdf, stats, yPos + 10, documentName, selectedIndustry);
-  
-  // Generate compliance findings for final score page
-  const findings = generateComplianceFindings(stats, documentName, undefined, selectedIndustry);
-  const complianceScore = calculateComplianceScore(findings);
-  
-  // Add a new page for final compliance score to avoid overlap
-  pdf.addPage();
-  
-  // Add final compliance score section on the new page
-  addFinalComplianceScorePage(pdf, complianceScore.score, complianceScore.status, complianceScore.complianceStatus, selectedIndustry);
-  
-  // Add footer with page numbers to all pages - must be last operation
-  addFooter(pdf);
-  
-  // Return the PDF as a blob
-  return pdf.output('blob');
-};
-
-/**
- * Add a final compliance score page to the PDF
- */
-function addFinalComplianceScorePage(
-  pdf: jsPDF, 
-  score: number, 
-  status: 'Pass' | 'Fail',
-  complianceStatus: 'Compliant' | 'Non-Compliant',
-  industry?: Industry
-): void {
-  // Set the title for this page
-  pdf.setFontSize(18);
-  pdf.setTextColor(0, 51, 102);
-  pdf.text('Compliance Results & Final Score', 20, 30);
-  
-  // Add horizontal separator
-  pdf.setDrawColor(200, 200, 200);
-  pdf.setLineWidth(0.5);
-  pdf.line(20, 35, 190, 35);
-  
-  // Display the final score prominently
-  pdf.setFontSize(24);
-  
-  // Set color based on score
-  if (score >= 90) {
-    pdf.setTextColor(0, 128, 0); // Green for high score
-  } else if (score >= 70) {
-    pdf.setTextColor(0, 100, 150); // Blue for good score
-  } else if (score >= 50) {
-    pdf.setTextColor(255, 165, 0); // Orange for medium score
-  } else {
-    pdf.setTextColor(200, 0, 0); // Red for low score
-  }
-  
-  pdf.text(`Final Compliance Score: ${score}%`, 105, 60, { align: 'center' });
-  
-  // Display compliance status
-  pdf.setFontSize(20);
-  pdf.text(`Compliance Status: ${complianceStatus}`, 105, 75, { align: 'center' });
-  
-  // Display Overall Status (Pass/Fail)
-  pdf.setFontSize(18);
-  pdf.setTextColor(status === 'Pass' ? 0 : 200, status === 'Pass' ? 128 : 0, 0);
-  pdf.text(`Overall Status: ${status}`, 105, 90, { align: 'center' });
-  
-  // Reset color for rest of content
-  pdf.setTextColor(0, 0, 0);
-  
-  // Add score implications
-  pdf.setFontSize(14);
-  pdf.text('Score Implications', 20, 115);
-  
-  pdf.setFontSize(11);
-  const implications = [
-    '90-100%: Excellent compliance. Minor improvements may still be beneficial.',
-    '70-89%: Good compliance. Some areas need attention but overall risk is low.',
-    '50-69%: Moderate compliance. Significant improvements needed in several areas.',
-    'Below 50%: Poor compliance. Urgent remediation required to address critical issues.'
-  ];
-  
-  let yPos = 125;
-  implications.forEach(imp => {
-    pdf.text(imp, 30, yPos);
-    yPos += 8;
-  });
-  
-  // Add industry-specific notes if available
-  if (industry) {
-    pdf.setFontSize(14);
-    pdf.setTextColor(0, 51, 102);
-    pdf.text('Industry-Specific Compliance Notes', 20, yPos + 10);
-    pdf.setTextColor(0, 0, 0);
-    pdf.setFontSize(11);
+  try {
+    // Calculate report statistics
+    const stats: AuditReportStatistics = calculateReportStatistics(auditEvents);
     
-    let industryNotes: string[] = [];
+    // Generate AI insights
+    const insights: AIInsight[] = await generateAIInsights(auditEvents, industry);
     
-    // Add industry-specific notes
-    switch(industry) {
-      case 'Healthcare':
-        industryNotes = [
-          'HIPAA compliance requires regular security risk assessments.',
-          'Patient data protection should be prioritized in all systems.',
-          'Regular training for staff on privacy practices is essential.'
-        ];
-        break;
-      case 'Finance & Banking':
-        industryNotes = [
-          'Financial regulations require stringent data protection measures.',
-          'Transaction monitoring should be regularly audited.',
-          'Customer financial data requires highest level of protection.'
-        ];
-        break;
-      case 'Government':
-        industryNotes = [
-          'Compliance with FISMA standards is mandatory for federal systems.',
-          'Public records management must follow retention guidelines.',
-          'Security clearances must be verified and updated regularly.'
-        ];
-        break;
-      default:
-        industryNotes = [
-          'Regular compliance audits are recommended for all industries.',
-          'Document all compliance activities for future reference.',
-          'Maintain a continuous improvement approach to compliance.'
-        ];
+    // Add executive summary to first page
+    let yPos = addExecutiveSummary(doc, auditEvents, documentName, industry);
+    
+    // Start insights section on a new page
+    doc.addPage();
+    yPos = 0;
+    
+    // Add insights section
+    yPos = addInsightsSection(doc, insights, yPos + 20);
+    
+    // Add summary section (with findings)
+    yPos = addSummarySection(doc, stats, yPos, documentName, industry);
+    
+    // Start events section on a new page
+    doc.addPage();
+    yPos = 0;
+    
+    // Add events section
+    yPos = addEventsSection(doc, auditEvents, yPos + 20);
+    
+    // Add final compliance page on a new page
+    doc.addPage();
+    
+    // Add compliance results title
+    doc.setFontSize(20);
+    doc.setTextColor(0, 51, 102);
+    doc.text('Compliance Results & Final Score', 20, 30);
+    
+    // Add horizontal line
+    doc.setDrawColor(0, 51, 102);
+    doc.setLineWidth(0.5);
+    doc.line(20, 35, 190, 35);
+    
+    // Calculate compliance score based on completed tasks
+    const complianceScore = Math.round((stats.completed / stats.totalEvents) * 100);
+    
+    // Get color based on score
+    const getScoreColor = () => {
+      if (complianceScore >= 80) return [0, 128, 0]; // Green
+      if (complianceScore >= 70) return [255, 165, 0]; // Orange
+      return [255, 0, 0]; // Red
+    };
+    
+    const scoreColor = getScoreColor();
+    
+    // Add final score with appropriate color
+    doc.setFontSize(24);
+    doc.setTextColor(...scoreColor);
+    doc.text(`Final Compliance Score: ${complianceScore}%`, 105, 60, { align: 'center' });
+    
+    // Add compliance status
+    doc.setFontSize(18);
+    doc.text(`(${complianceScore >= 75 ? 'Compliant' : 'Non-Compliant'})`, 105, 70, { align: 'center' });
+    
+    // Add overall pass/fail status
+    doc.setFontSize(18);
+    doc.setTextColor(complianceScore >= 75 ? 0 : 255, complianceScore >= 75 ? 128 : 0, 0);
+    doc.text(`Overall Status: ${complianceScore >= 75 ? 'PASS' : 'FAIL'}`, 105, 90, { align: 'center' });
+    
+    // Add score implications
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Score Implications:', 20, 120);
+    
+    // Add implications based on score
+    const implications = [
+      complianceScore >= 80 
+        ? '• High compliance level achieved. Continue maintaining current practices.' 
+        : '• Compliance level needs improvement. Review failed audit items.',
+      complianceScore >= 75 
+        ? '• Meets minimum regulatory requirements for this industry.' 
+        : '• Does not meet minimum regulatory requirements for this industry.',
+      complianceScore >= 90 
+        ? '• Excellent audit trail completeness and quality.' 
+        : '• Audit trail may have gaps or quality issues that need attention.'
+    ];
+    
+    implications.forEach((implication, index) => {
+      doc.text(implication, 25, 135 + (index * 10));
+    });
+    
+    // Add industry-specific notes if industry is provided
+    if (industry) {
+      doc.setFontSize(12);
+      doc.setTextColor(0, 51, 102);
+      doc.text(`${industry} Industry Notes:`, 20, 180);
+      
+      let industryNotes: string[] = [];
+      
+      switch(industry) {
+        case 'Finance & Banking':
+          industryNotes = [
+            '• Requires minimum 80% compliance score for regulatory acceptance.',
+            '• Audit trail must maintain detailed transaction history.',
+            '• Financial controls documentation is critical for compliance.'
+          ];
+          break;
+        case 'Healthcare':
+          industryNotes = [
+            '• HIPAA compliance requires minimum 85% compliance score.',
+            '• Patient data access logs must be complete and accurate.',
+            '• Audit trail must track all PHI access and modifications.'
+          ];
+          break;
+        case 'Government & Defense':
+          industryNotes = [
+            '• Stringent compliance requirements with 90% minimum threshold.',
+            '• Complete audit trail with no gaps in documentation required.',
+            '• All system access and modifications must be thoroughly tracked.'
+          ];
+          break;
+        default:
+          industryNotes = [
+            '• Industry standard requires minimum 75% compliance score.',
+            '• Regular audit trail reviews recommended to maintain compliance.',
+            '• Documentation of all security-related events is essential.'
+          ];
+      }
+      
+      industryNotes.forEach((note, index) => {
+        doc.text(note, 25, 195 + (index * 10));
+      });
     }
     
-    yPos += 20;
-    industryNotes.forEach(note => {
-      pdf.text(`• ${note}`, 30, yPos);
-      yPos += 8;
-    });
+    // Add footer to all pages
+    addFooter(doc);
+    
+    return doc.output('blob');
+  } catch (error) {
+    console.error('Error generating PDF report:', error);
+    
+    // Return a simple error PDF if something goes wrong
+    doc.setFontSize(16);
+    doc.setTextColor(255, 0, 0);
+    doc.text('Error generating audit report', 105, 20, { align: 'center' });
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Please try again or contact support if the issue persists.', 105, 30, { align: 'center' });
+    
+    return doc.output('blob');
   }
-  
-  // Add recommendations based on score
-  pdf.setFontSize(14);
-  pdf.setTextColor(0, 51, 102);
-  pdf.text('Recommended Next Steps', 20, yPos + 10);
-  pdf.setTextColor(0, 0, 0);
-  pdf.setFontSize(11);
-  
-  yPos += 20;
-  
-  // Add recommendations based on score
-  if (score >= 90) {
-    pdf.text('• Maintain current compliance standards through regular monitoring', 30, yPos);
-    yPos += 8;
-    pdf.text('• Document successful compliance strategies for future reference', 30, yPos);
-    yPos += 8;
-    pdf.text('• Consider enhancing already strong areas to achieve excellence', 30, yPos);
-  } else if (score >= 70) {
-    pdf.text('• Address specific areas noted in the findings section', 30, yPos);
-    yPos += 8;
-    pdf.text('• Implement regular compliance check-ins to maintain progress', 30, yPos);
-    yPos += 8;
-    pdf.text('• Review and update compliance policies to address minor gaps', 30, yPos);
-  } else if (score >= 50) {
-    pdf.text('• Develop a comprehensive remediation plan for identified issues', 30, yPos);
-    yPos += 8;
-    pdf.text('• Prioritize high-risk compliance failures for immediate action', 30, yPos);
-    yPos += 8;
-    pdf.text('• Schedule follow-up assessment within 90 days', 30, yPos);
-  } else {
-    pdf.text('• Urgent action required to address critical compliance failures', 30, yPos);
-    yPos += 8;
-    pdf.text('• Consider engaging compliance specialists for remediation support', 30, yPos);
-    yPos += 8;
-    pdf.text('• Implement weekly progress tracking on compliance improvements', 30, yPos);
-    yPos += 8;
-    pdf.text('• Schedule follow-up assessment within 30 days', 30, yPos);
-  }
-}
+};
