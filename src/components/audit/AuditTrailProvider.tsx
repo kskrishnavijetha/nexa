@@ -6,9 +6,8 @@ import { useAuditEventManager } from './hooks/useAuditEventManager';
 import { useAuditReport } from './hooks/useAuditReport';
 import { AuditEvent } from './types';
 import { Industry } from '@/utils/types';
-import { exportReportAsCSV, exportReportAsDOCX } from '@/utils/reports/exportFormats';
-import { toast } from 'sonner';
 import { saveAs } from 'file-saver';
+import { toast } from 'sonner';
 
 interface AuditTrailProviderProps {
   documentName: string;
@@ -63,7 +62,7 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
         const action = event.action.replace(/,/g, '');
         const user = event.user.replace(/,/g, '');
         const status = event.status || '';
-        csvContent += `${event.id},${timestamp},"${action}","${user}",${status},"${event.documentName}"\n`;
+        csvContent += `${event.id},${timestamp},"${action}","${user}",${status},"${documentName}"\n`;
       });
       
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

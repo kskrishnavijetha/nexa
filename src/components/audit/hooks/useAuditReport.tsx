@@ -25,7 +25,9 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       const url = window.URL.createObjectURL(reportBlob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = getAuditReportFileName(documentName);
+      
+      // Update the filename to specify "audit-logs" instead of "audit-trail"
+      link.download = `audit-logs-${documentName.replace(/\s+/g, '-').toLowerCase()}-${new Date().toISOString().split('T')[0]}.pdf`;
       
       // Trigger download
       document.body.appendChild(link);
@@ -34,7 +36,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       
       console.log(`[useAuditReport] Report successfully generated for industry: ${industry || 'General'}`);
       
-      toast.success('Audit report downloaded successfully');
+      toast.success('Audit logs downloaded as PDF');
     } catch (error) {
       console.error('[useAuditReport] Error generating report:', error);
       toast.error('Failed to generate audit report');
