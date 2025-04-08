@@ -3,7 +3,6 @@ import React from 'react';
 import { ComplianceRisk } from '@/utils/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, Info, CheckCircle } from 'lucide-react';
-import { toast } from 'sonner';
 
 interface RiskAnalysisProps {
   risks: ComplianceRisk[];
@@ -31,7 +30,7 @@ const RiskAnalysis: React.FC<RiskAnalysisProps> = ({ risks }) => {
   const renderRiskGroup = (risksGroup: ComplianceRisk[], title: string) => (
     <div className="mb-4">
       <h4 className="font-medium text-lg mb-2 flex items-center gap-2">
-        {risksGroup.length > 0 && getSeverityIcon(risksGroup[0]?.severity || '')}
+        {getSeverityIcon(risksGroup[0]?.severity || '')}
         {title} ({risksGroup.length})
       </h4>
       {risksGroup.length > 0 ? (
@@ -54,7 +53,7 @@ const RiskAnalysis: React.FC<RiskAnalysisProps> = ({ risks }) => {
           ))}
         </div>
       ) : (
-        <p className="text-muted-foreground">No {title.toLowerCase()} issues found.</p>
+        <p className="text-muted-foreground">No {title.toLowerCase()} severity issues found.</p>
       )}
     </div>
   );

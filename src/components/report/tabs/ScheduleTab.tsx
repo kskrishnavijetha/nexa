@@ -2,15 +2,12 @@
 import React from 'react';
 import { ComplianceReport as ComplianceReportType } from '@/utils/apiService';
 import ScheduleScanner from '@/components/ScheduleScanner';
-import ComplianceDisclaimer from '@/components/report/ComplianceDisclaimer';
-import { SupportedLanguage } from '@/utils/language';
 
 interface ScheduleTabProps {
   report: ComplianceReportType;
-  language?: SupportedLanguage;
 }
 
-const ScheduleTab: React.FC<ScheduleTabProps> = ({ report, language = 'en' }) => {
+const ScheduleTab: React.FC<ScheduleTabProps> = ({ report }) => {
   return (
     <div className="p-6 pt-4">
       <ScheduleScanner 
@@ -22,8 +19,6 @@ const ScheduleTab: React.FC<ScheduleTabProps> = ({ report, language = 'en' }) =>
       <div className="text-sm text-muted-foreground mt-4">
         <p>Scheduled scans will run automatically and send email notifications even when you're signed out.</p>
       </div>
-      
-      <ComplianceDisclaimer language={language} compact={true} className="mt-8" />
     </div>
   );
 };

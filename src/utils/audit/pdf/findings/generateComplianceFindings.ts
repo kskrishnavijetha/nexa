@@ -11,7 +11,8 @@ import { generateIndustryFindings } from './industryFindings';
 export const generateComplianceFindings = (
   stats: AuditReportStatistics,
   documentName?: string,
-  selectedIndustry?: Industry
+  documentContent?: string,
+  selectedIndustry?: Industry // Add selectedIndustry parameter
 ): ComplianceFinding[] => {
   console.log(`[generateComplianceFindings] Generating findings with explicitly selected industry: ${selectedIndustry || 'not specified'}`);
   
@@ -39,8 +40,8 @@ export const generateComplianceFindings = (
   let industry = extractIndustryFromDocument(documentName);
   
   // If industry still not determined and we have document content, try extracting from content
-  if (!industry && documentName) {
-    industry = extractIndustryFromContent(documentName);
+  if (!industry && documentContent) {
+    industry = extractIndustryFromContent(documentContent);
   }
   
   // Generate industry-specific findings

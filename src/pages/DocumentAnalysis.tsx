@@ -26,7 +26,6 @@ const DocumentAnalysis = () => {
     // Save the report to history for viewing in the history page
     addReportToHistory(reportWithUser);
     console.log('Report saved to history in DocumentAnalysis:', reportWithUser.documentName);
-    console.log('Industry identified for report:', reportWithUser.industry);
     
     // Also add to the scan history store - ensure all the same data is available in both places
     if (user) {

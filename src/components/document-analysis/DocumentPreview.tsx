@@ -5,7 +5,6 @@ import { ComplianceReport } from '@/utils/types';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import ComplianceDisclaimer from '@/components/report/ComplianceDisclaimer';
 
 interface DocumentPreviewProps {
   report: ComplianceReport | null;
@@ -138,23 +137,6 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                 </div>
               </>
             )}
-            
-            {/* Nexabloom Branding */}
-            <Separator />
-            <div className="py-2 flex flex-col sm:flex-row justify-between items-center gap-2 text-sm text-gray-500">
-              <ComplianceDisclaimer compact={true} />
-              <div className="flex items-center gap-1">
-                <span>Powered by</span>
-                <a 
-                  href="https://nexabloom.xyz" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-indigo-600 hover:text-indigo-800 transition-colors font-medium"
-                >
-                  Nexabloom
-                </a>
-              </div>
-            </div>
           </div>
         </ScrollArea>
         
