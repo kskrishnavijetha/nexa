@@ -6,7 +6,7 @@ import { saveAs } from 'file-saver';
 /**
  * Export formats supported by the application
  */
-export type ExportFormat = 'pdf' | 'docx' | 'csv';
+export type ExportFormat = 'pdf' | 'docx' | 'csv' | 'json';
 
 /**
  * Sanitize filename by removing invalid characters
@@ -47,6 +47,19 @@ export const exportReportAsCSV = (report: ComplianceReport): void => {
 };
 
 /**
+ * Export compliance report as JSON
+ */
+export const exportReportAsJSON = (report: ComplianceReport): void => {
+  // Convert to JSON string with pretty formatting
+  const jsonContent = JSON.stringify(report, null, 2);
+  
+  // Create blob and download
+  const blob = new Blob([jsonContent], { type: 'application/json' });
+  const filename = generateReportFilename(report, 'json');
+  saveAs(blob, filename);
+};
+
+/**
  * Export compliance report as DOCX (simplified version)
  * Note: This is a placeholder that creates a simple text file with .docx extension
  * A full implementation would require a library like docx.js
@@ -80,6 +93,9 @@ export const exportReport = (report: ComplianceReport, format: ExportFormat): vo
   switch (format) {
     case 'csv':
       exportReportAsCSV(report);
+      break;
+    case 'json':
+      exportReportAsJSON(report);
       break;
     case 'docx':
       exportReportAsDOCX(report);
