@@ -1,13 +1,13 @@
 
 import React from 'react';
-import { useAuditTrail } from './AuditTrailProvider';
+import { useAuditTrail } from './context/AuditTrailContext';
 import AuditEvent from './AuditEvent';
 import { formatTimestamp } from './auditUtils';
 
 const AuditTrailList: React.FC = () => {
-  const { auditEvents, isLoading } = useAuditTrail();
+  const { auditEvents, loadingEvents } = useAuditTrail();
 
-  if (isLoading) {
+  if (loadingEvents) {
     return (
       <div className="flex justify-center py-8">
         <div className="animate-pulse flex flex-col gap-4 w-full">

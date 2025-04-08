@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, createContext, useContext } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { AuditEvent } from './types';
@@ -43,12 +44,12 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({ children
       return;
     }
     
-    const newEvent = generateAuditEvent(lastActivity, user.email);
+    const newEvent = generateAuditEvent(lastActivity, user.email, documentName);
     setAuditEvents(prevEvents => [newEvent, ...prevEvents]);
-  }, [lastActivity, user]);
+  }, [lastActivity, user, documentName]);
 
   // Function to generate a single audit event
-  const generateAuditEvent = (timestamp: Date, user: string): AuditEvent => {
+  const generateAuditEvent = (timestamp: Date, user: string, docName: string): AuditEvent => {
     return {
       id: uuidv4(),
       timestamp: timestamp.toISOString(),
@@ -56,6 +57,7 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({ children
       user: user,
       status: 'completed',
       icon: undefined,
+      documentName: docName
     };
   };
 
@@ -69,6 +71,7 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({ children
         user: 'system',
         status: 'completed',
         icon: undefined,
+        documentName: docName
       },
       {
         id: uuidv4(),
@@ -77,6 +80,7 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({ children
         user: 'user@example.com',
         status: 'completed',
         icon: undefined,
+        documentName: docName
       },
     ];
   };

@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { useAuditTrail } from './AuditTrailProvider';
+import { useAuditTrail } from './context/AuditTrailContext';
 import { formatTimestamp } from './auditUtils';
 import { File, Eye, FileText, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -81,6 +81,7 @@ const AuditLogs: React.FC = () => {
       setIsExporting(true);
       // Create a simplified report format that works with existing exportReport function
       const simplifiedReport = {
+        documentId: documentName.replace(/\s+/g, '-').toLowerCase(),
         documentName: documentName,
         risks: auditEvents.map(event => ({
           title: event.action,
@@ -90,7 +91,11 @@ const AuditLogs: React.FC = () => {
         })),
         overallScore: 0,
         industry: undefined,
-        region: undefined
+        region: undefined,
+        gdprScore: 0,
+        hipaaScore: 0,
+        soc2Score: 0,
+        summary: `Audit log for ${documentName}`
       };
       
       exportReport(simplifiedReport, 'pdf');

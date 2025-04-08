@@ -1,3 +1,4 @@
+
 import { LucideIcon } from 'lucide-react';
 import { ComplianceReport } from '@/utils/types';
 
@@ -19,7 +20,7 @@ export interface AuditEvent {
   id: string;
   timestamp: string;
   action: string;
-  documentName: string;
+  documentName: string; // This is required now
   user: string;
   status?: 'pending' | 'in-progress' | 'completed';
   comments?: AuditComment[];

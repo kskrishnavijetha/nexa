@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, HelpCircle, RefreshCw } from 'lucide-react';
-import { useAuditTrail } from './AuditTrailProvider';
+import { useAuditTrail } from './context/AuditTrailContext';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { getScoreColor } from '@/utils/reports';
@@ -16,12 +15,9 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
   const { auditEvents, isGeneratingReport, downloadAuditReport, setLastActivity, industry } = useAuditTrail();
 
   const handleRefresh = () => {
-    // Just update the last activity timestamp to trigger new events
-    // without reloading the page or clearing existing events
     setLastActivity(new Date());
   };
 
-  // Calculate compliance score based on audit events
   const calculateComplianceScore = (): number => {
     if (auditEvents.length === 0) return 100;
     
