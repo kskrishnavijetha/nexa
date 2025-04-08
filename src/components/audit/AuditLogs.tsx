@@ -3,7 +3,7 @@ import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useAuditTrail } from './context/AuditTrailContext';
 import { formatTimestamp } from './auditUtils';
-import { File, Eye, ArrowRight, Download, FilePdf, FileJson, FileCsv } from 'lucide-react';
+import { File, Eye, ArrowRight, Download, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
@@ -31,15 +31,15 @@ const AuditLogs: React.FC = () => {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={downloadJSON} className="cursor-pointer">
-              <FileJson className="mr-2 h-4 w-4" />
+              <File className="mr-2 h-4 w-4" />
               <span>Download JSON</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={downloadCSV} className="cursor-pointer">
-              <FileCsv className="mr-2 h-4 w-4" />
+              <FileText className="mr-2 h-4 w-4" />
               <span>Download CSV</span>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={downloadPDF} className="cursor-pointer">
-              <FilePdf className="mr-2 h-4 w-4" />
+              <File className="mr-2 h-4 w-4" />
               <span>Download PDF</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
