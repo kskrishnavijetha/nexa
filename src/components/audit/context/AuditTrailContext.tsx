@@ -8,11 +8,15 @@ interface AuditTrailContextType {
   isLoading: boolean;
   isGeneratingReport: boolean;
   downloadAuditReport: () => void;
+  downloadJSON: () => void;
+  downloadCSV: () => void; 
+  downloadPDF: () => void;
   addAuditEvent: (event: Omit<AuditEvent, 'id' | 'timestamp'>) => void;
   updateTaskStatus: (eventId: string, status: 'pending' | 'in-progress' | 'completed') => void;
   updateAuditEvents: (events: AuditEvent[]) => void;
   setLastActivity: (date: Date) => void;
-  industry?: Industry; // Add industry to context
+  industry?: Industry;
+  documentName: string; // Make documentName required
 }
 
 const AuditTrailContext = createContext<AuditTrailContextType | undefined>(undefined);
