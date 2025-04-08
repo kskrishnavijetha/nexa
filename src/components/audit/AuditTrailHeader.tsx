@@ -2,11 +2,21 @@
 import React from 'react';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, HelpCircle, RefreshCw } from 'lucide-react';
+import { Download, HelpCircle, RefreshCw, FileJson, FileSpreadsheet, FilePdf } from 'lucide-react';
 import { useAuditTrail } from './AuditTrailProvider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { getScoreColor } from '@/utils/reports';
+import { exportAuditLogs, ExportFormat } from '@/utils/audit/exportLogs';
+import { toast } from 'sonner';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface AuditTrailHeaderProps {
   documentName: string;
@@ -29,6 +39,16 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
     const totalEvents = auditEvents.length;
     
     return Math.round((completedEvents / totalEvents) * 100);
+  };
+
+  const handleExport = (format: ExportFormat) => {
+    try {
+      exportAuditLogs(auditEvents, documentName, format);
+      toast.success(`Audit logs exported successfully as ${format.toUpperCase()}`);
+    } catch (error) {
+      console.error(`Error exporting audit logs as ${format}:`, error);
+      toast.error(`Failed to export audit logs. Please try again.`);
+    }
   };
 
   const complianceScore = calculateComplianceScore();
@@ -92,6 +112,35 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
+        
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-1"
+            >
+              <Download size={14} />
+              <span className="hidden sm:inline">Export</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Export Format</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => handleExport('json')} className="cursor-pointer">
+              <FileJson className="h-4 w-4 mr-2" />
+              JSON Format
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport('csv')} className="cursor-pointer">
+              <FileSpreadsheet className="h-4 w-4 mr-2" />
+              CSV Spreadsheet
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport('pdf')} className="cursor-pointer">
+              <FilePdf className="h-4 w-4 mr-2" />
+              PDF Document
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         
         <Button 
           variant="default" 
