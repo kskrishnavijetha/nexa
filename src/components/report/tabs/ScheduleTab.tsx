@@ -3,10 +3,11 @@ import React from 'react';
 import { ComplianceReport as ComplianceReportType } from '@/utils/apiService';
 import ScheduleScanner from '@/components/ScheduleScanner';
 import ComplianceDisclaimer from '@/components/report/ComplianceDisclaimer';
+import { SupportedLanguage } from '@/utils/language';
 
 interface ScheduleTabProps {
   report: ComplianceReportType;
-  language?: string;
+  language?: SupportedLanguage;
 }
 
 const ScheduleTab: React.FC<ScheduleTabProps> = ({ report, language = 'en' }) => {
