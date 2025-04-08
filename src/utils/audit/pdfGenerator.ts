@@ -18,10 +18,14 @@ import { Industry } from '@/utils/types';
 export const generatePDFReport = async (
   documentName: string,
   auditEvents: AuditEvent[],
-  selectedIndustry?: Industry
+  selectedIndustry?: Industry,
+  complianceScore?: number,
+  complianceStatus?: string
 ): Promise<Blob> => {
   console.log(`[pdfGenerator] Generating PDF report for ${documentName}`);
   console.log(`[pdfGenerator] Selected industry parameter: ${selectedIndustry || 'not specified'}`);
+  console.log(`[pdfGenerator] Compliance score: ${complianceScore !== undefined ? complianceScore + '%' : 'not calculated'}`);
+  console.log(`[pdfGenerator] Compliance status: ${complianceStatus || 'not specified'}`);
   
   // Generate integrity hash for the events
   const integrityHash = await generateChainHash(auditEvents);
@@ -44,7 +48,8 @@ export const generatePDFReport = async (
   });
   
   // Add executive summary with document info - pass the industry explicitly
-  let yPos = addExecutiveSummary(pdf, auditEvents, documentName, selectedIndustry);
+  // Also pass compliance score and status if available
+  let yPos = addExecutiveSummary(pdf, auditEvents, documentName, selectedIndustry, complianceScore, complianceStatus);
   
   // Report Statistics
   const stats = calculateReportStatistics(auditEvents);
