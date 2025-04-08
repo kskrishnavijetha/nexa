@@ -7,6 +7,7 @@ import { generateAIInsights } from './insights';
 import { addExecutiveSummary } from './pdf/addExecutiveSummary';
 import { addInsightsSection } from './pdf/addInsightsSection';
 import { addSummarySection } from './pdf/addSummarySection';
+import { addEventsSection } from './pdf/addEventsSection';
 import { addFooter } from './pdf/addFooter';
 import { generateChainHash } from './logIntegrity';
 import { Industry } from '@/utils/types';
@@ -39,7 +40,7 @@ export const generatePDFReport = async (
   pdf.setProperties({
     title: `Audit Report - ${documentName}`,
     subject: 'AI-Enhanced Compliance Report',
-    creator: 'Compliance Report Generator'
+    creator: 'Nexabloom Compliance Report Generator'
   });
   
   // Add executive summary with document info - pass the industry explicitly
@@ -58,6 +59,16 @@ export const generatePDFReport = async (
   // Add summary statistics and findings section with padding
   // Pass document name and selected industry to allow industry-specific findings
   yPos = addSummarySection(pdf, stats, yPos + 10, documentName, selectedIndustry);
+  
+  // Add a selection of events from the audit trail
+  // But only if we have enough space on the current page, otherwise start a new page
+  if (yPos > 220) {
+    pdf.addPage();
+    yPos = 20;
+  }
+  
+  // Add events section with proper pagination
+  yPos = addEventsSection(pdf, auditEvents, yPos + 10);
   
   // Add integrity verification section
   pdf.setFontSize(14);

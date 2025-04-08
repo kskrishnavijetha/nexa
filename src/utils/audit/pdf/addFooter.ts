@@ -27,7 +27,7 @@ export const addFooter = (doc: jsPDF, integrityHash?: string): void => {
     // Add Nexabloom branding and website
     doc.setTextColor(79, 70, 229); // Indigo color for branding
     doc.text('Nexabloom', 100, brandingPosition, { align: 'center' });
-    doc.text('nexabloom.xyz', 180, brandingPosition, { align: 'right' });
+    doc.text('www.nexabloom.xyz', 180, brandingPosition, { align: 'right' });
     
     // Add integrity verification notice if hash is provided
     if (integrityHash) {

@@ -1,3 +1,4 @@
+
 import { jsPDF } from 'jspdf';
 import { saveAs } from 'file-saver';
 import { AuditEvent } from '@/components/audit/types';
@@ -140,17 +141,42 @@ const addEventsTable = (pdf: jsPDF, events: AuditEvent[], startY: number): numbe
   
   let yPos = startY + 15;
   
-  // Table rows (limit to first 30 events to prevent excessive pages)
-  const displayEvents = events.slice(0, 30);
+  // Table rows - handle pagination appropriately
+  const rowHeight = 10;
+  const maxYPosition = 250; // Leave space for footer
+  
+  // Sort by timestamp (newest first) for better readability
+  const sortedEvents = [...events].sort((a, b) => 
+    new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+  );
   
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(9);
   
-  displayEvents.forEach((event, index) => {
-    // Add page if needed
-    if (yPos > 270) {
+  sortedEvents.forEach((event, index) => {
+    // Check if we need a new page
+    if (yPos + rowHeight > maxYPosition) {
       pdf.addPage();
+      
+      // Reset position and redraw header
       yPos = 20;
+      
+      // Table header on new page
+      pdf.setFillColor(240, 240, 240);
+      pdf.rect(20, yPos, 170, 10, 'F');
+      
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(0, 0, 0);
+      pdf.setFontSize(10);
+      
+      pdf.text('Timestamp', 22, yPos + 7);
+      pdf.text('Action', 60, yPos + 7);
+      pdf.text('User', 130, yPos + 7);
+      pdf.text('Status', 170, yPos + 7);
+      
+      yPos += 15;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(9);
     }
     
     // Add alternating row background
@@ -163,7 +189,7 @@ const addEventsTable = (pdf: jsPDF, events: AuditEvent[], startY: number): numbe
     const date = new Date(event.timestamp);
     const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
     
-    // Add truncated row data
+    // Add row data with proper truncation
     pdf.text(formattedDate, 22, yPos);
     
     // Truncate action if too long
@@ -173,19 +199,17 @@ const addEventsTable = (pdf: jsPDF, events: AuditEvent[], startY: number): numbe
     }
     pdf.text(action, 60, yPos);
     
-    pdf.text(event.user, 130, yPos);
-    pdf.text(event.status, 170, yPos);
+    // Truncate user if needed
+    let user = event.user || 'System';
+    if (user.length > 20) {
+      user = user.substring(0, 17) + '...';
+    }
+    pdf.text(user, 130, yPos);
     
-    yPos += 10;
+    pdf.text(event.status || 'N/A', 170, yPos);
+    
+    yPos += rowHeight;
   });
   
-  // Show truncation message if needed
-  if (events.length > 30) {
-    pdf.setFontSize(10);
-    pdf.setTextColor(100, 100, 100);
-    pdf.text(`Note: Showing only the first 30 of ${events.length} total audit events.`, 20, yPos + 5);
-    yPos += 15;
-  }
-  
-  return yPos;
+  return yPos + 10; // Add some padding at the end
 };
