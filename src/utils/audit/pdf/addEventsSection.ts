@@ -3,7 +3,7 @@ import { jsPDF } from "jspdf";
 import { AuditEvent } from '@/components/audit/types';
 
 /**
- * Add audit events section to the PDF document with proper pagination
+ * Add audit events section to the PDF document
  */
 export const addEventsSection = (
   doc: jsPDF, 
@@ -35,8 +35,8 @@ export const addEventsSection = (
   for (let i = 0; i < recentEvents.length; i++) {
     const event = recentEvents[i];
     
-    // Check if we need a new page - leave enough space for the event entry
-    if (i > 0 && i % eventsPerPage === 0 || yPos > 250) {
+    // Check if we need a new page
+    if (i > 0 && i % eventsPerPage === 0) {
       doc.addPage();
       yPos = 20;
       

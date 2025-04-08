@@ -1,63 +1,137 @@
 
-import React from 'react';
-import { ComplianceReport as ComplianceReportType } from '@/utils/types';
+import React, { useState } from 'react';
+import { ComplianceReport } from '@/utils/types';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import ComplianceScoreCards from './ComplianceScoreCards';
+import RiskAnalysis from '@/components/RiskAnalysis';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
-import DocumentSelector from './DocumentSelector';
-import ComplianceReportComponent from './ComplianceReport';
+import { Download, Eye, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { generateReportPDF } from '@/utils/reports';
+import DocumentPreview from '@/components/document-analysis/DocumentPreview';
 
 interface ComplianceDetailsProps {
-  selectedReport: ComplianceReportType | null;
-  selectedDocument: string | null;
-  onDelete: () => void;
-  analyzingDocument: string | null;
-  reports: ComplianceReportType[];
-  onDocumentSelect: (document: string) => void;
+  report: ComplianceReport;
 }
 
-const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({
-  selectedReport,
-  selectedDocument,
-  onDelete,
-  analyzingDocument,
-  reports,
-  onDocumentSelect
-}) => {
-  return (
-    <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Document Reports</h2>
-        <div className="flex items-center gap-4">
-          {selectedDocument && (
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="text-red-600 hover:text-red-800 hover:bg-red-50"
-              onClick={onDelete}
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Delete Document
-            </Button>
-          )}
-          <DocumentSelector 
-            selectedDocument={selectedDocument}
-            reports={reports}
-            onSelectDocument={onDocumentSelect}
-            analyzingDocument={analyzingDocument}
-          />
-        </div>
-      </div>
+const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report }) => {
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  
+  const handleDownloadReport = async () => {
+    try {
+      setIsDownloading(true);
+      toast.info(`Preparing download for "${report.documentName}"...`);
       
-      {selectedReport ? (
-        <div className="grid grid-cols-1 gap-6">
-          <ComplianceReportComponent report={selectedReport} />
-        </div>
-      ) : (
-        <div className="p-4 border rounded-md bg-slate-50 text-center">
-          <p>Select a document to view details</p>
-        </div>
-      )}
-    </div>
+      // Pass the complete report to ensure all data is available
+      const result = await generateReportPDF(report, 'en');
+      
+      if (result.data) {
+        // Create a download link for the PDF
+        const url = URL.createObjectURL(result.data);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${report.documentName.replace(/\s+/g, '-').toLowerCase()}-compliance-report.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up
+        URL.revokeObjectURL(url);
+        document.body.removeChild(link);
+        
+        toast.success('Report downloaded successfully');
+      } else if (result.error) {
+        toast.error(result.error);
+      }
+    } catch (error) {
+      console.error('Error downloading report:', error);
+      toast.error('Failed to download the report. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
+  if (!report) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>No Report Selected</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>Please select a document to view details</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex justify-between items-center">
+          <div className="flex flex-col">
+            <span>{report.documentName}</span>
+            {report.industry && (
+              <span className="text-sm text-muted-foreground">
+                Industry: {report.industry} {report.region && `| Region: ${report.region}`}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+              onClick={() => setPreviewOpen(true)}
+            >
+              <Eye className="h-4 w-4" />
+              Preview
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2"
+              onClick={handleDownloadReport}
+              disabled={isDownloading}
+            >
+              {isDownloading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4" />
+                  Download
+                </>
+              )}
+            </Button>
+            <span className={
+              report.overallScore >= 80 ? 'text-green-500' : 
+              report.overallScore >= 70 ? 'text-amber-500' : 
+              'text-red-500'
+            }>
+              {report.overallScore}%
+            </span>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="mb-4">{report.summary}</p>
+        <ComplianceScoreCards 
+          gdprScore={report.gdprScore}
+          hipaaScore={report.hipaaScore}
+          soc2Score={report.soc2Score}
+        />
+        <RiskAnalysis risks={report.risks} />
+      </CardContent>
+
+      {/* Document Preview Modal */}
+      <DocumentPreview
+        report={report}
+        isOpen={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+      />
+    </Card>
   );
 };
 
