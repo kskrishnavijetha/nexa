@@ -2,7 +2,7 @@
 import { jsPDF } from "jspdf";
 
 /**
- * Add footer with page numbers to the PDF document
+ * Add footer with page numbers and Nexabloom branding to the PDF document
  */
 export const addFooter = (doc: jsPDF): void => {
   const pageCount = doc.getNumberOfPages();
@@ -15,16 +15,18 @@ export const addFooter = (doc: jsPDF): void => {
     doc.setFontSize(8);
     doc.setTextColor(100, 100, 100);
     
-    // Adjusted y-position to ensure visibility (moved up slightly)
-    const footerPosition = 285; // Moved up from 290
-    const confidentialPosition = 280; // Moved up from 284
-    const disclaimerPosition = 274; // New position for disclaimer
+    // Adjusted y-position to ensure visibility
+    const footerPosition = 285;
+    const brandingPosition = 280;
+    const disclaimerPosition = 274;
     
     // Add page numbers with more space
-    doc.text(`Page ${i} of ${pageCount}`, 100, footerPosition, { align: 'center' });
+    doc.text(`Page ${i} of ${pageCount}`, 20, footerPosition);
     
-    // Add confidentiality notice with more space
-    doc.text(`AI-Enhanced Compliance Report - CONFIDENTIAL`, 100, confidentialPosition, { align: 'center' });
+    // Add Nexabloom branding and website
+    doc.setTextColor(79, 70, 229); // Indigo color for branding
+    doc.text('Nexabloom', 100, brandingPosition, { align: 'center' });
+    doc.text('nexabloom.xyz', 180, brandingPosition, { align: 'right' });
     
     // Add legal disclaimer
     doc.setFontSize(6);
