@@ -38,8 +38,6 @@ export const generatePDFReport = async (
     putOnlyUsedFonts: true
   });
   
-  // Set reasonable margins
-  const margin = 20; // 20mm margins
   pdf.setProperties({
     title: `Audit Report - ${documentName}`,
     subject: 'AI-Enhanced Compliance Report',
