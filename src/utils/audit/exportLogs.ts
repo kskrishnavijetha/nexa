@@ -1,4 +1,3 @@
-
 import { jsPDF } from 'jspdf';
 import { saveAs } from 'file-saver';
 import { AuditEvent } from '@/components/audit/types';
@@ -6,28 +5,29 @@ import { calculateReportStatistics } from './reportStatistics';
 import { addExecutiveSummary } from './pdf/addExecutiveSummary';
 import { addStatisticsSection } from './pdf/sections/addStatisticsSection';
 import { addFooter } from './pdf/addFooter';
+import { generateChainHash } from './logIntegrity';
 
 export type ExportFormat = 'json' | 'csv' | 'pdf';
 
 /**
  * Export audit logs in the specified format
  */
-export const exportAuditLogs = (
+export const exportAuditLogs = async (
   events: AuditEvent[], 
   documentName: string, 
   format: ExportFormat
-): void => {
+): Promise<void> => {
   const fileName = generateExportFileName(documentName, format);
   
   switch (format) {
     case 'json':
-      exportAsJSON(events, fileName);
+      await exportAsJSON(events, fileName);
       break;
     case 'csv':
       exportAsCSV(events, fileName);
       break;
     case 'pdf':
-      exportAsPDF(events, documentName, fileName);
+      await exportAsPDF(events, documentName, fileName);
       break;
   }
 };
@@ -73,15 +73,18 @@ const exportAsCSV = (events: AuditEvent[], fileName: string): void => {
 };
 
 /**
- * Export audit events as PDF report
+ * Export audit events as PDF report with integrity verification
  */
-const exportAsPDF = (events: AuditEvent[], documentName: string, fileName: string): void => {
+const exportAsPDF = async (events: AuditEvent[], documentName: string, fileName: string): Promise<void> => {
   // Create PDF document
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
     format: 'a4',
   });
+  
+  // Generate integrity hash for the events
+  const integrityHash = await generateChainHash(events);
   
   // Add title
   pdf.setFontSize(22);
@@ -94,15 +97,25 @@ const exportAsPDF = (events: AuditEvent[], documentName: string, fileName: strin
   pdf.text(`Document: ${documentName}`, 20, 35);
   pdf.text(`Export Date: ${new Date().toLocaleDateString()}`, 20, 42);
   
+  // Add integrity verification section
+  pdf.setFontSize(12);
+  pdf.setTextColor(0, 102, 0);
+  pdf.text('Integrity Verification', 20, 50);
+  
+  pdf.setFontSize(10);
+  pdf.setTextColor(0, 0, 0);
+  pdf.text(`Hash: ${integrityHash.substring(0, 32)}...`, 20, 57);
+  pdf.text(`Timestamp: ${new Date().toISOString()}`, 20, 64);
+  
   // Add report stats
   const stats = calculateReportStatistics(events);
-  let yPos = addStatisticsSection(pdf, stats, 55);
+  let yPos = addStatisticsSection(pdf, stats, 75);
   
   // Add events table
   yPos = addEventsTable(pdf, events, yPos);
   
-  // Add footer
-  addFooter(pdf);
+  // Add footer with integrity hash
+  addFooter(pdf, integrityHash);
   
   // Save the PDF
   pdf.save(fileName);

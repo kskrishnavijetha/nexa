@@ -2,12 +2,13 @@
 import React from 'react';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, HelpCircle, RefreshCw, FileText, FileSpreadsheet, File } from 'lucide-react';
+import { Download, HelpCircle, RefreshCw, FileText, FileSpreadsheet, File, Shield } from 'lucide-react';
 import { useAuditTrail } from './AuditTrailProvider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { getScoreColor } from '@/utils/reports';
 import { exportAuditLogs, ExportFormat } from '@/utils/audit/exportLogs';
+import { verifyLogIntegrity } from '@/utils/audit/logIntegrity';
 import { toast } from 'sonner';
 import {
   DropdownMenu,
@@ -24,6 +25,19 @@ interface AuditTrailHeaderProps {
 
 const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => {
   const { auditEvents, isGeneratingReport, downloadAuditReport, setLastActivity, industry } = useAuditTrail();
+  const [integrityVerified, setIntegrityVerified] = React.useState<boolean | null>(null);
+
+  React.useEffect(() => {
+    // Verify log integrity whenever audit events change
+    const checkIntegrity = async () => {
+      if (auditEvents.length > 0) {
+        const isVerified = await verifyLogIntegrity(auditEvents);
+        setIntegrityVerified(isVerified);
+      }
+    };
+    
+    checkIntegrity();
+  }, [auditEvents]);
 
   const handleRefresh = () => {
     // Just update the last activity timestamp to trigger new events
@@ -41,9 +55,9 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
     return Math.round((completedEvents / totalEvents) * 100);
   };
 
-  const handleExport = (format: ExportFormat) => {
+  const handleExport = async (format: ExportFormat) => {
     try {
-      exportAuditLogs(auditEvents, documentName, format);
+      await exportAuditLogs(auditEvents, documentName, format);
       toast.success(`Audit logs exported successfully as ${format.toUpperCase()}`);
     } catch (error) {
       console.error(`Error exporting audit logs as ${format}:`, error);
@@ -83,6 +97,29 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
               </Tooltip>
             </TooltipProvider>
           </div>
+          {integrityVerified !== null && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className={`flex items-center ml-2 ${integrityVerified ? 'text-green-600' : 'text-red-600'}`}>
+                    <Shield className="h-5 w-5" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="font-medium">
+                    {integrityVerified 
+                      ? "Log Integrity: Verified" 
+                      : "Log Integrity: Verification Failed"}
+                  </p>
+                  <p className="text-sm mt-1">
+                    {integrityVerified 
+                      ? "SHA-256 verification confirms these logs have not been tampered with." 
+                      : "Potential tampering detected. The audit log chain may have been modified."}
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </CardTitle>
         <CardDescription className="flex items-center mt-1">
           Compliance tracking for {documentName}
