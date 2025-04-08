@@ -81,7 +81,7 @@ export const generatePDFReport = async (
     
     // Add final score with appropriate color
     doc.setFontSize(24);
-    doc.setTextColor(...scoreColor);
+    doc.setTextColor(scoreColor[0], scoreColor[1], scoreColor[2]);
     doc.text(`Final Compliance Score: ${complianceScore}%`, 105, 60, { align: 'center' });
     
     // Add compliance status
@@ -176,4 +176,3 @@ export const generatePDFReport = async (
     return doc.output('blob');
   }
 };
-
