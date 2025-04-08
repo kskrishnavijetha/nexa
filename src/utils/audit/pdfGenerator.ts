@@ -176,3 +176,4 @@ export const generatePDFReport = async (
     return doc.output('blob');
   }
 };
+
