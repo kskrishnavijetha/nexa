@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from 'sonner';
 import { saveAs } from 'file-saver';
+import { RiskSeverity } from '@/utils/types';
 
 const AuditLogs: React.FC = () => {
   const { auditEvents, documentName } = useAuditTrail();
@@ -86,7 +87,7 @@ const AuditLogs: React.FC = () => {
         risks: auditEvents.map(event => ({
           title: event.action,
           description: `${formatTimestamp(event.timestamp)} - ${event.user}`,
-          severity: event.status === 'completed' ? 'low' : event.status === 'in-progress' ? 'medium' : 'high',
+          severity: (event.status === 'completed' ? 'low' : event.status === 'in-progress' ? 'medium' : 'high') as RiskSeverity,
           regulation: event.status
         })),
         overallScore: 0,
