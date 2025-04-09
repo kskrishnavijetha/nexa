@@ -21,7 +21,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route path="/" element={<Layout>{/* This fixes the children prop */}</Layout>}>
           <Route index element={<Index />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="history" element={<History />} />
