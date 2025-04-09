@@ -9,35 +9,32 @@ import { generateVerificationMetadata } from './audit/hashVerification';
 
 /**
  * Generate a downloadable audit trail report PDF with AI insights
+ * Optimized to prevent UI freezing
  */
 export const generateAuditReport = async (
   documentName: string,
   auditEvents: AuditEvent[],
   industry?: Industry
 ): Promise<Blob> => {
-  // Return a promise that resolves immediately with a deferred task
   return new Promise((resolve, reject) => {
-    // Use setTimeout to move heavy processing off the main thread
-    setTimeout(() => {
-      try {
-        console.log(`Generating audit report for ${documentName} with ${auditEvents.length} events`);
-        console.log(`Industry for audit report: ${industry || 'not specified'}`);
-        
-        // Generate the PDF asynchronously then resolve
-        generatePDFReport(documentName, auditEvents, industry)
-          .then(pdfBlob => resolve(pdfBlob))
-          .catch(err => reject(err));
-      } catch (error) {
-        console.error('Error generating PDF report:', error);
-        reject(error);
-      }
-    }, 0);
+    try {
+      console.log(`Generating audit report for ${documentName} with ${auditEvents.length} events`);
+      console.log(`Industry for audit report: ${industry || 'not specified'}`);
+      
+      // Generate the PDF asynchronously then resolve
+      generatePDFReport(documentName, auditEvents, industry)
+        .then(pdfBlob => resolve(pdfBlob))
+        .catch(err => reject(err));
+    } catch (error) {
+      console.error('Error generating PDF report:', error);
+      reject(error);
+    }
   });
 };
 
 /**
  * Generate a downloadable audit logs PDF (without AI insights, just the logs)
- * Optimized for better performance
+ * Optimized for better performance with batched processing
  */
 export const generateAuditLogsPDF = async (
   documentName: string,
@@ -85,28 +82,38 @@ export const generateAuditLogsPDF = async (
         pdf.line(20, 48, 190, 48);
         
         // Add events section - process events in batches for better memory usage
-        const batchSize = 50;
+        const batchSize = Math.min(50, Math.ceil(auditEvents.length / 5)); // Adjust batch size for very large datasets
         const eventBatches = [];
         for (let i = 0; i < auditEvents.length; i += batchSize) {
           eventBatches.push(auditEvents.slice(i, i + batchSize));
         }
         
         let yPos = 55;
-        eventBatches.forEach(batch => {
+        
+        // Process batches with small delays between them to prevent UI freezing
+        const processBatch = async (index: number) => {
+          if (index >= eventBatches.length) {
+            // All batches processed, finalize the PDF
+            addFooter(pdf, verificationMetadata);
+            const pdfBlob = pdf.output('blob');
+            resolve(pdfBlob);
+            return;
+          }
+          
+          const batch = eventBatches[index];
           yPos = addEventsSection(pdf, batch, yPos);
-        });
+          
+          // Process next batch with a small delay
+          setTimeout(() => processBatch(index + 1), 10);
+        };
         
-        // Add footer with page numbers and verification information
-        addFooter(pdf, verificationMetadata);
-        
-        // Finalize and return
-        const pdfBlob = pdf.output('blob');
-        resolve(pdfBlob);
+        // Start batch processing
+        processBatch(0);
       } catch (error) {
         console.error('Error generating audit logs PDF:', error);
         reject(error);
       }
-    }, 0);
+    }, 10);
   });
 };
 

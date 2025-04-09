@@ -13,6 +13,7 @@ import { generateVerificationMetadata } from './hashVerification';
 
 /**
  * Generate a PDF report with AI-enhanced insights from audit events
+ * Optimized to be non-blocking and prevent UI freezing
  */
 export const generatePDFReport = async (
   documentName: string,
@@ -22,48 +23,59 @@ export const generatePDFReport = async (
   console.log(`[pdfGenerator] Generating PDF report for ${documentName}`);
   console.log(`[pdfGenerator] Selected industry parameter: ${selectedIndustry || 'not specified'}`);
   
-  // Generate integrity verification information
-  const verificationMetadata = await generateVerificationMetadata(auditEvents);
-  console.log(`[pdfGenerator] Generated verification hash: ${verificationMetadata.shortHash}`);
-  
-  // Create PDF with a slightly larger page size (a4+ format)
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4',
-    compress: true,
-    putOnlyUsedFonts: true
+  return new Promise((resolve, reject) => {
+    setTimeout(async () => {
+      try {
+        // Generate integrity verification information
+        const verificationMetadata = await generateVerificationMetadata(auditEvents);
+        console.log(`[pdfGenerator] Generated verification hash: ${verificationMetadata.shortHash}`);
+        
+        // Create PDF with optimized settings
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4',
+          compress: true,
+          putOnlyUsedFonts: true
+        });
+        
+        // Set document properties and metadata
+        pdf.setProperties({
+          title: `Audit Report - ${documentName}`,
+          subject: 'AI-Enhanced Compliance Report',
+          creator: 'Compliance Report Generator',
+          keywords: `compliance,audit,${verificationMetadata.hash.substring(0, 15)}`
+        });
+        
+        // Add executive summary with document info
+        let yPos = addExecutiveSummary(pdf, auditEvents, documentName, selectedIndustry);
+        
+        // Calculate report statistics
+        const stats = calculateReportStatistics(auditEvents);
+        
+        // Limit the number of events used for AI insights to prevent performance issues
+        const limitedEvents = auditEvents.length > 500 
+          ? auditEvents.slice(0, 500) 
+          : auditEvents;
+          
+        // AI-Generated Insights based on industry and document
+        const insights: AIInsight[] = generateAIInsights(limitedEvents, documentName, selectedIndustry);
+        
+        // Add risk and recommendation insights section with padding
+        yPos = addInsightsSection(pdf, insights, yPos + 10);
+        
+        // Add summary statistics and findings section with padding
+        yPos = addSummarySection(pdf, stats, yPos + 10, documentName, selectedIndustry);
+        
+        // Add footer with page numbers to all pages - must be last operation
+        addFooter(pdf, verificationMetadata);
+        
+        // Return the PDF as a blob
+        resolve(pdf.output('blob'));
+      } catch (error) {
+        console.error('[pdfGenerator] Error generating PDF:', error);
+        reject(error);
+      }
+    }, 10);
   });
-  
-  // Set reasonable margins
-  const margin = 20; // 20mm margins
-  pdf.setProperties({
-    title: `Audit Report - ${documentName}`,
-    subject: 'AI-Enhanced Compliance Report',
-    creator: 'Compliance Report Generator',
-    keywords: `compliance,audit,${verificationMetadata.hash.substring(0, 15)}`
-  });
-  
-  // Add executive summary with document info - pass the industry explicitly
-  let yPos = addExecutiveSummary(pdf, auditEvents, documentName, selectedIndustry);
-  
-  // Report Statistics
-  const stats = calculateReportStatistics(auditEvents);
-  
-  // AI-Generated Insights based on industry and document
-  // Use the document name and industry to help determine the insights
-  const insights: AIInsight[] = generateAIInsights(auditEvents, documentName, selectedIndustry);
-  
-  // Add risk and recommendation insights section with padding
-  yPos = addInsightsSection(pdf, insights, yPos + 10);
-  
-  // Add summary statistics and findings section with padding
-  // Pass document name and selected industry to allow industry-specific findings
-  yPos = addSummarySection(pdf, stats, yPos + 10, documentName, selectedIndustry);
-  
-  // Add footer with page numbers to all pages - must be last operation
-  addFooter(pdf, verificationMetadata);
-  
-  // Return the PDF as a blob
-  return pdf.output('blob');
 };

@@ -26,6 +26,7 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
   const [isDownloading, setIsDownloading] = React.useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat>('pdf');
+  const [downloadProgress, setDownloadProgress] = useState(false);
 
   const getDownloadButtonLabel = (): string => {
     switch (language) {
@@ -38,34 +39,54 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
   };
 
   const handleDownloadPDF = async () => {
+    if (isDownloading) return;
+    
     setIsDownloading(true);
+    setDownloadProgress(true);
+    
+    // Show immediate feedback to prevent user from thinking app is frozen
+    const toastId = toast.loading('Preparing report for download...', { duration: 30000 });
+    
     try {
-      // Make sure we pass the report with industry and region
-      const response = await generateReportPDF(report, language);
-      
-      if (response.error) {
-        toast.error(response.error);
-        return;
-      }
-      
-      // Create a download link
-      const url = URL.createObjectURL(response.data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${report.documentName.replace(/\s+/g, '-').toLowerCase()}-compliance-report.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      
-      // Clean up
-      URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      toast.success('Report downloaded successfully');
+      // Request animation frame to ensure UI updates before heavy operation
+      requestAnimationFrame(async () => {
+        // Make sure we pass the report with industry and region
+        const response = await generateReportPDF(report, language);
+        
+        if (!response.success) {
+          toast.dismiss(toastId);
+          toast.error(response.error || 'Failed to generate report');
+          setIsDownloading(false);
+          setDownloadProgress(false);
+          return;
+        }
+        
+        // Create a download link
+        const url = URL.createObjectURL(response.data);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${report.documentName.replace(/\s+/g, '-').toLowerCase()}-compliance-report.pdf`;
+        
+        // Append to body, click and clean up
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up properly to avoid memory leaks
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          setIsDownloading(false);
+          setDownloadProgress(false);
+          toast.dismiss(toastId);
+          toast.success('Report downloaded successfully');
+        }, 100);
+      });
     } catch (error) {
       console.error('Error downloading PDF:', error);
+      toast.dismiss(toastId);
       toast.error('Failed to download the report. Please try again.');
-    } finally {
       setIsDownloading(false);
+      setDownloadProgress(false);
     }
   };
 
@@ -77,8 +98,20 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
 
     try {
       setExportFormat(format);
-      exportReport(report, format);
-      toast.success(`Report exported as ${format.toUpperCase()} successfully`);
+      const toastId = toast.loading(`Preparing ${format.toUpperCase()} export...`);
+      
+      // Use setTimeout to prevent UI from freezing
+      setTimeout(() => {
+        try {
+          exportReport(report, format);
+          toast.dismiss(toastId);
+          toast.success(`Report exported as ${format.toUpperCase()} successfully`);
+        } catch (error) {
+          toast.dismiss(toastId);
+          console.error(`Error exporting as ${format}:`, error);
+          toast.error(`Failed to export as ${format}. Please try again.`);
+        }
+      }, 10);
     } catch (error) {
       console.error(`Error exporting as ${format}:`, error);
       toast.error(`Failed to export as ${format}. Please try again.`);
@@ -117,7 +150,7 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
               {isDownloading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Downloading...
+                  {downloadProgress ? 'Generating...' : 'Downloading...'}
                 </>
               ) : (
                 <>
@@ -130,15 +163,15 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
           <DropdownMenuContent>
             <DropdownMenuLabel>Export Format</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => handleExport('pdf')}>
+            <DropdownMenuItem onClick={() => handleExport('pdf')} disabled={isDownloading}>
               <FileText className="h-4 w-4 mr-2" />
               PDF Document
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport('docx')}>
+            <DropdownMenuItem onClick={() => handleExport('docx')} disabled={isDownloading}>
               <FileCog className="h-4 w-4 mr-2" />
               Word Document (DOCX)
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport('csv')}>
+            <DropdownMenuItem onClick={() => handleExport('csv')} disabled={isDownloading}>
               <FileText className="h-4 w-4 mr-2" />
               CSV Spreadsheet
             </DropdownMenuItem>
