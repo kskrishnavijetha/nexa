@@ -21,24 +21,19 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path="/" element={<Layout>
-          <Routes>
-            <Route index element={<Index />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="history" element={<History />} />
-            <Route path="document-analysis" element={<DocumentAnalysis />} />
-            <Route path="google-services" element={<GoogleServices />} />
-            <Route path="pricing" element={<PricingPlans />} />
-            <Route path="payment" element={<Payment />} />
-            <Route path="audit-reports" element={<AuditReports />} />
-            <Route path="slack-monitoring" element={<SlackMonitoring />} />
-            <Route path="interactive-logs" element={<InteractiveLogsPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>}>
-        </Route>
+        <Route path="/" element={<Layout><Index /></Layout>} />
+        <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+        <Route path="/history" element={<Layout><History /></Layout>} />
+        <Route path="/document-analysis" element={<Layout><DocumentAnalysis /></Layout>} />
+        <Route path="/google-services" element={<Layout><GoogleServices /></Layout>} />
+        <Route path="/pricing" element={<Layout><PricingPlans /></Layout>} />
+        <Route path="/payment" element={<Layout><Payment /></Layout>} />
+        <Route path="/audit-reports" element={<Layout><AuditReports /></Layout>} />
+        <Route path="/slack-monitoring" element={<Layout><SlackMonitoring /></Layout>} />
+        <Route path="/interactive-logs" element={<Layout><InteractiveLogsPage /></Layout>} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="*" element={<Layout><NotFound /></Layout>} />
       </Routes>
       <Toaster />
     </>

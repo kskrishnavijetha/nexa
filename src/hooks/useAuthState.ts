@@ -78,7 +78,7 @@ export function useAuthState() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, []);  // Removed navigate from dependencies to avoid potential issues
 
   const signUp = async (email: string, password: string) => {
     const { error } = await supabase.auth.signUp({
