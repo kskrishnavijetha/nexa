@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ComplianceReport } from '@/utils/types';
@@ -150,6 +151,7 @@ const useHistoryState = (location: ReturnType<typeof useLocation>) => {
     activeTab,
     realTimeEnabled,
     lastUpdated,
+    setLastUpdated, // Export the setter function for lastUpdated
     analyzingDocument: { 
       value: analyzingDocument, 
       setter: setAnalyzingDocument 

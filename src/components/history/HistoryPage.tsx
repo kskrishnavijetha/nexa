@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -16,6 +17,7 @@ const HistoryPage: React.FC = () => {
     activeTab, 
     realTimeEnabled, 
     lastUpdated, 
+    setLastUpdated, // Extract the setter function
     analyzingDocument, 
     deleteDialogOpen, 
     setDeleteDialogOpen,
