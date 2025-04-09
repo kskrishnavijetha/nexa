@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AuditEvent from './AuditEvent';
 import { toast } from 'sonner';
 import IntegrityVerification from './IntegrityVerification';
+import { formatTimestamp } from './auditUtils';
 
 const AuditTrailList: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<'all' | 'user' | 'system'>('all');
@@ -56,19 +57,19 @@ const AuditTrailList: React.FC = () => {
         
         <TabsContent value="all" className="mt-0 space-y-4">
           {filteredEvents.map(event => (
-            <AuditEvent key={event.id} event={event} />
+            <AuditEvent key={event.id} event={event} formatTimestamp={formatTimestamp} />
           ))}
         </TabsContent>
         
         <TabsContent value="user" className="mt-0 space-y-4">
           {filteredEvents.map(event => (
-            <AuditEvent key={event.id} event={event} />
+            <AuditEvent key={event.id} event={event} formatTimestamp={formatTimestamp} />
           ))}
         </TabsContent>
         
         <TabsContent value="system" className="mt-0 space-y-4">
           {filteredEvents.map(event => (
-            <AuditEvent key={event.id} event={event} />
+            <AuditEvent key={event.id} event={event} formatTimestamp={formatTimestamp} />
           ))}
         </TabsContent>
       </Tabs>
