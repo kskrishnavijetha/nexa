@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import AuditTrail from '@/components/audit/AuditTrail';
 import HistoryHeader from '@/components/history/HistoryHeader';
 import RealtimeAnalysisSimulator from '@/components/history/RealtimeAnalysisSimulator';
-import InteractiveLogs from '@/components/logs/InteractiveLogs';
+import InteractiveLogs from '../components/logs/InteractiveLogs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useHistoryState } from '@/hooks/useHistoryState';
 import ReportsTabContent from '@/components/history/ReportsTabContent';
