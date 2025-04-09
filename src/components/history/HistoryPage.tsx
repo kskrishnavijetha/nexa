@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -36,7 +35,7 @@ const HistoryPage: React.FC = () => {
       <HistoryHeader 
         realTimeEnabled={realTimeEnabled} 
         toggleRealTime={toggleRealTime} 
-        lastUpdated={lastUpdated.value} 
+        lastUpdated={lastUpdated} 
       />
       
       <RealtimeAnalysisSimulator 
@@ -44,7 +43,7 @@ const HistoryPage: React.FC = () => {
         reports={reports}
         onReportsUpdate={handleReportsUpdate}
         onAnalyzingUpdate={analyzingDocument.setter}
-        onLastUpdatedChange={lastUpdated.setter}
+        onLastUpdatedChange={setLastUpdated}
       />
       
       {reports.length === 0 ? (
