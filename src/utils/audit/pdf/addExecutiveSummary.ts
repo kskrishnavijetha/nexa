@@ -2,8 +2,20 @@
 import { jsPDF } from 'jspdf';
 import { AuditEvent } from '@/components/audit/types';
 import { Industry } from '@/utils/types';
-import { formatDate } from '@/utils/fileUtils';
 import { mapToIndustryType } from '../industryUtils';
+
+/**
+ * Helper function to format date consistently
+ */
+const formatDate = (date: Date): string => {
+  return date.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
 
 /**
  * Add executive summary section to the PDF
@@ -138,16 +150,16 @@ export const addExecutiveSummary = (
       case 'Healthcare':
         executiveSummary += 'The analysis focuses on healthcare regulatory compliance requirements including HIPAA, HL7 standards, and patient data protection measures. ';
         break;
-      case 'Finance':
+      case 'Finance & Banking':
         executiveSummary += 'The analysis evaluates financial regulatory compliance including SOX, FINRA, and data security practices for financial information. ';
         break;
-      case 'Legal Services':
+      case 'Retail & Consumer':
         executiveSummary += 'The analysis evaluates legal document compliance with applicable regulations, confidentiality requirements, and document handling procedures. ';
         break;
-      case 'Technology':
+      case 'Cloud & SaaS':
         executiveSummary += 'The analysis covers technology industry standards including data privacy regulations, security frameworks, and software compliance requirements. ';
         break;
-      case 'Government':
+      case 'Government & Defense':
         executiveSummary += 'The analysis addresses government regulatory requirements, public records management, and compliance with applicable federal and state regulations. ';
         break;
       case 'Education':
