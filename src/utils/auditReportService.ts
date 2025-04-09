@@ -81,34 +81,23 @@ export const generateAuditLogsPDF = async (
         pdf.setLineWidth(0.5);
         pdf.line(20, 48, 190, 48);
         
-        // Add events section - process events in batches for better memory usage
-        const batchSize = Math.min(50, Math.ceil(auditEvents.length / 5)); // Adjust batch size for very large datasets
-        const eventBatches = [];
-        for (let i = 0; i < auditEvents.length; i += batchSize) {
-          eventBatches.push(auditEvents.slice(i, i + batchSize));
-        }
+        // Optimized approach: limit number of events to avoid memory issues
+        // Take only the most recent events if we have too many
+        const maxEvents = 100; // Limit total events to avoid memory issues
+        const limitedEvents = auditEvents.length > maxEvents 
+          ? auditEvents.slice(0, maxEvents) 
+          : auditEvents;
         
+        // Process all events in a single batch instead of multiple small batches
         let yPos = 55;
+        yPos = addEventsSection(pdf, limitedEvents, yPos);
         
-        // Process batches with small delays between them to prevent UI freezing
-        const processBatch = async (index: number) => {
-          if (index >= eventBatches.length) {
-            // All batches processed, finalize the PDF
-            addFooter(pdf, verificationMetadata);
-            const pdfBlob = pdf.output('blob');
-            resolve(pdfBlob);
-            return;
-          }
-          
-          const batch = eventBatches[index];
-          yPos = addEventsSection(pdf, batch, yPos);
-          
-          // Process next batch with a small delay
-          setTimeout(() => processBatch(index + 1), 10);
-        };
+        // Add footer with verification metadata
+        addFooter(pdf, verificationMetadata);
         
-        // Start batch processing
-        processBatch(0);
+        // Generate PDF blob and resolve
+        const pdfBlob = pdf.output('blob');
+        resolve(pdfBlob);
       } catch (error) {
         console.error('Error generating audit logs PDF:', error);
         reject(error);

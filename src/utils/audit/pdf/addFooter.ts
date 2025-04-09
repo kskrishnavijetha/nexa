@@ -12,7 +12,7 @@ export const addFooter = (doc: jsPDF, verificationMetadata?: any): void => {
   
   // Add audit verification information if provided
   if (verificationMetadata) {
-    // Get total pages for positioning
+    // Get total pages - use internal.pages.length instead of getNumberOfPages
     const pageCount = doc.internal.pages.length - 1;
     
     for (let i = 1; i <= pageCount; i++) {

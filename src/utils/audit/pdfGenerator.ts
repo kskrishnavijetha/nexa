@@ -54,8 +54,10 @@ export const generatePDFReport = async (
         const stats = calculateReportStatistics(auditEvents);
         
         // Limit the number of events used for AI insights to prevent performance issues
-        const limitedEvents = auditEvents.length > 500 
-          ? auditEvents.slice(0, 500) 
+        // Reduce max events from 500 to 250 for better reliability
+        const maxEvents = 250;
+        const limitedEvents = auditEvents.length > maxEvents 
+          ? auditEvents.slice(0, maxEvents) 
           : auditEvents;
           
         // AI-Generated Insights based on industry and document
