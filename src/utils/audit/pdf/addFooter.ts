@@ -10,6 +10,6 @@ export const addFooter = (doc: jsPDF, verificationMetadata?: any): void => {
   // Get organization branding (will use defaults if none set)
   const branding = getOrganizationBranding();
   
-  // Apply the branding to the footer with verification metadata
+  // Apply the branding to the footer
   applyBrandingToFooter(doc, branding, verificationMetadata);
 };

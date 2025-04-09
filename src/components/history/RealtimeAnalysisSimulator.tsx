@@ -1,14 +1,16 @@
+
 import React from 'react';
 import { ComplianceReport, Risk } from '@/utils/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Laptop, BarChart2, RefreshCcw } from 'lucide-react';
+import { Laptop, BarChart2, RefreshCcw, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface RealtimeAnalysisSimulatorProps {
   reports: ComplianceReport[];
   onReportsUpdate: (updatedReports: ComplianceReport[]) => void;
-  onAnalyzingUpdate: React.Dispatch<React.SetStateAction<string | null>>;
-  onLastUpdatedChange: React.Dispatch<React.SetStateAction<Date>>;
+  onAnalyzingUpdate: React.Dispatch<React.SetStateAction<string>>;
+  onLastUpdatedChange: React.Dispatch<React.SetStateAction<Date | null>>;
   enabled: boolean;
 }
 
@@ -48,7 +50,7 @@ const RealtimeAnalysisSimulator: React.FC<RealtimeAnalysisSimulatorProps> = ({
       };
 
       onReportsUpdate([newReport, ...reports]);
-      onAnalyzingUpdate(null);
+      onAnalyzingUpdate('Idle');
       onLastUpdatedChange(new Date());
     }, 2000);
   };

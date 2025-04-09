@@ -2,6 +2,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Clock } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface HistoryHeaderProps {
   realTimeEnabled: boolean;

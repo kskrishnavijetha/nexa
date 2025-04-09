@@ -7,7 +7,7 @@ import { useAuditTrail } from './AuditTrailProvider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { getScoreColor } from '@/utils/reports';
-import { Progress } from '@/components/ui/progress';
+import { Separator } from '@/components/ui/separator';
 
 interface AuditTrailHeaderProps {
   documentName: string;
@@ -21,8 +21,7 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
     downloadAuditReport, 
     downloadAuditLogs, 
     setLastActivity, 
-    industry,
-    progress = 0
+    industry 
   } = useAuditTrail();
 
   const handleRefresh = () => {
@@ -44,8 +43,6 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
 
   const complianceScore = calculateComplianceScore();
   const scoreColorClass = getScoreColor(complianceScore);
-
-  const isProcessing = isGeneratingReport || isGeneratingLogs;
 
   return (
     <CardHeader className="flex flex-col space-y-2 md:flex-row md:justify-between md:items-center md:space-y-0">
@@ -86,82 +83,74 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
         </CardDescription>
       </div>
       
-      <div className="flex flex-col w-full md:w-auto gap-2">
-        {isProcessing && (
-          <div className="w-full md:w-64">
-            <Progress value={progress} className="h-2" />
-          </div>
-        )}
-        <div className="flex items-center space-x-2">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="gap-1"
-                  onClick={handleRefresh}
-                  disabled={isProcessing}
-                >
-                  <RefreshCw size={14} />
-                  <span className="hidden sm:inline">Refresh</span>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Refresh audit trail data</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+      <div className="flex items-center space-x-2">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="gap-1"
+                onClick={handleRefresh}
+              >
+                <RefreshCw size={14} />
+                <span className="hidden sm:inline">Refresh</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Refresh audit trail data</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className={`gap-1 transition-all ${isGeneratingLogs ? 'bg-blue-50' : ''}`}
-                  onClick={downloadAuditLogs}
-                  disabled={isGeneratingLogs || isGeneratingReport}
-                >
-                  {isGeneratingLogs ? (
-                    <>
-                      <RefreshCw size={14} className="animate-spin" />
-                      <span>Processing...</span>
-                    </>
-                  ) : (
-                    <>
-                      <FileText size={14} />
-                      <span>Download Logs</span>
-                    </>
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Download audit logs as PDF</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          
-          <Button 
-            variant="default" 
-            size="sm" 
-            className={`gap-1 transition-all ${isGeneratingReport ? 'opacity-80' : ''}`}
-            onClick={downloadAuditReport}
-            disabled={isGeneratingReport || isGeneratingLogs}
-          >
-            {isGeneratingReport ? (
-              <>
-                <RefreshCw size={14} className="animate-spin" />
-                <span>Processing...</span>
-              </>
-            ) : (
-              <>
-                <Download size={14} />
-                <span>AI Enhanced Report</span>
-              </>
-            )}
-          </Button>
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={`gap-1 transition-all ${isGeneratingLogs ? 'bg-blue-50' : ''}`}
+                onClick={downloadAuditLogs}
+                disabled={isGeneratingLogs}
+              >
+                {isGeneratingLogs ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin" />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <FileText size={14} />
+                    <span>Download Logs</span>
+                  </>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Download audit logs as PDF</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+        
+        <Button 
+          variant="default" 
+          size="sm" 
+          className={`gap-1 transition-all ${isGeneratingReport ? 'opacity-80' : ''}`}
+          onClick={downloadAuditReport}
+          disabled={isGeneratingReport}
+        >
+          {isGeneratingReport ? (
+            <>
+              <RefreshCw size={14} className="animate-spin" />
+              <span>Processing...</span>
+            </>
+          ) : (
+            <>
+              <Download size={14} />
+              <span>AI Enhanced Report</span>
+            </>
+          )}
+        </Button>
       </div>
     </CardHeader>
   );

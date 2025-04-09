@@ -1,161 +1,129 @@
 
-import { jsPDF } from 'jspdf';
 import { AuditEvent } from '@/components/audit/types';
+import { generatePDFReport, getAuditReportFileName as getFileName } from './audit';
 import { Industry } from '@/utils/types';
-import { generatePDFReport } from './audit/pdfGenerator';
-import { getAuditReportFileName as getFileName } from './audit/fileUtils';
-import { mapToIndustryType } from './audit/industryUtils';
+import { jsPDF } from 'jspdf';
+import { addEventsSection } from './audit/pdf/addEventsSection';
+import { addFooter } from './audit/pdf';
+import { generateVerificationMetadata } from './audit/hashVerification';
 
 /**
- * Generate a PDF report for the audit trail with improved performance
+ * Generate a downloadable audit trail report PDF with AI insights
  */
 export const generateAuditReport = async (
-  documentName: string, 
-  auditEvents: AuditEvent[], 
-  industry?: Industry,
-  verificationMetadata?: any
+  documentName: string,
+  auditEvents: AuditEvent[],
+  industry?: Industry
 ): Promise<Blob> => {
-  try {
-    console.log(`[auditReportService] Generating optimized report for ${documentName} with ${auditEvents.length} events`);
-    
-    // Limit number of events processed for better performance if there are too many
-    const optimizedEvents = auditEvents.length > 500 
-      ? auditEvents.slice(0, 500) // Only use the most recent 500 events
-      : auditEvents;
-      
-    if (auditEvents.length > 500) {
-      console.log(`[auditReportService] Limited events from ${auditEvents.length} to 500 for better performance`);
-    }
-    
-    // Map the industry string to Industry type if provided
-    const mappedIndustry = industry ? mapToIndustryType(industry) : undefined;
-    
-    // Generate the PDF report with verification metadata and optimized events
-    const pdf = await generatePDFReport(documentName, optimizedEvents, mappedIndustry, verificationMetadata);
-    
-    // Create blob with optimal compression settings
-    return new Blob([pdf.output('arraybuffer')], { 
-      type: 'application/pdf'
-    });
-  } catch (error) {
-    console.error('[auditReportService] Error generating audit report:', error);
-    throw new Error('Failed to generate audit report PDF');
-  }
+  // Return a promise that resolves immediately with a deferred task
+  return new Promise((resolve, reject) => {
+    // Use setTimeout to move heavy processing off the main thread
+    setTimeout(() => {
+      try {
+        console.log(`Generating audit report for ${documentName} with ${auditEvents.length} events`);
+        console.log(`Industry for audit report: ${industry || 'not specified'}`);
+        
+        // Generate the PDF asynchronously then resolve
+        generatePDFReport(documentName, auditEvents, industry)
+          .then(pdfBlob => resolve(pdfBlob))
+          .catch(err => reject(err));
+      } catch (error) {
+        console.error('Error generating PDF report:', error);
+        reject(error);
+      }
+    }, 0);
+  });
 };
 
 /**
- * Generate a PDF with the raw audit logs - with performance optimizations
+ * Generate a downloadable audit logs PDF (without AI insights, just the logs)
+ * Optimized for better performance
  */
 export const generateAuditLogsPDF = async (
-  documentName: string, 
-  auditEvents: AuditEvent[],
-  verificationMetadata?: any
+  documentName: string,
+  auditEvents: AuditEvent[]
 ): Promise<Blob> => {
-  try {
-    // Create PDF document with optimal settings
-    const doc = new jsPDF({
-      compress: true,
-      putOnlyUsedFonts: true,
-      precision: 2
-    });
-    
-    const pageHeight = doc.internal.pageSize.height;
-    
-    // Title
-    doc.setFontSize(18);
-    doc.text(`Audit Logs: ${documentName}`, 20, 20);
-    
-    // Date
-    doc.setFontSize(12);
-    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 30);
-    
-    // Sort events by timestamp but limit the total events to improve performance
-    // Reduced max events for better performance
-    const maxEvents = 200; // Reduced from 500 to 200 for much faster generation
-    const sortedEvents = [...auditEvents]
-      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
-      .slice(0, maxEvents);
-    
-    // Events count - show how many were included vs total
-    doc.text(`Events included: ${sortedEvents.length} of ${auditEvents.length} total events`, 20, 40);
-    
-    if (auditEvents.length > maxEvents) {
-      doc.setFontSize(10);
-      doc.setTextColor(255, 0, 0);
-      doc.text(`Note: Displaying only ${maxEvents} of ${auditEvents.length} events for performance.`, 20, 50);
-      doc.setTextColor(0, 0, 0);
-    }
-    
-    let yPosition = 60;
-    
-    // Use much larger batch size for faster processing
-    const batchSize = 100; // Increased from 50 to 100
-    for (let i = 0; i < sortedEvents.length; i += batchSize) {
-      const batch = sortedEvents.slice(i, i + batchSize);
-      
-      // Simplify event rendering for better performance
-      for (const event of batch) {
-        // Check if we need a new page
-        if (yPosition > pageHeight - 40) {
-          doc.addPage();
-          yPosition = 20;
+  // Wrap in a promise to prevent UI blocking and optimize memory usage
+  return new Promise((resolve, reject) => {
+    setTimeout(async () => {
+      try {
+        console.log(`Generating audit logs PDF for ${documentName} with ${auditEvents.length} events`);
+        
+        // Generate integrity verification metadata
+        const verificationMetadata = await generateVerificationMetadata(auditEvents);
+        console.log(`[auditLogsPDF] Generated verification hash: ${verificationMetadata.shortHash}`);
+        
+        // Create PDF document with optimized settings
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4',
+          compress: true,
+          putOnlyUsedFonts: true, // Memory optimization
+        });
+        
+        // Add title
+        pdf.setFontSize(18);
+        pdf.setTextColor(0, 51, 102);
+        pdf.text('Audit Logs', 105, 20, { align: 'center' });
+        
+        // Add document name
+        pdf.setFontSize(12);
+        pdf.text(`Document: ${documentName}`, 20, 30);
+        
+        // Add generation date
+        pdf.text(`Generated: ${new Date().toLocaleString()}`, 20, 38);
+        
+        // Add verification identifier
+        pdf.setFontSize(10);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text(`Verification ID: ${verificationMetadata.shortHash}`, 20, 45);
+        
+        // Add horizontal line
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setLineWidth(0.5);
+        pdf.line(20, 48, 190, 48);
+        
+        // Add events section - process events in batches for better memory usage
+        const batchSize = 50;
+        const eventBatches = [];
+        for (let i = 0; i < auditEvents.length; i += batchSize) {
+          eventBatches.push(auditEvents.slice(i, i + batchSize));
         }
         
-        // Event header (timestamp and status)
-        doc.setFontSize(10);
-        doc.setFont("helvetica", "bold");
-        const date = new Date(event.timestamp).toLocaleString();
-        // Simplified event format for faster rendering
-        doc.text(`${date} - ${event.status || "unknown"}`, 20, yPosition);
-        yPosition += 7;
+        let yPos = 55;
+        eventBatches.forEach(batch => {
+          yPos = addEventsSection(pdf, batch, yPos);
+        });
         
-        // Event details
-        doc.setFont("helvetica", "normal");
-        doc.setFontSize(9);
+        // Add footer with page numbers and verification information
+        addFooter(pdf, verificationMetadata);
         
-        // Use a shortened version of action for better performance
-        const actionText = event.action?.length > 80 
-          ? event.action.substring(0, 80) + '...' 
-          : event.action || 'No action specified';
-          
-        doc.text(`Action: ${actionText}`, 25, yPosition);
-        yPosition += 7;
-        
-        // Simplified separator line
-        doc.setDrawColor(200, 200, 200);
-        doc.line(20, yPosition, 180, yPosition);
-        yPosition += 7;
+        // Finalize and return
+        const pdfBlob = pdf.output('blob');
+        resolve(pdfBlob);
+      } catch (error) {
+        console.error('Error generating audit logs PDF:', error);
+        reject(error);
       }
-    }
-    
-    // Add footer with verification metadata
-    const { addFooter } = await import('./audit/pdf/addFooter');
-    addFooter(doc, verificationMetadata);
-    
-    // Return optimized blob with better compression
-    return new Blob([doc.output('arraybuffer')], { 
-      type: 'application/pdf'
-    });
-  } catch (error) {
-    console.error('[auditReportService] Error generating audit logs PDF:', error);
-    throw new Error('Failed to generate audit logs PDF');
-  }
+    }, 0);
+  });
 };
 
 /**
- * Get a standardized filename for the audit report
+ * Generate a standardized filename for the audit report
  */
 export const getAuditReportFileName = (documentName: string): string => {
   return getFileName(documentName);
 };
 
 /**
- * Get a standardized filename for the audit logs
+ * Generate a standardized filename for the audit logs
  */
 export const getAuditLogsFileName = (documentName: string): string => {
   const date = new Date();
   const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-  const sanitizedDocName = documentName.replace(/[^a-z0-9]/gi, '-').toLowerCase().substring(0, 30); // Limit length
+  const sanitizedDocName = documentName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
   
   return `audit-logs-${sanitizedDocName}-${formattedDate}.pdf`;
 };
