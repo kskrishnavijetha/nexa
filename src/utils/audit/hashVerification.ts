@@ -1,5 +1,4 @@
 
-
 import { AuditEvent } from '@/components/audit/types';
 
 /**
@@ -58,8 +57,8 @@ export const verifyAuditIntegrity = async (
  * Generate a short version of the hash for display purposes
  */
 export const getShortHash = (hash: string): string => {
-  if (!hash || hash.length < 8) return hash || '';
-  return `${hash.substring(0, 8)}...`;
+  if (!hash || hash.length < 16) return hash || '';
+  return `${hash.substring(0, 16)}...`;
 };
 
 /**
@@ -77,4 +76,3 @@ export const generateVerificationMetadata = async (auditEvents: AuditEvent[]) =>
     eventCount: auditEvents.length
   };
 };
-

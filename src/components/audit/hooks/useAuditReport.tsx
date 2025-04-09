@@ -4,6 +4,7 @@ import { generateAuditReport, generateAuditLogsPDF, getAuditReportFileName, getA
 import { AuditEvent } from '../types';
 import { toast } from 'sonner';
 import { Industry } from '@/utils/types';
+import { generateVerificationMetadata } from '@/utils/audit/hashVerification';
 
 export function useAuditReport(documentName: string, auditEvents: AuditEvent[], industry?: Industry) {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
@@ -22,8 +23,12 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       // Show immediate feedback to user
       toast.loading('Processing your report...', { id: 'report-generation' });
       
+      // Generate verification metadata including hash for the report
+      const verificationMetadata = await generateVerificationMetadata(auditEvents);
+      console.log(`[useAuditReport] Generated verification hash: ${verificationMetadata.shortHash}`);
+      
       // Make sure we're using the industry from props first, before trying to detect it
-      const reportBlob = await generateAuditReport(documentName, auditEvents, industry);
+      const reportBlob = await generateAuditReport(documentName, auditEvents, industry, verificationMetadata);
       
       // Create download link
       const url = window.URL.createObjectURL(reportBlob);
@@ -66,7 +71,10 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       // Show immediate feedback to user
       toast.loading('Processing your logs...', { id: 'logs-generation' });
       
-      const logsBlob = await generateAuditLogsPDF(documentName, auditEvents);
+      // Generate verification metadata including hash for the logs
+      const verificationMetadata = await generateVerificationMetadata(auditEvents);
+      
+      const logsBlob = await generateAuditLogsPDF(documentName, auditEvents, verificationMetadata);
       
       // Create download link
       const url = window.URL.createObjectURL(logsBlob);

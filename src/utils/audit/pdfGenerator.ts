@@ -1,69 +1,82 @@
 
-import { AuditEvent } from '@/components/audit/types';
 import { jsPDF } from 'jspdf';
-import { calculateReportStatistics } from './reportStatistics';
-import { AIInsight } from './types';
-import { generateAIInsights } from './insights';
-import { addExecutiveSummary } from './pdf/addExecutiveSummary';
-import { addInsightsSection } from './pdf/addInsightsSection';
-import { addSummarySection } from './pdf/addSummarySection';
-import { addFooter } from './pdf/addFooter';
+import { AuditEvent } from '@/components/audit/types';
 import { Industry } from '@/utils/types';
-import { generateVerificationMetadata } from './hashVerification';
+import { calculateReportStatistics } from './reportStatistics';
+import { generateAIInsights } from './insights';
+import { 
+  addExecutiveSummary,
+  addSummarySection,
+  addInsightsSection,
+  addStatisticsSection,
+} from './pdf';
+import { generateComplianceFindings } from './pdf/findings/generateComplianceFindings';
+import { createFindingsTable } from './pdf/tables/createFindingsTable';
+import { addFooter } from './pdf/addFooter';
 
 /**
- * Generate a PDF report with AI-enhanced insights from audit events
+ * Generate a comprehensive PDF report for the audit trail
  */
 export const generatePDFReport = async (
-  documentName: string,
-  auditEvents: AuditEvent[],
-  selectedIndustry?: Industry
-): Promise<Blob> => {
-  console.log(`[pdfGenerator] Generating PDF report for ${documentName}`);
-  console.log(`[pdfGenerator] Selected industry parameter: ${selectedIndustry || 'not specified'}`);
+  documentName: string, 
+  auditEvents: AuditEvent[], 
+  industry?: Industry,
+  verificationMetadata?: any
+): Promise<jsPDF> => {
+  // Create new PDF document
+  const doc = new jsPDF();
   
-  // Generate integrity verification information
-  const verificationMetadata = await generateVerificationMetadata(auditEvents);
-  console.log(`[pdfGenerator] Generated verification hash: ${verificationMetadata.shortHash}`);
-  
-  // Create PDF with a slightly larger page size (a4+ format)
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4',
-    compress: true,
-    putOnlyUsedFonts: true
-  });
-  
-  // Set reasonable margins
-  const margin = 20; // 20mm margins
-  pdf.setProperties({
-    title: `Audit Report - ${documentName}`,
-    subject: 'AI-Enhanced Compliance Report',
-    creator: 'Compliance Report Generator',
-    keywords: `compliance,audit,${verificationMetadata.hash.substring(0, 15)}`
-  });
-  
-  // Add executive summary with document info - pass the industry explicitly
-  let yPos = addExecutiveSummary(pdf, auditEvents, documentName, selectedIndustry);
-  
-  // Report Statistics
-  const stats = calculateReportStatistics(auditEvents);
-  
-  // AI-Generated Insights based on industry and document
-  // Use the document name and industry to help determine the insights
-  const insights: AIInsight[] = generateAIInsights(auditEvents, documentName, selectedIndustry);
-  
-  // Add risk and recommendation insights section with padding
-  yPos = addInsightsSection(pdf, insights, yPos + 10);
-  
-  // Add summary statistics and findings section with padding
-  // Pass document name and selected industry to allow industry-specific findings
-  yPos = addSummarySection(pdf, stats, yPos + 10, documentName, selectedIndustry);
-  
-  // Add footer with page numbers to all pages - must be last operation
-  addFooter(pdf, verificationMetadata);
-  
-  // Return the PDF as a blob
-  return pdf.output('blob');
+  try {
+    console.log(`[pdfGenerator] Starting report generation for ${documentName}`);
+    
+    // Calculate statistics from the audit events
+    const statistics = calculateReportStatistics(auditEvents);
+    
+    // Generate AI insights from the audit events
+    const insights = await generateAIInsights(auditEvents, documentName, industry);
+    console.log(`[pdfGenerator] Generated ${insights.length} AI insights`);
+    
+    // Generate compliance findings based on industry and events
+    const findings = generateComplianceFindings(auditEvents, industry);
+    console.log(`[pdfGenerator] Generated ${findings.length} compliance findings`);
+    
+    // Add Executive Summary
+    addExecutiveSummary(doc, {
+      documentName,
+      industry,
+      events: auditEvents,
+      statistics,
+      insights,
+      findings
+    });
+    
+    // Add AI Insights section
+    addInsightsSection(doc, insights);
+    
+    // Add Summary section
+    addSummarySection(doc, statistics, auditEvents);
+    
+    // Add Statistics section with charts
+    addStatisticsSection(doc, statistics);
+    
+    // Create findings table
+    if (findings.length > 0) {
+      doc.addPage();
+      doc.setFontSize(16);
+      doc.text("Compliance Findings", 20, 20);
+      
+      // Add the findings table
+      createFindingsTable(doc, findings);
+    }
+    
+    // Add footer with page numbers, including verification metadata if provided
+    addFooter(doc, verificationMetadata);
+    
+    console.log(`[pdfGenerator] Finished generating PDF report with ${doc.getNumberOfPages()} pages`);
+    
+    return doc;
+  } catch (error) {
+    console.error(`[pdfGenerator] Error generating PDF report:`, error);
+    throw error;
+  }
 };

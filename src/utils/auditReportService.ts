@@ -1,124 +1,134 @@
 
-import { AuditEvent } from '@/components/audit/types';
-import { generatePDFReport, getAuditReportFileName as getFileName } from './audit';
-import { Industry } from '@/utils/types';
 import { jsPDF } from 'jspdf';
-import { addEventsSection } from './audit/pdf/addEventsSection';
-import { addFooter } from './audit/pdf';
-import { generateVerificationMetadata } from './audit/hashVerification';
+import { AuditEvent } from '@/components/audit/types';
+import { Industry } from '@/utils/types';
+import { generatePDFReport } from './audit/pdfGenerator';
+import { getAuditReportFileName as getFileName } from './audit/fileUtils';
+import { mapToIndustryType } from './audit/industryUtils';
 
 /**
- * Generate a downloadable audit trail report PDF with AI insights
+ * Generate a PDF report for the audit trail
  */
 export const generateAuditReport = async (
-  documentName: string,
-  auditEvents: AuditEvent[],
-  industry?: Industry
+  documentName: string, 
+  auditEvents: AuditEvent[], 
+  industry?: Industry,
+  verificationMetadata?: any
 ): Promise<Blob> => {
-  // Return a promise that resolves immediately with a deferred task
-  return new Promise((resolve, reject) => {
-    // Use setTimeout to move heavy processing off the main thread
-    setTimeout(() => {
-      try {
-        console.log(`Generating audit report for ${documentName} with ${auditEvents.length} events`);
-        console.log(`Industry for audit report: ${industry || 'not specified'}`);
-        
-        // Generate the PDF asynchronously then resolve
-        generatePDFReport(documentName, auditEvents, industry)
-          .then(pdfBlob => resolve(pdfBlob))
-          .catch(err => reject(err));
-      } catch (error) {
-        console.error('Error generating PDF report:', error);
-        reject(error);
-      }
-    }, 0);
-  });
+  try {
+    console.log(`[auditReportService] Generating report for ${documentName} with ${auditEvents.length} events`);
+    
+    // Map the industry string to Industry type if provided
+    const mappedIndustry = industry ? mapToIndustryType(industry) : undefined;
+    
+    // Generate the PDF report with verification metadata
+    const pdf = await generatePDFReport(documentName, auditEvents, mappedIndustry, verificationMetadata);
+    
+    return pdf.output('blob');
+  } catch (error) {
+    console.error('[auditReportService] Error generating audit report:', error);
+    throw new Error('Failed to generate audit report PDF');
+  }
 };
 
 /**
- * Generate a downloadable audit logs PDF (without AI insights, just the logs)
- * Optimized for better performance
+ * Generate a PDF with the raw audit logs
  */
 export const generateAuditLogsPDF = async (
-  documentName: string,
-  auditEvents: AuditEvent[]
+  documentName: string, 
+  auditEvents: AuditEvent[],
+  verificationMetadata?: any
 ): Promise<Blob> => {
-  // Wrap in a promise to prevent UI blocking and optimize memory usage
-  return new Promise((resolve, reject) => {
-    setTimeout(async () => {
-      try {
-        console.log(`Generating audit logs PDF for ${documentName} with ${auditEvents.length} events`);
-        
-        // Generate integrity verification metadata
-        const verificationMetadata = await generateVerificationMetadata(auditEvents);
-        console.log(`[auditLogsPDF] Generated verification hash: ${verificationMetadata.shortHash}`);
-        
-        // Create PDF document with optimized settings
-        const pdf = new jsPDF({
-          orientation: 'portrait',
-          unit: 'mm',
-          format: 'a4',
-          compress: true,
-          putOnlyUsedFonts: true, // Memory optimization
-        });
-        
-        // Add title
-        pdf.setFontSize(18);
-        pdf.setTextColor(0, 51, 102);
-        pdf.text('Audit Logs', 105, 20, { align: 'center' });
-        
-        // Add document name
-        pdf.setFontSize(12);
-        pdf.text(`Document: ${documentName}`, 20, 30);
-        
-        // Add generation date
-        pdf.text(`Generated: ${new Date().toLocaleString()}`, 20, 38);
-        
-        // Add verification identifier
-        pdf.setFontSize(10);
-        pdf.setTextColor(100, 100, 100);
-        pdf.text(`Verification ID: ${verificationMetadata.shortHash}`, 20, 45);
-        
-        // Add horizontal line
-        pdf.setDrawColor(200, 200, 200);
-        pdf.setLineWidth(0.5);
-        pdf.line(20, 48, 190, 48);
-        
-        // Add events section - process events in batches for better memory usage
-        const batchSize = 50;
-        const eventBatches = [];
-        for (let i = 0; i < auditEvents.length; i += batchSize) {
-          eventBatches.push(auditEvents.slice(i, i + batchSize));
-        }
-        
-        let yPos = 55;
-        eventBatches.forEach(batch => {
-          yPos = addEventsSection(pdf, batch, yPos);
-        });
-        
-        // Add footer with page numbers and verification information
-        addFooter(pdf, verificationMetadata);
-        
-        // Finalize and return
-        const pdfBlob = pdf.output('blob');
-        resolve(pdfBlob);
-      } catch (error) {
-        console.error('Error generating audit logs PDF:', error);
-        reject(error);
+  try {
+    const doc = new jsPDF();
+    const pageHeight = doc.internal.pageSize.height;
+    
+    // Title
+    doc.setFontSize(18);
+    doc.text(`Audit Logs: ${documentName}`, 20, 20);
+    
+    // Date
+    doc.setFontSize(12);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 20, 30);
+    
+    // Events count
+    doc.text(`Total events: ${auditEvents.length}`, 20, 40);
+    
+    // Sort events by timestamp
+    const sortedEvents = [...auditEvents].sort((a, b) => {
+      return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+    });
+    
+    let yPosition = 60;
+    
+    // Add events to PDF
+    for (let i = 0; i < sortedEvents.length; i++) {
+      const event = sortedEvents[i];
+      
+      // Check if we need a new page
+      if (yPosition > pageHeight - 40) {
+        doc.addPage();
+        yPosition = 20;
       }
-    }, 0);
-  });
+      
+      // Event header (ID and timestamp)
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      const date = new Date(event.timestamp).toLocaleString();
+      doc.text(`Event ${i+1} - ${date} (${event.status})`, 20, yPosition);
+      yPosition += 7;
+      
+      // Event details
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      
+      doc.text(`Action: ${event.action}`, 25, yPosition);
+      yPosition += 5;
+      
+      doc.text(`User: ${event.user}`, 25, yPosition);
+      yPosition += 5;
+      
+      if (event.description) {
+        // Split description into lines if it's long
+        const descLines = doc.splitTextToSize(`Description: ${event.description}`, 170);
+        for (const line of descLines) {
+          doc.text(line, 25, yPosition);
+          yPosition += 5;
+        }
+      }
+      
+      if (event.comments && event.comments.length > 0) {
+        doc.text(`Comments: ${event.comments.length}`, 25, yPosition);
+        yPosition += 5;
+      }
+      
+      // Add separator line
+      doc.setDrawColor(200, 200, 200);
+      doc.line(20, yPosition, 190, yPosition);
+      yPosition += 10;
+    }
+    
+    // Add footer with verification metadata
+    import('./audit/pdf/addFooter').then(({ addFooter }) => {
+      addFooter(doc, verificationMetadata);
+    });
+    
+    return doc.output('blob');
+  } catch (error) {
+    console.error('[auditReportService] Error generating audit logs PDF:', error);
+    throw new Error('Failed to generate audit logs PDF');
+  }
 };
 
 /**
- * Generate a standardized filename for the audit report
+ * Get a standardized filename for the audit report
  */
 export const getAuditReportFileName = (documentName: string): string => {
   return getFileName(documentName);
 };
 
 /**
- * Generate a standardized filename for the audit logs
+ * Get a standardized filename for the audit logs
  */
 export const getAuditLogsFileName = (documentName: string): string => {
   const date = new Date();
