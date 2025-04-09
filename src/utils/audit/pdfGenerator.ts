@@ -13,6 +13,7 @@ import { generateVerificationCode } from './hashVerification';
 
 /**
  * Generate a PDF report with AI-enhanced insights from audit events
+ * Now with SHA-256 cryptographic verification
  */
 export const generatePDFReport = async (
   documentName: string,
@@ -35,13 +36,13 @@ export const generatePDFReport = async (
   const margin = 20; // 20mm margins
   pdf.setProperties({
     title: `Audit Report - ${documentName}`,
-    subject: 'AI-Enhanced Compliance Report',
+    subject: 'AI-Enhanced Compliance Report with SHA-256 Verification',
     creator: 'Compliance Report Generator'
   });
   
-  // Generate verification code for tamper-proofing - ENSURE THIS HAPPENS
+  // Generate SHA-256 verification code for tamper-proofing
   const verificationCode = generateVerificationCode(documentName, auditEvents);
-  console.log(`[pdfGenerator] Generated verification code: ${verificationCode}`);
+  console.log(`[pdfGenerator] Generated SHA-256 verification code: ${verificationCode}`);
   
   // Add executive summary with document info - pass the industry explicitly and the verification code
   let yPos = addExecutiveSummary(pdf, auditEvents, documentName, selectedIndustry, verificationCode);

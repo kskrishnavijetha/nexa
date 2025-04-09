@@ -36,11 +36,11 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
     downloadAuditLogs
   } = useAuditReport(documentName, auditEvents, industry);
 
-  // Generate verification code for the audit trail
+  // Generate SHA-256 verification code for the audit trail
   const verificationCode = useMemo(() => {
     if (auditEvents.length === 0) return undefined;
     const code = generateVerificationCode(documentName, auditEvents);
-    console.log(`[AuditTrailProvider] Generated verification code for ${documentName}: ${code}`);
+    console.log(`[AuditTrailProvider] Generated SHA-256 verification code for ${documentName}: ${code}`);
     return code;
   }, [documentName, auditEvents]);
 

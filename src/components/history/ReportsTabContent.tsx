@@ -25,7 +25,7 @@ const ReportsTabContent: React.FC<ReportsTabContentProps> = ({
   onDeleteClick,
   selectedReport
 }) => {
-  // Generate verification code for the selected report if available
+  // Generate SHA-256 verification code for the selected report if available
   // Ensure we're generating a verification code whenever a report is selected
   const verificationCode = selectedReport 
     ? generateVerificationCode(selectedReport.documentName, [selectedReport])
@@ -33,7 +33,7 @@ const ReportsTabContent: React.FC<ReportsTabContentProps> = ({
 
   // Log verification code to help with debugging
   if (selectedReport && verificationCode) {
-    console.log(`[ReportsTabContent] Generated verification code for ${selectedReport.documentName}: ${verificationCode}`);
+    console.log(`[ReportsTabContent] Generated SHA-256 verification code for ${selectedReport.documentName}: ${verificationCode}`);
   }
 
   return (
@@ -47,11 +47,11 @@ const ReportsTabContent: React.FC<ReportsTabContentProps> = ({
                 <TooltipTrigger asChild>
                   <div className="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
                     <Shield className="h-3 w-3 mr-1" />
-                    <span>Tamper-proof</span>
+                    <span>SHA-256 Verified</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p className="text-sm">This document has tamper-proof verification.<br />Verification ID: {verificationCode}</p>
+                  <p className="text-sm">This document has SHA-256 tamper-proof verification.<br />Verification ID: {verificationCode}</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

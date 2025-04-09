@@ -54,7 +54,7 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             {verificationCode && (
               <Badge variant="outline" className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700 flex items-center gap-1">
                 <Shield className="h-3 w-3" />
-                Tamper-proof
+                SHA-256 Verified
               </Badge>
             )}
           </DialogTitle>
@@ -83,11 +83,11 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
                 <div>
                   <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
                     <Shield className="h-5 w-5 text-green-600" />
-                    Tamper-proof Verification
+                    SHA-256 Tamper-proof Verification
                   </h3>
                   <div className="bg-green-50 border border-green-100 rounded-md p-3">
                     <p className="text-sm text-green-800">
-                      This document includes cryptographic hash-based verification to ensure audit trail integrity, 
+                      This document includes SHA-256 cryptographic hash verification to ensure audit trail integrity, 
                       making it suitable for regulated industries requiring tamper-evident documentation.
                     </p>
                     <div className="mt-2 p-2 bg-green-100 rounded border border-green-200">
@@ -174,11 +174,17 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               </>
             )}
             
-            {/* Nexabloom Branding */}
+            {/* Nexabloom Branding with SHA-256 verification */}
             <Separator />
             <div className="py-2 flex flex-col sm:flex-row justify-between items-center gap-2 text-sm text-gray-500">
               <ComplianceDisclaimer compact={true} />
               <div className="flex items-center gap-1">
+                {verificationCode && (
+                  <div className="px-2 py-1 bg-green-50 rounded-full text-xs text-green-700 flex items-center mr-2">
+                    <Shield className="h-3 w-3 mr-1" />
+                    SHA-256 Secured
+                  </div>
+                )}
                 <span>Powered by</span>
                 <a 
                   href="https://nexabloom.xyz" 

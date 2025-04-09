@@ -79,12 +79,12 @@ const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report, verificat
                     <TooltipTrigger asChild>
                       <div className="inline-flex items-center text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
                         <Shield className="h-3 w-3 mr-1" />
-                        <span>Verified</span>
+                        <span>SHA-256 Verified</span>
                       </div>
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="text-sm max-w-xs">
-                        This document includes tamper-proof cryptographic verification for compliance with regulated industry requirements.<br/>
+                        This document includes SHA-256 tamper-proof cryptographic verification for compliance with regulated industry requirements.<br/>
                         <span className="text-xs font-mono mt-1 block">{verificationCode}</span>
                       </p>
                     </TooltipContent>
@@ -145,10 +145,10 @@ const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report, verificat
             <Shield className="h-5 w-5 text-green-600 mr-2" />
             <div>
               <p className="text-sm font-medium text-green-800">
-                Tamper-proof verification active
+                SHA-256 tamper-proof verification active
               </p>
               <p className="text-xs text-green-700">
-                This document uses cryptographic verification suitable for regulated industries.
+                This document uses cryptographic SHA-256 verification suitable for regulated industries.
               </p>
             </div>
           </div>

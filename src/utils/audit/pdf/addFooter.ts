@@ -3,16 +3,15 @@ import { jsPDF } from "jspdf";
 
 /**
  * Add footer with page numbers and Nexabloom branding to the PDF document
- * Includes hash-based verification details for audit compliance
+ * Includes SHA-256 hash-based verification details for audit compliance
  */
 export const addFooter = (doc: jsPDF, verificationCode?: string): void => {
   const pageCount = doc.getNumberOfPages();
   
   // Load Nexabloom logo image (using a data URI for simplicity)
-  const logoSize = 5; // Height in mm
   const logoDataURI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAACXBIWXMAAAsTAAALEwEAmpwYAAADF0lEQVR4nO2Zz08TQRTHNzM0MQH1oAcTLv4FJF48GE/+vBgSE07+OJh49AYJiYke9KAkRtw3I2o88WdjNDQmYsCEB7szbQmiIlZRarH9ku7CUmah3e4uZXm7J5LuzH7m+/3OvPd2Q0j5KU/qlB4cPErp4CjjNMk4zXHO081O872M06LJaCnVTE61bu56SjmNMUaLjNNuo9FysQZfQ6sa1BzrNTnNkqOukJckzTzkjJZONdqHKsU3GS2bsVWdJkddareKT3zwUZIOlRucY2Wn2SanBXLcFXbLQP7BUTfzl9OSBL9vMrrZlXx44JPX7tD5a4ZInF8zxMzcknvw4pVE0m5jgg8+4IPPGedjF675+GDnN/Slnl65yxkt9pUI+AR6+eZz5xKJ8cb7L14l+OBrtObKlfl87xKM045PJTj41KyQiMUMkYzHxcjoZxmRGzIiJf+XM7rjC4C2gWV8NtXfG3O1e68QwnHJ0fDTgnTrnJZdAawn0NvAcxmRHJub/yUdryK1KxEVYD2BnoW85JNPrcpUrqSjnEZFuxN2BKCx4VmR7O8V0/MLUkI5pzElMToC0FC8R44NzTHOb0oASBRdVwB6NDLj1QE5YzNSQrHTwoipC9BTcgY4zXUFwNl8KRzseOzQgegISEl82zUA1+a2cwY4HYwEQOdxxd+9AgCs//c5YjFDJBJxr30QEYDhyVlvi/x7usKwXCQAIAcnZ1U1WogEABB4B6Yqt1RJO7gLxRdIxGOitzcmxqbmlLQsHQdA6OVrJ1QBwJ9aAXDxBQDpCnDlekypVaZMSsepVgAi/VAHQILTe2UAoFoBiA5wBoAEwneKAADVCkCE5HPdAPKc31YCAC0CUD0ATQ80zmvkQEMrXAVgvVSqaXJAlNd4H3BWBGCc0/NIAJSQ0MTcF5GIx8XA0HQkAHI5nL3UWBd3oWICVenHePLMA9UWagUgt8n24emzDxW6kO0JQE5Vi1e6kMfxjCxkrJxP4HMbqfSUFxt8eDQuEqelVLtssc/Da0rfAvmxq6nsv4pVJ59mBXmZ8TWyB54Y/zc7TwKN7MY/92PsUSJJ0lZbDk95ylOeRjv/AKp9lEGAOsJnAAAAAElFTkSuQmCC";
   
-  // New security shield logo
+  // Security shield logo with SHA-256 text
   const securityLogoDataURI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAM3SURBVHja1JlLSBVRGMfHMlFJe5hlD6jIoCKiKCgSK3pAD6Iogh5kSVBBUC1atWoRRLVsF61qU7SpoE2UESVkD6xUD6Iopah8ZI/7/w/nwjAz9947M3fuLPzhB+fOnO/7n5k559zvJpKpS8lU7nkVqAerwBKwEMwFWeAVeAPegCEwDkYc1zcF9UXSDlAAlmvffwdfwDcwBSwGc5Tr8uAzmAGOs5T2gMvgB7gNtoLZyrl5oAnMUsoTs0FUewkOqeW1JmgFH8Fd0AqWKvlDYLcmkxSgDTwGd8AW5fgNoEvJd4mbYKQwDD/AL9ALDoOMMi4DzFPKl4BrISmQB+PwKdtiDnRLCj6CXlAnBc2XgAcgJ/9fBeZoF5csSYN7VkkgLx/5EjlezY8NSqAs4XrFataLfGKyVrlogOtnVsk1TNNyuQmeynzwtZGP+BDQ04X4ruQ7QEdSIvwOIq7SLc8/N/KqTCmf9NUK10pP1Mm70caxm+CHXBNXYs2BWeCEUr4NbJYO41IuWAFFJXdQuQbWA30FGnKUPqTlFJRza+UGcbUCJTndBkGrUt4IKiK2+1SgKKfbsxqtSvmxCO09HaBXKd8uro0vPyXHSPylVG6X0YvKthR/klNgEZP4M0vparkjXckEUa1Or9zrO6RLIv0uh+aJDtKe428CpunvC3mQvzanab3mtXPMvHnqScwyVcgDLJNjlSGAWTpe9ipxlEkvJGrR0AeitEiDTurPlXtlFPLej25q7C24DXaBYcmg9EKiAFZIVFgrOZIXYJPEULWS0fF11YWBb5IXUf51luSedyWeSUmOKu6CSJrEHvcljplXjktO7XJaIYJBS+Q8ufdeS46SlFLRtdl/InlQalwziPk47lKgT4FVGGzBNJ8FmeEvN5JfnGPZLm1Z4CkpMEsyLPp/xHaKZOSPSaRf8CLzCL7qmltqJcFZ5c39SLwCgRefnuvJilXgmawO5c61lTFpxaeA+tnzSXGd2QZ4XFL2us0C7HeS1rJZ4ErttaRL/uS9KwFewDvwwxDbVYuLEsajh8ACY+wI+K6MOwPGTQPeUD63fQNnggQ4KQYDz/zx0kuAgnls1FJeHfi0Zb/ItuKqwlJ4QUZBfQuSlh+1/BNgAGwrv/kNs1l6AAAAAElFTkSuQmCC";
   
   try {
@@ -43,7 +42,7 @@ export const addFooter = (doc: jsPDF, verificationCode?: string): void => {
       if (verificationCode) {
         doc.setFontSize(7);
         doc.setTextColor(50, 50, 50);
-        doc.text(`Tamper-proof verification: ${verificationCode}`, 100, 286, { align: 'center' });
+        doc.text(`SHA-256 Integrity Verification: ${verificationCode}`, 100, 286, { align: 'center' });
       }
 
       // Legal disclaimer
@@ -56,7 +55,7 @@ export const addFooter = (doc: jsPDF, verificationCode?: string): void => {
       doc.setFontSize(6);
       doc.setTextColor(100, 100, 100);
       const legalNote = verificationCode 
-        ? "This report utilizes cryptographic hash verification to ensure audit trail integrity, suitable for regulated industries."
+        ? "This report utilizes SHA-256 cryptographic hash verification to ensure audit trail integrity, meeting standards for regulated industries."
         : "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
       doc.text(legalNote, 100, 268, { align: 'center' });
       
@@ -88,7 +87,7 @@ export const addFooter = (doc: jsPDF, verificationCode?: string): void => {
       if (verificationCode) {
         doc.setFontSize(7);
         doc.setTextColor(50, 50, 50);
-        doc.text(`Tamper-proof verification: ${verificationCode}`, 100, 286, { align: 'center' });
+        doc.text(`SHA-256 Integrity Verification: ${verificationCode}`, 100, 286, { align: 'center' });
       }
       
       // Add legal disclaimer even in fallback mode
@@ -99,7 +98,7 @@ export const addFooter = (doc: jsPDF, verificationCode?: string): void => {
       
       // Add legal footnote with verification statement in fallback mode
       const legalNote = verificationCode 
-        ? "This report utilizes cryptographic hash verification to ensure audit trail integrity, suitable for regulated industries."
+        ? "This report utilizes SHA-256 cryptographic hash verification to ensure audit trail integrity, meeting standards for regulated industries."
         : "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
       doc.text(legalNote, 100, 268, { align: 'center' });
     }
