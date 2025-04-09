@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ComplianceReport } from '@/utils/types';
@@ -6,6 +7,7 @@ import HistoryHeader from '@/components/history/HistoryHeader';
 import DocumentSelector from '@/components/history/DocumentSelector';
 import ComplianceDetails from '@/components/history/ComplianceDetails';
 import RealtimeAnalysisSimulator from '@/components/history/RealtimeAnalysisSimulator';
+import InteractiveLogs from '@/components/logs/InteractiveLogs';
 import { getHistoricalReports, deleteReportFromHistory } from '@/utils/historyService';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -192,9 +194,10 @@ const History: React.FC = () => {
           className="mb-6"
           onValueChange={handleTabChange}
         >
-          <TabsList className="grid w-full max-w-md grid-cols-2">
+          <TabsList className="grid w-full max-w-md grid-cols-3">
             <TabsTrigger value="reports">Compliance Reports</TabsTrigger>
             <TabsTrigger value="audit">Audit Trail</TabsTrigger>
+            <TabsTrigger value="logs">Interactive Logs</TabsTrigger>
           </TabsList>
           
           <TabsContent value="reports" className="mt-6">
@@ -241,6 +244,10 @@ const History: React.FC = () => {
                 industry={selectedReport.industry}
               />
             )}
+          </TabsContent>
+
+          <TabsContent value="logs" className="mt-6">
+            <InteractiveLogs />
           </TabsContent>
         </Tabs>
       )}

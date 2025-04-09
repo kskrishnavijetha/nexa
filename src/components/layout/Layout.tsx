@@ -1,4 +1,3 @@
-
 import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
@@ -87,8 +86,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                   <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.pathname === '/interactive-logs'}>
-                      <Link to="/interactive-logs" draggable="false">
+                    <SidebarMenuButton asChild isActive={location.pathname === '/history' && location.search.includes('tab=logs')}>
+                      <Link to="/history?tab=logs" draggable="false">
                         <TerminalSquare className="h-4 w-4 mr-2" />
                         Interactive Logs
                       </Link>

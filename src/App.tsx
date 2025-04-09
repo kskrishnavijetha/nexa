@@ -13,7 +13,6 @@ import GoogleServices from './pages/GoogleServices';
 import Payment from './pages/Payment';
 import AuditReports from './pages/AuditReports';
 import SlackMonitoring from './pages/SlackMonitoring';
-import InteractiveLogsPage from './pages/InteractiveLogsPage';
 import { Toaster } from '@/components/ui/toaster';
 import './App.css';
 
@@ -30,7 +29,6 @@ function App() {
         <Route path="/payment" element={<Layout><Payment /></Layout>} />
         <Route path="/audit-reports" element={<Layout><AuditReports /></Layout>} />
         <Route path="/slack-monitoring" element={<Layout><SlackMonitoring /></Layout>} />
-        <Route path="/interactive-logs" element={<Layout><InteractiveLogsPage /></Layout>} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="*" element={<Layout><NotFound /></Layout>} />
