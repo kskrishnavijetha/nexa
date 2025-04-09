@@ -26,9 +26,15 @@ const ReportsTabContent: React.FC<ReportsTabContentProps> = ({
   selectedReport
 }) => {
   // Generate verification code for the selected report if available
+  // Ensure we're generating a verification code whenever a report is selected
   const verificationCode = selectedReport 
     ? generateVerificationCode(selectedReport.documentName, [selectedReport])
     : null;
+
+  // Log verification code to help with debugging
+  if (selectedReport && verificationCode) {
+    console.log(`[ReportsTabContent] Generated verification code for ${selectedReport.documentName}: ${verificationCode}`);
+  }
 
   return (
     <div className="flex flex-col gap-6">

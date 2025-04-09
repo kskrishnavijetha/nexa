@@ -39,7 +39,9 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
   // Generate verification code for the audit trail
   const verificationCode = useMemo(() => {
     if (auditEvents.length === 0) return undefined;
-    return generateVerificationCode(documentName, auditEvents);
+    const code = generateVerificationCode(documentName, auditEvents);
+    console.log(`[AuditTrailProvider] Generated verification code for ${documentName}: ${code}`);
+    return code;
   }, [documentName, auditEvents]);
 
   const value = {

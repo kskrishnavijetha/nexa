@@ -23,7 +23,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       // Show immediate feedback to user
       toast.loading('Processing your report...', { id: 'report-generation' });
       
-      // Generate verification code for this report
+      // Generate verification code for this report - Make sure this happens
       const verificationCode = generateVerificationCode(documentName, auditEvents);
       console.log(`[useAuditReport] Generated verification code: ${verificationCode}`);
       
@@ -47,6 +47,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       }, 100);
       
       console.log(`[useAuditReport] Report successfully generated for industry: ${industry || 'General'}`);
+      console.log(`[useAuditReport] Report includes verification code: ${verificationCode}`);
       
       toast.dismiss('report-generation');
       toast.success('Audit report downloaded successfully');

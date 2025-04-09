@@ -39,10 +39,11 @@ export const generatePDFReport = async (
     creator: 'Compliance Report Generator'
   });
   
-  // Generate verification code for tamper-proofing
+  // Generate verification code for tamper-proofing - ENSURE THIS HAPPENS
   const verificationCode = generateVerificationCode(documentName, auditEvents);
+  console.log(`[pdfGenerator] Generated verification code: ${verificationCode}`);
   
-  // Add executive summary with document info - pass the industry explicitly
+  // Add executive summary with document info - pass the industry explicitly and the verification code
   let yPos = addExecutiveSummary(pdf, auditEvents, documentName, selectedIndustry, verificationCode);
   
   // Report Statistics
@@ -56,13 +57,11 @@ export const generatePDFReport = async (
   yPos = addInsightsSection(pdf, insights, yPos + 10);
   
   // Add summary statistics and findings section with padding
-  // Pass document name and selected industry to allow industry-specific findings
-  yPos = addSummarySection(pdf, stats, yPos + 10, documentName, selectedIndustry);
-  
-  // We've removed the audit events section as requested
+  // Pass document name, selected industry, and verification code to allow industry-specific findings
+  yPos = addSummarySection(pdf, stats, yPos + 10, documentName, selectedIndustry, verificationCode);
   
   // Add footer with page numbers to all pages - must be last operation
-  // Pass the verification code to the footer
+  // Pass the verification code to the footer for each page
   addFooter(pdf, verificationCode);
   
   // Return the PDF as a blob

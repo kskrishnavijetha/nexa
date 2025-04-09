@@ -103,7 +103,7 @@ export const addExecutiveSummary = (
   
   yPos += 15;
   
-  // Add verification code if available
+  // Add verification code if available - HIGHLIGHT THIS SECTION AS IMPORTANT
   if (verificationCode) {
     pdf.setDrawColor(52, 152, 219); // Blue
     pdf.setLineWidth(0.25);
