@@ -1,90 +1,101 @@
 
-import { jsPDF } from 'jspdf';
+import { jsPDF } from "jspdf";
 import { AuditReportStatistics } from '../../types';
-import { createFindingsTable } from '../tables/createFindingsTable';
-import { generateComplianceFindings } from '../findings/generateComplianceFindings';
-import { Industry } from '@/utils/types';
+import { calculateComplianceScore } from '../findings/calculateComplianceScore';
+import { ComplianceFinding } from '../../types';
 
 /**
- * Add statistics section to PDF
+ * Add the statistics details section to the PDF document
  */
 export const addStatisticsSection = (
-  pdf: jsPDF, 
+  doc: jsPDF, 
   stats: AuditReportStatistics, 
-  startY: number,
-  documentName?: string,
-  industry?: Industry,
-  verificationCode?: string
+  findings: ComplianceFinding[],
+  startY: number
 ): number => {
-  // Start position
   let yPos = startY;
-  const margin = 20;
-  const pageWidth = pdf.internal.pageSize.getWidth();
   
-  // Set font for title
-  pdf.setFont('helvetica', 'bold');
-  pdf.setFontSize(14);
-  pdf.setTextColor(44, 62, 80);
-  pdf.text('Compliance Statistics & Findings', margin, yPos);
+  // Check if we need a new page for the final results
+  if (yPos > 220) {
+    doc.addPage();
+    yPos = 20;
+    
+    // Add page header for final results page
+    doc.setFontSize(14);
+    doc.setTextColor(0, 51, 102);
+    doc.text('Compliance Results & Final Score', 20, yPos);
+    yPos += 15;
+  } else {
+    // Add a section header
+    doc.setFontSize(14);
+    doc.setTextColor(0, 51, 102);
+    doc.text('Compliance Results & Final Score', 20, yPos);
+    yPos += 15;
+  }
+  
+  // Add summary details with clear formatting and spacing
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(0, 0, 0);
+  
+  // Use text arrays for each line to ensure proper rendering
+  const textLines = [
+    `Total Events: ${stats.totalEvents}`,
+    `System Events: ${stats.systemEvents}`,
+    `User Events: ${stats.userEvents}`,
+    `Completed Tasks: ${stats.completed}`,
+    `In-Progress Tasks: ${stats.inProgress}`,
+    `Pending Tasks: ${stats.pending}`
+  ];
+  
+  // Add each line with consistent spacing
+  textLines.forEach(line => {
+    doc.text(line, 25, yPos);
+    yPos += 7;
+  });
+  
   yPos += 10;
   
-  // Add statistics
-  pdf.setFont('helvetica', 'normal');
-  pdf.setFontSize(10);
-  pdf.setTextColor(60, 60, 60);
+  // Add compliance score with clear formatting and visual separation
+  const { score, status, complianceStatus } = calculateComplianceScore(findings);
   
-  // Create a background for stats
-  pdf.setFillColor(248, 250, 252); // Very light gray
-  pdf.roundedRect(margin, yPos, pageWidth - (margin * 2), 25, 3, 3, 'F');
-  yPos += 6;
+  // Add a section separator
+  doc.setDrawColor(200, 200, 200);
+  doc.setLineWidth(0.2);
+  doc.line(25, yPos - 5, 185, yPos - 5);
   
-  // Statistics in columns
-  const col1 = margin + 5;
-  const col2 = margin + 70;
-  const col3 = margin + 140;
+  // Add a decorative box for the final score
+  const scoreBoxY = yPos;
+  const scoreBoxHeight = 30;
+  doc.setFillColor(245, 245, 250);
+  doc.setDrawColor(200, 200, 210);
+  doc.roundedRect(25, scoreBoxY, 160, scoreBoxHeight, 5, 5, 'FD');
   
-  // Row 1
-  pdf.text(`Total Events: ${stats.totalEvents}`, col1, yPos);
-  pdf.text(`User Events: ${stats.userEvents}`, col2, yPos);
-  pdf.text(`System Events: ${stats.systemEvents}`, col3, yPos);
-  yPos += 8;
-  
-  // Row 2
-  pdf.text(`Completed: ${stats.completed}`, col1, yPos);
-  pdf.text(`In Progress: ${stats.inProgress}`, col2, yPos);
-  pdf.text(`Pending: ${stats.pending}`, col3, yPos);
+  // Format compliance score with larger, bold font - now with exact score and compliance status
+  yPos += 10;
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.setTextColor(0, 0, 0);
+  doc.text(`Final Compliance Score: ${score}% (${complianceStatus})`, 35, yPos);
   yPos += 12;
   
-  // Document verification status
-  if (verificationCode) {
-    yPos += 5;
-    pdf.setFillColor(240, 255, 240); // Very light green for verification
-    pdf.roundedRect(margin, yPos, pageWidth - (margin * 2), 15, 3, 3, 'F');
-    
-    pdf.setFont('helvetica', 'bold');
-    pdf.setTextColor(0, 100, 0); // Dark green
-    pdf.text('DOCUMENT VERIFICATION:', margin + 5, yPos + 10);
-    
-    pdf.setFont('helvetica', 'normal');
-    pdf.setTextColor(25, 25, 25);
-    pdf.text(`This document includes tamper-proof verification (ID: ${verificationCode.substring(0, 12)}...)`, margin + 60, yPos + 10);
-    yPos += 20;
-  }
+  // Format overall status with appropriate color and slightly larger font
+  doc.setFontSize(14);
+  doc.setTextColor(status === 'Pass' ? 0 : 204, status === 'Pass' ? 102 : 0, 0);
+  doc.text(`Overall Status: ${status}`, 35, yPos);
   
-  // Generate industry-specific compliance findings
-  const findings = generateComplianceFindings(stats, documentName, undefined, industry);
+  // Reset font to normal for subsequent text
+  doc.setFont('helvetica', 'normal');
   
-  // Add findings table
-  if (findings.length > 0) {
-    yPos += 5;
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(12);
-    pdf.setTextColor(44, 62, 80);
-    pdf.text('Compliance Findings', margin, yPos);
-    yPos += 8;
-    
-    yPos = createFindingsTable(pdf, findings, yPos);
-  }
+  yPos += scoreBoxHeight + 5;
+  
+  // Add legal footnote about AI-enhancement and disclaimer
+  doc.setFontSize(9);
+  doc.setTextColor(100, 100, 100);
+  doc.text('Note: This report was automatically generated with AI compliance analysis.', 25, yPos);
+  doc.text('Legal Disclaimer: This tool does not replace professional legal advice.', 25, yPos + 5);
+  
+  yPos += 20;
   
   return yPos;
 };

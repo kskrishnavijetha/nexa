@@ -5,18 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ComplianceScoreCards from './ComplianceScoreCards';
 import RiskAnalysis from '@/components/RiskAnalysis';
 import { Button } from '@/components/ui/button';
-import { Download, Eye, Loader2, Shield } from 'lucide-react';
+import { Download, Eye, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateReportPDF } from '@/utils/reports';
 import DocumentPreview from '@/components/document-analysis/DocumentPreview';
-import IntegrityVerification from '@/components/audit/IntegrityVerification';
 
 interface ComplianceDetailsProps {
   report: ComplianceReport;
-  verificationCode?: string | null;
 }
 
-const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report, verificationCode }) => {
+const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   
@@ -71,12 +69,7 @@ const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report, verificat
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <div className="flex flex-col">
-            <div className="flex items-center gap-2">
-              <span>{report.documentName}</span>
-              {verificationCode && (
-                <IntegrityVerification verificationCode={verificationCode} compact />
-              )}
-            </div>
+            <span>{report.documentName}</span>
             {report.industry && (
               <span className="text-sm text-muted-foreground">
                 Industry: {report.industry} {report.region && `| Region: ${report.region}`}
@@ -124,13 +117,6 @@ const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report, verificat
       </CardHeader>
       <CardContent>
         <p className="mb-4">{report.summary}</p>
-        
-        {verificationCode && (
-          <div className="mb-4">
-            <IntegrityVerification verificationCode={verificationCode} />
-          </div>
-        )}
-        
         <ComplianceScoreCards 
           gdprScore={report.gdprScore}
           hipaaScore={report.hipaaScore}
@@ -144,7 +130,6 @@ const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report, verificat
         report={report}
         isOpen={previewOpen}
         onClose={() => setPreviewOpen(false)}
-        verificationCode={verificationCode}
       />
     </Card>
   );

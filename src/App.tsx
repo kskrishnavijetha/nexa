@@ -1,42 +1,94 @@
 
+import React from 'react';
+import './App.css';
 import { Routes, Route } from 'react-router-dom';
-import Layout from './components/layout/Layout';
 import Index from './pages/Index';
-import Dashboard from './pages/Dashboard';
+import Layout from './components/layout/Layout';
+import { Toaster } from '@/components/ui/sonner';
 import NotFound from './pages/NotFound';
-import History from './pages/History';
+import Dashboard from './pages/Dashboard';
 import DocumentAnalysis from './pages/DocumentAnalysis';
+import GoogleServices from './pages/GoogleServices';
 import PricingPlans from './pages/PricingPlans';
+import Payment from './pages/Payment';
+import SlackMonitoring from './pages/SlackMonitoring';
+import History from './pages/History';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
-import GoogleServices from './pages/GoogleServices';
-import Payment from './pages/Payment';
+import { AuthProvider } from './contexts/AuthContext';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import AuditReports from './pages/AuditReports';
-import SlackMonitoring from './pages/SlackMonitoring';
-import InteractiveLogsPage from './pages/InteractiveLogsPage';
-import { Toaster } from '@/components/ui/toaster';
-import './App.css';
 
 function App() {
   return (
-    <>
+    <AuthProvider>
       <Routes>
-        <Route path="/" element={<Layout><Index /></Layout>} />
-        <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-        <Route path="/history" element={<Layout><History /></Layout>} />
-        <Route path="/document-analysis" element={<Layout><DocumentAnalysis /></Layout>} />
-        <Route path="/google-services" element={<Layout><GoogleServices /></Layout>} />
-        <Route path="/pricing" element={<Layout><PricingPlans /></Layout>} />
-        <Route path="/payment" element={<Layout><Payment /></Layout>} />
-        <Route path="/audit-reports" element={<Layout><AuditReports /></Layout>} />
-        <Route path="/slack-monitoring" element={<Layout><SlackMonitoring /></Layout>} />
-        <Route path="/interactive-logs" element={<Layout><InteractiveLogsPage /></Layout>} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="*" element={<Layout><NotFound /></Layout>} />
+        <Route path="/" element={<Index />} />
+        <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/sign-up" element={<SignUp />} />
+        
+        {/* Pricing page is accessible to everyone, but will show different states based on auth */}
+        <Route path="/pricing" element={<PricingPlans />} />
+        
+        {/* Payment page is protected but doesn't require an active subscription */}
+        <Route path="/payment" element={
+          <ProtectedRoute>
+            <Payment />
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/document-analysis" element={
+          <ProtectedRoute>
+            <Layout>
+              <DocumentAnalysis />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/history" element={
+          <ProtectedRoute>
+            <Layout>
+              <History />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/audit-reports" element={
+          <ProtectedRoute>
+            <Layout>
+              <AuditReports />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/google-services" element={
+          <ProtectedRoute>
+            <Layout>
+              <GoogleServices />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/slack-monitoring" element={
+          <ProtectedRoute>
+            <Layout>
+              <SlackMonitoring />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="*" element={<NotFound />} />
       </Routes>
       <Toaster />
-    </>
+    </AuthProvider>
   );
 }
 

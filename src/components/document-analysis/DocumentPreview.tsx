@@ -6,22 +6,19 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import ComplianceDisclaimer from '@/components/report/ComplianceDisclaimer';
-import IntegrityVerification from '@/components/audit/IntegrityVerification';
 
 interface DocumentPreviewProps {
   report: ComplianceReport | null;
   isOpen: boolean;
   onClose: () => void;
   footer?: React.ReactNode;
-  verificationCode?: string | null;
 }
 
 const DocumentPreview: React.FC<DocumentPreviewProps> = ({ 
   report, 
   isOpen, 
   onClose,
-  footer,
-  verificationCode
+  footer
 }) => {
   if (!report) return null;
 
@@ -49,13 +46,10 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-            {report.documentName}
-            {verificationCode && <IntegrityVerification verificationCode={verificationCode} compact />}
-          </DialogTitle>
+          <DialogTitle className="text-2xl font-bold">{report.documentName}</DialogTitle>
           <div className="flex items-center gap-2 mt-2">
             <span className="text-sm text-gray-500">
-              Date: {new Date(report.timestamp || Date.now()).toLocaleDateString()}
+              Date: {new Date(report.timestamp).toLocaleDateString()}
             </span>
             <Badge variant="outline" className={getScoreColor(report.overallScore)}>
               Overall Score: {report.overallScore}%
@@ -70,17 +64,6 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               <h3 className="text-lg font-semibold mb-2">Document Summary</h3>
               <p className="text-gray-700">{report.summary}</p>
             </div>
-            
-            {/* Verification Information for Regulated Industries */}
-            {verificationCode && (
-              <>
-                <Separator />
-                <div>
-                  <h3 className="text-lg font-semibold mb-2">Integrity Verification</h3>
-                  <IntegrityVerification verificationCode={verificationCode} />
-                </div>
-              </>
-            )}
             
             <Separator />
             
@@ -156,13 +139,12 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               </>
             )}
             
-            {/* Nexabloom Branding with SHA-256 verification */}
+            {/* Nexabloom Branding */}
             <Separator />
             <div className="py-2 flex flex-col sm:flex-row justify-between items-center gap-2 text-sm text-gray-500">
               <ComplianceDisclaimer compact={true} />
               <div className="flex items-center gap-1">
-                {verificationCode && <IntegrityVerification verificationCode={verificationCode} compact />}
-                <span className="ml-2">Powered by</span>
+                <span>Powered by</span>
                 <a 
                   href="https://nexabloom.xyz" 
                   target="_blank" 

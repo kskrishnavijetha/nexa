@@ -4,10 +4,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useAuditTrail } from './AuditTrailProvider';
 import { formatTimestamp } from './auditUtils';
 import { File, Eye, ArrowRight } from 'lucide-react';
-import IntegrityVerification from './IntegrityVerification';
 
 const AuditLogs: React.FC = () => {
-  const { auditEvents, verificationCode } = useAuditTrail();
+  const { auditEvents } = useAuditTrail();
 
   if (auditEvents.length === 0) {
     return (
@@ -19,12 +18,6 @@ const AuditLogs: React.FC = () => {
 
   return (
     <div className="mt-4">
-      {verificationCode && (
-        <div className="mb-4">
-          <IntegrityVerification verificationCode={verificationCode} />
-        </div>
-      )}
-      
       <h3 className="text-sm font-medium mb-2">Detailed Audit Logs</h3>
       <div className="border rounded-md overflow-hidden">
         <Table>
