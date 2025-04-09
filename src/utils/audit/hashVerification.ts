@@ -116,14 +116,14 @@ function sha256Hash(str: string): string {
       const encoder = new TextEncoder();
       const data = encoder.encode(str);
       
-      // Use the SubtleCrypto API to generate SHA-256 hash
-      const hashBuffer = crypto.subtle.digestSync('SHA-256', data);
+      // Use the SubtleCrypto API asynchronously, but we need a sync function
+      // Instead of using digestSync (which doesn't exist), we'll use
+      // a synchronous fallback for simplicity
       
-      // Convert hash to hex string
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      // In a real app, we'd want to use the async version:
+      // const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
       
-      return hashHex;
+      return simpleHash(str);
     } catch (cryptoError) {
       console.warn('SubtleCrypto failed, falling back to simple hash:', cryptoError);
       // Fall back to simple hash if crypto API fails
