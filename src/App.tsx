@@ -1,5 +1,5 @@
 
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Layout from './components/layout/Layout';
 import Index from './pages/Index';
 import Dashboard from './pages/Dashboard';
@@ -19,7 +19,7 @@ import './App.css';
 
 function App() {
   return (
-    <Router>
+    <>
       <Routes>
         <Route path="/" element={<Layout>
           <Routes>
@@ -41,7 +41,7 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
       </Routes>
       <Toaster />
-    </Router>
+    </>
   );
 }
 
