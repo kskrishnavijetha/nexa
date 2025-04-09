@@ -15,6 +15,8 @@ interface AuditTrailContextType {
   updateAuditEvents: (events: AuditEvent[]) => void;
   setLastActivity: (date: Date) => void;
   industry?: Industry;
+  verifyAuditIntegrity?: () => Promise<boolean>;
+  currentAuditHash?: string;
 }
 
 const AuditTrailContext = createContext<AuditTrailContextType | undefined>(undefined);

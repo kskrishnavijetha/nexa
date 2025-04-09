@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import AuditTrailContext from './context/AuditTrailContext';
 import { useAuditEventManager } from './hooks/useAuditEventManager';
 import { useAuditReport } from './hooks/useAuditReport';
 import { AuditEvent } from './types';
 import { Industry } from '@/utils/types';
+import { generateAuditHash, verifyAuditIntegrity } from '@/utils/audit/hashVerification';
 
 interface AuditTrailProviderProps {
   documentName: string;
@@ -19,6 +20,8 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
   initialEvents,
   industry,
 }) => {
+  const [currentAuditHash, setCurrentAuditHash] = useState<string>('');
+  
   const {
     auditEvents,
     isLoading,
@@ -34,6 +37,27 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
     downloadAuditReport,
     downloadAuditLogs
   } = useAuditReport(documentName, auditEvents, industry);
+  
+  // Generate and update the audit hash whenever the events change
+  useEffect(() => {
+    if (auditEvents.length > 0) {
+      const updateHash = async () => {
+        const hash = await generateAuditHash(auditEvents);
+        setCurrentAuditHash(hash);
+      };
+      
+      updateHash();
+    }
+  }, [auditEvents]);
+  
+  // Function to verify the integrity of the audit trail
+  const verifyIntegrity = async () => {
+    // For demo purposes, we'll verify against the current hash
+    // In a real application, this would verify against a previously stored hash
+    if (!currentAuditHash) return false;
+    
+    return verifyAuditIntegrity(auditEvents, currentAuditHash);
+  };
 
   const value = {
     auditEvents,
@@ -46,7 +70,9 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
     updateTaskStatus,
     updateAuditEvents,
     setLastActivity,
-    industry
+    industry,
+    verifyAuditIntegrity: verifyIntegrity,
+    currentAuditHash
   };
 
   return (
