@@ -3,6 +3,7 @@ import { jsPDF } from 'jspdf';
 import { AuditReportStatistics } from '../../types';
 import { createFindingsTable } from '../tables/createFindingsTable';
 import { generateComplianceFindings } from '../findings/generateComplianceFindings';
+import { Industry } from '@/utils/types';
 
 /**
  * Add statistics section to PDF
@@ -12,7 +13,7 @@ export const addStatisticsSection = (
   stats: AuditReportStatistics, 
   startY: number,
   documentName?: string,
-  industry?: string,
+  industry?: Industry,
   verificationCode?: string
 ): number => {
   // Start position
