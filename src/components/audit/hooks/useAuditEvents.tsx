@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { AuditEvent } from '../types';
 import { generateMockAuditTrail } from './mockAuditData';
@@ -17,6 +17,16 @@ interface UseAuditEventsProps {
 export function useAuditEvents({ documentName, initialEvents }: UseAuditEventsProps) {
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>(initialEvents || []);
   const [lastActivity, setLastActivity] = useState<Date>(new Date());
+  const timerRef = useRef<number | null>(null);
+  
+  // Cleanup function for timers
+  useEffect(() => {
+    return () => {
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   // Initialize auditEvents if not provided
   useEffect(() => {
@@ -26,8 +36,13 @@ export function useAuditEvents({ documentName, initialEvents }: UseAuditEventsPr
     }
   }, [documentName, initialEvents]);
 
-  // Real-time updates simulation
+  // Real-time updates simulation with performance optimizations
   useEffect(() => {
+    // Cleanup previous timer
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+    }
+    
     // Create a function that will add a new event occasionally
     const addRealTimeEvent = () => {
       const newEvent = generateRealTimeEvent(documentName);
@@ -40,14 +55,20 @@ export function useAuditEvents({ documentName, initialEvents }: UseAuditEventsPr
     
     // Keep updates flowing for 30 minutes after last activity
     if (timeSinceLastActivity < 30 * 60 * 1000) {
-      const timer = setTimeout(() => {
-        // 30% chance to add a real-time event every 5-15 seconds
+      // Use a longer delay to reduce UI pressure
+      const delay = 5000 + Math.random() * 10000;
+      timerRef.current = window.setTimeout(() => {
+        // 30% chance to add a real-time event
         if (Math.random() < 0.3) {
           addRealTimeEvent();
         }
-      }, 5000 + Math.random() * 10000);
+      }, delay);
       
-      return () => clearTimeout(timer);
+      return () => {
+        if (timerRef.current !== null) {
+          clearTimeout(timerRef.current);
+        }
+      };
     }
   }, [auditEvents, documentName, lastActivity]);
 

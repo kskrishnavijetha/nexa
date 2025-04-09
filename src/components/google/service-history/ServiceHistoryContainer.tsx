@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar } from 'lucide-react';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
@@ -23,6 +24,7 @@ const ServiceHistoryContainer: React.FC = () => {
   const [selectedReport, setSelectedReport] = useState<ComplianceReport | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [documentToDelete, setDocumentToDelete] = useState<{id: string, name: string} | null>(null);
+  const intervalRef = useRef<number | null>(null);
   
   const { reports, setReports, loadReports } = useReportState(user, scanHistory);
   
@@ -52,10 +54,23 @@ const ServiceHistoryContainer: React.FC = () => {
   }, [user, setUserId, loadReports, setReports]);
   
   useEffect(() => {
-    const interval = setInterval(() => {
+    // Clear existing interval to prevent memory leaks
+    if (intervalRef.current !== null) {
+      clearInterval(intervalRef.current);
+    }
+    
+    // Set a new interval
+    intervalRef.current = window.setInterval(() => {
       loadReports();
     }, 5000);
-    return () => clearInterval(interval);
+    
+    // Cleanup function
+    return () => {
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
   }, [loadReports]);
   
   const handleDocumentClick = (document: string, report?: ComplianceReport) => {

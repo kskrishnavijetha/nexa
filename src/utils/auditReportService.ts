@@ -31,45 +31,50 @@ export const generateAuditLogsPDF = async (
   documentName: string,
   auditEvents: AuditEvent[]
 ): Promise<Blob> => {
-  try {
-    console.log(`Generating audit logs PDF for ${documentName} with ${auditEvents.length} events`);
-    
-    // Create PDF document
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-      compress: true,
-    });
-    
-    // Add title
-    pdf.setFontSize(18);
-    pdf.setTextColor(0, 51, 102);
-    pdf.text('Audit Logs', 105, 20, { align: 'center' });
-    
-    // Add document name
-    pdf.setFontSize(12);
-    pdf.text(`Document: ${documentName}`, 20, 30);
-    
-    // Add generation date
-    pdf.text(`Generated: ${new Date().toLocaleString()}`, 20, 38);
-    
-    // Add horizontal line
-    pdf.setDrawColor(200, 200, 200);
-    pdf.setLineWidth(0.5);
-    pdf.line(20, 42, 190, 42);
-    
-    // Add events section
-    addEventsSection(pdf, auditEvents, 50);
-    
-    // Add footer with page numbers
-    addFooter(pdf);
-    
-    return pdf.output('blob');
-  } catch (error) {
-    console.error('Error generating audit logs PDF:', error);
-    throw error;
-  }
+  // Wrap in a promise to prevent UI blocking
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      try {
+        console.log(`Generating audit logs PDF for ${documentName} with ${auditEvents.length} events`);
+        
+        // Create PDF document
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4',
+          compress: true,
+        });
+        
+        // Add title
+        pdf.setFontSize(18);
+        pdf.setTextColor(0, 51, 102);
+        pdf.text('Audit Logs', 105, 20, { align: 'center' });
+        
+        // Add document name
+        pdf.setFontSize(12);
+        pdf.text(`Document: ${documentName}`, 20, 30);
+        
+        // Add generation date
+        pdf.text(`Generated: ${new Date().toLocaleString()}`, 20, 38);
+        
+        // Add horizontal line
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setLineWidth(0.5);
+        pdf.line(20, 42, 190, 42);
+        
+        // Add events section
+        addEventsSection(pdf, auditEvents, 50);
+        
+        // Add footer with page numbers
+        addFooter(pdf);
+        
+        resolve(pdf.output('blob'));
+      } catch (error) {
+        console.error('Error generating audit logs PDF:', error);
+        reject(error);
+      }
+    }, 0);
+  });
 };
 
 /**

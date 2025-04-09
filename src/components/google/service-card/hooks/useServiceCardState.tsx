@@ -1,5 +1,5 @@
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ServiceCardStateProps, ServiceCardStateReturn } from './types';
 import { useRealTimeMonitoring } from './useRealTimeMonitoring';
 import { useDialogState } from './useDialogState';
@@ -49,11 +49,17 @@ export const useServiceCardState = ({
   
   const { handleDownload } = useDownload(serviceId, uploadedFile);
 
+  // Track cleanup status
+  const hasCleanedUp = useRef(false);
+
   // Reset content when disconnected
   useEffect(() => {
-    if (!isConnected) {
+    if (!isConnected && !hasCleanedUp.current) {
       setHasScannedContent(false);
       setUploadedFile(null);
+      hasCleanedUp.current = true;
+    } else if (isConnected) {
+      hasCleanedUp.current = false;
     }
   }, [isConnected, setHasScannedContent, setUploadedFile]);
 
