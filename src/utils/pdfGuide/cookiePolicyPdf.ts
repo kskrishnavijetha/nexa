@@ -81,6 +81,15 @@ export const generateCookiePolicyPdf = (): Blob => {
   pdf.text('If you have any questions about our cookie practices, please contact us at:', 20, 30);
   pdf.text('contact@nexabloom.com', 20, 38);
   
+  // Add legal disclaimer before the footer
+  pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
+  pdf.text('8. Legal Disclaimer', 20, 53);
+  
+  pdf.setFontSize(FONT_SIZES.BODY);
+  pdf.text('This document and the associated tools are for informational purposes only and do', 20, 63);
+  pdf.text('not constitute legal advice. This tool is not a substitute for professional legal', 20, 71);
+  pdf.text('consultation. Always seek qualified legal advice for your specific situation.', 20, 79);
+  
   // Add footer with page numbers
   addFooter(pdf);
   

@@ -12,6 +12,7 @@ import { addIndustryFeatures } from './industryFeatures';
 import { addRegionalRegulations } from './regionRegulations';
 import { addGlobalComplianceFramework } from './globalCompliance';
 import { addIntegrationsAndPricing } from './integrationsAndPricing';
+import { addFooter } from '../audit/pdf/addFooter';
 
 /**
  * Generates a PDF user guide explaining the app's features
@@ -73,6 +74,32 @@ export const generateUserGuide = (): Blob => {
   
   // Add integrations and pricing
   addIntegrationsAndPricing(pdf);
+  
+  // Add legal disclaimer on the last page
+  pdf.addPage();
+  
+  // Legal Disclaimer
+  pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
+  pdf.setTextColor(textColor[0], textColor[1], textColor[2]);
+  pdf.text('Legal Disclaimer', 20, 20);
+  
+  pdf.setFontSize(FONT_SIZES.BODY);
+  pdf.text('This user guide and the Nexabloom platform are provided for informational purposes only.', 20, 35);
+  pdf.text('The information contained in this guide does not constitute legal advice, and should not be', 20, 43);
+  pdf.text('relied upon as such. Nexabloom is a compliance assistance tool, but it is not a substitute', 20, 51);
+  pdf.text('for professional legal consultation or advice.', 20, 59);
+  
+  pdf.text('Compliance regulations vary by jurisdiction and industry, and are subject to frequent changes.', 20, 74);
+  pdf.text('It is the responsibility of the user to verify all information and seek appropriate legal', 20, 82);
+  pdf.text('counsel for their specific situation.', 20, 90);
+  
+  pdf.text('Nexabloom makes no warranties, express or implied, regarding the accuracy, completeness,', 20, 105);
+  pdf.text('timeliness, or reliability of the information provided through the platform. The use of the', 20, 113);
+  pdf.text('Nexabloom platform does not create an attorney-client relationship between the user and', 20, 121);
+  pdf.text('Nexabloom or its affiliates.', 20, 129);
+  
+  // Add footer with page numbers, logo, and disclaimer
+  addFooter(pdf);
   
   // Return the PDF as a blob
   return pdf.output('blob');

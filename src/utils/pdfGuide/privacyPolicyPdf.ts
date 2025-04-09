@@ -70,6 +70,14 @@ export const generatePrivacyPolicyPdf = (): Blob => {
   pdf.text('If you have any questions about our privacy practices, please contact us at:', 20, 252);
   pdf.text('contact@nexabloom.xyz', 20, 260);
   
+  // Add legal disclaimer before the footer
+  pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
+  pdf.text('7. Legal Disclaimer', 20, 275);
+  
+  pdf.setFontSize(FONT_SIZES.BODY);
+  pdf.text('This tool is not a substitute for professional legal consultation. Always seek qualified', 20, 285);
+  pdf.text('legal advice for your specific situation.', 20, 293);
+  
   // Add footer with page numbers
   addFooter(pdf);
   

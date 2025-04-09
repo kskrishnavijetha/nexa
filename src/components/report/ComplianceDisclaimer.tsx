@@ -40,9 +40,21 @@ const ComplianceDisclaimer: React.FC<ComplianceDisclaimerProps> = ({
     }
   };
 
+  const getAdditionalDisclaimer = () => {
+    // Additional disclaimer about not replacing professional legal consultation
+    switch (language) {
+      case 'es': return "Esta herramienta no sustituye la consulta legal profesional. Siempre busque asesoramiento legal cualificado para su situación específica.";
+      case 'fr': return "Cet outil ne remplace pas la consultation juridique professionnelle. Consultez toujours un conseiller juridique qualifié pour votre situation spécifique.";
+      case 'de': return "Dieses Tool ersetzt keine professionelle Rechtsberatung. Suchen Sie immer qualifizierten rechtlichen Rat für Ihre spezifische Situation.";
+      case 'zh': return "该工具不能替代专业的法律咨询。请始终为您的特定情况寻求合格的法律建议。";
+      default: return "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
+    }
+  };
+
   return (
     <div className={`text-xs text-muted-foreground mt-4 border-t pt-3 ${className}`}>
       <p>{getDisclaimerText()}</p>
+      {!compact && <p className="mt-2 font-medium">{getAdditionalDisclaimer()}</p>}
     </div>
   );
 };

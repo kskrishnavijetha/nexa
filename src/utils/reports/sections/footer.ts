@@ -32,6 +32,10 @@ export const addFooter = (doc: jsPDF): void => {
       doc.setTextColor(100, 100, 100);
       const disclaimer = "LEGAL DISCLAIMER: This compliance report is for informational purposes only. It does not constitute legal advice and should not be considered a substitute for consulting with a qualified legal professional.";
       doc.text(disclaimer, 105, 288, { align: 'center', maxWidth: 170 });
+      
+      // Additional legal footnote
+      const legalNote = "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
+      doc.text(legalNote, 105, 292, { align: 'center', maxWidth: 170 });
     }
   } catch (error) {
     console.error("Error adding logo to PDF footer:", error);
@@ -52,6 +56,10 @@ export const addFooter = (doc: jsPDF): void => {
       doc.setTextColor(100, 100, 100);
       const disclaimer = "LEGAL DISCLAIMER: This compliance report is for informational purposes only. It does not constitute legal advice.";
       doc.text(disclaimer, 105, 288, { align: 'center', maxWidth: 170 });
+      
+      // Additional legal footnote
+      const legalNote = "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
+      doc.text(legalNote, 105, 292, { align: 'center', maxWidth: 170 });
     }
   }
 };

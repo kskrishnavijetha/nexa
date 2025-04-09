@@ -98,6 +98,15 @@ export const generateTermsOfServicePdf = (): Blob => {
   pdf.text('If you have any questions about these Terms of Service, please contact us at:', 20, 202);
   pdf.text('contact@nexabloom.xyz', 20, 210);
   
+  // Add legal disclaimer before the footer
+  pdf.setFontSize(FONT_SIZES.SECTION_TITLE);
+  pdf.text('10. Legal Disclaimer', 20, 225);
+  
+  pdf.setFontSize(FONT_SIZES.BODY);
+  pdf.text('This document and all associated tools are for informational purposes only and do not', 20, 235);
+  pdf.text('constitute legal advice. This tool is not a substitute for professional legal consultation.', 20, 243);
+  pdf.text('Always seek qualified legal advice for your specific situation.', 20, 251);
+  
   // Add footer with page numbers
   addFooter(pdf);
   

@@ -25,6 +25,7 @@ export const addFooter = (doc: jsPDF): void => {
       const footerPosition = 285;
       const brandingPosition = 280;
       const disclaimerPosition = 274;
+      const legalNotePosition = 268;
       
       // Add page numbers with more space
       doc.text(`Page ${i} of ${pageCount}`, 20, footerPosition);
@@ -42,6 +43,10 @@ export const addFooter = (doc: jsPDF): void => {
       doc.setTextColor(90, 90, 90);
       const disclaimer = "LEGAL DISCLAIMER: This report is for informational purposes only and does not constitute legal advice.";
       doc.text(disclaimer, 100, disclaimerPosition, { align: 'center' });
+      
+      // Add new legal footnote
+      const legalNote = "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
+      doc.text(legalNote, 100, legalNotePosition, { align: 'center' });
       
       // Draw a light separator line above the footer
       doc.setDrawColor(200, 200, 200);
@@ -66,6 +71,16 @@ export const addFooter = (doc: jsPDF): void => {
       doc.setTextColor(79, 70, 229);
       doc.text('Nexabloom', 100, 280, { align: 'center' });
       doc.text('nexabloom.xyz', 180, 280, { align: 'right' });
+      
+      // Add legal disclaimer even in fallback mode
+      doc.setFontSize(6);
+      doc.setTextColor(90, 90, 90);
+      const disclaimer = "LEGAL DISCLAIMER: This report is for informational purposes only and does not constitute legal advice.";
+      doc.text(disclaimer, 100, 274, { align: 'center' });
+      
+      // Add legal footnote in fallback mode
+      const legalNote = "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
+      doc.text(legalNote, 100, 268, { align: 'center' });
     }
   }
 };
