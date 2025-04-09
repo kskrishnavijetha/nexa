@@ -71,7 +71,7 @@ export const addStatisticsSection = (
   doc.setDrawColor(200, 200, 210);
   doc.roundedRect(25, scoreBoxY, 160, scoreBoxHeight, 5, 5, 'FD');
   
-  // Format compliance score with larger, bold font - now with compliance status
+  // Format compliance score with larger, bold font - now with exact score and compliance status
   yPos += 10;
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
@@ -89,10 +89,11 @@ export const addStatisticsSection = (
   
   yPos += scoreBoxHeight + 5;
   
-  // Add final note about AI-enhancement
+  // Add legal footnote about AI-enhancement and disclaimer
   doc.setFontSize(9);
   doc.setTextColor(100, 100, 100);
   doc.text('Note: This report was automatically generated with AI compliance analysis.', 25, yPos);
+  doc.text('Legal Disclaimer: This tool does not replace professional legal advice.', 25, yPos + 5);
   
   yPos += 20;
   

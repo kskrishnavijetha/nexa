@@ -15,8 +15,8 @@ export const calculateComplianceScore = (findings: ComplianceFinding[]): {
   // Count passed findings
   const passedCount = findings.filter(f => f.status === 'Pass').length;
   
-  // Calculate score with more precision and round at the end
-  const score = Math.round((passedCount / findings.length) * 100);
+  // Calculate score with exact decimal precision
+  const score = Number(((passedCount / findings.length) * 100).toFixed(2));
   
   // Use more precise thresholds for determining status
   const status = score >= 80 ? 'Pass' : 'Fail';
