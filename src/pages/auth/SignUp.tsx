@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 
 const SignUp: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -16,26 +15,6 @@ const SignUp: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { signUp } = useAuth();
-
-  const sendWelcomeEmail = async (email: string) => {
-    try {
-      console.log('Sending welcome email to:', email);
-      const { error } = await supabase.functions.invoke('send-email', {
-        body: { 
-          type: 'welcome',
-          email
-        }
-      });
-      
-      if (error) {
-        console.error('Error sending welcome email:', error);
-      } else {
-        console.log('Welcome email sent successfully');
-      }
-    } catch (err) {
-      console.error('Failed to send welcome email:', err);
-    }
-  };
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,10 +42,6 @@ const SignUp: React.FC = () => {
       if (error) {
         toast.error(error.message);
       } else {
-        // Send welcome email after successful signup
-        await sendWelcomeEmail(email);
-        
-        // After successful signup, redirect to home page
         toast.success('Signup successful! Please check your email to verify your account.');
         navigate('/');
       }
@@ -149,7 +124,7 @@ const SignUp: React.FC = () => {
           <div className="text-center mt-4">
             <p className="text-sm text-gray-600">
               Already have an account?{' '}
-              <Link to="/auth/signin" className="text-primary hover:underline">
+              <Link to="/sign-in" className="text-primary hover:underline">
                 Sign in
               </Link>
             </p>

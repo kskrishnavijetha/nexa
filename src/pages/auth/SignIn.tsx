@@ -1,68 +1,19 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { hasActiveSubscription } from '@/utils/paymentService';
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isRedirecting, setIsRedirecting] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-  const { signIn, user, loading } = useAuth();
-
-  // Reset loading state if stuck for more than 5 seconds (reduced from 10)
-  useEffect(() => {
-    if (isLoading) {
-      const timeoutId = setTimeout(() => {
-        setIsLoading(false);
-        console.log('Sign-in loading timeout reached, resetting loading state');
-        toast.error('Login is taking longer than expected. Please try again.');
-      }, 5000);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [isLoading]);
-
-  // Redirect if already logged in, but only if we're not already redirecting
-  useEffect(() => {
-    if (user && !isRedirecting && !loading) {
-      console.log('User logged in, checking subscription status');
-      setIsRedirecting(true);
-      
-      // Always redirect to pricing page for new users
-      let redirectPath = '/pricing';
-      
-      // Check if user has an active subscription
-      const hasSubscription = hasActiveSubscription();
-      
-      // If has active subscription, redirect to dashboard
-      if (hasSubscription) {
-        redirectPath = '/dashboard';
-        console.log('Active subscription found, redirecting to dashboard');
-      } else {
-        // Check if there's a saved redirect path from a protected route
-        const savedRedirectPath = sessionStorage.getItem('redirectAfterLogin');
-        if (savedRedirectPath && savedRedirectPath !== '/pricing') {
-          // Save the path but still redirect to pricing first
-          sessionStorage.setItem('redirectAfterSuccessfulPayment', savedRedirectPath);
-          console.log('Saved path for after payment:', savedRedirectPath);
-        }
-        
-        console.log('No active subscription, redirecting to pricing page');
-      }
-      
-      // Immediate redirect
-      navigate(redirectPath, { replace: true });
-    }
-  }, [user, navigate, isRedirecting, loading]);
+  const { signIn } = useAuth();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,40 +22,24 @@ const SignIn: React.FC = () => {
       toast.error('Please fill in all fields');
       return;
     }
-
-    if (isLoading) return; // Prevent multiple submissions
     
     setIsLoading(true);
     
     try {
-      console.log(`Login attempt for ${email}`);
       const { error } = await signIn(email, password);
       
       if (error) {
-        console.error('Sign in error:', error.message);
         toast.error(error.message);
-        setIsLoading(false);
       } else {
-        // Don't set loading to false here - we're going to redirect which will unmount this component
-        console.log('Sign in successful, waiting for auth state to update');
-        // Redirect happens in the useEffect when user state updates
+        toast.success('Signed in successfully');
+        navigate('/dashboard');
       }
     } catch (error: any) {
-      console.error('Unexpected sign in error:', error);
       toast.error(error.message || 'An error occurred during sign in');
+    } finally {
       setIsLoading(false);
     }
   };
-
-  // If we're in the auth loading state or redirecting, show a simple loading UI
-  if ((loading && user) || isRedirecting) {
-    return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2">Preparing your dashboard...</span>
-      </div>
-    );
-  }
 
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
@@ -129,7 +64,6 @@ const SignIn: React.FC = () => {
                 className="mt-1"
                 autoComplete="email"
                 required
-                disabled={isLoading}
               />
             </div>
             
@@ -149,7 +83,6 @@ const SignIn: React.FC = () => {
                 className="mt-1"
                 autoComplete="current-password"
                 required
-                disabled={isLoading}
               />
             </div>
           </div>
