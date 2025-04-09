@@ -18,49 +18,45 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
     setProgress(10);
     
     // Create a toast ID to update throughout the process
-    const toastId = toast.loading('Generating audit report...');
+    const toastId = toast.loading('Preparing audit data...');
     
     try {
       console.log(`[useAuditReport] Generating report for ${documentName} with ${auditEvents.length} events`);
-      console.log(`[useAuditReport] Industry explicitly selected: ${industry || 'not specified'}`);
       
-      // Break up the process to prevent UI freezing
-      await new Promise(resolve => setTimeout(resolve, 50));
+      // Stage 1: Prepare data with minimal processing
       setProgress(20);
-      
-      // Generate verification metadata including hash for the report
       toast.loading('Processing audit data...', { id: toastId });
-      setProgress(30);
       
-      // Use a timeout to allow UI to update
+      // Generate verification metadata in a non-blocking way
       const verificationMetadata = await new Promise<any>(resolve => {
-        setTimeout(async () => {
+        // Use requestAnimationFrame to ensure UI updates
+        requestAnimationFrame(async () => {
           const metadata = await generateVerificationMetadata(auditEvents);
           resolve(metadata);
-        }, 50);
+        });
       });
       
-      console.log(`[useAuditReport] Generated verification hash: ${verificationMetadata.shortHash}`);
-      setProgress(50);
+      setProgress(40);
       
-      // Update toast to show progress
+      // Stage 2: PDF Generation - chunked to prevent UI freeze
       toast.loading('Building PDF document...', { id: toastId });
-      setProgress(70);
+      setProgress(60);
       
-      // Make sure we're using the industry from props first, before trying to detect it
+      // Generate PDF with optimized settings to reduce processing time
       const reportBlob = await new Promise<Blob>(resolve => {
-        setTimeout(async () => {
+        // Use requestAnimationFrame instead of setTimeout for better performance
+        requestAnimationFrame(async () => {
           const blob = await generateAuditReport(documentName, auditEvents, industry, verificationMetadata);
           resolve(blob);
-        }, 50);
+        });
       });
       
-      // Update toast before download starts
-      toast.loading('Preparing download...', { id: toastId });
-      setProgress(90);
+      setProgress(80);
+      toast.loading('Finalizing download...', { id: toastId });
       
-      // Use setTimeout for final operations to ensure UI updates
-      setTimeout(() => {
+      // Stage 3: Trigger download with minimal UI blocking
+      // Use requestAnimationFrame instead of setTimeout for smoother UI
+      requestAnimationFrame(() => {
         // Create download link
         const url = window.URL.createObjectURL(reportBlob);
         const link = document.createElement('a');
@@ -68,27 +64,19 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
         link.download = getAuditReportFileName(documentName);
         
         // Trigger download
-        document.body.appendChild(link);
         link.click();
         
-        // Clean up - important for memory management
-        setTimeout(() => {
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-          setProgress(100);
-          
-          toast.dismiss(toastId);
-          toast.success('Audit report downloaded successfully');
-          
-          // Reset state after small delay
-          setTimeout(() => {
-            setIsGeneratingReport(false);
-            setProgress(0);
-          }, 200);
-        }, 100);
-      }, 50);
-      
-      console.log(`[useAuditReport] Report successfully generated for industry: ${industry || 'General'}`);
+        // Clean up immediately to free memory
+        window.URL.revokeObjectURL(url);
+        setProgress(100);
+        
+        toast.dismiss(toastId);
+        toast.success('Audit report downloaded successfully');
+        
+        // Reset state immediately
+        setIsGeneratingReport(false);
+        setProgress(0);
+      });
     } catch (error) {
       console.error('[useAuditReport] Error generating report:', error);
       toast.dismiss(toastId);
@@ -104,38 +92,36 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
     setIsGeneratingLogs(true);
     setProgress(10);
     
-    const toastId = toast.loading('Generating audit logs PDF...');
+    const toastId = toast.loading('Preparing audit log data...');
     
     try {
-      console.log(`[useAuditReport] Generating logs PDF for ${documentName} with ${auditEvents.length} events`);
+      // Stage 1: Initial preparation
+      setProgress(20);
       
-      // Allow UI to update by breaking up tasks
-      await new Promise(resolve => setTimeout(resolve, 50));
-      setProgress(30);
+      // Generate verification metadata with minimal UI blocking
+      const verificationMetadata = await new Promise<any>(resolve => {
+        requestAnimationFrame(async () => {
+          const metadata = await generateVerificationMetadata(auditEvents);
+          resolve(metadata);
+        });
+      });
       
-      // Generate verification metadata including hash for the logs
-      const verificationMetadata = await generateVerificationMetadata(auditEvents);
-      setProgress(50);
-      
-      // Update toast to show progress
+      setProgress(40);
       toast.loading('Building PDF document...', { id: toastId });
       
-      // Generate logs with a small delay to prevent UI freeze
+      // Stage 2: Generate logs with optimized settings
       const logsBlob = await new Promise<Blob>(resolve => {
-        setTimeout(async () => {
+        requestAnimationFrame(async () => {
           const blob = await generateAuditLogsPDF(documentName, auditEvents, verificationMetadata);
           resolve(blob);
-        }, 50);
+        });
       });
       
       setProgress(80);
+      toast.loading('Finalizing download...', { id: toastId });
       
-      // Update toast before download starts
-      toast.loading('Preparing download...', { id: toastId });
-      setProgress(90);
-      
-      // Use a small timeout to ensure UI updates before download starts
-      setTimeout(() => {
+      // Stage 3: Trigger download with minimal blocking
+      requestAnimationFrame(() => {
         // Create download link
         const url = window.URL.createObjectURL(logsBlob);
         const link = document.createElement('a');
@@ -143,25 +129,19 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
         link.download = getAuditLogsFileName(documentName);
         
         // Trigger download
-        document.body.appendChild(link);
         link.click();
         
-        // Clean up - important for memory management
-        setTimeout(() => {
-          document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-          setProgress(100);
-          
-          toast.dismiss(toastId);
-          toast.success('Audit logs downloaded successfully');
-          
-          // Reset state after small delay
-          setTimeout(() => {
-            setIsGeneratingLogs(false);
-            setProgress(0);
-          }, 200);
-        }, 100);
-      }, 50);
+        // Clean up immediately
+        window.URL.revokeObjectURL(url);
+        setProgress(100);
+        
+        toast.dismiss(toastId);
+        toast.success('Audit logs downloaded successfully');
+        
+        // Reset state immediately
+        setIsGeneratingLogs(false);
+        setProgress(0);
+      });
     } catch (error) {
       console.error('[useAuditReport] Error generating logs PDF:', error);
       toast.dismiss(toastId);

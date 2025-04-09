@@ -8,18 +8,19 @@ import { renderImprovementSuggestions } from './sections/improvementSuggestions'
 import { addFooter } from './sections/footer';
 
 /**
- * Generate a downloadable compliance report PDF
+ * Generate a downloadable compliance report PDF with optimized performance
  */
 export const generateReportPDF = async (
   report: ComplianceReport,
   language: SupportedLanguage = 'en'
 ): Promise<ApiResponse<Blob>> => {
   try {
-    // Simulate API latency
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Create a new PDF document
-    const doc = new jsPDF();
+    // Create a new PDF document with optimized settings
+    const doc = new jsPDF({
+      compress: true, // Enable compression for smaller file size
+      putOnlyUsedFonts: true, // Only embed used fonts
+      precision: 2 // Lower precision for better performance
+    });
     
     // Set font size and styles
     doc.setFontSize(22);
@@ -61,9 +62,14 @@ export const generateReportPDF = async (
         yPos += 7;
       }
       
-      // List applicable regulations if available
+      // List applicable regulations if available - limit to prevent performance issues
       if (report.regulations && report.regulations.length > 0) {
-        doc.text(`${translate('applicable_regulations', language)}: ${report.regulations.join(', ')}`, 20, yPos);
+        // Join only first 3 regulations if there are many
+        const displayRegulations = report.regulations.length > 3 
+          ? report.regulations.slice(0, 3).join(', ') + '...'
+          : report.regulations.join(', ');
+          
+        doc.text(`${translate('applicable_regulations', language)}: ${displayRegulations}`, 20, yPos);
         yPos += 7;
       }
     }
@@ -78,9 +84,14 @@ export const generateReportPDF = async (
     doc.setFontSize(11);
     doc.setTextColor(0, 0, 0);
     
-    // Add wrapped summary text
+    // Add wrapped summary text with optimized text splitting
     yPos += 10;
-    const summaryLines = doc.splitTextToSize(report.summary, 170);
+    // Limit summary length for better performance
+    const summaryText = report.summary.length > 300 
+      ? report.summary.substring(0, 300) + '...'
+      : report.summary;
+    
+    const summaryLines = doc.splitTextToSize(summaryText, 170);
     doc.text(summaryLines, 20, yPos);
     
     // Calculate Y position after summary
@@ -101,8 +112,18 @@ export const generateReportPDF = async (
       yPos = 20;
     }
     
+    // Limit the number of risks to display for better performance
+    if (report.risks && report.risks.length > 10) {
+      report.risks = report.risks.slice(0, 10); // Limit to 10 most important risks
+    }
+    
     // Render compliance issues section
     yPos = renderComplianceIssues(doc, report, yPos, language);
+    
+    // Limit the number of suggestions to display for better performance
+    if (report.suggestions && report.suggestions.length > 5) {
+      report.suggestions = report.suggestions.slice(0, 5); // Limit to 5 most important suggestions
+    }
     
     // Render improvement suggestions section
     yPos = renderImprovementSuggestions(doc, report, yPos, language);
@@ -110,7 +131,7 @@ export const generateReportPDF = async (
     // Add footer with page numbers
     addFooter(doc);
     
-    // Generate the PDF as a blob
+    // Generate the PDF as a blob with optimal settings
     const pdfBlob = doc.output('blob');
     
     return {

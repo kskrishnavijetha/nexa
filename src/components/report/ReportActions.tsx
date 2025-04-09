@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Eye, Loader2, FileText, FileCog } from 'lucide-react';
@@ -44,38 +43,64 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
     
     setIsDownloading(true);
     setProgress(10);
-    const toastId = toast.loading('Generating PDF report...');
+    const toastId = toast.loading('Preparing report data...');
     
     try {
-      // Process in chunks to prevent UI freezing
-      await new Promise(resolve => setTimeout(resolve, 100));
+      // Introduce a web worker or break up processing into smaller chunks
+      // to prevent UI freezing during PDF generation
+      
+      // Stage 1: Initial preparation - allow UI to update
+      await new Promise(resolve => setTimeout(resolve, 10));
+      setProgress(20);
+      
+      // Stage 2: Begin processing report data
+      toast.loading('Processing report data...', { id: toastId });
       setProgress(30);
       
-      // Make sure we pass the report with industry and region
-      const response = await generateReportPDF(report, language);
+      // Break down the PDF generation into smaller tasks with UI updates in between
+      const reportData = report; // Prepare data without heavy processing
+      setProgress(40);
       
-      setProgress(60);
-      await new Promise(resolve => setTimeout(resolve, 50));
+      // Allow UI to update before heavy operation
+      await new Promise(resolve => setTimeout(resolve, 10));
+      setProgress(50);
+      
+      // Stage 3: Generate the actual PDF with optimized settings
+      toast.loading('Building PDF document...', { id: toastId });
+      
+      // Use smaller timeout to keep UI responsive
+      const response = await new Promise<any>(resolve => {
+        setTimeout(async () => {
+          const result = await generateReportPDF(reportData, language);
+          resolve(result);
+        }, 10);
+      });
+      
+      setProgress(70);
       
       if (response.error) {
         toast.error(response.error);
+        setIsDownloading(false);
+        setProgress(0);
         return;
       }
       
-      setProgress(80);
-      // Create a download link
-      const url = URL.createObjectURL(response.data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${report.documentName.replace(/\s+/g, '-').toLowerCase()}-compliance-report.pdf`;
+      // Stage 4: Prepare download with minimal UI blocking
+      toast.loading('Finalizing download...', { id: toastId });
+      setProgress(90);
       
-      // Use setTimeout to allow UI to update before heavy operation
+      // Use setTimeout with a very short delay to allow UI to update
       setTimeout(() => {
-        document.body.appendChild(a);
+        // Create a download link
+        const url = URL.createObjectURL(response.data);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${report.documentName.replace(/\s+/g, '-').toLowerCase()}-compliance-report.pdf`;
+        
+        // Trigger download without adding to document
         a.click();
         
-        // Clean up
-        document.body.removeChild(a);
+        // Clean up - very important for memory management
         URL.revokeObjectURL(url);
         
         toast.dismiss(toastId);
@@ -86,8 +111,8 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
         setTimeout(() => {
           setIsDownloading(false);
           setProgress(0);
-        }, 200);
-      }, 100);
+        }, 100);
+      }, 10);
     } catch (error) {
       console.error('Error downloading PDF:', error);
       toast.dismiss(toastId);
