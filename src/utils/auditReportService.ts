@@ -41,7 +41,8 @@ export const generateAuditReport = async (
  */
 export const generateAuditLogsPDF = async (
   documentName: string,
-  auditEvents: AuditEvent[]
+  auditEvents: AuditEvent[],
+  industry?: Industry
 ): Promise<Blob> => {
   // Wrap in a promise to prevent UI blocking and optimize memory usage
   return new Promise((resolve, reject) => {
@@ -52,6 +53,12 @@ export const generateAuditLogsPDF = async (
         // Generate integrity verification metadata with document name
         const verificationMetadata = await generateVerificationMetadata(auditEvents);
         verificationMetadata.documentName = documentName; // Add document name to metadata
+        
+        // Add industry type if specified
+        if (industry) {
+          verificationMetadata.industryType = industry;
+        }
+        
         console.log(`[auditLogsPDF] Generated verification hash: ${verificationMetadata.shortHash}`);
         
         // Create PDF document with optimized settings
@@ -74,7 +81,7 @@ export const generateAuditLogsPDF = async (
         }
         
         // Start content after the header (give enough space for the header)
-        let yPos = 90; // Position after header section
+        let yPos = 170; // Position after header section with Executive Summary
         eventBatches.forEach(batch => {
           yPos = addEventsSection(pdf, batch, yPos);
         });
@@ -108,5 +115,5 @@ export const getAuditLogsFileName = (documentName: string): string => {
   const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   const sanitizedDocName = documentName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
   
-  return `audit-logs-${sanitizedDocName}-${formattedDate}.pdf`;
+  return `audit-trail-report-${sanitizedDocName}-${formattedDate}.pdf`;
 };

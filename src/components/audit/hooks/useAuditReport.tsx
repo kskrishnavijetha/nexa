@@ -58,7 +58,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
     if (isGeneratingLogs) return;
     
     setIsGeneratingLogs(true);
-    toast.info('Generating audit logs PDF...', { duration: 2000 });
+    toast.info('Generating audit trail report...', { duration: 2000 });
     
     try {
       console.log(`[useAuditReport] Generating logs PDF for ${documentName} with ${auditEvents.length} events`);
@@ -66,7 +66,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       // Show immediate feedback to user
       toast.loading('Processing your logs...', { id: 'logs-generation' });
       
-      const logsBlob = await generateAuditLogsPDF(documentName, auditEvents);
+      const logsBlob = await generateAuditLogsPDF(documentName, auditEvents, industry);
       
       // Create download link
       const url = window.URL.createObjectURL(logsBlob);
@@ -85,11 +85,11 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       }, 100);
       
       toast.dismiss('logs-generation');
-      toast.success('Audit logs downloaded successfully');
+      toast.success('Audit trail report downloaded successfully');
     } catch (error) {
       console.error('[useAuditReport] Error generating logs PDF:', error);
       toast.dismiss('logs-generation');
-      toast.error('Failed to generate audit logs PDF');
+      toast.error('Failed to generate audit trail report');
     } finally {
       setIsGeneratingLogs(false);
     }

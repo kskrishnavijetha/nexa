@@ -62,10 +62,10 @@ export const getShortHash = (hash: string): string => {
 };
 
 /**
- * Format date in ISO format with T separator
+ * Format date in ISO format with more readable presentation
  */
 const formatTimestampForDisplay = (date: Date): string => {
-  return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
 };
 
 /**
@@ -81,6 +81,7 @@ export const generateVerificationMetadata = async (auditEvents: AuditEvent[]) =>
     timestamp,
     verificationMethod: 'SHA-256',
     eventCount: auditEvents.length,
-    documentName: null // This will be populated by the calling function
+    documentName: null, // This will be populated by the calling function
+    industryType: null  // This will be populated by the calling function
   };
 };
