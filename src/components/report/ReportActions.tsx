@@ -16,6 +16,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Progress } from '@/components/ui/progress';
 
 interface ReportActionsProps {
   report: ComplianceReport;
@@ -26,6 +27,7 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
   const [isDownloading, setIsDownloading] = React.useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat>('pdf');
+  const [progress, setProgress] = useState(0);
 
   const getDownloadButtonLabel = (): string => {
     switch (language) {
@@ -38,34 +40,60 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
   };
 
   const handleDownloadPDF = async () => {
+    if (isDownloading) return;
+    
     setIsDownloading(true);
+    setProgress(10);
+    const toastId = toast.loading('Generating PDF report...');
+    
     try {
+      // Process in chunks to prevent UI freezing
+      await new Promise(resolve => setTimeout(resolve, 100));
+      setProgress(30);
+      
       // Make sure we pass the report with industry and region
       const response = await generateReportPDF(report, language);
+      
+      setProgress(60);
+      await new Promise(resolve => setTimeout(resolve, 50));
       
       if (response.error) {
         toast.error(response.error);
         return;
       }
       
+      setProgress(80);
       // Create a download link
       const url = URL.createObjectURL(response.data);
       const a = document.createElement('a');
       a.href = url;
       a.download = `${report.documentName.replace(/\s+/g, '-').toLowerCase()}-compliance-report.pdf`;
-      document.body.appendChild(a);
-      a.click();
       
-      // Clean up
-      URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      
-      toast.success('Report downloaded successfully');
+      // Use setTimeout to allow UI to update before heavy operation
+      setTimeout(() => {
+        document.body.appendChild(a);
+        a.click();
+        
+        // Clean up
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        toast.dismiss(toastId);
+        toast.success('Report downloaded successfully');
+        setProgress(100);
+        
+        // Reset after a short delay
+        setTimeout(() => {
+          setIsDownloading(false);
+          setProgress(0);
+        }, 200);
+      }, 100);
     } catch (error) {
       console.error('Error downloading PDF:', error);
+      toast.dismiss(toastId);
       toast.error('Failed to download the report. Please try again.');
-    } finally {
       setIsDownloading(false);
+      setProgress(0);
     }
   };
 
@@ -145,6 +173,12 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+      
+      {isDownloading && (
+        <div className="w-full mt-2">
+          <Progress value={progress} className="h-1.5" />
+        </div>
+      )}
 
       <DocumentPreview 
         report={report}

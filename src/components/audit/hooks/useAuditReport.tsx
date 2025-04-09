@@ -16,34 +16,50 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
     
     setIsGeneratingReport(true);
     setProgress(10);
-    toast.info('Generating audit report...', { duration: 2000 });
+    
+    // Create a toast ID to update throughout the process
+    const toastId = toast.loading('Generating audit report...');
     
     try {
       console.log(`[useAuditReport] Generating report for ${documentName} with ${auditEvents.length} events`);
       console.log(`[useAuditReport] Industry explicitly selected: ${industry || 'not specified'}`);
       
-      // Show immediate feedback to user with progress
-      const toastId = 'report-generation';
-      toast.loading('Processing your report...', { id: toastId });
+      // Break up the process to prevent UI freezing
+      await new Promise(resolve => setTimeout(resolve, 50));
+      setProgress(20);
       
       // Generate verification metadata including hash for the report
+      toast.loading('Processing audit data...', { id: toastId });
       setProgress(30);
-      const verificationMetadata = await generateVerificationMetadata(auditEvents);
+      
+      // Use a timeout to allow UI to update
+      const verificationMetadata = await new Promise<any>(resolve => {
+        setTimeout(async () => {
+          const metadata = await generateVerificationMetadata(auditEvents);
+          resolve(metadata);
+        }, 50);
+      });
+      
       console.log(`[useAuditReport] Generated verification hash: ${verificationMetadata.shortHash}`);
       setProgress(50);
       
       // Update toast to show progress
       toast.loading('Building PDF document...', { id: toastId });
+      setProgress(70);
       
       // Make sure we're using the industry from props first, before trying to detect it
-      setProgress(70);
-      const reportBlob = await generateAuditReport(documentName, auditEvents, industry, verificationMetadata);
+      const reportBlob = await new Promise<Blob>(resolve => {
+        setTimeout(async () => {
+          const blob = await generateAuditReport(documentName, auditEvents, industry, verificationMetadata);
+          resolve(blob);
+        }, 50);
+      });
       
       // Update toast before download starts
       toast.loading('Preparing download...', { id: toastId });
       setProgress(90);
       
-      // Use a small timeout to ensure UI updates before download starts
+      // Use setTimeout for final operations to ensure UI updates
       setTimeout(() => {
         // Create download link
         const url = window.URL.createObjectURL(reportBlob);
@@ -68,14 +84,14 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
           setTimeout(() => {
             setIsGeneratingReport(false);
             setProgress(0);
-          }, 500);
+          }, 200);
         }, 100);
       }, 50);
       
       console.log(`[useAuditReport] Report successfully generated for industry: ${industry || 'General'}`);
     } catch (error) {
       console.error('[useAuditReport] Error generating report:', error);
-      toast.dismiss('report-generation');
+      toast.dismiss(toastId);
       toast.error('Failed to generate audit report');
       setIsGeneratingReport(false);
       setProgress(0);
@@ -87,24 +103,31 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
     
     setIsGeneratingLogs(true);
     setProgress(10);
-    toast.info('Generating audit logs PDF...', { duration: 2000 });
+    
+    const toastId = toast.loading('Generating audit logs PDF...');
     
     try {
       console.log(`[useAuditReport] Generating logs PDF for ${documentName} with ${auditEvents.length} events`);
       
-      // Show immediate feedback to user with progress
-      const toastId = 'logs-generation';
-      toast.loading('Processing your logs...', { id: toastId });
+      // Allow UI to update by breaking up tasks
+      await new Promise(resolve => setTimeout(resolve, 50));
+      setProgress(30);
       
       // Generate verification metadata including hash for the logs
-      setProgress(30);
       const verificationMetadata = await generateVerificationMetadata(auditEvents);
       setProgress(50);
       
       // Update toast to show progress
       toast.loading('Building PDF document...', { id: toastId });
       
-      const logsBlob = await generateAuditLogsPDF(documentName, auditEvents, verificationMetadata);
+      // Generate logs with a small delay to prevent UI freeze
+      const logsBlob = await new Promise<Blob>(resolve => {
+        setTimeout(async () => {
+          const blob = await generateAuditLogsPDF(documentName, auditEvents, verificationMetadata);
+          resolve(blob);
+        }, 50);
+      });
+      
       setProgress(80);
       
       // Update toast before download starts
@@ -136,12 +159,12 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
           setTimeout(() => {
             setIsGeneratingLogs(false);
             setProgress(0);
-          }, 500);
+          }, 200);
         }, 100);
       }, 50);
     } catch (error) {
       console.error('[useAuditReport] Error generating logs PDF:', error);
-      toast.dismiss('logs-generation');
+      toast.dismiss(toastId);
       toast.error('Failed to generate audit logs PDF');
       setIsGeneratingLogs(false);
       setProgress(0);

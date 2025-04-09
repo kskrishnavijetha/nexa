@@ -1,10 +1,12 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { FileText, Download } from 'lucide-react';
+import { FileText, Download, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateReportPDF } from '@/utils/reports';
 import { ScanViolation, SupportedLanguage } from '../types';
 import { ComplianceRisk, Industry, Region, Suggestion } from '@/utils/types';
+import { Progress } from '@/components/ui/progress';
 
 interface ReportActionsProps {
   violations: ScanViolation[];
@@ -13,7 +15,13 @@ interface ReportActionsProps {
 }
 
 const ReportActions: React.FC<ReportActionsProps> = ({ violations, industry, services }) => {
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [currentService, setCurrentService] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
+
   const handleDownloadPDF = async (serviceFilter?: string) => {
+    if (isGenerating) return;
+    
     try {
       const filteredViolations = serviceFilter 
         ? violations.filter(v => v.service === serviceFilter)
@@ -24,7 +32,15 @@ const ReportActions: React.FC<ReportActionsProps> = ({ violations, industry, ser
         return;
       }
       
-      toast.info(`Generating PDF report${serviceFilter ? ` for ${serviceFilter}` : ''}...`);
+      setIsGenerating(true);
+      setCurrentService(serviceFilter || 'all');
+      setProgress(10);
+      
+      const toastId = toast.loading(`Generating PDF report${serviceFilter ? ` for ${serviceFilter}` : ''}...`);
+      
+      // Allow UI to breathe
+      await new Promise(resolve => setTimeout(resolve, 50));
+      setProgress(20);
       
       // Create a unique document ID
       const docId = `scan-${Date.now()}`;
@@ -48,6 +64,10 @@ const ReportActions: React.FC<ReportActionsProps> = ({ violations, industry, ser
         }
       ];
 
+      setProgress(40);
+      // Allow UI to update
+      await new Promise(resolve => setTimeout(resolve, 50));
+      
       // Create formatted risks from violations
       const risks: ComplianceRisk[] = filteredViolations.map((v, index) => ({
         id: `risk-${index + 1}`,
@@ -59,6 +79,7 @@ const ReportActions: React.FC<ReportActionsProps> = ({ violations, industry, ser
         section: v.location
       }));
       
+      setProgress(60);
       // Always use the explicitly selected industry from props or from the first violation
       const reportIndustry = industry || 
         (filteredViolations.length > 0 && filteredViolations[0].industry) || 
@@ -94,54 +115,105 @@ const ReportActions: React.FC<ReportActionsProps> = ({ violations, industry, ser
                      ['GDPR', 'ISO/IEC 27001']
       };
       
-      const result = await generateReportPDF(mockReport, 'en' as SupportedLanguage);
+      setProgress(80);
       
+      // Use promise with timeout to allow UI updates
+      const result = await new Promise(resolve => {
+        setTimeout(async () => {
+          const response = await generateReportPDF(mockReport, 'en' as SupportedLanguage);
+          resolve(response);
+        }, 50);
+      });
+      
+      setProgress(90);
+      toast.loading('Preparing download...', { id: toastId });
+      
+      // @ts-ignore - We know result has the correct structure
       if (result.data) {
-        // Create a download link for the PDF
-        const url = URL.createObjectURL(result.data);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = serviceFilter 
-          ? `${serviceFilter.toLowerCase()}-compliance-scan.pdf` 
-          : 'compliance-scan-report.pdf';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        toast.success(`PDF report for ${serviceFilter || 'all services'} downloaded successfully`);
+        // Create a download link for the PDF with a timeout
+        setTimeout(() => {
+          // @ts-ignore - We know result has the correct structure
+          const url = URL.createObjectURL(result.data);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = serviceFilter 
+            ? `${serviceFilter.toLowerCase()}-compliance-scan.pdf` 
+            : 'compliance-scan-report.pdf';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          
+          // Clean up the URL
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+            toast.dismiss(toastId);
+            toast.success(`PDF report for ${serviceFilter || 'all services'} downloaded successfully`);
+            setProgress(100);
+            
+            // Reset after a short delay
+            setTimeout(() => {
+              setIsGenerating(false);
+              setCurrentService(null);
+              setProgress(0);
+            }, 200);
+          }, 100);
+        }, 50);
       } else {
+        toast.dismiss(toastId);
         toast.error('Failed to generate PDF report');
+        setIsGenerating(false);
+        setCurrentService(null);
+        setProgress(0);
       }
     } catch (error) {
       console.error('Error generating PDF:', error);
       toast.error('An error occurred while generating the PDF');
+      setIsGenerating(false);
+      setCurrentService(null);
+      setProgress(0);
     }
   };
   
   return (
-    <div className="flex flex-col space-y-3 items-stretch sm:flex-row sm:space-y-0 sm:justify-end sm:space-x-2">
-      {/* Download all results button */}
-      <Button 
-        onClick={() => handleDownloadPDF()}
-        variant="outline"
-        className="flex items-center justify-center gap-2"
-      >
-        <FileText className="h-4 w-4" />
-        Download Full Report
-      </Button>
-      
-      {/* Per-service download buttons */}
-      {services.map(service => (
+    <div className="space-y-3">
+      <div className="flex flex-col space-y-3 items-stretch sm:flex-row sm:space-y-0 sm:justify-end sm:space-x-2">
+        {/* Download all results button */}
         <Button 
-          key={service}
-          onClick={() => handleDownloadPDF(service)}
+          onClick={() => handleDownloadPDF()}
           variant="outline"
           className="flex items-center justify-center gap-2"
+          disabled={isGenerating}
         >
-          <Download className="h-4 w-4" />
-          Download {service}
+          {isGenerating && currentService === 'all' ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <FileText className="h-4 w-4" />
+          )}
+          {isGenerating && currentService === 'all' ? 'Generating...' : 'Download Full Report'}
         </Button>
-      ))}
+        
+        {/* Per-service download buttons */}
+        {services.map(service => (
+          <Button 
+            key={service}
+            onClick={() => handleDownloadPDF(service)}
+            variant="outline"
+            className="flex items-center justify-center gap-2"
+            disabled={isGenerating}
+          >
+            {isGenerating && currentService === service ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Download className="h-4 w-4" />
+            )}
+            {isGenerating && currentService === service ? 'Generating...' : `Download ${service}`}
+          </Button>
+        ))}
+      </div>
+      
+      {isGenerating && (
+        <Progress value={progress} className="h-1.5" />
+      )}
     </div>
   );
 };
