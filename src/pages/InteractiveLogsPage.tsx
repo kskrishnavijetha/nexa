@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Helmet } from 'react-helmet';
-import InteractiveLogs from '../components/logs/InteractiveLogs';
+import InteractiveLogs from '@/components/logs/InteractiveLogs';
 
 const InteractiveLogsPage: React.FC = () => {
   return (
