@@ -1,6 +1,10 @@
-import { createContext } from 'react';
-import { AuditEvent, AuditEventStatus } from '../types';
+
+import React, { createContext } from 'react';
+import { AuditEvent } from '../types';
 import { Industry } from '@/utils/types';
+
+// Define AuditEventStatus type since it's missing from the types file
+type AuditEventStatus = 'pending' | 'in-progress' | 'completed';
 
 interface AuditTrailContextData {
   auditEvents: AuditEvent[];

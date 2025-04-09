@@ -24,8 +24,8 @@ export const generateAuditReport = async (
     // Generate the PDF report with verification metadata
     const pdf = await generatePDFReport(documentName, auditEvents, mappedIndustry, verificationMetadata);
     
-    // Return as blob with optimized compression
-    return pdf.output('blob', { compress: true });
+    // Return as blob with optimized compression - fixed blob output method
+    return new Blob([pdf.output('arraybuffer')], { type: 'application/pdf' });
   } catch (error) {
     console.error('[auditReportService] Error generating audit report:', error);
     throw new Error('Failed to generate audit report PDF');
@@ -92,9 +92,9 @@ export const generateAuditLogsPDF = async (
         doc.text(`User: ${event.user}`, 25, yPosition);
         yPosition += 5;
         
-        // Handle optional description if it exists on the event
+        // Handle optional description using action as description
         if (event.action) {
-          // Use action as description if no explicit description exists
+          // Use action as description since no explicit description exists
           // Split action text into lines if it's long
           const descLines = doc.splitTextToSize(`Description: ${event.action}`, 170);
           for (const line of descLines) {
@@ -124,8 +124,8 @@ export const generateAuditLogsPDF = async (
     const { addFooter } = await import('./audit/pdf/addFooter');
     addFooter(doc, verificationMetadata);
     
-    // Return as blob with optimized compression
-    return doc.output('blob', { compress: true });
+    // Return as blob with optimized compression - fixed blob output method
+    return new Blob([doc.output('arraybuffer')], { type: 'application/pdf' });
   } catch (error) {
     console.error('[auditReportService] Error generating audit logs PDF:', error);
     throw new Error('Failed to generate audit logs PDF');
