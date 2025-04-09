@@ -1,4 +1,5 @@
 
+
 import { AuditEvent } from '@/components/audit/types';
 
 /**
@@ -16,7 +17,7 @@ export const generateAuditHash = async (auditEvents: AuditEvent[]): Promise<stri
     // Create a string representation with only the essential data
     // This makes the hash more resistant to irrelevant changes
     const dataString = sortedEvents.map(event => 
-      `${event.id}|${event.timestamp}|${event.eventType}|${event.userId}|${event.description}`
+      `${event.id}|${event.timestamp}|${event.action}|${event.user}|${event.documentName}`
     ).join(';;');
     
     // Use Web Crypto API to generate a SHA-256 hash
@@ -76,3 +77,4 @@ export const generateVerificationMetadata = async (auditEvents: AuditEvent[]) =>
     eventCount: auditEvents.length
   };
 };
+
