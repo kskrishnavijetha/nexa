@@ -1,4 +1,5 @@
 
+
 import { AuditEvent } from '@/components/audit/types';
 
 /**
@@ -58,14 +59,7 @@ export const verifyAuditIntegrity = async (
  */
 export const getShortHash = (hash: string): string => {
   if (!hash || hash.length < 8) return hash || '';
-  return `${hash.substring(0, 32)}...`;
-};
-
-/**
- * Format date in ISO format with more readable presentation
- */
-const formatTimestampForDisplay = (date: Date): string => {
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}:${String(date.getSeconds()).padStart(2, '0')}`;
+  return `${hash.substring(0, 8)}...`;
 };
 
 /**
@@ -73,15 +67,14 @@ const formatTimestampForDisplay = (date: Date): string => {
  */
 export const generateVerificationMetadata = async (auditEvents: AuditEvent[]) => {
   const hash = await generateAuditHash(auditEvents);
-  const timestamp = formatTimestampForDisplay(new Date());
+  const timestamp = new Date().toISOString();
   
   return {
     hash,
     shortHash: getShortHash(hash),
     timestamp,
     verificationMethod: 'SHA-256',
-    eventCount: auditEvents.length,
-    documentName: null, // This will be populated by the calling function
-    industryType: null  // This will be populated by the calling function
+    eventCount: auditEvents.length
   };
 };
+

@@ -41,8 +41,7 @@ export const generateAuditReport = async (
  */
 export const generateAuditLogsPDF = async (
   documentName: string,
-  auditEvents: AuditEvent[],
-  industry?: Industry
+  auditEvents: AuditEvent[]
 ): Promise<Blob> => {
   // Wrap in a promise to prevent UI blocking and optimize memory usage
   return new Promise((resolve, reject) => {
@@ -50,15 +49,8 @@ export const generateAuditLogsPDF = async (
       try {
         console.log(`Generating audit logs PDF for ${documentName} with ${auditEvents.length} events`);
         
-        // Generate integrity verification metadata with document name
+        // Generate integrity verification metadata
         const verificationMetadata = await generateVerificationMetadata(auditEvents);
-        verificationMetadata.documentName = documentName; // Add document name to metadata
-        
-        // Add industry type if specified
-        if (industry) {
-          verificationMetadata.industryType = industry;
-        }
-        
         console.log(`[auditLogsPDF] Generated verification hash: ${verificationMetadata.shortHash}`);
         
         // Create PDF document with optimized settings
@@ -70,8 +62,27 @@ export const generateAuditLogsPDF = async (
           putOnlyUsedFonts: true, // Memory optimization
         });
         
-        // The header with document name and verification details is now added by the addFooter function
-        // so we start content from a lower Y position to avoid overlap
+        // Add title
+        pdf.setFontSize(18);
+        pdf.setTextColor(0, 51, 102);
+        pdf.text('Audit Logs', 105, 20, { align: 'center' });
+        
+        // Add document name
+        pdf.setFontSize(12);
+        pdf.text(`Document: ${documentName}`, 20, 30);
+        
+        // Add generation date
+        pdf.text(`Generated: ${new Date().toLocaleString()}`, 20, 38);
+        
+        // Add verification identifier
+        pdf.setFontSize(10);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text(`Verification ID: ${verificationMetadata.shortHash}`, 20, 45);
+        
+        // Add horizontal line
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setLineWidth(0.5);
+        pdf.line(20, 48, 190, 48);
         
         // Add events section - process events in batches for better memory usage
         const batchSize = 50;
@@ -80,8 +91,7 @@ export const generateAuditLogsPDF = async (
           eventBatches.push(auditEvents.slice(i, i + batchSize));
         }
         
-        // Start content after the header (give enough space for the header)
-        let yPos = 170; // Position after header section with Executive Summary
+        let yPos = 55;
         eventBatches.forEach(batch => {
           yPos = addEventsSection(pdf, batch, yPos);
         });
@@ -115,5 +125,5 @@ export const getAuditLogsFileName = (documentName: string): string => {
   const formattedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   const sanitizedDocName = documentName.replace(/[^a-z0-9]/gi, '-').toLowerCase();
   
-  return `audit-trail-report-${sanitizedDocName}-${formattedDate}.pdf`;
+  return `audit-logs-${sanitizedDocName}-${formattedDate}.pdf`;
 };
