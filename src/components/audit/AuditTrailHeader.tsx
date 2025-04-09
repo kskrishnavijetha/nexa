@@ -37,7 +37,8 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
     const completedEvents = auditEvents.filter(event => event.status === 'completed').length;
     const totalEvents = auditEvents.length;
     
-    return Math.round((completedEvents / totalEvents) * 100);
+    // Calculate with two decimal places
+    return Number(((completedEvents / totalEvents) * 100).toFixed(2));
   };
 
   const complianceScore = calculateComplianceScore();

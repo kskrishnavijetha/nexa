@@ -42,7 +42,7 @@ const ReportHeader: React.FC<ReportHeaderProps> = ({
               {language === 'en' ? 'Overall Score' : 'Puntaje General'}
             </div>
             <div className={`text-xl font-semibold ${scoreColorClass}`}>
-              {report.overallScore}%
+              {report.overallScore.toFixed(2)}%
             </div>
           </div>
         </div>
