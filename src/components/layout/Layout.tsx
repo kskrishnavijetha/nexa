@@ -4,7 +4,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { BarChart, FileText, History, Home, MessageSquare, Settings, ClipboardList } from 'lucide-react';
+import { BarChart, FileText, History, Settings, ClipboardList, MessageSquare, Palette } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface LayoutProps {
@@ -83,6 +83,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       <Link to="/slack-monitoring" draggable="false">
                         <MessageSquare className="h-4 w-4 mr-2" />
                         Slack Monitoring
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroup>
+              
+              <SidebarGroup>
+                <SidebarGroupLabel>Configuration</SidebarGroupLabel>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === '/settings'}>
+                      <Link to="/settings" draggable="false">
+                        <Palette className="h-4 w-4 mr-2" />
+                        Organization Settings
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
