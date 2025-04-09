@@ -23,10 +23,17 @@ export const AuditTrailDialog: React.FC<AuditTrailDialogProps> = ({
   report
 }) => {
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [isDownloadingReport, setIsDownloadingReport] = useState(false);
+  const [isDownloadingLogs, setIsDownloadingLogs] = useState(false);
 
   const handleDownloadAuditReport = async (documentName: string) => {
+    if (isDownloadingReport) return;
+    
+    setIsDownloadingReport(true);
+    toast.loading('Preparing audit report...', { id: 'dialog-report' });
+    
     try {
-      // Use the utility function from auditReportService directly
+      // Use dynamic import to reduce initial bundle size
       const { generateAuditReport, getAuditReportFileName } = await import('@/utils/auditReportService');
       
       // We don't have the actual audit events for this doc, so create minimal mock data
@@ -52,18 +59,32 @@ export const AuditTrailDialog: React.FC<AuditTrailDialogProps> = ({
       // Append to body, click and clean up
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
       
+      // Clean up properly to avoid memory leaks
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+      
+      toast.dismiss('dialog-report');
       toast.success(`Audit report for "${documentName}" downloaded successfully`);
     } catch (error) {
       console.error('Error generating audit report:', error);
+      toast.dismiss('dialog-report');
       toast.error('Failed to generate audit report');
+    } finally {
+      setIsDownloadingReport(false);
     }
   };
 
   const handleDownloadAuditLogs = async (documentName: string) => {
+    if (isDownloadingLogs) return;
+    
+    setIsDownloadingLogs(true);
+    toast.loading('Preparing audit logs...', { id: 'dialog-logs' });
+    
     try {
-      // Use the utility function from auditReportService directly
+      // Use dynamic import to reduce initial bundle size
       const { generateAuditLogsPDF, getAuditLogsFileName } = await import('@/utils/auditReportService');
       
       // We don't have the actual audit events for this doc, so create minimal mock data
@@ -89,12 +110,21 @@ export const AuditTrailDialog: React.FC<AuditTrailDialogProps> = ({
       // Append to body, click and clean up
       document.body.appendChild(link);
       link.click();
-      document.body.removeChild(link);
       
+      // Clean up properly to avoid memory leaks
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
+      
+      toast.dismiss('dialog-logs');
       toast.success(`Audit logs for "${documentName}" downloaded successfully`);
     } catch (error) {
       console.error('Error generating audit logs:', error);
+      toast.dismiss('dialog-logs');
       toast.error('Failed to generate audit logs');
+    } finally {
+      setIsDownloadingLogs(false);
     }
   };
 
@@ -118,18 +148,38 @@ export const AuditTrailDialog: React.FC<AuditTrailDialogProps> = ({
             <Button 
               variant="outline"
               onClick={() => documentName && handleDownloadAuditLogs(documentName)}
+              disabled={isDownloadingLogs}
               className="flex items-center"
             >
-              <FileText className="mr-2 h-4 w-4" />
-              Download Audit Logs
+              {isDownloadingLogs ? (
+                <>
+                  <span className="animate-spin mr-2">⚙️</span>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <FileText className="mr-2 h-4 w-4" />
+                  Download Audit Logs
+                </>
+              )}
             </Button>
             
             <Button 
               onClick={() => documentName && handleDownloadAuditReport(documentName)}
+              disabled={isDownloadingReport}
               className="flex items-center"
             >
-              <Download className="mr-2 h-4 w-4" />
-              Download Enhanced Report
+              {isDownloadingReport ? (
+                <>
+                  <span className="animate-spin mr-2">⚙️</span>
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <Download className="mr-2 h-4 w-4" />
+                  Download Enhanced Report
+                </>
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

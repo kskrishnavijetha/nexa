@@ -14,35 +14,47 @@ export const generateAuditReport = async (
   auditEvents: AuditEvent[],
   industry?: Industry
 ): Promise<Blob> => {
-  try {
-    console.log(`Generating audit report for ${documentName} with ${auditEvents.length} events`);
-    console.log(`Industry for audit report: ${industry || 'not specified'}`);
-    return await generatePDFReport(documentName, auditEvents, industry);
-  } catch (error) {
-    console.error('Error generating PDF report:', error);
-    throw error;
-  }
+  // Return a promise that resolves immediately with a deferred task
+  return new Promise((resolve, reject) => {
+    // Use setTimeout to move heavy processing off the main thread
+    setTimeout(() => {
+      try {
+        console.log(`Generating audit report for ${documentName} with ${auditEvents.length} events`);
+        console.log(`Industry for audit report: ${industry || 'not specified'}`);
+        
+        // Generate the PDF asynchronously then resolve
+        generatePDFReport(documentName, auditEvents, industry)
+          .then(pdfBlob => resolve(pdfBlob))
+          .catch(err => reject(err));
+      } catch (error) {
+        console.error('Error generating PDF report:', error);
+        reject(error);
+      }
+    }, 0);
+  });
 };
 
 /**
  * Generate a downloadable audit logs PDF (without AI insights, just the logs)
+ * Optimized for better performance
  */
 export const generateAuditLogsPDF = async (
   documentName: string,
   auditEvents: AuditEvent[]
 ): Promise<Blob> => {
-  // Wrap in a promise to prevent UI blocking
+  // Wrap in a promise to prevent UI blocking and optimize memory usage
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       try {
         console.log(`Generating audit logs PDF for ${documentName} with ${auditEvents.length} events`);
         
-        // Create PDF document
+        // Create PDF document with optimized settings
         const pdf = new jsPDF({
           orientation: 'portrait',
           unit: 'mm',
           format: 'a4',
           compress: true,
+          putOnlyUsedFonts: true, // Memory optimization
         });
         
         // Add title
@@ -62,13 +74,24 @@ export const generateAuditLogsPDF = async (
         pdf.setLineWidth(0.5);
         pdf.line(20, 42, 190, 42);
         
-        // Add events section
-        addEventsSection(pdf, auditEvents, 50);
+        // Add events section - process events in batches for better memory usage
+        const batchSize = 50;
+        const eventBatches = [];
+        for (let i = 0; i < auditEvents.length; i += batchSize) {
+          eventBatches.push(auditEvents.slice(i, i + batchSize));
+        }
+        
+        let yPos = 50;
+        eventBatches.forEach(batch => {
+          yPos = addEventsSection(pdf, batch, yPos);
+        });
         
         // Add footer with page numbers
         addFooter(pdf);
         
-        resolve(pdf.output('blob'));
+        // Finalize and return
+        const pdfBlob = pdf.output('blob');
+        resolve(pdfBlob);
       } catch (error) {
         console.error('Error generating audit logs PDF:', error);
         reject(error);

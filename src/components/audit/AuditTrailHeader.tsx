@@ -108,14 +108,14 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
               <Button 
                 variant="outline" 
                 size="sm" 
-                className="gap-1"
+                className={`gap-1 transition-all ${isGeneratingLogs ? 'bg-blue-50' : ''}`}
                 onClick={downloadAuditLogs}
                 disabled={isGeneratingLogs}
               >
                 {isGeneratingLogs ? (
                   <>
                     <RefreshCw size={14} className="animate-spin" />
-                    <span>Generating...</span>
+                    <span>Processing...</span>
                   </>
                 ) : (
                   <>
@@ -134,14 +134,14 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
         <Button 
           variant="default" 
           size="sm" 
-          className="gap-1"
+          className={`gap-1 transition-all ${isGeneratingReport ? 'opacity-80' : ''}`}
           onClick={downloadAuditReport}
           disabled={isGeneratingReport}
         >
           {isGeneratingReport ? (
             <>
               <RefreshCw size={14} className="animate-spin" />
-              <span>Generating...</span>
+              <span>Processing...</span>
             </>
           ) : (
             <>
