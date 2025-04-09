@@ -24,7 +24,8 @@ export const generateAuditReport = async (
     // Generate the PDF report with verification metadata
     const pdf = await generatePDFReport(documentName, auditEvents, mappedIndustry, verificationMetadata);
     
-    return pdf.output('blob');
+    // Return as blob with optimized compression
+    return pdf.output('blob', { compress: true });
   } catch (error) {
     console.error('[auditReportService] Error generating audit report:', error);
     throw new Error('Failed to generate audit report PDF');
@@ -61,61 +62,70 @@ export const generateAuditLogsPDF = async (
     
     let yPosition = 60;
     
-    // Add events to PDF
-    for (let i = 0; i < sortedEvents.length; i++) {
-      const event = sortedEvents[i];
+    // Batch event processing to improve performance
+    const batchSize = 20;
+    for (let i = 0; i < sortedEvents.length; i += batchSize) {
+      const batch = sortedEvents.slice(i, i + batchSize);
       
-      // Check if we need a new page
-      if (yPosition > pageHeight - 40) {
-        doc.addPage();
-        yPosition = 20;
-      }
-      
-      // Event header (ID and timestamp)
-      doc.setFontSize(10);
-      doc.setFont("helvetica", "bold");
-      const date = new Date(event.timestamp).toLocaleString();
-      doc.text(`Event ${i+1} - ${date} (${event.status})`, 20, yPosition);
-      yPosition += 7;
-      
-      // Event details
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      
-      doc.text(`Action: ${event.action}`, 25, yPosition);
-      yPosition += 5;
-      
-      doc.text(`User: ${event.user}`, 25, yPosition);
-      yPosition += 5;
-      
-      // Handle optional description if it exists on the event
-      if (event.action) {
-        // Use action as description if no explicit description exists
-        // Split action text into lines if it's long
-        const descLines = doc.splitTextToSize(`Description: ${event.action}`, 170);
-        for (const line of descLines) {
-          doc.text(line, 25, yPosition);
+      // Add events to PDF
+      for (const event of batch) {
+        // Check if we need a new page
+        if (yPosition > pageHeight - 40) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        
+        // Event header (ID and timestamp)
+        doc.setFontSize(10);
+        doc.setFont("helvetica", "bold");
+        const date = new Date(event.timestamp).toLocaleString();
+        doc.text(`Event ${i+1} - ${date} (${event.status})`, 20, yPosition);
+        yPosition += 7;
+        
+        // Event details
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        
+        doc.text(`Action: ${event.action}`, 25, yPosition);
+        yPosition += 5;
+        
+        doc.text(`User: ${event.user}`, 25, yPosition);
+        yPosition += 5;
+        
+        // Handle optional description if it exists on the event
+        if (event.action) {
+          // Use action as description if no explicit description exists
+          // Split action text into lines if it's long
+          const descLines = doc.splitTextToSize(`Description: ${event.action}`, 170);
+          for (const line of descLines) {
+            doc.text(line, 25, yPosition);
+            yPosition += 5;
+          }
+        }
+        
+        if (event.comments && event.comments.length > 0) {
+          doc.text(`Comments: ${event.comments.length}`, 25, yPosition);
           yPosition += 5;
         }
+        
+        // Add separator line
+        doc.setDrawColor(200, 200, 200);
+        doc.line(20, yPosition, 190, yPosition);
+        yPosition += 10;
       }
       
-      if (event.comments && event.comments.length > 0) {
-        doc.text(`Comments: ${event.comments.length}`, 25, yPosition);
-        yPosition += 5;
+      // Give the browser a chance to update the UI by breaking up the work
+      if (i + batchSize < sortedEvents.length) {
+        await new Promise(resolve => setTimeout(resolve, 0));
       }
-      
-      // Add separator line
-      doc.setDrawColor(200, 200, 200);
-      doc.line(20, yPosition, 190, yPosition);
-      yPosition += 10;
     }
     
     // Add footer with verification metadata
-    import('./audit/pdf/addFooter').then(({ addFooter }) => {
-      addFooter(doc, verificationMetadata);
-    });
+    const { addFooter } = await import('./audit/pdf/addFooter');
+    addFooter(doc, verificationMetadata);
     
-    return doc.output('blob');
+    // Return as blob with optimized compression
+    return doc.output('blob', { compress: true });
   } catch (error) {
     console.error('[auditReportService] Error generating audit logs PDF:', error);
     throw new Error('Failed to generate audit logs PDF');

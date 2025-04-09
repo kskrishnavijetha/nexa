@@ -1,30 +1,38 @@
-
-import { createContext, useContext } from 'react';
-import { AuditEvent } from '../types';
+import { createContext } from 'react';
+import { AuditEvent, AuditEventStatus } from '../types';
 import { Industry } from '@/utils/types';
 
-interface AuditTrailContextType {
+interface AuditTrailContextData {
   auditEvents: AuditEvent[];
   isLoading: boolean;
   isGeneratingReport: boolean;
-  isGeneratingLogs?: boolean;
+  isGeneratingLogs: boolean;
   downloadAuditReport: () => void;
   downloadAuditLogs: () => void;
   addAuditEvent: (event: Omit<AuditEvent, 'id' | 'timestamp'>) => void;
-  updateTaskStatus: (eventId: string, status: 'pending' | 'in-progress' | 'completed') => void;
+  updateTaskStatus: (eventId: string, newStatus: AuditEventStatus) => void;
   updateAuditEvents: (events: AuditEvent[]) => void;
   setLastActivity: (date: Date) => void;
   industry?: Industry;
+  progress?: number; // Add progress property
 }
 
-const AuditTrailContext = createContext<AuditTrailContextType | undefined>(undefined);
-
-export default AuditTrailContext;
+const AuditTrailContext = createContext<AuditTrailContextData>({
+  auditEvents: [],
+  isLoading: false,
+  isGeneratingReport: false,
+  isGeneratingLogs: false,
+  downloadAuditReport: () => {},
+  downloadAuditLogs: () => {},
+  addAuditEvent: () => {},
+  updateTaskStatus: () => {},
+  updateAuditEvents: () => {},
+  setLastActivity: () => {},
+  progress: 0, // Initialize progress
+});
 
 export const useAuditTrail = () => {
-  const context = useContext(AuditTrailContext);
-  if (context === undefined) {
-    throw new Error('useAuditTrail must be used within a AuditTrailProvider');
-  }
-  return context;
+  return React.useContext(AuditTrailContext);
 };
+
+export default AuditTrailContext;
