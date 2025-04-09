@@ -55,15 +55,23 @@ export const generateAuditLogsPDF = async (
     // Events count
     doc.text(`Total events: ${auditEvents.length}`, 20, 40);
     
-    // Sort events by timestamp
-    const sortedEvents = [...auditEvents].sort((a, b) => {
-      return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
-    });
+    // Sort events by timestamp but limit the total events to improve performance
+    const maxEvents = 500; // Limit total events to prevent hanging
+    const sortedEvents = [...auditEvents]
+      .sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+      .slice(0, maxEvents);
+    
+    if (auditEvents.length > maxEvents) {
+      doc.setFontSize(10);
+      doc.setTextColor(255, 0, 0);
+      doc.text(`Note: Displaying only ${maxEvents} of ${auditEvents.length} events for performance.`, 20, 50);
+      doc.setTextColor(0, 0, 0);
+    }
     
     let yPosition = 60;
     
-    // Batch event processing to improve performance
-    const batchSize = 20;
+    // Larger batch size for faster processing
+    const batchSize = 50;
     for (let i = 0; i < sortedEvents.length; i += batchSize) {
       const batch = sortedEvents.slice(i, i + batchSize);
       
@@ -115,9 +123,7 @@ export const generateAuditLogsPDF = async (
       }
       
       // Give the browser a chance to update the UI by breaking up the work
-      if (i + batchSize < sortedEvents.length) {
-        await new Promise(resolve => setTimeout(resolve, 0));
-      }
+      await new Promise(resolve => setTimeout(resolve, 0));
     }
     
     // Add footer with verification metadata

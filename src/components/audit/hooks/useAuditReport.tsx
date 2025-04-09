@@ -63,7 +63,12 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
           
           toast.dismiss(toastId);
           toast.success('Audit report downloaded successfully');
-          setIsGeneratingReport(false);
+          
+          // Reset state after small delay
+          setTimeout(() => {
+            setIsGeneratingReport(false);
+            setProgress(0);
+          }, 500);
         }, 100);
       }, 50);
       
@@ -126,7 +131,12 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
           
           toast.dismiss(toastId);
           toast.success('Audit logs downloaded successfully');
-          setIsGeneratingLogs(false);
+          
+          // Reset state after small delay
+          setTimeout(() => {
+            setIsGeneratingLogs(false);
+            setProgress(0);
+          }, 500);
         }, 100);
       }, 50);
     } catch (error) {

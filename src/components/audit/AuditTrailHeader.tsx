@@ -7,7 +7,6 @@ import { useAuditTrail } from './AuditTrailProvider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { getScoreColor } from '@/utils/reports';
-import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 
 interface AuditTrailHeaderProps {
