@@ -9,6 +9,7 @@ const InteractiveLogsPage: React.FC = () => {
       <Helmet>
         <title>Interactive Logs | Nexabloom</title>
       </Helmet>
+      <h1 className="text-2xl font-bold mb-6">Interactive Logs</h1>
       <InteractiveLogs />
     </div>
   );
