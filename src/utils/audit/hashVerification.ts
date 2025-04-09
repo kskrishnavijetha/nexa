@@ -1,5 +1,4 @@
 
-
 import { AuditEvent } from '@/components/audit/types';
 
 /**
@@ -59,7 +58,14 @@ export const verifyAuditIntegrity = async (
  */
 export const getShortHash = (hash: string): string => {
   if (!hash || hash.length < 8) return hash || '';
-  return `${hash.substring(0, 8)}...`;
+  return `${hash.substring(0, 32)}...`;
+};
+
+/**
+ * Format date in ISO format with T separator
+ */
+const formatTimestampForDisplay = (date: Date): string => {
+  return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
 };
 
 /**
@@ -67,14 +73,14 @@ export const getShortHash = (hash: string): string => {
  */
 export const generateVerificationMetadata = async (auditEvents: AuditEvent[]) => {
   const hash = await generateAuditHash(auditEvents);
-  const timestamp = new Date().toISOString();
+  const timestamp = formatTimestampForDisplay(new Date());
   
   return {
     hash,
     shortHash: getShortHash(hash),
     timestamp,
     verificationMethod: 'SHA-256',
-    eventCount: auditEvents.length
+    eventCount: auditEvents.length,
+    documentName: null // This will be populated by the calling function
   };
 };
-

@@ -14,6 +14,44 @@ export const addFooter = (doc: jsPDF): void => {
   const shieldLogoURI = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABGdBTUEAAK/INwWK6QAAABl0RVh0U29mdHdhcmUAQWRvYmUgSW1hZ2VSZWFkeXHJZTwAAAM3SURBVHja1JlLSBVRGMfHMlFJe5hlD6jIoCKiKCgSK3pAD6Iogh5kSVBBUC1atWoRRLVsF61qU7SpoE2UESVkD6xUD6Iopah8ZI/7/w/nwjAz9947M3fuLPzhB+fOnO/7n5k559zvJpKpS8lU7nkVqAerwBKwEMwFWeAVeAPegCEwDkYc1zcF9UXSDlAAlmvffwdfwDcwBSwGc5Tr8uAzmAGOs5T2gMvgB7gNtoLZyrl5oAnMUsoTs0FUewkOqeW1JmgFH8Fd0AqWKvlDYLcmkxSgDTwGd8AW5fgNoEvJd4mbYKQwDD/AL9ALDoOMMi4DzFPKl4BrISmQB+PwKdtiDnRLCj6CXlAnBc2XgAcgJ/9fBeZoF5csSYN7VkkgLx/5EjlezY8NSqAs4XrFataLfGKyVrlogOtnVsk1TNNyuQmeynzwtZGP+BDQ04X4ruQ7QEdSIvwOIq7SLc8/N/KqTCmf9NUK10pP1Mm70caxm+CHXBNXYs2BWeCEUr4NbJYO41IuWAFFJXdQuQbWA30FGnKUPqTlFJRza+UGcbUCJTndBkGrUt4IKiK2+1SgKKfbsxqtSvmxCO09HaBXKd8uro0vPyXHSPylVG6X0YvKthR/klNgEZP4M0vparkjXckEUa1Or9zrO6RLIv0uh+aJDtKe428CpunvC3mQvzanab3mtXPMvHnqScwyVcgDLJNjlSGAWTpe9ipxlEkvJGrR0AeitEiDTurPlXtlFPLej25q7C24DXaBYcmg9EKiAFZIVFgrOZIXYJPEULWS0fF11YWBb5IXUf51luSedyWeSUmOKu6CSJrEHvcljplXjktO7XJaIYJBS+Q8ufdeS46SlFLRtdl/InlQalwziPk47lKgT4FVGGzBNJ8FmeEvN5JfnGPZLm1Z4CkpMEsyLPp/xHaKZOSPSaRf8CLzCL7qmltqJcFZ5c39SLwCgRefnuvJilXgmawO5c61lTFpxaeA+tnzSXGd2QZ4XFL2us0C7HeS1rJZ4ErttaRL/uS9KwFewDvwwxDbVYuLEsajh8ACY+wI+K6MOwPGTQPeUD63fQNnggQ4KQYDz/zx0kuAgnls1FJeHfi0Zb/ItuKqwlJ4QUZBfQuSlh+1/BNgAGwrv/kNs1l6AAAAAElFTkSuQmCC";
   
   try {
+    // Add header section to the first page
+    doc.setPage(1);
+    
+    // Add "Audit Logs Export" header
+    doc.setFontSize(20);
+    doc.setTextColor(0, 51, 102); // Dark blue color
+    doc.text('Audit Logs Export', 20, 20);
+    
+    // Add document details section
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0); // Black text
+    
+    const documentName = "XYZ Bank Anti.pdf";
+    const today = new Date();
+    const formattedDate = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
+    
+    doc.text(`Document: ${documentName}`, 20, 30);
+    doc.text(`Export Date: ${formattedDate}`, 20, 40);
+    
+    // Add Integrity Verification section
+    doc.setFontSize(14);
+    doc.setTextColor(0, 128, 0); // Green color for integrity verification
+    doc.text('Integrity Verification', 20, 55);
+    
+    // Add hash details
+    const sampleHash = "f84964b633cd06abb7e3b97d2b1aa482...";
+    const timestamp = new Date().toISOString();
+    
+    doc.setFontSize(10);
+    doc.setTextColor(0, 0, 0); // Black text
+    doc.text(`Hash: ${sampleHash}`, 20, 65);
+    doc.text(`Timestamp: ${timestamp}`, 20, 75);
+    
+    // Add a horizontal line to separate the header from content
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.5);
+    doc.line(20, 85, 190, 85);
+    
     // Add footer to each page
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
@@ -49,13 +87,13 @@ export const addFooter = (doc: jsPDF): void => {
     // Fallback to simpler text-only footer if image loading fails
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
-      doc.setFontSize(8);
       
       doc.setDrawColor(200, 200, 200);
       doc.setLineWidth(0.5);
       doc.line(20, 265, 190, 265);
       
       // Add legal disclaimer
+      doc.setFontSize(8);
       doc.setTextColor(100, 100, 100);
       const disclaimer = "LEGAL DISCLAIMER: This report is for informational purposes only and does not constitute legal advice. Integrity protected by SHA-256 verification.";
       doc.text(disclaimer, 105, 280, { align: 'center' });

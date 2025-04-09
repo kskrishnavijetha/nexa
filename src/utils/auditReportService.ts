@@ -49,8 +49,9 @@ export const generateAuditLogsPDF = async (
       try {
         console.log(`Generating audit logs PDF for ${documentName} with ${auditEvents.length} events`);
         
-        // Generate integrity verification metadata
+        // Generate integrity verification metadata with document name
         const verificationMetadata = await generateVerificationMetadata(auditEvents);
+        verificationMetadata.documentName = documentName; // Add document name to metadata
         console.log(`[auditLogsPDF] Generated verification hash: ${verificationMetadata.shortHash}`);
         
         // Create PDF document with optimized settings
@@ -62,27 +63,8 @@ export const generateAuditLogsPDF = async (
           putOnlyUsedFonts: true, // Memory optimization
         });
         
-        // Add title
-        pdf.setFontSize(18);
-        pdf.setTextColor(0, 51, 102);
-        pdf.text('Audit Logs', 105, 20, { align: 'center' });
-        
-        // Add document name
-        pdf.setFontSize(12);
-        pdf.text(`Document: ${documentName}`, 20, 30);
-        
-        // Add generation date
-        pdf.text(`Generated: ${new Date().toLocaleString()}`, 20, 38);
-        
-        // Add verification identifier
-        pdf.setFontSize(10);
-        pdf.setTextColor(100, 100, 100);
-        pdf.text(`Verification ID: ${verificationMetadata.shortHash}`, 20, 45);
-        
-        // Add horizontal line
-        pdf.setDrawColor(200, 200, 200);
-        pdf.setLineWidth(0.5);
-        pdf.line(20, 48, 190, 48);
+        // The header with document name and verification details is now added by the addFooter function
+        // so we start content from a lower Y position to avoid overlap
         
         // Add events section - process events in batches for better memory usage
         const batchSize = 50;
@@ -91,7 +73,8 @@ export const generateAuditLogsPDF = async (
           eventBatches.push(auditEvents.slice(i, i + batchSize));
         }
         
-        let yPos = 55;
+        // Start content after the header (give enough space for the header)
+        let yPos = 90; // Position after header section
         eventBatches.forEach(batch => {
           yPos = addEventsSection(pdf, batch, yPos);
         });
