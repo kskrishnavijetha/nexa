@@ -1,10 +1,12 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { Trash2, Shield } from 'lucide-react';
 import { ComplianceReport } from '@/utils/types';
 import DocumentSelector from '@/components/history/DocumentSelector';
 import ComplianceDetails from '@/components/history/ComplianceDetails';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { generateVerificationCode } from '@/utils/audit/hashVerification';
 
 interface ReportsTabContentProps {
   selectedDocument: string | null;
@@ -23,10 +25,32 @@ const ReportsTabContent: React.FC<ReportsTabContentProps> = ({
   onDeleteClick,
   selectedReport
 }) => {
+  // Generate verification code for the selected report if available
+  const verificationCode = selectedReport 
+    ? generateVerificationCode(selectedReport.documentName, [selectedReport])
+    : null;
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-semibold">Document Reports</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-semibold">Document Reports</h2>
+          {verificationCode && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                    <Shield className="h-3 w-3 mr-1" />
+                    <span>Tamper-proof</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-sm">This document has tamper-proof verification.<br />Verification ID: {verificationCode}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
         <div className="flex items-center gap-4">
           {selectedDocument && (
             <Button 
@@ -50,7 +74,7 @@ const ReportsTabContent: React.FC<ReportsTabContentProps> = ({
       
       {selectedReport ? (
         <div className="grid grid-cols-1 gap-6">
-          <ComplianceDetails report={selectedReport} />
+          <ComplianceDetails report={selectedReport} verificationCode={verificationCode} />
         </div>
       ) : (
         <div className="p-4 border rounded-md bg-slate-50 text-center">

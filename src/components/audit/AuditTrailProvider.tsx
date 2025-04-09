@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import AuditTrailContext from './context/AuditTrailContext';
 import { useAuditEventManager } from './hooks/useAuditEventManager';
 import { useAuditReport } from './hooks/useAuditReport';
 import { AuditEvent } from './types';
 import { Industry } from '@/utils/types';
+import { generateVerificationCode } from '@/utils/audit/hashVerification';
 
 interface AuditTrailProviderProps {
   documentName: string;
@@ -35,6 +36,12 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
     downloadAuditLogs
   } = useAuditReport(documentName, auditEvents, industry);
 
+  // Generate verification code for the audit trail
+  const verificationCode = useMemo(() => {
+    if (auditEvents.length === 0) return undefined;
+    return generateVerificationCode(documentName, auditEvents);
+  }, [documentName, auditEvents]);
+
   const value = {
     auditEvents,
     isLoading,
@@ -46,7 +53,8 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
     updateTaskStatus,
     updateAuditEvents,
     setLastActivity,
-    industry
+    industry,
+    verificationCode
   };
 
   return (

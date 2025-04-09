@@ -3,8 +3,9 @@ import { jsPDF } from "jspdf";
 
 /**
  * Add footer with page numbers and Nexabloom branding to the PDF document
+ * Includes hash-based verification details for audit compliance
  */
-export const addFooter = (doc: jsPDF): void => {
+export const addFooter = (doc: jsPDF, verificationCode?: string): void => {
   const pageCount = doc.getNumberOfPages();
   
   // Load Nexabloom logo image (using a data URI for simplicity)
@@ -38,14 +39,25 @@ export const addFooter = (doc: jsPDF): void => {
       doc.setTextColor(79, 70, 229); // Indigo color for branding
       doc.text('Nexabloom', 98, logoPositionY);
       
+      // Add verification info for regulated industries
+      if (verificationCode) {
+        doc.setFontSize(7);
+        doc.setTextColor(50, 50, 50);
+        doc.text(`Tamper-proof verification: ${verificationCode}`, 100, 286, { align: 'center' });
+      }
+
       // Legal disclaimer
       doc.setFontSize(6);
       doc.setTextColor(100, 100, 100);
       const disclaimer = "LEGAL DISCLAIMER: This report is for informational purposes only and does not constitute legal advice.";
       doc.text(disclaimer, 100, 274, { align: 'center' });
       
-      // Add new legal footnote
-      const legalNote = "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
+      // Add new legal footnote with verification statement for regulated industries
+      doc.setFontSize(6);
+      doc.setTextColor(100, 100, 100);
+      const legalNote = verificationCode 
+        ? "This report utilizes cryptographic hash verification to ensure audit trail integrity, suitable for regulated industries."
+        : "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
       doc.text(legalNote, 100, 268, { align: 'center' });
       
       // Draw a light separator line above the footer
@@ -72,14 +84,23 @@ export const addFooter = (doc: jsPDF): void => {
       doc.text('Nexabloom', 100, 280, { align: 'center' });
       doc.text('nexabloom.xyz', 180, 280, { align: 'right' });
       
+      // Add verification code if available (even in fallback mode)
+      if (verificationCode) {
+        doc.setFontSize(7);
+        doc.setTextColor(50, 50, 50);
+        doc.text(`Tamper-proof verification: ${verificationCode}`, 100, 286, { align: 'center' });
+      }
+      
       // Add legal disclaimer even in fallback mode
       doc.setFontSize(6);
       doc.setTextColor(90, 90, 90);
       const disclaimer = "LEGAL DISCLAIMER: This report is for informational purposes only and does not constitute legal advice.";
       doc.text(disclaimer, 100, 274, { align: 'center' });
       
-      // Add legal footnote in fallback mode
-      const legalNote = "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
+      // Add legal footnote with verification statement in fallback mode
+      const legalNote = verificationCode 
+        ? "This report utilizes cryptographic hash verification to ensure audit trail integrity, suitable for regulated industries."
+        : "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
       doc.text(legalNote, 100, 268, { align: 'center' });
     }
   }

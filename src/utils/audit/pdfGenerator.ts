@@ -9,6 +9,7 @@ import { addInsightsSection } from './pdf/addInsightsSection';
 import { addSummarySection } from './pdf/addSummarySection';
 import { addFooter } from './pdf/addFooter';
 import { Industry } from '@/utils/types';
+import { generateVerificationCode } from './hashVerification';
 
 /**
  * Generate a PDF report with AI-enhanced insights from audit events
@@ -38,8 +39,11 @@ export const generatePDFReport = async (
     creator: 'Compliance Report Generator'
   });
   
+  // Generate verification code for tamper-proofing
+  const verificationCode = generateVerificationCode(documentName, auditEvents);
+  
   // Add executive summary with document info - pass the industry explicitly
-  let yPos = addExecutiveSummary(pdf, auditEvents, documentName, selectedIndustry);
+  let yPos = addExecutiveSummary(pdf, auditEvents, documentName, selectedIndustry, verificationCode);
   
   // Report Statistics
   const stats = calculateReportStatistics(auditEvents);
@@ -58,7 +62,8 @@ export const generatePDFReport = async (
   // We've removed the audit events section as requested
   
   // Add footer with page numbers to all pages - must be last operation
-  addFooter(pdf);
+  // Pass the verification code to the footer
+  addFooter(pdf, verificationCode);
   
   // Return the PDF as a blob
   return pdf.output('blob');

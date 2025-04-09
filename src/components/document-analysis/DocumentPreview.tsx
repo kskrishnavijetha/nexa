@@ -6,19 +6,22 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import ComplianceDisclaimer from '@/components/report/ComplianceDisclaimer';
+import { Shield } from 'lucide-react';
 
 interface DocumentPreviewProps {
   report: ComplianceReport | null;
   isOpen: boolean;
   onClose: () => void;
   footer?: React.ReactNode;
+  verificationCode?: string | null;
 }
 
 const DocumentPreview: React.FC<DocumentPreviewProps> = ({ 
   report, 
   isOpen, 
   onClose,
-  footer
+  footer,
+  verificationCode
 }) => {
   if (!report) return null;
 
@@ -46,10 +49,18 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold">{report.documentName}</DialogTitle>
+          <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+            {report.documentName}
+            {verificationCode && (
+              <Badge variant="outline" className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700 flex items-center gap-1">
+                <Shield className="h-3 w-3" />
+                Tamper-proof
+              </Badge>
+            )}
+          </DialogTitle>
           <div className="flex items-center gap-2 mt-2">
             <span className="text-sm text-gray-500">
-              Date: {new Date(report.timestamp).toLocaleDateString()}
+              Date: {new Date(report.timestamp || Date.now()).toLocaleDateString()}
             </span>
             <Badge variant="outline" className={getScoreColor(report.overallScore)}>
               Overall Score: {report.overallScore}%
@@ -64,6 +75,30 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               <h3 className="text-lg font-semibold mb-2">Document Summary</h3>
               <p className="text-gray-700">{report.summary}</p>
             </div>
+            
+            {/* Verification Information for Regulated Industries */}
+            {verificationCode && (
+              <>
+                <Separator />
+                <div>
+                  <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                    <Shield className="h-5 w-5 text-green-600" />
+                    Tamper-proof Verification
+                  </h3>
+                  <div className="bg-green-50 border border-green-100 rounded-md p-3">
+                    <p className="text-sm text-green-800">
+                      This document includes cryptographic hash-based verification to ensure audit trail integrity, 
+                      making it suitable for regulated industries requiring tamper-evident documentation.
+                    </p>
+                    <div className="mt-2 p-2 bg-green-100 rounded border border-green-200">
+                      <p className="font-mono text-xs text-green-700">
+                        Verification Code: {verificationCode}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
             
             <Separator />
             
