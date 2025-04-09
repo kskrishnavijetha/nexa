@@ -36,7 +36,7 @@ const HistoryPage: React.FC = () => {
       <HistoryHeader 
         realTimeEnabled={realTimeEnabled} 
         toggleRealTime={toggleRealTime} 
-        lastUpdated={lastUpdated} 
+        lastUpdated={lastUpdated.value} 
       />
       
       <RealtimeAnalysisSimulator 
