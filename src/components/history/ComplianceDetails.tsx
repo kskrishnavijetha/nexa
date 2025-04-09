@@ -9,7 +9,7 @@ import { Download, Eye, Loader2, Shield } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateReportPDF } from '@/utils/reports';
 import DocumentPreview from '@/components/document-analysis/DocumentPreview';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import IntegrityVerification from '@/components/audit/IntegrityVerification';
 
 interface ComplianceDetailsProps {
   report: ComplianceReport;
@@ -74,22 +74,7 @@ const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report, verificat
             <div className="flex items-center gap-2">
               <span>{report.documentName}</span>
               {verificationCode && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div className="inline-flex items-center text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-                        <Shield className="h-3 w-3 mr-1" />
-                        <span>SHA-256 Verified</span>
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="text-sm max-w-xs">
-                        This document includes SHA-256 tamper-proof cryptographic verification for compliance with regulated industry requirements.<br/>
-                        <span className="text-xs font-mono mt-1 block">{verificationCode}</span>
-                      </p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <IntegrityVerification verificationCode={verificationCode} compact />
               )}
             </div>
             {report.industry && (
@@ -141,16 +126,8 @@ const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report, verificat
         <p className="mb-4">{report.summary}</p>
         
         {verificationCode && (
-          <div className="mb-4 p-2 bg-green-50 border border-green-100 rounded-md flex items-center">
-            <Shield className="h-5 w-5 text-green-600 mr-2" />
-            <div>
-              <p className="text-sm font-medium text-green-800">
-                SHA-256 tamper-proof verification active
-              </p>
-              <p className="text-xs text-green-700">
-                This document uses cryptographic SHA-256 verification suitable for regulated industries.
-              </p>
-            </div>
+          <div className="mb-4">
+            <IntegrityVerification verificationCode={verificationCode} />
           </div>
         )}
         

@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import ComplianceDisclaimer from '@/components/report/ComplianceDisclaimer';
-import { Shield } from 'lucide-react';
+import IntegrityVerification from '@/components/audit/IntegrityVerification';
 
 interface DocumentPreviewProps {
   report: ComplianceReport | null;
@@ -51,12 +51,7 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             {report.documentName}
-            {verificationCode && (
-              <Badge variant="outline" className="bg-green-50 hover:bg-green-100 border-green-200 text-green-700 flex items-center gap-1">
-                <Shield className="h-3 w-3" />
-                SHA-256 Verified
-              </Badge>
-            )}
+            {verificationCode && <IntegrityVerification verificationCode={verificationCode} compact />}
           </DialogTitle>
           <div className="flex items-center gap-2 mt-2">
             <span className="text-sm text-gray-500">
@@ -81,21 +76,8 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
               <>
                 <Separator />
                 <div>
-                  <h3 className="text-lg font-semibold mb-2 flex items-center gap-2">
-                    <Shield className="h-5 w-5 text-green-600" />
-                    SHA-256 Tamper-proof Verification
-                  </h3>
-                  <div className="bg-green-50 border border-green-100 rounded-md p-3">
-                    <p className="text-sm text-green-800">
-                      This document includes SHA-256 cryptographic hash verification to ensure audit trail integrity, 
-                      making it suitable for regulated industries requiring tamper-evident documentation.
-                    </p>
-                    <div className="mt-2 p-2 bg-green-100 rounded border border-green-200">
-                      <p className="font-mono text-xs text-green-700">
-                        Verification Code: {verificationCode}
-                      </p>
-                    </div>
-                  </div>
+                  <h3 className="text-lg font-semibold mb-2">Integrity Verification</h3>
+                  <IntegrityVerification verificationCode={verificationCode} />
                 </div>
               </>
             )}
@@ -179,13 +161,8 @@ const DocumentPreview: React.FC<DocumentPreviewProps> = ({
             <div className="py-2 flex flex-col sm:flex-row justify-between items-center gap-2 text-sm text-gray-500">
               <ComplianceDisclaimer compact={true} />
               <div className="flex items-center gap-1">
-                {verificationCode && (
-                  <div className="px-2 py-1 bg-green-50 rounded-full text-xs text-green-700 flex items-center mr-2">
-                    <Shield className="h-3 w-3 mr-1" />
-                    SHA-256 Secured
-                  </div>
-                )}
-                <span>Powered by</span>
+                {verificationCode && <IntegrityVerification verificationCode={verificationCode} compact />}
+                <span className="ml-2">Powered by</span>
                 <a 
                   href="https://nexabloom.xyz" 
                   target="_blank" 

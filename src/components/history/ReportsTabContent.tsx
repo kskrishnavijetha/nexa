@@ -1,11 +1,10 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Trash2, Shield } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { ComplianceReport } from '@/utils/types';
 import DocumentSelector from '@/components/history/DocumentSelector';
 import ComplianceDetails from '@/components/history/ComplianceDetails';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { generateVerificationCode } from '@/utils/audit/hashVerification';
 
 interface ReportsTabContentProps {
@@ -41,21 +40,6 @@ const ReportsTabContent: React.FC<ReportsTabContentProps> = ({
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <h2 className="text-xl font-semibold">Document Reports</h2>
-          {verificationCode && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
-                    <Shield className="h-3 w-3 mr-1" />
-                    <span>SHA-256 Verified</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-sm">This document has SHA-256 tamper-proof verification.<br />Verification ID: {verificationCode}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
         </div>
         <div className="flex items-center gap-4">
           {selectedDocument && (
