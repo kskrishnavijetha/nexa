@@ -88,9 +88,11 @@ export const generateAuditLogsPDF = async (
       doc.text(`User: ${event.user}`, 25, yPosition);
       yPosition += 5;
       
-      if (event.description) {
-        // Split description into lines if it's long
-        const descLines = doc.splitTextToSize(`Description: ${event.description}`, 170);
+      // Handle optional description if it exists on the event
+      if (event.action) {
+        // Use action as description if no explicit description exists
+        // Split action text into lines if it's long
+        const descLines = doc.splitTextToSize(`Description: ${event.action}`, 170);
         for (const line of descLines) {
           doc.text(line, 25, yPosition);
           yPosition += 5;

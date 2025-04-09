@@ -37,27 +37,20 @@ export const generatePDFReport = async (
     console.log(`[pdfGenerator] Generated ${insights.length} AI insights`);
     
     // Generate compliance findings based on industry and events
-    const findings = generateComplianceFindings(auditEvents, industry);
+    const findings = generateComplianceFindings(statistics, documentName, undefined, industry);
     console.log(`[pdfGenerator] Generated ${findings.length} compliance findings`);
     
     // Add Executive Summary
-    addExecutiveSummary(doc, {
-      documentName,
-      industry,
-      events: auditEvents,
-      statistics,
-      insights,
-      findings
-    });
+    const execSummaryEndY = addExecutiveSummary(doc, auditEvents, documentName, industry);
     
     // Add AI Insights section
-    addInsightsSection(doc, insights);
+    const insightsSectionEndY = addInsightsSection(doc, insights, execSummaryEndY);
     
-    // Add Summary section
-    addSummarySection(doc, statistics, auditEvents);
+    // Add Summary section with statistics
+    const summarySectionEndY = addSummarySection(doc, statistics, insightsSectionEndY, documentName, industry);
     
     // Add Statistics section with charts
-    addStatisticsSection(doc, statistics);
+    addStatisticsSection(doc, statistics, findings, summarySectionEndY);
     
     // Create findings table
     if (findings.length > 0) {
@@ -66,7 +59,7 @@ export const generatePDFReport = async (
       doc.text("Compliance Findings", 20, 20);
       
       // Add the findings table
-      createFindingsTable(doc, findings);
+      createFindingsTable(doc, findings, 30);
     }
     
     // Add footer with page numbers, including verification metadata if provided
