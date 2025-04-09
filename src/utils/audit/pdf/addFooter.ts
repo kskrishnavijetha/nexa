@@ -3,8 +3,9 @@ import { jsPDF } from "jspdf";
 
 /**
  * Add footer with page numbers and Nexabloom branding to the PDF document
+ * Now includes integrity verification metadata
  */
-export const addFooter = (doc: jsPDF): void => {
+export const addFooter = (doc: jsPDF, verificationMetadata?: any): void => {
   const pageCount = doc.getNumberOfPages();
   
   // Load Nexabloom logo image (using a data URI for simplicity)
@@ -38,15 +39,24 @@ export const addFooter = (doc: jsPDF): void => {
       doc.setTextColor(79, 70, 229); // Indigo color for branding
       doc.text('Nexabloom', 98, logoPositionY);
       
+      // Add hash verification information if available
+      if (verificationMetadata && verificationMetadata.hash) {
+        doc.setFontSize(7);
+        doc.setTextColor(90, 90, 90);
+        doc.text(`Integrity Verified: SHA-256 [${verificationMetadata.shortHash}]`, 180, 268, { align: 'right' });
+      }
+      
       // Legal disclaimer
       doc.setFontSize(6);
       doc.setTextColor(100, 100, 100);
       const disclaimer = "LEGAL DISCLAIMER: This report is for informational purposes only and does not constitute legal advice.";
       doc.text(disclaimer, 100, 274, { align: 'center' });
       
-      // Add new legal footnote
-      const legalNote = "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
-      doc.text(legalNote, 100, 268, { align: 'center' });
+      // Add trust enhancing statement for regulated industries
+      const integrityNote = verificationMetadata ? 
+        "This document is cryptographically verified to prevent tampering. The SHA-256 hash ensures complete audit trail integrity." :
+        "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
+      doc.text(integrityNote, 100, 268, { align: 'center' });
       
       // Draw a light separator line above the footer
       doc.setDrawColor(200, 200, 200);
@@ -72,15 +82,24 @@ export const addFooter = (doc: jsPDF): void => {
       doc.text('Nexabloom', 100, 280, { align: 'center' });
       doc.text('nexabloom.xyz', 180, 280, { align: 'right' });
       
+      // Add hash verification information if available (even in fallback mode)
+      if (verificationMetadata && verificationMetadata.hash) {
+        doc.setFontSize(7);
+        doc.setTextColor(90, 90, 90);
+        doc.text(`Integrity Verified: SHA-256 [${verificationMetadata.shortHash}]`, 180, 274, { align: 'right' });
+      }
+      
       // Add legal disclaimer even in fallback mode
       doc.setFontSize(6);
       doc.setTextColor(90, 90, 90);
       const disclaimer = "LEGAL DISCLAIMER: This report is for informational purposes only and does not constitute legal advice.";
       doc.text(disclaimer, 100, 274, { align: 'center' });
       
-      // Add legal footnote in fallback mode
-      const legalNote = "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
-      doc.text(legalNote, 100, 268, { align: 'center' });
+      // Add integrity note in fallback mode
+      const integrityNote = verificationMetadata ?
+        "This document is cryptographically verified to prevent tampering. The SHA-256 hash ensures complete audit trail integrity." :
+        "This tool is not a substitute for professional legal consultation. Always seek qualified legal advice for your specific situation.";
+      doc.text(integrityNote, 100, 268, { align: 'center' });
     }
   }
 };

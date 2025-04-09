@@ -5,6 +5,7 @@ import { Industry } from '@/utils/types';
 import { jsPDF } from 'jspdf';
 import { addEventsSection } from './audit/pdf/addEventsSection';
 import { addFooter } from './audit/pdf';
+import { generateVerificationMetadata } from './audit/hashVerification';
 
 /**
  * Generate a downloadable audit trail report PDF with AI insights
@@ -44,9 +45,13 @@ export const generateAuditLogsPDF = async (
 ): Promise<Blob> => {
   // Wrap in a promise to prevent UI blocking and optimize memory usage
   return new Promise((resolve, reject) => {
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
         console.log(`Generating audit logs PDF for ${documentName} with ${auditEvents.length} events`);
+        
+        // Generate integrity verification metadata
+        const verificationMetadata = await generateVerificationMetadata(auditEvents);
+        console.log(`[auditLogsPDF] Generated verification hash: ${verificationMetadata.shortHash}`);
         
         // Create PDF document with optimized settings
         const pdf = new jsPDF({
@@ -69,10 +74,15 @@ export const generateAuditLogsPDF = async (
         // Add generation date
         pdf.text(`Generated: ${new Date().toLocaleString()}`, 20, 38);
         
+        // Add verification identifier
+        pdf.setFontSize(10);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text(`Verification ID: ${verificationMetadata.shortHash}`, 20, 45);
+        
         // Add horizontal line
         pdf.setDrawColor(200, 200, 200);
         pdf.setLineWidth(0.5);
-        pdf.line(20, 42, 190, 42);
+        pdf.line(20, 48, 190, 48);
         
         // Add events section - process events in batches for better memory usage
         const batchSize = 50;
@@ -81,13 +91,13 @@ export const generateAuditLogsPDF = async (
           eventBatches.push(auditEvents.slice(i, i + batchSize));
         }
         
-        let yPos = 50;
+        let yPos = 55;
         eventBatches.forEach(batch => {
           yPos = addEventsSection(pdf, batch, yPos);
         });
         
-        // Add footer with page numbers
-        addFooter(pdf);
+        // Add footer with page numbers and verification information
+        addFooter(pdf, verificationMetadata);
         
         // Finalize and return
         const pdfBlob = pdf.output('blob');
