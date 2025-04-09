@@ -86,6 +86,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === '/interactive-logs'}>
+                      <Link to="/interactive-logs" draggable="false">
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Interactive Logs
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarGroup>
             </SidebarContent>

@@ -21,18 +21,21 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Layout>{/* This fixes the children prop */}</Layout>}>
-          <Route index element={<Index />} />
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="history" element={<History />} />
-          <Route path="document-analysis" element={<DocumentAnalysis />} />
-          <Route path="google-services" element={<GoogleServices />} />
-          <Route path="pricing" element={<PricingPlans />} />
-          <Route path="payment" element={<Payment />} />
-          <Route path="audit-reports" element={<AuditReports />} />
-          <Route path="slack-monitoring" element={<SlackMonitoring />} />
-          <Route path="interactive-logs" element={<InteractiveLogsPage />} />
-          <Route path="*" element={<NotFound />} />
+        <Route path="/" element={<Layout>
+          <Routes>
+            <Route index element={<Index />} />
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="history" element={<History />} />
+            <Route path="document-analysis" element={<DocumentAnalysis />} />
+            <Route path="google-services" element={<GoogleServices />} />
+            <Route path="pricing" element={<PricingPlans />} />
+            <Route path="payment" element={<Payment />} />
+            <Route path="audit-reports" element={<AuditReports />} />
+            <Route path="slack-monitoring" element={<SlackMonitoring />} />
+            <Route path="interactive-logs" element={<InteractiveLogsPage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Layout>}>
         </Route>
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
