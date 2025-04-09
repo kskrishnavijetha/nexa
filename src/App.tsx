@@ -13,7 +13,7 @@ import GoogleServices from './pages/GoogleServices';
 import Payment from './pages/Payment';
 import AuditReports from './pages/AuditReports';
 import SlackMonitoring from './pages/SlackMonitoring';
-import InteractiveLogs from './components/logs/InteractiveLogs';
+import InteractiveLogs from '@/components/logs/InteractiveLogs';
 import { Toaster } from '@/components/ui/toaster';
 import './App.css';
 
