@@ -28,6 +28,11 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
   const [exportFormat, setExportFormat] = useState<ExportFormat>('pdf');
   const [downloadProgress, setDownloadProgress] = useState(false);
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
+  const [progressPercent, setProgressPercent] = useState(0);
+  const downloadToastIdRef = useRef<string | number>('');
+  
+  // Add cancellation token
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const getDownloadButtonLabel = (): string => {
     switch (language) {
@@ -70,9 +75,29 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
     
     setIsDownloading(true);
     setDownloadProgress(true);
+    setProgressPercent(0);
     
-    // Show immediate feedback to prevent user from thinking app is frozen
-    const toastId = toast.loading('Preparing report for download...', { duration: 30000 });
+    // Create new abort controller for cancellation
+    abortControllerRef.current = new AbortController();
+    
+    // Show progress toast
+    downloadToastIdRef.current = toast.loading(
+      `Preparing report for download (0%)...`, 
+      { duration: 60000 }
+    );
+    
+    // Update progress periodically to show activity
+    const progressInterval = setInterval(() => {
+      setProgressPercent(prev => {
+        // Cap at 90% - final 10% when actually complete
+        const newValue = Math.min(prev + 5, 90);
+        toast.loading(
+          `Preparing report for download (${newValue}%)...`,
+          { id: downloadToastIdRef.current }
+        );
+        return newValue;
+      });
+    }, 500);
     
     try {
       // Request animation frame to ensure UI updates before heavy operation
@@ -86,16 +111,32 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
             console.warn('No chart image could be captured');
           }
           
+          // Signal that we're generating the PDF
+          toast.loading(
+            `Building PDF document...`,
+            { id: downloadToastIdRef.current }
+          );
+          
           // Make sure we pass the report with industry and region
           const response = await generateReportPDF(report, language, chartImage);
           
+          clearInterval(progressInterval);
+          
           if (!response.success) {
-            toast.dismiss(toastId);
-            toast.error(response.error || 'Failed to generate report');
+            toast.error(response.error || 'Failed to generate report', 
+              { id: downloadToastIdRef.current }
+            );
             setIsDownloading(false);
             setDownloadProgress(false);
             return;
           }
+          
+          // Update progress to 100%
+          setProgressPercent(100);
+          toast.loading(
+            `Download starting (100%)...`,
+            { id: downloadToastIdRef.current }
+          );
           
           // Create a download link
           const url = URL.createObjectURL(response.data);
@@ -113,21 +154,26 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
             URL.revokeObjectURL(url);
             setIsDownloading(false);
             setDownloadProgress(false);
-            toast.dismiss(toastId);
-            toast.success('Report downloaded successfully');
+            toast.success('Report downloaded successfully', 
+              { id: downloadToastIdRef.current }
+            );
           }, 100);
         } catch (error) {
           console.error('Error in animation frame:', error);
-          toast.dismiss(toastId);
-          toast.error('Failed to download the report. Please try again.');
+          clearInterval(progressInterval);
+          toast.error('Failed to download the report. Please try again.', 
+            { id: downloadToastIdRef.current }
+          );
           setIsDownloading(false);
           setDownloadProgress(false);
         }
       });
     } catch (error) {
       console.error('Error downloading PDF:', error);
-      toast.dismiss(toastId);
-      toast.error('Failed to download the report. Please try again.');
+      clearInterval(progressInterval);
+      toast.error('Failed to download the report. Please try again.', 
+        { id: downloadToastIdRef.current }
+      );
       setIsDownloading(false);
       setDownloadProgress(false);
     }
@@ -193,7 +239,7 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
               {isDownloading ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  {downloadProgress ? 'Generating...' : 'Downloading...'}
+                  {downloadProgress ? `${progressPercent}%` : 'Downloading...'}
                 </>
               ) : (
                 <>

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { generateAuditReport, generateAuditLogsPDF, getAuditReportFileName, getAuditLogsFileName } from '@/utils/auditReportService';
 import { AuditEvent } from '../types';
 import { toast } from 'sonner';
@@ -9,12 +9,29 @@ import { generateVerificationMetadata } from '@/utils/audit/hashVerification';
 export function useAuditReport(documentName: string, auditEvents: AuditEvent[], industry?: Industry) {
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [isGeneratingLogs, setIsGeneratingLogs] = useState(false);
+  const progressToastIdRef = useRef<string | number | null>(null);
+  const [progressPercent, setProgressPercent] = useState(0);
 
   const downloadAuditReport = async () => {
     if (isGeneratingReport) return;
     
     setIsGeneratingReport(true);
-    const toastId = toast.loading('Generating audit report...', { duration: 30000 });
+    setProgressPercent(0);
+    progressToastIdRef.current = toast.loading('Generating audit report (0%)...', { duration: 60000 });
+    
+    // Update progress periodically to give feedback
+    const progressInterval = setInterval(() => {
+      setProgressPercent(prev => {
+        // Cap at 90% - final 10% when actually complete
+        const newValue = Math.min(prev + 5, 90);
+        if (progressToastIdRef.current) {
+          toast.loading(`Generating audit report (${newValue}%)...`, { 
+            id: progressToastIdRef.current 
+          });
+        }
+        return newValue;
+      });
+    }, 500);
     
     try {
       console.log(`[useAuditReport] Generating report for ${documentName} with ${auditEvents.length} events`);
@@ -27,8 +44,23 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
           const verificationMetadata = await generateVerificationMetadata(auditEvents);
           console.log(`[useAuditReport] Generated verification hash: ${verificationMetadata.shortHash}`);
           
+          if (progressToastIdRef.current) {
+            toast.loading('Building PDF document...', { 
+              id: progressToastIdRef.current 
+            });
+          }
+          
           // Make sure we're using the industry from props first, before trying to detect it
           const reportBlob = await generateAuditReport(documentName, auditEvents, industry);
+          
+          clearInterval(progressInterval);
+          setProgressPercent(100);
+          
+          if (progressToastIdRef.current) {
+            toast.loading('Download starting (100%)...', { 
+              id: progressToastIdRef.current 
+            });
+          }
           
           // Create download link
           const url = window.URL.createObjectURL(reportBlob);
@@ -44,24 +76,41 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
           setTimeout(() => {
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
-            toast.dismiss(toastId);
-            toast.success('Audit report downloaded successfully');
+            if (progressToastIdRef.current) {
+              toast.success('Audit report downloaded successfully', {
+                id: progressToastIdRef.current
+              });
+              progressToastIdRef.current = null;
+            }
             setIsGeneratingReport(false);
+            setProgressPercent(0);
           }, 100);
           
           console.log(`[useAuditReport] Report successfully generated for industry: ${industry || 'General'}`);
         } catch (error) {
           console.error('[useAuditReport] Error in animation frame:', error);
-          toast.dismiss(toastId);
-          toast.error('Failed to generate audit report');
+          clearInterval(progressInterval);
+          if (progressToastIdRef.current) {
+            toast.error('Failed to generate audit report', {
+              id: progressToastIdRef.current
+            });
+            progressToastIdRef.current = null;
+          }
           setIsGeneratingReport(false);
+          setProgressPercent(0);
         }
       });
     } catch (error) {
       console.error('[useAuditReport] Error generating report:', error);
-      toast.dismiss(toastId);
-      toast.error('Failed to generate audit report');
+      clearInterval(progressInterval);
+      if (progressToastIdRef.current) {
+        toast.error('Failed to generate audit report', {
+          id: progressToastIdRef.current
+        });
+        progressToastIdRef.current = null;
+      }
       setIsGeneratingReport(false);
+      setProgressPercent(0);
     }
   };
 
@@ -69,7 +118,22 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
     if (isGeneratingLogs) return;
     
     setIsGeneratingLogs(true);
-    const toastId = toast.loading('Generating audit logs PDF...', { duration: 30000 });
+    progressToastIdRef.current = toast.loading('Generating audit logs (0%)...', { duration: 60000 });
+    setProgressPercent(0);
+    
+    // Update progress periodically to give feedback
+    const progressInterval = setInterval(() => {
+      setProgressPercent(prev => {
+        // Cap at 90% - final 10% when actually complete
+        const newValue = Math.min(prev + 5, 90);
+        if (progressToastIdRef.current) {
+          toast.loading(`Generating audit logs (${newValue}%)...`, { 
+            id: progressToastIdRef.current 
+          });
+        }
+        return newValue;
+      });
+    }, 500);
     
     try {
       console.log(`[useAuditReport] Generating logs PDF for ${documentName} with ${auditEvents.length} events`);
@@ -81,7 +145,22 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
           const verificationMetadata = await generateVerificationMetadata(auditEvents);
           console.log(`[useAuditReport] Generated verification hash for logs: ${verificationMetadata.shortHash}`);
           
+          if (progressToastIdRef.current) {
+            toast.loading('Building PDF document...', { 
+              id: progressToastIdRef.current 
+            });
+          }
+          
           const logsBlob = await generateAuditLogsPDF(documentName, auditEvents);
+          
+          clearInterval(progressInterval);
+          setProgressPercent(100);
+          
+          if (progressToastIdRef.current) {
+            toast.loading('Download starting (100%)...', { 
+              id: progressToastIdRef.current 
+            });
+          }
           
           // Create download link
           const url = window.URL.createObjectURL(logsBlob);
@@ -97,22 +176,39 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
           setTimeout(() => {
             document.body.removeChild(link);
             window.URL.revokeObjectURL(url);
-            toast.dismiss(toastId);
-            toast.success('Audit logs downloaded successfully');
+            if (progressToastIdRef.current) {
+              toast.success('Audit logs downloaded successfully', {
+                id: progressToastIdRef.current
+              });
+              progressToastIdRef.current = null;
+            }
             setIsGeneratingLogs(false);
+            setProgressPercent(0);
           }, 100);
         } catch (error) {
           console.error('[useAuditReport] Error in animation frame:', error);
-          toast.dismiss(toastId);
-          toast.error('Failed to generate audit logs PDF');
+          clearInterval(progressInterval);
+          if (progressToastIdRef.current) {
+            toast.error('Failed to generate audit logs PDF', {
+              id: progressToastIdRef.current
+            });
+            progressToastIdRef.current = null;
+          }
           setIsGeneratingLogs(false);
+          setProgressPercent(0);
         }
       });
     } catch (error) {
       console.error('[useAuditReport] Error generating logs PDF:', error);
-      toast.dismiss(toastId);
-      toast.error('Failed to generate audit logs PDF');
+      clearInterval(progressInterval);
+      if (progressToastIdRef.current) {
+        toast.error('Failed to generate audit logs PDF', {
+          id: progressToastIdRef.current
+        });
+        progressToastIdRef.current = null;
+      }
       setIsGeneratingLogs(false);
+      setProgressPercent(0);
     }
   };
 
@@ -120,6 +216,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
     isGeneratingReport,
     isGeneratingLogs,
     downloadAuditReport,
-    downloadAuditLogs
+    downloadAuditLogs,
+    progressPercent
   };
 }
