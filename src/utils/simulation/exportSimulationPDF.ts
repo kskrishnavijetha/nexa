@@ -8,7 +8,8 @@ import { toast } from 'sonner';
  * Generate a PDF report for a simulation analysis
  */
 export const exportSimulationPDF = async (
-  analysis: PredictiveAnalysis
+  analysis: PredictiveAnalysis,
+  chartImageBase64?: string
 ): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     // Use setTimeout to ensure UI doesn't freeze during PDF generation
@@ -67,6 +68,29 @@ export const exportSimulationPDF = async (
           const descriptionLines = pdf.splitTextToSize(analysis.scenarioDescription, 170);
           pdf.text(descriptionLines, 20, yPos);
           yPos += (descriptionLines.length * 6) + 10;
+        }
+        
+        // Add score comparison chart if image is provided
+        if (chartImageBase64) {
+          yPos += 10;
+          pdf.setFontSize(16);
+          pdf.setTextColor(0, 51, 102);
+          pdf.text('Compliance Score Visualization', 20, yPos);
+          yPos += 10;
+          
+          try {
+            // Add the chart image with proper sizing
+            const imgWidth = 170; // Width of the chart in the PDF
+            const imgHeight = 80; // Height of the chart
+            pdf.addImage(chartImageBase64, 'PNG', 20, yPos, imgWidth, imgHeight);
+            yPos += imgHeight + 15;
+          } catch (imageError) {
+            console.error('Error adding chart image to PDF:', imageError);
+            pdf.setFontSize(10);
+            pdf.setTextColor(100, 100, 100);
+            pdf.text('Chart visualization could not be included', 20, yPos + 10);
+            yPos += 20;
+          }
         }
         
         // Add score comparison section

@@ -18,6 +18,27 @@ interface SimulationResultsProps {
 
 const SimulationResults: React.FC<SimulationResultsProps> = ({ analysisData, loading = false, onReset }) => {
   const [downloading, setDownloading] = React.useState(false);
+  const chartRef = React.useRef<HTMLDivElement>(null);
+  
+  const captureChartAsImage = async (): Promise<string | undefined> => {
+    if (!chartRef.current) return undefined;
+    
+    try {
+      // Use html2canvas to capture the chart
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(chartRef.current, {
+        scale: 2, // Higher resolution
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      return canvas.toDataURL('image/png');
+    } catch (error) {
+      console.error('Failed to capture chart:', error);
+      return undefined;
+    }
+  };
   
   const handleDownloadPDF = async () => {
     if (!analysisData || downloading) return;
@@ -26,7 +47,10 @@ const SimulationResults: React.FC<SimulationResultsProps> = ({ analysisData, loa
     toast.loading('Generating PDF report...');
     
     try {
-      const pdfBlob = await exportSimulationPDF(analysisData);
+      // Capture chart as image
+      const chartImage = await captureChartAsImage();
+      
+      const pdfBlob = await exportSimulationPDF(analysisData, chartImage);
       
       // Create a download link for the PDF
       const url = window.URL.createObjectURL(pdfBlob);
@@ -100,7 +124,9 @@ const SimulationResults: React.FC<SimulationResultsProps> = ({ analysisData, loa
         </Button>
       </div>
       
-      <ScoreComparisonChart analysis={analysisData} />
+      <div ref={chartRef}>
+        <ScoreComparisonChart analysis={analysisData} />
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <RiskTrendList riskTrends={analysisData.riskTrends || []} />
