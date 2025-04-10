@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Info, Loader2, RefreshCw, Wifi } from 'lucide-react';
+import { AlertCircle, Info, Loader2, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GOOGLE_API_HELP_TEXT } from '@/hooks/google/googleAuthConfig';
 
@@ -40,10 +40,11 @@ export const GoogleApiStatusInfo: React.FC<GoogleApiStatusInfoProps> = ({
           <div className="flex items-center">
             <Info className="h-4 w-4 mr-2 text-amber-500" />
             <AlertDescription className="text-amber-700">
-              Running in demo mode with simulated data. Real-time Google API access is not available.
+              <strong>Running in demo mode</strong> - Using simulated data instead of real Google API
             </AlertDescription>
           </div>
           <div className="text-sm text-gray-600 ml-6 mb-2">
+            <p className="mb-2">To use real Google services:</p>
             {GOOGLE_API_HELP_TEXT}
           </div>
         </div>
@@ -58,29 +59,37 @@ export const GoogleApiStatusInfo: React.FC<GoogleApiStatusInfoProps> = ({
           <div className="flex items-center">
             <AlertCircle className="h-4 w-4 mr-2 text-red-500" />
             <AlertDescription className="text-red-700">
-              {apiError}
+              <strong>Google API Error:</strong> {apiError}
             </AlertDescription>
           </div>
           <div className="text-sm text-gray-600 ml-6 mb-2">
-            This could be due to network issues or API configuration problems.
-            <br />
-            Please check your internet connection and try again.
+            {GOOGLE_API_HELP_TEXT}
           </div>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="w-full sm:w-auto flex items-center justify-center gap-2 mt-2"
-            onClick={retryInitialization}
-          >
-            <RefreshCw className="h-4 w-4" />
-            Try Again
-          </Button>
+          <div className="flex gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center justify-center gap-2 mt-2"
+              onClick={retryInitialization}
+            >
+              <RefreshCw className="h-4 w-4" />
+              Try Again
+            </Button>
+            <Button 
+              variant="secondary" 
+              size="sm" 
+              className="flex items-center justify-center gap-2 mt-2"
+              onClick={() => window.open('https://console.cloud.google.com/apis/credentials', '_blank')}
+            >
+              Open Google Console
+            </Button>
+          </div>
         </div>
       </Alert>
     );
   }
 
-  if (!gApiInitialized && !isApiLoading) {
+  if (!gApiInitialized && !isApiLoading && !isDemoMode) {
     return (
       <Alert className="mb-4 bg-amber-50 border-amber-200">
         <div className="flex flex-col space-y-2">

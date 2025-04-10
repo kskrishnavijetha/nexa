@@ -57,6 +57,16 @@ export const initializeGoogleApiClient = (): Promise<void> => {
       return;
     }
 
+    if (!CLIENT_ID || CLIENT_ID === "YOUR_CLIENT_ID_GOES_HERE") {
+      reject(new Error('Google Client ID not configured. Please set a valid Client ID.'));
+      return;
+    }
+
+    if (!API_KEY || API_KEY === "YOUR_API_KEY_GOES_HERE") {
+      reject(new Error('Google API Key not configured. Please set a valid API Key.'));
+      return;
+    }
+
     console.log('Initializing Google API client');
     window.gapi.load('client:auth2', async () => {
       try {
@@ -73,7 +83,8 @@ export const initializeGoogleApiClient = (): Promise<void> => {
         resolve();
       } catch (error: any) {
         console.error('Error initializing Google API:', error);
-        reject(error);
+        const errorMessage = error?.error || error?.message || 'Unknown error';
+        reject(new Error(`Google API initialization failed: ${errorMessage}`));
       }
     });
   });
@@ -99,7 +110,7 @@ export const isUserSignedInToGoogle = (): boolean => {
 export const signInToGoogle = async (): Promise<boolean> => {
   try {
     if (!window.gapi || !window.gapi.auth2) {
-      console.log('Google API not initialized, using demo mode');
+      console.log('Google API not initialized');
       toast.error('Google API not properly initialized');
       return false;
     }
@@ -118,8 +129,10 @@ export const signInToGoogle = async (): Promise<boolean> => {
       toast.error('Google sign-in popup was blocked. Please allow popups for this site.');
     } else if (error?.error === 'access_denied') {
       toast.error('Google access was denied. Please grant the required permissions.');
+    } else if (error?.error === 'idpiframe_initialization_failed' || error?.error === 'invalid_client') {
+      toast.error('Invalid Google client configuration. The domain may not be authorized.');
     } else {
-      toast.error('Google authentication failed. Please try again.');
+      toast.error(`Google authentication failed: ${error?.error || 'Unknown error'}`);
     }
     
     return false;

@@ -89,7 +89,7 @@ export function useGoogleServiceConnections() {
         
         // Add drive to connected services
         setConnectedServices(prev => [...prev.filter(s => s !== 'drive'), 'drive']);
-        toast.success(`Google Drive connected successfully. Found ${files.length} files.`);
+        toast.success(`${isDemoMode ? '[DEMO] ' : ''}Google Drive connected successfully. Found ${files.length} files.`);
         
         // Update mock connection service
         await connectGoogleService('drive-1');
@@ -115,7 +115,7 @@ export function useGoogleServiceConnections() {
         const result = await connectGoogleService('gmail-1');
         if (result.data && result.data.connected) {
           setConnectedServices(prev => [...prev.filter(s => s !== 'gmail'), 'gmail']);
-          toast.success('Gmail connected successfully');
+          toast.success(`${isDemoMode ? '[DEMO] ' : ''}Gmail connected successfully`);
         } else if (result.error) {
           toast.error(`Failed to connect: ${result.error}`);
         }
@@ -141,7 +141,7 @@ export function useGoogleServiceConnections() {
         const result = await connectGoogleService('docs-1');
         if (result.data && result.data.connected) {
           setConnectedServices(prev => [...prev.filter(s => s !== 'docs'), 'docs']);
-          toast.success('Google Docs connected successfully');
+          toast.success(`${isDemoMode ? '[DEMO] ' : ''}Google Docs connected successfully`);
         } else if (result.error) {
           toast.error(`Failed to connect: ${result.error}`);
         }
@@ -172,7 +172,7 @@ export function useGoogleServiceConnections() {
         
       await disconnectGoogleService(serviceId);
       setConnectedServices(prev => prev.filter(s => s !== service));
-      toast.success(`${service} disconnected successfully`);
+      toast.success(`${isDemoMode ? '[DEMO] ' : ''}${service} disconnected successfully`);
     } catch (error) {
       console.error(`Error disconnecting ${service}:`, error);
       toast.error(`Failed to disconnect ${service}`);

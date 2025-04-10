@@ -66,7 +66,7 @@ const GoogleScannerContent: React.FC<GoogleScannerContentProps> = ({
       <CardHeader className={isCompactView ? "pb-2 pt-4 px-4" : ""}>
         <CardTitle className="flex items-center">
           <ShieldCheck className="h-5 w-5 mr-2" />
-          Cloud Services Scanner
+          Cloud Services Scanner {isDemoMode && <span className="text-xs ml-2 bg-amber-100 text-amber-800 px-2 py-0.5 rounded">Demo Mode</span>}
         </CardTitle>
         {!isCompactView && (
           <CardDescription>
@@ -92,7 +92,7 @@ const GoogleScannerContent: React.FC<GoogleScannerContentProps> = ({
           </div>
         )}
         
-        {(!apiError || isDemoMode) && (gApiInitialized || isDemoMode || !isApiLoading) && (
+        {(isDemoMode || gApiInitialized || !apiError) && (
           <TabsContainer
             activeTab={activeTab}
             setActiveTab={setActiveTab}
