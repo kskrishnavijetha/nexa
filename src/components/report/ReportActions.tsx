@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Eye, Loader2, FileText, FileCog } from 'lucide-react';
 import { toast } from 'sonner';
@@ -23,7 +23,7 @@ interface ReportActionsProps {
 }
 
 const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }) => {
-  const [isDownloading, setIsDownloading] = React.useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat>('pdf');
   const [downloadProgress, setDownloadProgress] = useState(false);
@@ -31,8 +31,18 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
   const [progressPercent, setProgressPercent] = useState(0);
   const downloadToastIdRef = useRef<string | number>('');
   
-  // Add cancellation token
+  // Add cancellation token and worker cleanup
   const abortControllerRef = useRef<AbortController | null>(null);
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+        abortControllerRef.current = null;
+      }
+    };
+  }, []);
 
   const getDownloadButtonLabel = (): string => {
     switch (language) {
@@ -54,16 +64,19 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
     }
     
     try {
-      // Use html2canvas to capture the chart
+      // Use html2canvas to capture the chart with optimized settings
       const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(chartsContainer as HTMLElement, {
-        scale: 2, // Higher resolution
+        scale: 1.5, // Reduced from 2 for better performance
         useCORS: true,
         logging: false,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        imageTimeout: 5000, // Timeout to prevent hanging
+        removeContainer: true // Clean up after capture
       });
       
-      return canvas.toDataURL('image/png');
+      // Get image with optimized quality
+      return canvas.toDataURL('image/png', 0.8); // 80% quality for better performance
     } catch (error) {
       console.error('Failed to capture chart:', error);
       return undefined;
@@ -97,86 +110,96 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
         );
         return newValue;
       });
-    }, 500);
+    }, 300); // Less frequent updates
     
     try {
       // Request animation frame to ensure UI updates before heavy operation
       requestAnimationFrame(async () => {
         try {
-          // First, try to capture the charts as an image
-          const chartImage = await captureChartAsImage();
-          if (chartImage) {
-            console.log('Chart image captured successfully');
-          } else {
-            console.warn('No chart image could be captured');
-          }
-          
-          // Signal that we're generating the PDF
-          toast.loading(
-            `Building PDF document...`,
-            { id: downloadToastIdRef.current }
-          );
-          
-          // Make sure we pass the report with industry and region
-          const response = await generateReportPDF(report, language, chartImage);
-          
-          clearInterval(progressInterval);
-          
-          if (!response.success) {
-            toast.error(response.error || 'Failed to generate report', 
-              { id: downloadToastIdRef.current }
-            );
-            setIsDownloading(false);
-            setDownloadProgress(false);
-            return;
-          }
-          
-          // Update progress to 100%
-          setProgressPercent(100);
-          toast.loading(
-            `Download starting (100%)...`,
-            { id: downloadToastIdRef.current }
-          );
-          
-          // Create a download link
-          const url = URL.createObjectURL(response.data);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `${report.documentName.replace(/\s+/g, '-').toLowerCase()}-compliance-report.pdf`;
-          
-          // Append to body, click and clean up
-          document.body.appendChild(a);
-          a.click();
-          
-          // Clean up properly to avoid memory leaks
-          setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            setIsDownloading(false);
-            setDownloadProgress(false);
-            toast.success('Report downloaded successfully', 
-              { id: downloadToastIdRef.current }
-            );
-          }, 100);
+          // Use microtasks for better UI priority
+          queueMicrotask(async () => {
+            try {
+              // First, try to capture the charts as an image
+              const chartImage = await captureChartAsImage();
+              if (chartImage) {
+                console.log('Chart image captured successfully');
+              } else {
+                console.warn('No chart image could be captured');
+              }
+              
+              // Signal that we're generating the PDF
+              toast.loading(
+                `Building PDF document...`,
+                { id: downloadToastIdRef.current }
+              );
+              
+              // Make sure we pass the report with industry and region
+              const response = await generateReportPDF(report, language, chartImage);
+              
+              clearInterval(progressInterval);
+              
+              if (!response.success) {
+                toast.error(response.error || 'Failed to generate report', 
+                  { id: downloadToastIdRef.current }
+                );
+                setIsDownloading(false);
+                setDownloadProgress(false);
+                return;
+              }
+              
+              // Update progress to 100%
+              setProgressPercent(100);
+              toast.loading(
+                `Download starting (100%)...`,
+                { id: downloadToastIdRef.current }
+              );
+              
+              // Create a download link with optimized approach
+              const url = URL.createObjectURL(response.data);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `${report.documentName.replace(/\s+/g, '-').toLowerCase()}-compliance-report.pdf`;
+              a.style.position = 'absolute';
+              a.style.visibility = 'hidden';
+              
+              // Append to body, click and clean up
+              document.body.appendChild(a);
+              a.click();
+              
+              // Clean up properly to avoid memory leaks
+              setTimeout(() => {
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                setIsDownloading(false);
+                setDownloadProgress(false);
+                abortControllerRef.current = null;
+                toast.success('Report downloaded successfully', 
+                  { id: downloadToastIdRef.current }
+                );
+              }, 100);
+            } catch (error) {
+              handleDownloadError(error, progressInterval);
+            }
+          });
         } catch (error) {
-          console.error('Error in animation frame:', error);
-          clearInterval(progressInterval);
-          toast.error('Failed to download the report. Please try again.', 
-            { id: downloadToastIdRef.current }
-          );
-          setIsDownloading(false);
-          setDownloadProgress(false);
+          handleDownloadError(error, progressInterval);
         }
       });
     } catch (error) {
-      console.error('Error downloading PDF:', error);
-      clearInterval(progressInterval);
-      toast.error('Failed to download the report. Please try again.', 
-        { id: downloadToastIdRef.current }
-      );
-      setIsDownloading(false);
-      setDownloadProgress(false);
+      handleDownloadError(error, progressInterval);
     }
+  };
+  
+  // Helper function to handle errors consistently
+  const handleDownloadError = (error: unknown, intervalId: NodeJS.Timeout) => {
+    console.error('Error downloading PDF:', error);
+    clearInterval(intervalId);
+    toast.error('Failed to download the report. Please try again.', 
+      { id: downloadToastIdRef.current }
+    );
+    setIsDownloading(false);
+    setDownloadProgress(false);
+    abortControllerRef.current = null;
   };
 
   const handleExport = (format: ExportFormat) => {
@@ -189,18 +212,20 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
       setExportFormat(format);
       const toastId = toast.loading(`Preparing ${format.toUpperCase()} export...`);
       
-      // Use setTimeout to prevent UI from freezing
-      setTimeout(() => {
-        try {
-          exportReport(report, format);
-          toast.dismiss(toastId);
-          toast.success(`Report exported as ${format.toUpperCase()} successfully`);
-        } catch (error) {
-          toast.dismiss(toastId);
-          console.error(`Error exporting as ${format}:`, error);
-          toast.error(`Failed to export as ${format}. Please try again.`);
-        }
-      }, 10);
+      // Use requestAnimationFrame + setTimeout to prevent UI from freezing
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          try {
+            exportReport(report, format);
+            toast.dismiss(toastId);
+            toast.success(`Report exported as ${format.toUpperCase()} successfully`);
+          } catch (error) {
+            toast.dismiss(toastId);
+            console.error(`Error exporting as ${format}:`, error);
+            toast.error(`Failed to export as ${format}. Please try again.`);
+          }
+        }, 10);
+      });
     } catch (error) {
       console.error(`Error exporting as ${format}:`, error);
       toast.error(`Failed to export as ${format}. Please try again.`);

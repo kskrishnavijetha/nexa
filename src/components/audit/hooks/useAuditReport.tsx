@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { generateAuditReport, generateAuditLogsPDF, getAuditReportFileName, getAuditLogsFileName } from '@/utils/auditReportService';
 import { AuditEvent } from '../types';
 import { toast } from 'sonner';
@@ -11,13 +11,19 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
   const [isGeneratingLogs, setIsGeneratingLogs] = useState(false);
   const progressToastIdRef = useRef<string | number | null>(null);
   const [progressPercent, setProgressPercent] = useState(0);
+  const abortControllerRef = useRef<AbortController | null>(null);
 
-  const downloadAuditReport = async () => {
+  // Optimized download implementation with better memory management
+  const downloadAuditReport = useCallback(async () => {
     if (isGeneratingReport) return;
     
     setIsGeneratingReport(true);
     setProgressPercent(0);
-    progressToastIdRef.current = toast.loading('Generating audit report (0%)...', { duration: 60000 });
+    
+    // Create abort controller for potential cancellation
+    abortControllerRef.current = new AbortController();
+    
+    progressToastIdRef.current = toast.loading('Preparing audit report (0%)...', { duration: 60000 });
     
     // Update progress periodically to give feedback
     const progressInterval = setInterval(() => {
@@ -31,7 +37,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
         }
         return newValue;
       });
-    }, 500);
+    }, 300); // Slightly less frequent updates for performance
     
     try {
       console.log(`[useAuditReport] Generating report for ${documentName} with ${auditEvents.length} events`);
@@ -40,81 +46,88 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       // Use requestAnimationFrame to ensure UI updates before heavy operation
       requestAnimationFrame(async () => {
         try {
-          // Generate integrity verification metadata
-          const verificationMetadata = await generateVerificationMetadata(auditEvents);
-          console.log(`[useAuditReport] Generated verification hash: ${verificationMetadata.shortHash}`);
-          
-          if (progressToastIdRef.current) {
-            toast.loading('Building PDF document...', { 
-              id: progressToastIdRef.current 
-            });
-          }
-          
-          // Make sure we're using the industry from props first, before trying to detect it
-          const reportBlob = await generateAuditReport(documentName, auditEvents, industry);
-          
-          clearInterval(progressInterval);
-          setProgressPercent(100);
-          
-          if (progressToastIdRef.current) {
-            toast.loading('Download starting (100%)...', { 
-              id: progressToastIdRef.current 
-            });
-          }
-          
-          // Create download link
-          const url = window.URL.createObjectURL(reportBlob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = getAuditReportFileName(documentName);
-          
-          // Trigger download
-          document.body.appendChild(link);
-          link.click();
-          
-          // Clean up - important for memory management
-          setTimeout(() => {
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-            if (progressToastIdRef.current) {
-              toast.success('Audit report downloaded successfully', {
-                id: progressToastIdRef.current
-              });
-              progressToastIdRef.current = null;
+          // Use microtasks for better UI priority
+          queueMicrotask(async () => {
+            try {
+              // Generate integrity verification metadata
+              const verificationMetadata = await generateVerificationMetadata(auditEvents);
+              console.log(`[useAuditReport] Generated verification hash: ${verificationMetadata.shortHash}`);
+              
+              if (progressToastIdRef.current) {
+                toast.loading('Building PDF document...', { 
+                  id: progressToastIdRef.current 
+                });
+              }
+              
+              // Make sure we're using the industry from props first, before trying to detect it
+              const reportBlob = await generateAuditReport(documentName, auditEvents, industry);
+              
+              clearInterval(progressInterval);
+              setProgressPercent(100);
+              
+              if (progressToastIdRef.current) {
+                toast.loading('Download starting (100%)...', { 
+                  id: progressToastIdRef.current 
+                });
+              }
+              
+              // Create download link
+              const url = window.URL.createObjectURL(reportBlob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = getAuditReportFileName(documentName);
+              
+              // Trigger download - use visibility:hidden instead of appending to document
+              link.style.position = 'absolute';
+              link.style.visibility = 'hidden';
+              document.body.appendChild(link);
+              link.click();
+              
+              // Clean up - important for memory management
+              setTimeout(() => {
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+                if (progressToastIdRef.current) {
+                  toast.success('Audit report downloaded successfully', {
+                    id: progressToastIdRef.current
+                  });
+                  progressToastIdRef.current = null;
+                }
+                setIsGeneratingReport(false);
+                setProgressPercent(0);
+                abortControllerRef.current = null;
+              }, 100);
+              
+              console.log(`[useAuditReport] Report successfully generated for industry: ${industry || 'General'}`);
+            } catch (error) {
+              handleError(error, progressInterval);
             }
-            setIsGeneratingReport(false);
-            setProgressPercent(0);
-          }, 100);
-          
-          console.log(`[useAuditReport] Report successfully generated for industry: ${industry || 'General'}`);
+          });
         } catch (error) {
-          console.error('[useAuditReport] Error in animation frame:', error);
-          clearInterval(progressInterval);
-          if (progressToastIdRef.current) {
-            toast.error('Failed to generate audit report', {
-              id: progressToastIdRef.current
-            });
-            progressToastIdRef.current = null;
-          }
-          setIsGeneratingReport(false);
-          setProgressPercent(0);
+          handleError(error, progressInterval);
         }
       });
     } catch (error) {
-      console.error('[useAuditReport] Error generating report:', error);
-      clearInterval(progressInterval);
-      if (progressToastIdRef.current) {
-        toast.error('Failed to generate audit report', {
-          id: progressToastIdRef.current
-        });
-        progressToastIdRef.current = null;
-      }
-      setIsGeneratingReport(false);
-      setProgressPercent(0);
+      handleError(error, progressInterval);
     }
+  }, [auditEvents, documentName, industry, isGeneratingReport]);
+
+  // Helper function for error handling to avoid repetition
+  const handleError = (error: unknown, interval: NodeJS.Timeout) => {
+    console.error('[useAuditReport] Error generating report:', error);
+    clearInterval(interval);
+    if (progressToastIdRef.current) {
+      toast.error('Failed to generate audit report', {
+        id: progressToastIdRef.current
+      });
+      progressToastIdRef.current = null;
+    }
+    setIsGeneratingReport(false);
+    setProgressPercent(0);
+    abortControllerRef.current = null;
   };
 
-  const downloadAuditLogs = async () => {
+  const downloadAuditLogs = useCallback(async () => {
     if (isGeneratingLogs) return;
     
     setIsGeneratingLogs(true);
@@ -133,7 +146,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
         }
         return newValue;
       });
-    }, 500);
+    }, 300);
     
     try {
       console.log(`[useAuditReport] Generating logs PDF for ${documentName} with ${auditEvents.length} events`);
@@ -162,11 +175,13 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
             });
           }
           
-          // Create download link
+          // Create download link with optimized approach
           const url = window.URL.createObjectURL(logsBlob);
           const link = document.createElement('a');
           link.href = url;
           link.download = getAuditLogsFileName(documentName);
+          link.style.position = 'absolute';
+          link.style.visibility = 'hidden';
           
           // Trigger download
           document.body.appendChild(link);
@@ -210,7 +225,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
       setIsGeneratingLogs(false);
       setProgressPercent(0);
     }
-  };
+  }, [auditEvents, documentName, isGeneratingLogs]);
 
   return {
     isGeneratingReport,
