@@ -5,8 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 // Google API configuration
-const CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID"; // Replace with your actual Google Client ID
-const API_KEY = "YOUR_GOOGLE_API_KEY"; // Replace with your actual Google API Key
+const CLIENT_ID = "714133727140-56bq1vafc1aps4s4nfb1h7bj1icdr3m4.apps.googleusercontent.com"; // Google Client ID
+const API_KEY = ""; // You'll need to add your Google API Key
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 
