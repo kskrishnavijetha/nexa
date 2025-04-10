@@ -1,21 +1,24 @@
 
 import React from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, Loader2, RefreshCw, Wifi } from 'lucide-react';
+import { AlertCircle, Info, Loader2, RefreshCw, Wifi } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { GOOGLE_API_HELP_TEXT } from '@/hooks/google/googleAuthConfig';
 
 interface GoogleApiStatusInfoProps {
   isApiLoading: boolean;
   apiError: string | null;
   gApiInitialized: boolean;
   retryInitialization: () => void;
+  isDemoMode?: boolean;
 }
 
 export const GoogleApiStatusInfo: React.FC<GoogleApiStatusInfoProps> = ({
   isApiLoading,
   apiError,
   gApiInitialized,
-  retryInitialization
+  retryInitialization,
+  isDemoMode = false
 }) => {
   if (isApiLoading) {
     return (
@@ -25,6 +28,24 @@ export const GoogleApiStatusInfo: React.FC<GoogleApiStatusInfoProps> = ({
           <AlertDescription className="text-blue-700">
             Initializing Google services. Please wait...
           </AlertDescription>
+        </div>
+      </Alert>
+    );
+  }
+
+  if (isDemoMode) {
+    return (
+      <Alert className="mb-4 bg-amber-50 border-amber-200">
+        <div className="flex flex-col space-y-2">
+          <div className="flex items-center">
+            <Info className="h-4 w-4 mr-2 text-amber-500" />
+            <AlertDescription className="text-amber-700">
+              Running in demo mode with simulated data. Real-time Google API access is not available.
+            </AlertDescription>
+          </div>
+          <div className="text-sm text-gray-600 ml-6 mb-2">
+            {GOOGLE_API_HELP_TEXT}
+          </div>
         </div>
       </Alert>
     );

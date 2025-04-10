@@ -15,6 +15,7 @@ interface GoogleScannerContentProps extends GoogleServicesScannerProps {
   apiError: string | null;
   gApiInitialized: boolean;
   retryInitialization: () => void;
+  isDemoMode?: boolean;
 }
 
 const GoogleScannerContent: React.FC<GoogleScannerContentProps> = ({
@@ -29,7 +30,8 @@ const GoogleScannerContent: React.FC<GoogleScannerContentProps> = ({
   isApiLoading,
   apiError,
   gApiInitialized,
-  retryInitialization
+  retryInitialization,
+  isDemoMode = false
 }) => {
   const {
     activeTab,
@@ -78,6 +80,7 @@ const GoogleScannerContent: React.FC<GoogleScannerContentProps> = ({
           apiError={apiError}
           gApiInitialized={gApiInitialized}
           retryInitialization={retryInitialization}
+          isDemoMode={isDemoMode}
         />
         
         {isCompactView && connectedServices.length > 0 && (
@@ -89,7 +92,7 @@ const GoogleScannerContent: React.FC<GoogleScannerContentProps> = ({
           </div>
         )}
         
-        {(!apiError && (gApiInitialized || !isApiLoading)) && (
+        {(!apiError || isDemoMode) && (gApiInitialized || isDemoMode || !isApiLoading) && (
           <TabsContainer
             activeTab={activeTab}
             setActiveTab={setActiveTab}

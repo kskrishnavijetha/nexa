@@ -12,7 +12,7 @@ export function useGoogleServiceConnections() {
   const [isConnectingDocs, setIsConnectingDocs] = useState(false);
   const [connectedServices, setConnectedServices] = useState<GoogleService[]>([]);
   const { user } = useAuth();
-  const { signInToGoogle, signOutFromGoogle, isGoogleAuthenticated, gApiInitialized, apiError } = useGoogleAuth();
+  const { signInToGoogle, signOutFromGoogle, isGoogleAuthenticated, gApiInitialized, apiError, isDemoMode } = useGoogleAuth();
   
   // Clear connections if user signs out
   useEffect(() => {
@@ -22,6 +22,15 @@ export function useGoogleServiceConnections() {
   }, [user]);
 
   const scanGoogleDrive = async () => {
+    if (isDemoMode) {
+      console.log('Demo mode: Simulating Google Drive scan');
+      return [
+        { id: 'demo-1', name: 'Demo Document 1.docx', mimeType: 'application/vnd.google-apps.document' },
+        { id: 'demo-2', name: 'Demo Spreadsheet.xlsx', mimeType: 'application/vnd.google-apps.spreadsheet' },
+        { id: 'demo-3', name: 'Demo Presentation.pptx', mimeType: 'application/vnd.google-apps.presentation' }
+      ];
+    }
+
     if (!window.gapi || !window.gapi.client || !window.gapi.client.drive) {
       console.error('Google Drive API not available');
       toast.error('Google Drive API not available. Please try again.');
@@ -49,12 +58,17 @@ export function useGoogleServiceConnections() {
       return false;
     }
     
+    // In demo mode, always allow connections
+    if (isDemoMode) {
+      return true;
+    }
+    
     if (!gApiInitialized) {
       toast.error('Google API not initialized yet. Please wait a moment and try again.');
       return false;
     }
     
-    if (apiError) {
+    if (apiError && !isDemoMode) {
       toast.error('Google API encountered an error. Please try again after refreshing the page.');
       return false;
     }

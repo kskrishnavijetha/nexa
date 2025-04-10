@@ -13,7 +13,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   onServicesUpdate,
   isCompactView = false
 }) => {
-  const { gApiInitialized, apiLoading, apiError, retryInitialization } = useGoogleAuth();
+  const { gApiInitialized, apiLoading, apiError, retryInitialization, isDemoMode } = useGoogleAuth();
   const [uploadedFileName, setUploadedFileName] = React.useState<string | undefined>(file?.name);
   
   React.useEffect(() => {
@@ -51,6 +51,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
         apiError={apiError}
         gApiInitialized={gApiInitialized}
         retryInitialization={retryInitialization}
+        isDemoMode={isDemoMode}
       />
     </div>
   );
