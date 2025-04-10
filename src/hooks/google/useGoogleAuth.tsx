@@ -10,7 +10,7 @@ import {
   signInToGoogle as googleSignIn,
   signOutFromGoogle as googleSignOut
 } from './googleApiLoader';
-import { GOOGLE_API_HELP_TEXT, ENABLE_DEMO_MODE } from './googleAuthConfig';
+import { CLIENT_ID, API_KEY, GOOGLE_API_HELP_TEXT, ENABLE_DEMO_MODE, DEBUG_HOST_INFO } from './googleAuthConfig';
 
 export function useGoogleAuth() {
   const { user } = useAuth();
@@ -23,6 +23,13 @@ export function useGoogleAuth() {
   const [initializationAttempts, setInitializationAttempts] = useState(0);
   const [isDemoMode, setIsDemoMode] = useState(ENABLE_DEMO_MODE);
 
+  // Check if credentials are actually provided
+  const hasCredentials = !!CLIENT_ID && !!API_KEY && 
+    CLIENT_ID !== "YOUR_CLIENT_ID_GOES_HERE" && 
+    API_KEY !== "YOUR_API_KEY_GOES_HERE" &&
+    CLIENT_ID !== "" && 
+    API_KEY !== "";
+
   // Initialize the Google API client
   useEffect(() => {
     // Don't retry more than 3 times automatically
@@ -33,6 +40,15 @@ export function useGoogleAuth() {
     const initializeGoogleApi = () => {
       setApiLoading(true);
       setApiError(null);
+      
+      // If no credentials are provided, immediately go to demo mode
+      if (!hasCredentials) {
+        console.log('No Google API credentials provided, using demo mode');
+        setApiLoading(false);
+        setApiError('Missing Google API credentials. Please check the configuration.');
+        setIsDemoMode(true);
+        return;
+      }
       
       loadGoogleApiScript(
         // On success loading script
@@ -58,11 +74,12 @@ export function useGoogleAuth() {
               // Provide more specific error message
               const errorMessage = error?.message || 'Unknown error';
               console.error('Google API initialization error:', errorMessage);
+              console.log('Debug host info:', DEBUG_HOST_INFO);
               
-              if (errorMessage.includes('Client ID') || errorMessage.includes('API Key')) {
+              if (!CLIENT_ID || !API_KEY || CLIENT_ID === "" || API_KEY === "") {
                 setApiError('Missing Google API credentials. Please check the configuration.');
               } else if (errorMessage.includes('invalid_client')) {
-                setApiError('Invalid client: Your domain is not authorized in Google Cloud Console.');
+                setApiError(`Invalid client: Your domain (${DEBUG_HOST_INFO.currentHost}) is not authorized in Google Cloud Console.`);
               } else if (errorMessage.includes('403') || errorMessage.includes('invalid_client')) {
                 setApiError('API key or client ID may be invalid. Please check your credentials.');
               } else if (errorMessage.includes('network') || errorMessage.includes('timeout')) {
@@ -89,10 +106,10 @@ export function useGoogleAuth() {
       );
     };
 
-    if (!gApiInitialized && !apiError) {
+    if (!gApiInitialized && (!apiError || initializationAttempts === 0)) {
       initializeGoogleApi();
     }
-  }, [gApiInitialized, apiError, initializationAttempts]);
+  }, [gApiInitialized, apiError, initializationAttempts, hasCredentials]);
 
   // Check if user is authenticated with our app
   useEffect(() => {
@@ -165,6 +182,7 @@ export function useGoogleAuth() {
     apiLoading,
     apiError,
     retryInitialization,
-    isDemoMode
+    isDemoMode,
+    hasCredentials
   };
 }

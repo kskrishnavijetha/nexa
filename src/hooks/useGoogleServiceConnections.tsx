@@ -12,7 +12,7 @@ export function useGoogleServiceConnections() {
   const [isConnectingDocs, setIsConnectingDocs] = useState(false);
   const [connectedServices, setConnectedServices] = useState<GoogleService[]>([]);
   const { user } = useAuth();
-  const { signInToGoogle, signOutFromGoogle, isGoogleAuthenticated, gApiInitialized, apiError, isDemoMode } = useGoogleAuth();
+  const { signInToGoogle, signOutFromGoogle, isGoogleAuthenticated, gApiInitialized, apiError, isDemoMode, hasCredentials } = useGoogleAuth();
   
   // Clear connections if user signs out
   useEffect(() => {
@@ -60,6 +60,11 @@ export function useGoogleServiceConnections() {
     
     if (isDemoMode) {
       return true;
+    }
+    
+    if (!hasCredentials) {
+      toast.error('Missing Google API credentials. Please add your credentials in the configuration.');
+      return false;
     }
     
     if (!gApiInitialized) {

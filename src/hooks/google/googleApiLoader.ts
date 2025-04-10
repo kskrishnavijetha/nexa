@@ -57,12 +57,13 @@ export const initializeGoogleApiClient = (): Promise<void> => {
       return;
     }
 
-    if (!CLIENT_ID || CLIENT_ID === "YOUR_CLIENT_ID_GOES_HERE") {
+    // Check if credentials are valid
+    if (!CLIENT_ID || CLIENT_ID === "") {
       reject(new Error('Google Client ID not configured. Please set a valid Client ID.'));
       return;
     }
 
-    if (!API_KEY || API_KEY === "YOUR_API_KEY_GOES_HERE") {
+    if (!API_KEY || API_KEY === "") {
       reject(new Error('Google API Key not configured. Please set a valid API Key.'));
       return;
     }
