@@ -1,8 +1,8 @@
 
 // Google API configuration constants
 // These are publishable client IDs that can be safely stored in client-side code
-export const CLIENT_ID = "466449188211-kjde3tmajlmur4gafcuu40an8nuvpktn.apps.googleusercontent.com"; // Google OAuth Client ID
-export const API_KEY = "AIzaSyDdAZBd2if19cmh1T5IGvUh3HN_Y2sI_nE"; // Google API Key
+export const CLIENT_ID = "466449188211-mlt5lcpg8mk3q2mlhcoetkd838s30g9r.apps.googleusercontent.com"; // Google OAuth Client ID
+export const API_KEY = ""; // Google API Key is no longer used
 export const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 export const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 
@@ -18,9 +18,7 @@ To set up Google API credentials:
      - For local development: http://localhost:5173 (or your dev server port)
      - For production: https://yourdomain.com
    - Click "Create"
-4. Also create an API key for your project
-5. Add both the Client ID and API Key to the application
-6. Refresh this page
+4. Refresh this page
 
 Note: Google API credentials are domain-specific and won't work on unauthorized domains.
 `;
