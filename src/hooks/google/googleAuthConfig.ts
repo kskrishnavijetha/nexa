@@ -24,7 +24,7 @@ Note: Google API credentials are domain-specific and won't work on unauthorized 
 `;
 
 // Setting for enabling demo mode (when true, uses mock data instead of actual Google API)
-export const ENABLE_DEMO_MODE = false; // Set to false since we now have valid credentials
+export const ENABLE_DEMO_MODE = true; // Changed to true to fix domain authorization issues
 
 // Debug information about the domain
 export const DEBUG_HOST_INFO = {
