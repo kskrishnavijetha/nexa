@@ -124,7 +124,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
         </CardHeader>
         <CardContent className={isCompactView ? "px-4 py-2" : ""}>
           {!gApiInitialized && (
-            <Alert variant="warning" className="mb-4">
+            <Alert className="mb-4">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 Initializing Google Drive integration. Please wait...
@@ -185,3 +185,4 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
 };
 
 export default GoogleServicesScanner;
+
