@@ -13,8 +13,8 @@ export const addRiskTrendsSection = (
 ): number => {
   let yPos = startYPos + 15;
   
-  // Check if we need a new page
-  if (yPos > 240) {
+  // Check if we need a new page - use more conservative threshold
+  if (yPos > 220) {
     pdf.addPage();
     yPos = 20;
   }
@@ -41,7 +41,7 @@ export const addRiskTrendsSection = (
     const trend = riskTrends[i];
     
     // Check if we need a new page - more conservative threshold to prevent overlap
-    if (yPos > 230) {
+    if (yPos > 210) {
       pdf.addPage();
       
       // Add page header for continuity

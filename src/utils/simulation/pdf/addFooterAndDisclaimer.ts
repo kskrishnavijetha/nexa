@@ -12,15 +12,15 @@ export const addFooterAndDisclaimer = (pdf: jsPDF): void => {
   for (let i = 1; i <= pageCount; i++) {
     pdf.setPage(i);
     
-    // Add page number
+    // Add page number at the top
     pdf.setFontSize(9);
     pdf.setTextColor(100, 100, 100);
     pdf.text(`Page ${i} of ${pageCount}`, 20, 10, { baseline: 'top' });
     pdf.text(`Generated on ${new Date().toLocaleDateString()}`, 190, 10, { align: 'right', baseline: 'top' });
     
-    // Add disclaimer at the bottom
+    // Add disclaimer at the bottom - position higher to avoid overlapping with verification hash
     pdf.setFontSize(8);
     pdf.setTextColor(100, 100, 100);
-    pdf.text("LEGAL DISCLAIMER: This report is for informational purposes only and does not constitute legal advice.", 105, 287, { align: 'center' });
+    pdf.text("LEGAL DISCLAIMER: This report is for informational purposes only and does not constitute legal advice.", 105, 280, { align: 'center' });
   }
 };

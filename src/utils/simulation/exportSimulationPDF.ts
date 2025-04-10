@@ -40,12 +40,12 @@ export const exportSimulationPDF = async (
         yPos = addRiskTrendsSection(pdf, analysis.riskTrends, yPos);
         
         // Add recommendations section
-        addRecommendationsSection(pdf, analysis.recommendations, yPos);
+        yPos = addRecommendationsSection(pdf, analysis.recommendations, yPos);
         
-        // Add footer and disclaimer
+        // Add footer and disclaimer - this adds page numbers and legal text
         addFooterAndDisclaimer(pdf);
         
-        // Add footer with page numbers to all pages
+        // Add the verification footer with hash - now positioned properly to avoid overlap
         await addFooter(pdf);
         
         // Generate the PDF as a blob

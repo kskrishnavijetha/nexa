@@ -13,7 +13,7 @@ export const addRecommendationsSection = (
   let yPos = startYPos + 15;
   
   // Check if we need a new page - use more conservative threshold
-  if (yPos > 230) {
+  if (yPos > 210) {
     pdf.addPage();
     yPos = 20;
   }
@@ -31,7 +31,7 @@ export const addRecommendationsSection = (
     
     for (let i = 0; i < recommendations.length; i++) {
       // Check if we need a new page - more conservative threshold
-      if (yPos > 250) {
+      if (yPos > 230) {
         pdf.addPage();
         // Add header for continuity
         pdf.setFontSize(12);
