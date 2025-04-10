@@ -43,21 +43,27 @@ export function useGoogleServiceConnections() {
     }
   };
 
-  const handleConnectDrive = async () => {
+  const checkGoogleApiReady = () => {
     if (!user) {
       toast.error('Please sign in to connect services');
-      return;
+      return false;
     }
     
     if (!gApiInitialized) {
       toast.error('Google API not initialized yet. Please wait a moment and try again.');
-      return;
+      return false;
     }
     
     if (apiError) {
       toast.error('Google API encountered an error. Please try again after refreshing the page.');
-      return;
+      return false;
     }
+    
+    return true;
+  };
+
+  const handleConnectDrive = async () => {
+    if (!checkGoogleApiReady()) return;
     
     setIsConnectingDrive(true);
     try {
@@ -84,15 +90,7 @@ export function useGoogleServiceConnections() {
   };
   
   const handleConnectGmail = async () => {
-    if (!user) {
-      toast.error('Please sign in to connect services');
-      return;
-    }
-    
-    if (!gApiInitialized) {
-      toast.error('Google API not initialized yet. Please wait a moment and try again.');
-      return;
-    }
+    if (!checkGoogleApiReady()) return;
     
     setIsConnectingGmail(true);
     try {
@@ -118,15 +116,7 @@ export function useGoogleServiceConnections() {
   };
   
   const handleConnectDocs = async () => {
-    if (!user) {
-      toast.error('Please sign in to connect services');
-      return;
-    }
-    
-    if (!gApiInitialized) {
-      toast.error('Google API not initialized yet. Please wait a moment and try again.');
-      return;
-    }
+    if (!checkGoogleApiReady()) return;
     
     setIsConnectingDocs(true);
     try {

@@ -5,8 +5,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 // Google API configuration
-const CLIENT_ID = "714133727140-56bq1vafc1aps4s4nfb1h7bj1icdr3m4.apps.googleusercontent.com"; // Google Client ID
-const API_KEY = "AIzaSyCw2nTK_NMP8Eg3X94eF1L3BA0T_hLo9J8"; // Google API Key
+const CLIENT_ID = "714133727140-56bq1vafc1aps4s4nfb1h7bj1icdr3m4.apps.googleusercontent.com"; 
+const API_KEY = "AIzaSyCw2nTK_NMP8Eg3X94eF1L3BA0T_hLo9J8"; 
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 
@@ -26,13 +26,15 @@ export function useGoogleAuth() {
   const [isGoogleAuthenticated, setIsGoogleAuthenticated] = useState(false);
   const [apiLoading, setApiLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [initializationAttempts, setInitializationAttempts] = useState(0);
 
   // Initialize the Google API client
   useEffect(() => {
-    let scriptLoaded = false;
-    let scriptAttempts = 0;
-    const MAX_ATTEMPTS = 3;
-
+    // Don't retry more than 3 times automatically
+    if (initializationAttempts > 3) {
+      return;
+    }
+    
     const loadGoogleApi = () => {
       if (window.gapi) {
         console.log('Google API script already loaded, initializing client');
@@ -40,15 +42,7 @@ export function useGoogleAuth() {
         return;
       }
 
-      if (scriptAttempts >= MAX_ATTEMPTS) {
-        console.error('Failed to load Google API after multiple attempts');
-        setApiError('Failed to load Google services after multiple attempts');
-        setApiLoading(false);
-        return;
-      }
-
-      scriptAttempts++;
-      console.log(`Loading Google API script (attempt ${scriptAttempts})`);
+      console.log(`Loading Google API script (attempt ${initializationAttempts + 1})`);
       setApiLoading(true);
       setApiError(null);
       
@@ -58,21 +52,13 @@ export function useGoogleAuth() {
       script.defer = true;
       script.onload = () => {
         console.log('Google API script loaded successfully');
-        scriptLoaded = true;
         initGoogleApi();
       };
       script.onerror = (error) => {
         console.error('Error loading Google API script:', error);
         setApiLoading(false);
         setApiError('Failed to load Google services. Please check your internet connection and try again.');
-        
-        // Retry after a delay
-        setTimeout(() => {
-          if (scriptAttempts < MAX_ATTEMPTS) {
-            document.body.removeChild(script);
-            loadGoogleApi();
-          }
-        }, 2000);
+        setInitializationAttempts(prev => prev + 1);
       };
       
       document.body.appendChild(script);
@@ -83,6 +69,7 @@ export function useGoogleAuth() {
         console.error('Google API script failed to provide window.gapi');
         setApiLoading(false);
         setApiError('Failed to initialize Google services');
+        setInitializationAttempts(prev => prev + 1);
         return;
       }
 
@@ -109,30 +96,38 @@ export function useGoogleAuth() {
           } else {
             console.log('User not signed in to Google');
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error('Error initializing Google API:', error);
           setApiLoading(false);
-          setApiError('Failed to initialize Google services. Please try again or check your API credentials.');
+          
+          // Provide more specific error message
+          const errorMessage = error?.message || 'Unknown error';
+          if (errorMessage.includes('403') || errorMessage.includes('invalid_client')) {
+            setApiError('API key or client ID may be invalid. Please check your credentials.');
+          } else if (errorMessage.includes('network') || errorMessage.includes('timeout')) {
+            setApiError('Network issue detected. Please check your internet connection.');
+          } else {
+            setApiError('Failed to initialize Google services. Please try again or check your API credentials.');
+          }
+          
+          setInitializationAttempts(prev => prev + 1);
         }
       });
     };
 
-    if (!gApiInitialized && !scriptLoaded && !apiError) {
+    if (!gApiInitialized && !apiError) {
       loadGoogleApi();
     }
 
-    // Cleanup function
-    return () => {
-      // No cleanup needed for script loading
-    };
-  }, [gApiInitialized, apiError]);
+  }, [gApiInitialized, apiError, initializationAttempts]);
 
-  // Retry initialization
+  // Retry initialization manually
   const retryInitialization = () => {
-    console.log('Retrying Google API initialization');
+    console.log('Manually retrying Google API initialization');
     setApiLoading(true);
     setApiError(null);
     setGApiInitialized(false);
+    setInitializationAttempts(0);
   };
 
   // Check if user is authenticated with our app
