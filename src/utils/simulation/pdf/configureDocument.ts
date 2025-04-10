@@ -12,7 +12,8 @@ export const configureDocument = (analysis: PredictiveAnalysis): jsPDF => {
     unit: 'mm',
     format: 'a4',
     compress: true,
-    putOnlyUsedFonts: true
+    putOnlyUsedFonts: true,
+    margins: { top: 20, bottom: 20, left: 20, right: 20 } // Consistent margins
   });
   
   // Set document properties

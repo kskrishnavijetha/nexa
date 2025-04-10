@@ -12,12 +12,13 @@ export const addRecommendationsSection = (
 ): number => {
   let yPos = startYPos + 15;
   
-  // Check if we need a new page
-  if (yPos > 240) {
+  // Check if we need a new page - use more conservative threshold
+  if (yPos > 230) {
     pdf.addPage();
     yPos = 20;
   }
   
+  // Add section title
   pdf.setFontSize(16);
   pdf.setTextColor(0, 51, 102);
   pdf.text('Recommendations', 20, yPos);
@@ -28,18 +29,22 @@ export const addRecommendationsSection = (
     pdf.setFontSize(11);
     pdf.setTextColor(0, 0, 0);
     
-    recommendations.forEach((recommendation) => {
-      // Check if we need a new page
-      if (yPos > 270) {
+    for (let i = 0; i < recommendations.length; i++) {
+      // Check if we need a new page - more conservative threshold
+      if (yPos > 250) {
         pdf.addPage();
-        yPos = 20;
+        // Add header for continuity
+        pdf.setFontSize(12);
+        pdf.setTextColor(0, 51, 102);
+        pdf.text('Recommendations (continued)', 20, 20);
+        yPos = 35;
       }
       
-      const bulletedText = `• ${recommendation}`;
+      const bulletedText = `• ${recommendations[i]}`;
       const recommendationLines = pdf.splitTextToSize(bulletedText, 170);
       pdf.text(recommendationLines, 20, yPos);
       yPos += (recommendationLines.length * 6) + 5;
-    });
+    }
   } else {
     pdf.setFontSize(11);
     pdf.text("No recommendations available for this simulation.", 20, yPos + 5);

@@ -13,76 +13,93 @@ export const addRiskTrendsSection = (
 ): number => {
   let yPos = startYPos + 15;
   
+  // Check if we need a new page
+  if (yPos > 240) {
+    pdf.addPage();
+    yPos = 20;
+  }
+  
+  // Add section title
   pdf.setFontSize(16);
   pdf.setTextColor(0, 51, 102);
   pdf.text('Risk Trend Analysis', 20, yPos);
   yPos += 10;
   
-  // Create risk trends table
-  if (riskTrends && riskTrends.length > 0) {
-    // Table header
-    const riskHeaders = ['Regulation', 'Trend', 'Impact', 'Description'];
-    const riskColumnWidths = [30, 25, 25, 100];
-    let xPos = 20;
+  // If no trends, add message
+  if (!riskTrends || riskTrends.length === 0) {
+    pdf.setFontSize(11);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text("No risk trend data available for this simulation.", 20, yPos + 5);
+    return yPos + 15;
+  }
+  
+  // Add risk trends
+  pdf.setFontSize(11);
+  pdf.setTextColor(0, 0, 0);
+  
+  for (let i = 0; i < riskTrends.length; i++) {
+    const trend = riskTrends[i];
     
-    // Draw table header
-    pdf.setFillColor(240, 240, 240);
-    pdf.rect(xPos, yPos, riskColumnWidths.reduce((a, b) => a + b, 0), 8, 'F');
-    pdf.setFont('helvetica', 'bold');
-    
-    for (let i = 0; i < riskHeaders.length; i++) {
-      pdf.text(riskHeaders[i], xPos + 5, yPos + 5);
-      xPos += riskColumnWidths[i];
+    // Check if we need a new page - more conservative threshold to prevent overlap
+    if (yPos > 230) {
+      pdf.addPage();
+      
+      // Add page header for continuity
+      pdf.setFontSize(12);
+      pdf.setTextColor(0, 51, 102);
+      pdf.text('Risk Trend Analysis (continued)', 20, 20);
+      yPos = 35; // Start a bit lower to account for the header
     }
     
-    // Draw risk trend rows
-    pdf.setFont('helvetica', 'normal');
+    // Add trend information - each trend takes approximately 30-35 units of space
+    const trendTitle = `${i + 1}. ${trend.regulation}`;
+    pdf.setFontSize(12);
+    pdf.setTextColor(0, 0, 100);
+    pdf.text(trendTitle, 20, yPos);
     yPos += 8;
     
-    // Limit to prevent overly long PDFs
-    const maxRisks = Math.min(riskTrends.length, 10);
+    // Add description with text wrapping
+    pdf.setFontSize(10);
+    pdf.setTextColor(0, 0, 0);
+    const descriptionLines = pdf.splitTextToSize(trend.description, 170);
+    pdf.text(descriptionLines, 20, yPos);
+    yPos += (descriptionLines.length * 5) + 5;
     
-    for (let i = 0; i < maxRisks; i++) {
-      const risk = riskTrends[i];
-      xPos = 20;
-      
-      // Check if we need a new page
-      if (yPos > 260) {
-        pdf.addPage();
-        yPos = 20;
-      }
-      
-      // Alternate row background
-      if (i % 2 === 0) {
-        pdf.setFillColor(250, 250, 250);
-        pdf.rect(xPos, yPos, riskColumnWidths.reduce((a, b) => a + b, 0), 16, 'F');
-      }
-      
-      // Regulation
-      pdf.text(risk.regulation, xPos + 5, yPos + 5);
-      xPos += riskColumnWidths[0];
-      
-      // Trend
-      const trendText = risk.trend.charAt(0).toUpperCase() + risk.trend.slice(1);
-      pdf.text(trendText, xPos + 5, yPos + 5);
-      xPos += riskColumnWidths[1];
-      
-      // Impact
-      pdf.text(risk.impact.toUpperCase(), xPos + 5, yPos + 5);
-      xPos += riskColumnWidths[2];
-      
-      // Description (with wrapping)
-      const riskLines = pdf.splitTextToSize(risk.description, riskColumnWidths[3] - 10);
-      pdf.text(riskLines, xPos + 5, yPos + 5);
-      
-      // Increase row height if needed for wrapped text
-      const lineHeight = Math.max(16, riskLines.length * 6 + 4);
-      yPos += lineHeight;
+    // Add trend information
+    pdf.setFontSize(9);
+    pdf.setTextColor(60, 60, 60);
+    
+    // Trend direction
+    const trendText = `Trend: ${
+      trend.trend === 'increase' ? 'Increasing ↑' : 
+      trend.trend === 'decrease' ? 'Decreasing ↓' : 
+      'Stable →'
+    }`;
+    pdf.text(trendText, 25, yPos);
+    yPos += 5;
+    
+    // Impact level
+    pdf.text(`Impact: ${trend.impact ? trend.impact.charAt(0).toUpperCase() + trend.impact.slice(1) : 'Medium'}`, 25, yPos);
+    yPos += 5;
+    
+    // Current and projected severities
+    pdf.text(`Current Severity: ${trend.currentSeverity.charAt(0).toUpperCase() + trend.currentSeverity.slice(1)}`, 25, yPos);
+    yPos += 5;
+    
+    if (trend.projectedSeverity) {
+      pdf.text(`Projected Severity: ${trend.projectedSeverity.charAt(0).toUpperCase() + trend.projectedSeverity.slice(1)}`, 25, yPos);
+      yPos += 5;
     }
-  } else {
-    pdf.setFontSize(11);
-    pdf.text("No risk trends available for this simulation.", 20, yPos + 10);
-    yPos += 20;
+    
+    // Add some spacing between items
+    yPos += 8;
+    
+    // Add a light separator between items (except last item)
+    if (i < riskTrends.length - 1) {
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.1);
+      pdf.line(20, yPos - 4, 190, yPos - 4);
+    }
   }
   
   return yPos;
