@@ -5,25 +5,35 @@ import { getOrganizationBranding, applyBrandingToFooter } from '@/utils/branding
 /**
  * Add footer with page numbers and organization branding to the PDF document
  * Now supports customizable branding and includes integrity verification metadata
- * Optimized for better performance
  */
 export const addFooter = (doc: jsPDF, verificationMetadata?: any): void => {
   // Get organization branding (will use defaults if none set)
   const branding = getOrganizationBranding();
   
-  try {
-    // Apply the branding to the footer with verification metadata if available
-    applyBrandingToFooter(doc, branding, verificationMetadata);
-  } catch (error) {
-    console.error('Error applying branding to footer:', error);
+  // Add audit verification information if provided
+  if (verificationMetadata) {
+    // Get total pages - use internal.pages.length instead of getNumberOfPages
+    const pageCount = doc.internal.pages.length - 1;
     
-    // Fallback to simpler footer if branding footer fails
-    const pageCount = doc.internal.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       doc.setPage(i);
-      doc.setFontSize(8);
+      
+      // Add verification hash info in small gray text
+      doc.setFontSize(7);
       doc.setTextColor(100, 100, 100);
-      doc.text(`Page ${i} of ${pageCount} | Nexabloom | www.nexabloom.xyz`, 105, 285, { align: 'center' });
+      const verificationText = `Verification Hash: ${verificationMetadata.shortHash} | Generated: ${new Date(verificationMetadata.timestamp).toLocaleString()} | Method: ${verificationMetadata.verificationMethod}`;
+      doc.text(verificationText, doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() - 7, {
+        align: 'center'
+      });
+      
+      // Add tamper-evident notice text
+      const tamperText = "This report uses cryptographic verification to detect tampering and ensure data integrity.";
+      doc.text(tamperText, doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() - 4, {
+        align: 'center'
+      });
     }
   }
+  
+  // Apply the branding to the footer
+  applyBrandingToFooter(doc, branding, verificationMetadata);
 };

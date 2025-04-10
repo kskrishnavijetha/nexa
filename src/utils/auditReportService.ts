@@ -21,19 +21,10 @@ export const generateAuditReport = async (
       console.log(`Generating audit report for ${documentName} with ${auditEvents.length} events`);
       console.log(`Industry for audit report: ${industry || 'not specified'}`);
       
-      // Use setTimeout with requestAnimationFrame to improve browser responsiveness
-      setTimeout(() => {
-        requestAnimationFrame(async () => {
-          try {
-            // Generate the PDF asynchronously then resolve
-            const pdfBlob = await generatePDFReport(documentName, auditEvents, industry);
-            resolve(pdfBlob);
-          } catch (innerError) {
-            console.error('Error generating PDF report (inner):', innerError);
-            reject(innerError);
-          }
-        });
-      }, 50); // Small delay to allow UI to update
+      // Generate the PDF asynchronously then resolve
+      generatePDFReport(documentName, auditEvents, industry)
+        .then(pdfBlob => resolve(pdfBlob))
+        .catch(err => reject(err));
     } catch (error) {
       console.error('Error generating PDF report:', error);
       reject(error);
@@ -51,69 +42,67 @@ export const generateAuditLogsPDF = async (
 ): Promise<Blob> => {
   // Wrap in a promise to prevent UI blocking and optimize memory usage
   return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      requestAnimationFrame(async () => {
-        try {
-          console.log(`Generating audit logs PDF for ${documentName} with ${auditEvents.length} events`);
-          
-          // Generate integrity verification metadata
-          const verificationMetadata = await generateVerificationMetadata(auditEvents);
-          console.log(`[auditLogsPDF] Generated verification hash: ${verificationMetadata.shortHash}`);
-          
-          // Create PDF document with optimized settings
-          const pdf = new jsPDF({
-            orientation: 'portrait',
-            unit: 'mm',
-            format: 'a4',
-            compress: true,
-            putOnlyUsedFonts: true, // Memory optimization
-          });
-          
-          // Add title
-          pdf.setFontSize(18);
-          pdf.setTextColor(0, 51, 102);
-          pdf.text('Audit Logs', 105, 20, { align: 'center' });
-          
-          // Add document name
-          pdf.setFontSize(12);
-          pdf.text(`Document: ${documentName}`, 20, 30);
-          
-          // Add generation date
-          pdf.text(`Generated: ${new Date().toLocaleString()}`, 20, 38);
-          
-          // Add verification identifier
-          pdf.setFontSize(10);
-          pdf.setTextColor(100, 100, 100);
-          pdf.text(`Verification ID: ${verificationMetadata.shortHash}`, 20, 45);
-          
-          // Add horizontal line
-          pdf.setDrawColor(200, 200, 200);
-          pdf.setLineWidth(0.5);
-          pdf.line(20, 48, 190, 48);
-          
-          // Optimize: limit number of events to avoid memory issues
-          // Take only the most recent events if we have too many
-          const maxEvents = 75; // Further reduced for better performance
-          const limitedEvents = auditEvents.length > maxEvents 
-            ? auditEvents.slice(0, maxEvents) 
-            : auditEvents;
-          
-          // Process all events in a single batch instead of multiple small batches
-          let yPos = 55;
-          yPos = addEventsSection(pdf, limitedEvents, yPos);
-          
-          // Add footer with verification metadata
-          addFooter(pdf, verificationMetadata);
-          
-          // Generate PDF blob and resolve
-          const pdfBlob = pdf.output('blob');
-          resolve(pdfBlob);
-        } catch (error) {
-          console.error('Error generating audit logs PDF:', error);
-          reject(error);
-        }
-      });
-    }, 50); // Small delay to allow UI to update
+    setTimeout(async () => {
+      try {
+        console.log(`Generating audit logs PDF for ${documentName} with ${auditEvents.length} events`);
+        
+        // Generate integrity verification metadata
+        const verificationMetadata = await generateVerificationMetadata(auditEvents);
+        console.log(`[auditLogsPDF] Generated verification hash: ${verificationMetadata.shortHash}`);
+        
+        // Create PDF document with optimized settings
+        const pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'mm',
+          format: 'a4',
+          compress: true,
+          putOnlyUsedFonts: true, // Memory optimization
+        });
+        
+        // Add title
+        pdf.setFontSize(18);
+        pdf.setTextColor(0, 51, 102);
+        pdf.text('Audit Logs', 105, 20, { align: 'center' });
+        
+        // Add document name
+        pdf.setFontSize(12);
+        pdf.text(`Document: ${documentName}`, 20, 30);
+        
+        // Add generation date
+        pdf.text(`Generated: ${new Date().toLocaleString()}`, 20, 38);
+        
+        // Add verification identifier
+        pdf.setFontSize(10);
+        pdf.setTextColor(100, 100, 100);
+        pdf.text(`Verification ID: ${verificationMetadata.shortHash}`, 20, 45);
+        
+        // Add horizontal line
+        pdf.setDrawColor(200, 200, 200);
+        pdf.setLineWidth(0.5);
+        pdf.line(20, 48, 190, 48);
+        
+        // Optimized approach: limit number of events to avoid memory issues
+        // Take only the most recent events if we have too many
+        const maxEvents = 100; // Limit total events to avoid memory issues
+        const limitedEvents = auditEvents.length > maxEvents 
+          ? auditEvents.slice(0, maxEvents) 
+          : auditEvents;
+        
+        // Process all events in a single batch instead of multiple small batches
+        let yPos = 55;
+        yPos = addEventsSection(pdf, limitedEvents, yPos);
+        
+        // Add footer with verification metadata
+        addFooter(pdf, verificationMetadata);
+        
+        // Generate PDF blob and resolve
+        const pdfBlob = pdf.output('blob');
+        resolve(pdfBlob);
+      } catch (error) {
+        console.error('Error generating audit logs PDF:', error);
+        reject(error);
+      }
+    }, 10);
   });
 };
 

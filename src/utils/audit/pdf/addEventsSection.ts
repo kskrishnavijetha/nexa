@@ -25,18 +25,17 @@ export const addEventsSection = (
   doc.text('Complete log of all recorded audit events in chronological order:', 25, yPos);
   yPos += 7;
   
-  // Optimize: Even fewer events per page to avoid rendering issues
-  const eventsPerPage = 5; // Reduced from 6 to prevent rendering issues
+  // Optimize: Limit events per page to avoid overflow and improve memory management
+  const eventsPerPage = 6; // Reduced from 8 to ensure we don't overflow
   
   // Get most recent events first and limit to a reasonable number
   // Clone the array to avoid modifying the original
   const sortedEvents = [...auditEvents]
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   
-  // Limit to even fewer events for better performance and reliability
-  const recentEvents = sortedEvents.slice(0, 20); 
+  // Limit to fewer events for better performance and reliability
+  const recentEvents = sortedEvents.slice(0, 25); 
   
-  // Process one event at a time to avoid browser freezing
   for (let i = 0; i < recentEvents.length; i++) {
     const event = recentEvents[i];
     
@@ -68,7 +67,7 @@ export const addEventsSection = (
     doc.text(`${i + 1}. ${eventDate} - ${event.action}`, 25, yPos);
     yPos += 6;
     
-    // Add event description with more stringent length limit
+    // Add event description with length limit
     doc.setFont('helvetica', 'normal');
     let description = '';
     
@@ -82,23 +81,22 @@ export const addEventsSection = (
       description = event.action; // Use action as fallback description
     }
     
-    // Further limit description length to prevent rendering issues
-    if (description.length > 80) {
-      description = description.substring(0, 77) + '...';
+    // Limit description length to prevent overflow
+    if (description.length > 90) {
+      description = description.substring(0, 87) + '...';
     }
     
-    const descriptionLines = doc.splitTextToSize(description, 155); // Reduced width
+    const descriptionLines = doc.splitTextToSize(description, 160);
     doc.text(descriptionLines, 30, yPos);
     
-    // Adjust yPos based on number of lines (with maximum cap)
-    const lineCount = Math.min(descriptionLines.length, 3); // Limit to 3 lines max
-    yPos += Math.max(6, lineCount * 5);
+    // Adjust yPos based on number of lines
+    yPos += Math.max(6, descriptionLines.length * 5);
     
     // Add user info if available (with length limit)
     if (event.user) {
       doc.setFont('helvetica', 'italic');
       doc.setTextColor(100, 100, 100);
-      const userText = event.user.length > 25 ? event.user.substring(0, 22) + '...' : event.user;
+      const userText = event.user.length > 30 ? event.user.substring(0, 27) + '...' : event.user;
       doc.text(`User: ${userText}`, 30, yPos);
       yPos += 6;
     }
