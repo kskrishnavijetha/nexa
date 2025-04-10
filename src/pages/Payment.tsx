@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PaymentForm from '@/components/PaymentForm';
@@ -15,7 +14,7 @@ const Payment = () => {
   const [subscription, setSubscription] = useState(getSubscription());
   const [isRenewal, setIsRenewal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
+  const [billingCycle, setBillingCycle] = useState<'monthly'>('monthly');
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
@@ -30,8 +29,8 @@ const Payment = () => {
     }
     
     // Check if billing cycle was selected
-    if (location.state?.billingCycle) {
-      setBillingCycle(location.state.billingCycle);
+    if (location.state?.billingCycle === 'monthly') {
+      setBillingCycle('monthly');
     }
     
     // Check if user has a subscription but it's expired (renewal case)
