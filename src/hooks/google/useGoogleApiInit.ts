@@ -43,7 +43,7 @@ export function useGoogleApiInit({
       setApiLoading(true);
       setApiError(null);
       
-      // Always use demo mode while in development or when credentials are missing
+      // Use demo mode if explicitly enabled or if credentials are missing
       if (ENABLE_DEMO_MODE || !hasCredentials) {
         console.log('Using demo mode for Google API interactions');
         setGApiInitialized(false);
@@ -117,9 +117,8 @@ export function useGoogleApiInit({
                 setApiError(`Failed to initialize Google services: ${errorMessage}`);
               }
               
-              // Always enable demo mode when there's an API error
+              // Fall back to demo mode when there's an API error
               setIsDemoMode(true);
-              // Fixed: Using direct number instead of function
               setInitializationAttempts(initializationAttempts + 1);
             });
         },
@@ -129,7 +128,6 @@ export function useGoogleApiInit({
           setApiError('Failed to load Google services. Please check your internet connection and try again.');
           // Enable demo mode when there's an API error
           setIsDemoMode(true);
-          // Fixed: Using direct number instead of function
           setInitializationAttempts(initializationAttempts + 1);
         }
       );

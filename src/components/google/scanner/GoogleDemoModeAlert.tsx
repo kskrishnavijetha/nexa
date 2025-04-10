@@ -16,7 +16,7 @@ export const GoogleDemoModeAlert: React.FC<GoogleDemoModeAlertProps> = ({
   apiError,
   retryInitialization
 }) => {
-  // Update the condition to show this alert when in demo mode, regardless of errors
+  // Show this alert only when in demo mode
   if (isDemoMode) {
     return (
       <Alert className="mb-4 bg-amber-50 border-amber-200">
