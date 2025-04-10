@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -8,6 +7,7 @@ import { AuditTrailProvider } from '@/components/audit/AuditTrailProvider';
 import AuditTrailList from '@/components/audit/AuditTrailList';
 import DocumentPreview from '@/components/document-analysis/DocumentPreview';
 import { ComplianceReport } from '@/utils/types';
+import { scheduleNonBlockingOperation, triggerDownload } from '@/utils/memoryUtils';
 
 interface AuditTrailDialogProps {
   isOpen: boolean;
@@ -25,64 +25,55 @@ export const AuditTrailDialog: React.FC<AuditTrailDialogProps> = ({
   const [previewOpen, setPreviewOpen] = useState(false);
   const [isDownloadingReport, setIsDownloadingReport] = useState(false);
   const [isDownloadingLogs, setIsDownloadingLogs] = useState(false);
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   const handleDownloadAuditReport = async (documentName: string) => {
     if (isDownloadingReport) return;
     
     setIsDownloadingReport(true);
-    const toastId = toast.loading('Preparing audit report...', { duration: 30000 });
+    setDownloadProgress(0);
+    const toastId = toast.loading('Preparing audit report (0%)...', { duration: 60000 });
     
     try {
-      // Use requestAnimationFrame to allow UI to update before heavy operation
-      requestAnimationFrame(async () => {
-        try {
-          // Use dynamic import to reduce initial bundle size
-          const { generateAuditReport, getAuditReportFileName } = await import('@/utils/auditReportService');
-          
-          // We don't have the actual audit events for this doc, so create minimal mock data
-          const mockAuditEvent = {
-            id: `audit-${Date.now()}`,
-            timestamp: new Date().toISOString(),
-            action: `Downloaded service scan report`,
-            documentName,
-            user: 'System',
-            status: 'completed' as const,
-            comments: []
-          };
-          
-          // Generate and download the report
-          const reportBlob = await generateAuditReport(documentName, [mockAuditEvent]);
-          
-          // Create a download link
-          const url = window.URL.createObjectURL(reportBlob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = getAuditReportFileName(documentName);
-          
-          // Append to body, click and clean up
-          document.body.appendChild(link);
-          link.click();
-          
-          // Clean up properly to avoid memory leaks
-          setTimeout(() => {
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-            toast.dismiss(toastId);
-            toast.success(`Audit report for "${documentName}" downloaded successfully`);
-            setIsDownloadingReport(false);
-          }, 100);
-        } catch (error) {
-          console.error('Error in animation frame:', error);
-          toast.dismiss(toastId);
-          toast.error('Failed to generate audit report');
-          setIsDownloadingReport(false);
-        }
-      });
+      const progressInterval = setInterval(() => {
+        setDownloadProgress(prev => {
+          const newValue = Math.min(prev + 5, 90);
+          toast.loading(`Preparing audit report (${newValue}%)...`, { id: toastId });
+          return newValue;
+        });
+      }, 500);
+      
+      const { generateAuditReport, getAuditReportFileName } = await import('@/utils/auditReportService');
+      
+      const mockAuditEvent = {
+        id: `audit-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        action: `Downloaded service scan report`,
+        documentName,
+        user: 'System',
+        status: 'completed' as const,
+        comments: []
+      };
+      
+      const reportBlob = await scheduleNonBlockingOperation(
+        () => generateAuditReport(documentName, [mockAuditEvent])
+      );
+      
+      clearInterval(progressInterval);
+      setDownloadProgress(100);
+      toast.loading(`Starting download (100%)...`, { id: toastId });
+      
+      await triggerDownload(reportBlob, getAuditReportFileName(documentName));
+      
+      toast.dismiss(toastId);
+      toast.success(`Audit report for "${documentName}" downloaded successfully`);
+      
     } catch (error) {
       console.error('Error generating audit report:', error);
-      toast.dismiss(toastId);
       toast.error('Failed to generate audit report');
+    } finally {
       setIsDownloadingReport(false);
+      setDownloadProgress(0);
     }
   };
 
@@ -90,59 +81,49 @@ export const AuditTrailDialog: React.FC<AuditTrailDialogProps> = ({
     if (isDownloadingLogs) return;
     
     setIsDownloadingLogs(true);
-    const toastId = toast.loading('Preparing audit logs...', { duration: 30000 });
+    setDownloadProgress(0);
+    const toastId = toast.loading('Preparing audit logs (0%)...', { duration: 60000 });
     
     try {
-      // Use requestAnimationFrame to allow UI to update before heavy operation
-      requestAnimationFrame(async () => {
-        try {
-          // Use dynamic import to reduce initial bundle size
-          const { generateAuditLogsPDF, getAuditLogsFileName } = await import('@/utils/auditReportService');
-          
-          // We don't have the actual audit events for this doc, so create minimal mock data
-          const mockAuditEvent = {
-            id: `audit-${Date.now()}`,
-            timestamp: new Date().toISOString(),
-            action: `Viewed service scan report`,
-            documentName,
-            user: 'System',
-            status: 'completed' as const,
-            comments: []
-          };
-          
-          // Generate and download the logs
-          const logsBlob = await generateAuditLogsPDF(documentName, [mockAuditEvent]);
-          
-          // Create a download link
-          const url = window.URL.createObjectURL(logsBlob);
-          const link = document.createElement('a');
-          link.href = url;
-          link.download = getAuditLogsFileName(documentName);
-          
-          // Append to body, click and clean up
-          document.body.appendChild(link);
-          link.click();
-          
-          // Clean up properly to avoid memory leaks
-          setTimeout(() => {
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
-            toast.dismiss(toastId);
-            toast.success(`Audit logs for "${documentName}" downloaded successfully`);
-            setIsDownloadingLogs(false);
-          }, 100);
-        } catch (error) {
-          console.error('Error in animation frame:', error);
-          toast.dismiss(toastId);
-          toast.error('Failed to generate audit logs');
-          setIsDownloadingLogs(false);
-        }
-      });
+      const progressInterval = setInterval(() => {
+        setDownloadProgress(prev => {
+          const newValue = Math.min(prev + 5, 90);
+          toast.loading(`Preparing audit logs (${newValue}%)...`, { id: toastId });
+          return newValue;
+        });
+      }, 500);
+      
+      const { generateAuditLogsPDF, getAuditLogsFileName } = await import('@/utils/auditReportService');
+      
+      const mockAuditEvent = {
+        id: `audit-${Date.now()}`,
+        timestamp: new Date().toISOString(),
+        action: `Viewed service scan report`,
+        documentName,
+        user: 'System',
+        status: 'completed' as const,
+        comments: []
+      };
+      
+      const logsBlob = await scheduleNonBlockingOperation(
+        () => generateAuditLogsPDF(documentName, [mockAuditEvent])
+      );
+      
+      clearInterval(progressInterval);
+      setDownloadProgress(100);
+      toast.loading(`Starting download (100%)...`, { id: toastId });
+      
+      await triggerDownload(logsBlob, getAuditLogsFileName(documentName));
+      
+      toast.dismiss(toastId);
+      toast.success(`Audit logs for "${documentName}" downloaded successfully`);
+      
     } catch (error) {
       console.error('Error generating audit logs:', error);
-      toast.dismiss(toastId);
       toast.error('Failed to generate audit logs');
+    } finally {
       setIsDownloadingLogs(false);
+      setDownloadProgress(0);
     }
   };
 
@@ -166,13 +147,13 @@ export const AuditTrailDialog: React.FC<AuditTrailDialogProps> = ({
             <Button 
               variant="outline"
               onClick={() => documentName && handleDownloadAuditLogs(documentName)}
-              disabled={isDownloadingLogs}
+              disabled={isDownloadingLogs || isDownloadingReport}
               className="flex items-center"
             >
               {isDownloadingLogs ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Processing...
+                  {downloadProgress}%
                 </>
               ) : (
                 <>
@@ -184,13 +165,13 @@ export const AuditTrailDialog: React.FC<AuditTrailDialogProps> = ({
             
             <Button 
               onClick={() => documentName && handleDownloadAuditReport(documentName)}
-              disabled={isDownloadingReport}
+              disabled={isDownloadingReport || isDownloadingLogs}
               className="flex items-center"
             >
               {isDownloadingReport ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Processing...
+                  {downloadProgress}%
                 </>
               ) : (
                 <>
@@ -203,7 +184,6 @@ export const AuditTrailDialog: React.FC<AuditTrailDialogProps> = ({
         </DialogContent>
       </Dialog>
 
-      {/* Document Preview Modal */}
       {report && (
         <DocumentPreview 
           report={report}

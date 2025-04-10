@@ -12,19 +12,26 @@ export const useChartCapture = () => {
     }
     
     try {
-      // Use html2canvas to capture the chart with optimized settings
+      // Dynamically import html2canvas to reduce initial bundle size
       const html2canvas = (await import('html2canvas')).default;
+      
+      // Use optimized settings to prevent memory issues and UI blocking
       const canvas = await html2canvas(chartsContainer as HTMLElement, {
-        scale: 1.5, // Reduced from 2 for better performance
+        scale: 1.2, // Lower scale factor for better performance (reduced from 1.5)
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        imageTimeout: 5000, // Timeout to prevent hanging
-        removeContainer: true // Clean up after capture
+        imageTimeout: 3000, // Lower timeout to prevent long hanging
+        removeContainer: true, // Clean up after capture
+        foreignObjectRendering: false, // Disable for better performance
+        ignoreElements: (element) => {
+          // Ignore non-essential elements to improve performance
+          return element.classList.contains('ignore-for-pdf');
+        }
       });
       
-      // Get image with optimized quality
-      return canvas.toDataURL('image/png', 0.8); // 80% quality for better performance
+      // Use lower quality for better performance
+      return canvas.toDataURL('image/jpeg', 0.7); // Lower quality JPEG instead of PNG
     } catch (error) {
       console.error('Failed to capture chart:', error);
       return undefined;
