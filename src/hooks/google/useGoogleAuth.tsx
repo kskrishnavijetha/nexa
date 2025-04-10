@@ -25,6 +25,8 @@ export function useGoogleAuth() {
 
   // Check if credentials are actually provided with type-safe check
   const hasCredentials = !!CLIENT_ID && typeof CLIENT_ID === 'string' && CLIENT_ID !== '';
+  // Check if we have an API key
+  const hasApiKey = !!API_KEY && typeof API_KEY === 'string' && API_KEY !== '';
 
   // Initialize the Google API client
   useEffect(() => {
@@ -211,6 +213,7 @@ export function useGoogleAuth() {
     apiError,
     retryInitialization,
     isDemoMode,
-    hasCredentials
+    hasCredentials,
+    hasApiKey
   };
 }

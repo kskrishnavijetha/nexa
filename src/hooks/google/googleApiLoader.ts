@@ -88,9 +88,12 @@ export const initializeGoogleApiClient = (): Promise<void> => {
           cookiepolicy: 'single_host_origin'
         };
         
-        // Only add API key if it's provided - using a type-safe check
+        // Now we have a valid API key, so let's add it
         if (API_KEY && typeof API_KEY === 'string' && API_KEY !== '') {
+          console.log('API key found, adding to client config');
           clientConfig.apiKey = API_KEY;
+        } else {
+          console.log('No API key provided');
         }
         
         await window.gapi.client.init(clientConfig);
