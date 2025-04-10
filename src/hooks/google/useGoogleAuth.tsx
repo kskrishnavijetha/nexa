@@ -3,20 +3,13 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
-
-// Google API configuration
-const CLIENT_ID = "714133727140-56bq1vafc1aps4s4nfb1h7bj1icdr3m4.apps.googleusercontent.com"; 
-const API_KEY = "AIzaSyCw2nTK_NMP8Eg3X94eF1L3BA0T_hLo9J8"; 
-const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
-const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
-
-// Add global type declaration for gapi
-declare global {
-  interface Window {
-    gapi: any;
-    google: any;
-  }
-}
+import {
+  loadGoogleApiScript,
+  initializeGoogleApiClient,
+  isUserSignedInToGoogle,
+  signInToGoogle as googleSignIn,
+  signOutFromGoogle as googleSignOut
+} from './googleApiLoader';
 
 export function useGoogleAuth() {
   const { user } = useAuth();
@@ -35,100 +28,56 @@ export function useGoogleAuth() {
       return;
     }
     
-    const loadGoogleApi = () => {
-      if (window.gapi) {
-        console.log('Google API script already loaded, initializing client');
-        initGoogleApi();
-        return;
-      }
-
-      console.log(`Loading Google API script (attempt ${initializationAttempts + 1})`);
+    const initializeGoogleApi = () => {
       setApiLoading(true);
       setApiError(null);
       
-      const script = document.createElement('script');
-      script.src = 'https://apis.google.com/js/api.js';
-      script.async = true;
-      script.defer = true;
-      script.onload = () => {
-        console.log('Google API script loaded successfully');
-        initGoogleApi();
-      };
-      script.onerror = (error) => {
-        console.error('Error loading Google API script:', error);
-        setApiLoading(false);
-        setApiError('Failed to load Google services. Please check your internet connection and try again.');
-        setInitializationAttempts(prev => prev + 1);
-      };
-      
-      document.body.appendChild(script);
-    };
-
-    const initGoogleApi = () => {
-      if (!window.gapi) {
-        console.error('Google API script failed to provide window.gapi');
-        setApiLoading(false);
-        setApiError('Failed to initialize Google services');
-        setInitializationAttempts(prev => prev + 1);
-        return;
-      }
-
-      console.log('Initializing Google API client');
-      window.gapi.load('client:auth2', async () => {
-        try {
-          console.log('Google API libraries loaded, initializing client with config');
-          await window.gapi.client.init({
-            apiKey: API_KEY,
-            clientId: CLIENT_ID,
-            discoveryDocs: DISCOVERY_DOCS,
-            scope: SCOPES,
-          });
-          
-          console.log('Google API initialized successfully');
-          setGApiInitialized(true);
+      loadGoogleApiScript(
+        // On success loading script
+        () => {
+          initializeGoogleApiClient()
+            .then(() => {
+              setGApiInitialized(true);
+              setApiLoading(false);
+              setApiError(null);
+              
+              // Check if user is already signed in
+              if (isUserSignedInToGoogle()) {
+                console.log('User already signed in to Google');
+                setIsGoogleAuthenticated(true);
+              } else {
+                console.log('User not signed in to Google');
+              }
+            })
+            .catch((error) => {
+              setApiLoading(false);
+              
+              // Provide more specific error message
+              const errorMessage = error?.message || 'Unknown error';
+              if (errorMessage.includes('403') || errorMessage.includes('invalid_client')) {
+                setApiError('API key or client ID may be invalid. Please check your credentials.');
+              } else if (errorMessage.includes('network') || errorMessage.includes('timeout')) {
+                setApiError('Network issue detected. Please check your internet connection.');
+              } else {
+                setApiError('Failed to initialize Google services. Please try again or check your API credentials.');
+              }
+              
+              setInitializationAttempts(prev => prev + 1);
+            });
+        },
+        // On error loading script
+        (error) => {
           setApiLoading(false);
-          setApiError(null);
-          
-          // Check if user is already signed in
-          if (window.gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            console.log('User already signed in to Google');
-            setIsGoogleAuthenticated(true);
-          } else {
-            console.log('User not signed in to Google');
-          }
-        } catch (error: any) {
-          console.error('Error initializing Google API:', error);
-          setApiLoading(false);
-          
-          // Provide more specific error message
-          const errorMessage = error?.message || 'Unknown error';
-          if (errorMessage.includes('403') || errorMessage.includes('invalid_client')) {
-            setApiError('API key or client ID may be invalid. Please check your credentials.');
-          } else if (errorMessage.includes('network') || errorMessage.includes('timeout')) {
-            setApiError('Network issue detected. Please check your internet connection.');
-          } else {
-            setApiError('Failed to initialize Google services. Please try again or check your API credentials.');
-          }
-          
+          setApiError('Failed to load Google services. Please check your internet connection and try again.');
           setInitializationAttempts(prev => prev + 1);
         }
-      });
+      );
     };
 
     if (!gApiInitialized && !apiError) {
-      loadGoogleApi();
+      initializeGoogleApi();
     }
-
   }, [gApiInitialized, apiError, initializationAttempts]);
-
-  // Retry initialization manually
-  const retryInitialization = () => {
-    console.log('Manually retrying Google API initialization');
-    setApiLoading(true);
-    setApiError(null);
-    setGApiInitialized(false);
-    setInitializationAttempts(0);
-  };
 
   // Check if user is authenticated with our app
   useEffect(() => {
@@ -145,43 +94,31 @@ export function useGoogleAuth() {
     }
   }, [user, navigate, authChecked]);
 
+  // Retry initialization manually
+  const retryInitialization = () => {
+    console.log('Manually retrying Google API initialization');
+    setApiLoading(true);
+    setApiError(null);
+    setGApiInitialized(false);
+    setInitializationAttempts(0);
+  };
+
   // Sign in to Google
   const signInToGoogle = async () => {
-    try {
-      if (!gApiInitialized) {
-        toast.error('Google API not initialized yet');
-        return false;
-      }
-
-      const authInstance = window.gapi.auth2.getAuthInstance();
-      const googleUser = await authInstance.signIn();
+    const success = await googleSignIn();
+    if (success) {
       setIsGoogleAuthenticated(true);
-      
-      console.log('Google authentication successful');
-      toast.success('Connected to Google successfully');
-      return true;
-    } catch (error) {
-      console.error('Google authentication error:', error);
-      toast.error('Google authentication failed');
-      return false;
     }
+    return success;
   };
 
   // Sign out from Google
   const signOutFromGoogle = async () => {
-    try {
-      if (!gApiInitialized) return;
-
-      const authInstance = window.gapi.auth2.getAuthInstance();
-      await authInstance.signOut();
+    const success = await googleSignOut();
+    if (success) {
       setIsGoogleAuthenticated(false);
-      
-      console.log('Signed out from Google');
-      return true;
-    } catch (error) {
-      console.error('Google sign out error:', error);
-      return false;
     }
+    return success;
   };
 
   return { 
