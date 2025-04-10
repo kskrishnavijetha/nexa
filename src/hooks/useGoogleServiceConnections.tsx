@@ -58,7 +58,6 @@ export function useGoogleServiceConnections() {
       return false;
     }
     
-    // In demo mode, always allow connections
     if (isDemoMode) {
       return true;
     }
@@ -68,7 +67,7 @@ export function useGoogleServiceConnections() {
       return false;
     }
     
-    if (apiError && !isDemoMode) {
+    if (apiError) {
       toast.error('Google API encountered an error. Please try again after refreshing the page.');
       return false;
     }

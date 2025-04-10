@@ -72,15 +72,8 @@ export const initializeGoogleApiClient = (): Promise<void> => {
         console.log('Google API initialized successfully');
         resolve();
       } catch (error: any) {
-        // Check specifically for idpiframe_initialization_failed error (origin not allowed)
-        if (error && error.error === 'idpiframe_initialization_failed') {
-          console.warn('Google API initialization failed due to origin restrictions. Continuing in demo mode.');
-          // Still resolve but with a specific status that can be checked
-          resolve();
-        } else {
-          console.error('Error initializing Google API:', error);
-          reject(error);
-        }
+        console.error('Error initializing Google API:', error);
+        reject(error);
       }
     });
   });
@@ -107,8 +100,8 @@ export const signInToGoogle = async (): Promise<boolean> => {
   try {
     if (!window.gapi || !window.gapi.auth2) {
       console.log('Google API not initialized, using demo mode');
-      toast.success('Connected to Google in demo mode');
-      return true; // Return true to allow demo mode to work
+      toast.error('Google API not properly initialized');
+      return false;
     }
 
     const authInstance = window.gapi.auth2.getAuthInstance();
@@ -117,16 +110,18 @@ export const signInToGoogle = async (): Promise<boolean> => {
     console.log('Google authentication successful');
     toast.success('Connected to Google successfully');
     return true;
-  } catch (error) {
-    // If the error is related to origin restrictions, still allow "demo mode"
-    if (error && typeof error === 'object' && 'error' in error && error.error === 'idpiframe_initialization_failed') {
-      console.log('Using demo mode due to origin restrictions');
-      toast.success('Connected to Google in demo mode');
-      return true;
+  } catch (error: any) {
+    console.error('Google authentication error:', error);
+    
+    // Provide more helpful error messages based on error type
+    if (error?.error === 'popup_blocked_by_browser') {
+      toast.error('Google sign-in popup was blocked. Please allow popups for this site.');
+    } else if (error?.error === 'access_denied') {
+      toast.error('Google access was denied. Please grant the required permissions.');
+    } else {
+      toast.error('Google authentication failed. Please try again.');
     }
     
-    console.error('Google authentication error:', error);
-    toast.error('Google authentication failed');
     return false;
   }
 };

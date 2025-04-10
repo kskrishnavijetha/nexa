@@ -7,13 +7,14 @@ export const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 
 // Information about origin restrictions and how to fix them
 export const GOOGLE_API_HELP_TEXT = `
-To use real Google Drive integration, you must add your current domain 
-to the authorized JavaScript origins in the Google Cloud Console. 
+If you experience connection issues with Google Drive integration, verify that your current domain 
+is added to the authorized JavaScript origins in the Google Cloud Console. 
 
 1. Go to https://console.cloud.google.com/apis/credentials
 2. Find the OAuth client ID used for this application
 3. Add this site's origin to the "Authorized JavaScript origins" list
 4. Save changes and reload this page
 
-Until then, the app will operate in demo mode with simulated data.
+Note: This domain is configured to work with Google services. If you're still having issues,
+try clearing your browser cookies and cache, then reload the page.
 `;

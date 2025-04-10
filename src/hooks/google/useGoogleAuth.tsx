@@ -50,26 +50,11 @@ export function useGoogleAuth() {
                 setIsDemoMode(false);
               } else {
                 console.log('User not signed in to Google');
-                // Check if we're in demo mode due to origin restrictions
-                try {
-                  window.gapi.auth2.getAuthInstance();
-                } catch (err) {
-                  console.log('API initialized but auth not available, using demo mode');
-                  setIsDemoMode(true);
-                }
+                setIsDemoMode(false);
               }
             })
             .catch((error) => {
               setApiLoading(false);
-              
-              // Handle origin restriction error by enabling demo mode
-              if (error && error.error === 'idpiframe_initialization_failed') {
-                console.log('Origin restriction detected, enabling demo mode');
-                setGApiInitialized(true);
-                setIsDemoMode(true);
-                setApiError(null);
-                return;
-              }
               
               // Provide more specific error message
               const errorMessage = error?.message || 'Unknown error';
@@ -128,17 +113,13 @@ export function useGoogleAuth() {
 
   // Sign in to Google
   const signInToGoogle = async () => {
-    if (!gApiInitialized && !isDemoMode) {
+    if (!gApiInitialized) {
       toast.error('Google API not initialized yet. Please try again after the API initializes.');
       return false;
     }
     
     const success = await googleSignIn();
     if (success) {
-      // If in demo mode, we'll just simulate authentication
-      if (isDemoMode) {
-        toast.success('Connected to Google in demo mode');
-      }
       setIsGoogleAuthenticated(true);
     }
     return success;

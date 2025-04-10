@@ -58,7 +58,7 @@ export const GoogleApiStatusInfo: React.FC<GoogleApiStatusInfoProps> = ({
           <div className="flex items-center">
             <AlertCircle className="h-4 w-4 mr-2 text-red-500" />
             <AlertDescription className="text-red-700">
-              Failed to initialize Google services. Please try again or check your API credentials.
+              {apiError}
             </AlertDescription>
           </div>
           <div className="text-sm text-gray-600 ml-6 mb-2">
