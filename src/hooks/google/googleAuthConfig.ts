@@ -2,7 +2,7 @@
 // Google API configuration constants
 // These are publishable client IDs that can be safely stored in client-side code
 export const CLIENT_ID = "466449188211-kjde3tmajlmur4gafcuu40an8nuvpktn.apps.googleusercontent.com"; // Google OAuth Client ID
-export const API_KEY = ""; // Add your API key here
+export const API_KEY = "AIzaSyDdAZBd2if19cmh1T5IGvUh3HN_Y2sI_nE"; // Google API Key
 export const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 export const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 
@@ -26,7 +26,7 @@ Note: Google API credentials are domain-specific and won't work on unauthorized 
 `;
 
 // Setting for enabling demo mode (when true, uses mock data instead of actual Google API)
-export const ENABLE_DEMO_MODE = true; // Default to demo mode until valid credentials are provided
+export const ENABLE_DEMO_MODE = false; // Set to false since we now have valid credentials
 
 // Debug information about the domain
 export const DEBUG_HOST_INFO = {

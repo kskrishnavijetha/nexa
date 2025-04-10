@@ -76,7 +76,7 @@ export const GoogleApiStatusInfo: React.FC<GoogleApiStatusInfoProps> = ({
     );
   }
 
-  if (isDemoMode) {
+  if (isDemoMode && !apiError) {
     return (
       <Alert className="mb-4 bg-amber-50 border-amber-200">
         <div className="flex flex-col space-y-2">
@@ -87,7 +87,7 @@ export const GoogleApiStatusInfo: React.FC<GoogleApiStatusInfoProps> = ({
             </AlertDescription>
           </div>
           <div className="text-sm text-gray-600 ml-6 mb-2">
-            <p className="mb-2">To use real Google services:</p>
+            <p className="mb-2">To use real Google services, make sure your domain is authorized:</p>
             <div className="bg-gray-50 p-3 rounded border border-gray-200 mb-2 whitespace-pre-wrap font-mono text-xs">
               {GOOGLE_API_HELP_TEXT}
             </div>
@@ -101,6 +101,15 @@ export const GoogleApiStatusInfo: React.FC<GoogleApiStatusInfoProps> = ({
               onClick={() => window.open('https://console.cloud.google.com/apis/credentials', '_blank')}
             >
               Open Google Console
+            </Button>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center justify-center gap-2 mt-2"
+              onClick={retryInitialization}
+            >
+              <RefreshCw className="h-4 w-4" />
+              Try Again
             </Button>
           </div>
         </div>

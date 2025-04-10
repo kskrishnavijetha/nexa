@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -23,8 +24,7 @@ export function useGoogleAuth() {
   const [isDemoMode, setIsDemoMode] = useState(ENABLE_DEMO_MODE);
 
   // Check if credentials are actually provided
-  const hasCredentials = !!CLIENT_ID && CLIENT_ID !== "" && 
-    CLIENT_ID !== "YOUR_CLIENT_ID_GOES_HERE";
+  const hasCredentials = !!CLIENT_ID && CLIENT_ID.length > 0;
 
   // Initialize the Google API client
   useEffect(() => {
@@ -72,7 +72,7 @@ export function useGoogleAuth() {
               console.error('Google API initialization error:', errorMessage);
               console.log('Debug host info:', DEBUG_HOST_INFO);
               
-              if (!CLIENT_ID || CLIENT_ID === "") {
+              if (!CLIENT_ID || CLIENT_ID.length === 0) {
                 setApiError('Missing Google Client ID. Please check the configuration.');
               } else if (errorMessage.includes('invalid_client')) {
                 setApiError(`Invalid client: Your domain (${DEBUG_HOST_INFO.currentHost}) may not be authorized in Google Cloud Console.`);

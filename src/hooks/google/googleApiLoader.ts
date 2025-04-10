@@ -1,3 +1,4 @@
+
 import { toast } from 'sonner';
 import { CLIENT_ID, API_KEY, DISCOVERY_DOCS, SCOPES } from './googleAuthConfig';
 
@@ -56,8 +57,8 @@ export const initializeGoogleApiClient = (): Promise<void> => {
       return;
     }
 
-    // Check if credentials are valid
-    if (!CLIENT_ID || CLIENT_ID === "") {
+    // Check if client ID is configured
+    if (!CLIENT_ID || CLIENT_ID.length === 0) {
       reject(new Error('Google Client ID not configured. Please set a valid Client ID.'));
       return;
     }
@@ -74,7 +75,7 @@ export const initializeGoogleApiClient = (): Promise<void> => {
         };
         
         // Only add API key if it's provided
-        if (API_KEY && API_KEY !== "") {
+        if (API_KEY && API_KEY.length > 0) {
           clientConfig.apiKey = API_KEY;
         }
         
