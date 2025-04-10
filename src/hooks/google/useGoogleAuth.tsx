@@ -25,10 +25,13 @@ export function useGoogleAuth() {
   const [gApiInitialized, setGApiInitialized] = useState(false);
   const [isGoogleAuthenticated, setIsGoogleAuthenticated] = useState(false);
   const [apiLoading, setApiLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   // Initialize the Google API client
   useEffect(() => {
     let scriptLoaded = false;
+    let scriptAttempts = 0;
+    const MAX_ATTEMPTS = 3;
 
     const loadGoogleApi = () => {
       if (window.gapi) {
@@ -37,8 +40,17 @@ export function useGoogleAuth() {
         return;
       }
 
-      console.log('Loading Google API script');
+      if (scriptAttempts >= MAX_ATTEMPTS) {
+        console.error('Failed to load Google API after multiple attempts');
+        setApiError('Failed to load Google services after multiple attempts');
+        setApiLoading(false);
+        return;
+      }
+
+      scriptAttempts++;
+      console.log(`Loading Google API script (attempt ${scriptAttempts})`);
       setApiLoading(true);
+      setApiError(null);
       
       const script = document.createElement('script');
       script.src = 'https://apis.google.com/js/api.js';
@@ -52,7 +64,15 @@ export function useGoogleAuth() {
       script.onerror = (error) => {
         console.error('Error loading Google API script:', error);
         setApiLoading(false);
-        toast.error('Failed to load Google services. Please check your internet connection.');
+        setApiError('Failed to load Google services. Please check your internet connection and try again.');
+        
+        // Retry after a delay
+        setTimeout(() => {
+          if (scriptAttempts < MAX_ATTEMPTS) {
+            document.body.removeChild(script);
+            loadGoogleApi();
+          }
+        }, 2000);
       };
       
       document.body.appendChild(script);
@@ -62,7 +82,7 @@ export function useGoogleAuth() {
       if (!window.gapi) {
         console.error('Google API script failed to provide window.gapi');
         setApiLoading(false);
-        toast.error('Failed to initialize Google services');
+        setApiError('Failed to initialize Google services');
         return;
       }
 
@@ -80,6 +100,7 @@ export function useGoogleAuth() {
           console.log('Google API initialized successfully');
           setGApiInitialized(true);
           setApiLoading(false);
+          setApiError(null);
           
           // Check if user is already signed in
           if (window.gapi.auth2.getAuthInstance().isSignedIn.get()) {
@@ -91,12 +112,12 @@ export function useGoogleAuth() {
         } catch (error) {
           console.error('Error initializing Google API:', error);
           setApiLoading(false);
-          toast.error('Failed to initialize Google services. Please try again.');
+          setApiError('Failed to initialize Google services. Please try again or check your API credentials.');
         }
       });
     };
 
-    if (!gApiInitialized && !scriptLoaded) {
+    if (!gApiInitialized && !scriptLoaded && !apiError) {
       loadGoogleApi();
     }
 
@@ -104,7 +125,15 @@ export function useGoogleAuth() {
     return () => {
       // No cleanup needed for script loading
     };
-  }, [gApiInitialized]);
+  }, [gApiInitialized, apiError]);
+
+  // Retry initialization
+  const retryInitialization = () => {
+    console.log('Retrying Google API initialization');
+    setApiLoading(true);
+    setApiError(null);
+    setGApiInitialized(false);
+  };
 
   // Check if user is authenticated with our app
   useEffect(() => {
@@ -166,6 +195,8 @@ export function useGoogleAuth() {
     signInToGoogle, 
     signOutFromGoogle,
     gApiInitialized,
-    apiLoading
+    apiLoading,
+    apiError,
+    retryInitialization
   };
 }

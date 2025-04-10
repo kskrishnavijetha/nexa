@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
+import { ShieldCheck, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 import { GoogleServicesScannerProps } from './types';
 import { GoogleService } from './types';
 import { useServiceScanner } from '@/hooks/useServiceScanner';
@@ -13,6 +13,7 @@ import ConnectionStatus from './ConnectionStatus';
 import { SupportedLanguage } from '@/utils/language';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useGoogleAuth } from '@/hooks/google/useGoogleAuth';
+import { Button } from '@/components/ui/button';
 
 const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   industry,
@@ -39,7 +40,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   } = useGoogleServiceConnections();
   
   const { addScanHistory } = useServiceHistoryStore();
-  const { gApiInitialized, apiLoading } = useGoogleAuth();
+  const { gApiInitialized, apiLoading, apiError, retryInitialization } = useGoogleAuth();
   
   const {
     isScanning,
@@ -108,6 +109,10 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
     }
   };
 
+  const handleRetryApiInit = () => {
+    retryInitialization();
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -134,7 +139,29 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
             </Alert>
           )}
           
-          {!gApiInitialized && !apiLoading && (
+          {apiError && (
+            <Alert className="mb-4 bg-red-50 border-red-200">
+              <div className="flex flex-col space-y-2">
+                <div className="flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-2 text-red-500" />
+                  <AlertDescription className="text-red-700">
+                    {apiError}
+                  </AlertDescription>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 mt-2"
+                  onClick={handleRetryApiInit}
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Try Again
+                </Button>
+              </div>
+            </Alert>
+          )}
+          
+          {!gApiInitialized && !apiLoading && !apiError && (
             <Alert className="mb-4 bg-amber-50 border-amber-200">
               <AlertCircle className="h-4 w-4 mr-2 text-amber-500" />
               <AlertDescription className="text-amber-700">
@@ -152,43 +179,45 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
             </div>
           )}
           
-          <TabsContainer
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            scanResults={scanResults}
-            lastScanTime={lastScanTime}
-            itemsScanned={itemsScanned}
-            violationsFound={violationsFound}
-            selectedIndustry={selectedIndustry}
-            isScanning={isScanning}
-            connectedServices={connectedServices}
-            isConnectingDrive={isConnectingDrive}
-            isConnectingGmail={isConnectingGmail}
-            isConnectingDocs={isConnectingDocs}
-            onConnectDrive={handleConnectDrive}
-            onConnectGmail={handleConnectGmail}
-            onConnectDocs={handleConnectDocs}
-            onDisconnect={handleDisconnect}
-            isCompactView={isCompactView}
-          >
-            <ScannerControls
-              connectedServices={connectedServices}
+          {(!apiError && (gApiInitialized || !apiLoading)) && (
+            <TabsContainer
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              scanResults={scanResults}
+              lastScanTime={lastScanTime}
+              itemsScanned={itemsScanned}
+              violationsFound={violationsFound}
+              selectedIndustry={selectedIndustry}
               isScanning={isScanning}
-              industry={industry}
-              language={language}
-              region={region}
-              file={file}
-              onScan={handleStartScan}
+              connectedServices={connectedServices}
+              isConnectingDrive={isConnectingDrive}
+              isConnectingGmail={isConnectingGmail}
+              isConnectingDocs={isConnectingDocs}
+              onConnectDrive={handleConnectDrive}
+              onConnectGmail={handleConnectGmail}
+              onConnectDocs={handleConnectDocs}
+              onDisconnect={handleDisconnect}
               isCompactView={isCompactView}
-              onScanComplete={(itemsScanned, violationsFound) => {
-                console.log(`Scan completed: ${itemsScanned} items scanned, ${violationsFound} violations found`);
-                
-                if (scanResults && scanResults.violations.length > 0) {
-                  setActiveTab('results');
-                }
-              }}
-            />
-          </TabsContainer>
+            >
+              <ScannerControls
+                connectedServices={connectedServices}
+                isScanning={isScanning}
+                industry={industry}
+                language={language}
+                region={region}
+                file={file}
+                onScan={handleStartScan}
+                isCompactView={isCompactView}
+                onScanComplete={(itemsScanned, violationsFound) => {
+                  console.log(`Scan completed: ${itemsScanned} items scanned, ${violationsFound} violations found`);
+                  
+                  if (scanResults && scanResults.violations.length > 0) {
+                    setActiveTab('results');
+                  }
+                }}
+              />
+            </TabsContainer>
+          )}
         </CardContent>
       </Card>
     </div>

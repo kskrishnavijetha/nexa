@@ -12,7 +12,7 @@ export function useGoogleServiceConnections() {
   const [isConnectingDocs, setIsConnectingDocs] = useState(false);
   const [connectedServices, setConnectedServices] = useState<GoogleService[]>([]);
   const { user } = useAuth();
-  const { signInToGoogle, signOutFromGoogle, isGoogleAuthenticated, gApiInitialized } = useGoogleAuth();
+  const { signInToGoogle, signOutFromGoogle, isGoogleAuthenticated, gApiInitialized, apiError } = useGoogleAuth();
   
   // Clear connections if user signs out
   useEffect(() => {
@@ -54,6 +54,11 @@ export function useGoogleServiceConnections() {
       return;
     }
     
+    if (apiError) {
+      toast.error('Google API encountered an error. Please try again after refreshing the page.');
+      return;
+    }
+    
     setIsConnectingDrive(true);
     try {
       // Connect to Google using OAuth
@@ -84,6 +89,11 @@ export function useGoogleServiceConnections() {
       return;
     }
     
+    if (!gApiInitialized) {
+      toast.error('Google API not initialized yet. Please wait a moment and try again.');
+      return;
+    }
+    
     setIsConnectingGmail(true);
     try {
       // For now, we'll just use the mock authentication
@@ -110,6 +120,11 @@ export function useGoogleServiceConnections() {
   const handleConnectDocs = async () => {
     if (!user) {
       toast.error('Please sign in to connect services');
+      return;
+    }
+    
+    if (!gApiInitialized) {
+      toast.error('Google API not initialized yet. Please wait a moment and try again.');
       return;
     }
     
