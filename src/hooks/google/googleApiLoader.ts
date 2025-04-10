@@ -58,7 +58,7 @@ export const initializeGoogleApiClient = (): Promise<void> => {
     }
 
     // Check if client ID is configured
-    if (!CLIENT_ID || CLIENT_ID.length === 0) {
+    if (!CLIENT_ID || CLIENT_ID === '') {
       reject(new Error('Google Client ID not configured. Please set a valid Client ID.'));
       return;
     }
@@ -89,7 +89,7 @@ export const initializeGoogleApiClient = (): Promise<void> => {
         };
         
         // Only add API key if it's provided
-        if (API_KEY && API_KEY.length > 0) {
+        if (API_KEY && API_KEY !== '') {
           clientConfig.apiKey = API_KEY;
         }
         
@@ -157,6 +157,10 @@ export const signInToGoogle = async (): Promise<boolean> => {
       toast.error('Google access was denied. Please grant the required permissions.');
     } else if (error?.error === 'idpiframe_initialization_failed' || error?.error === 'invalid_client') {
       toast.error('Invalid Google client configuration. The domain may not be authorized.');
+    } else if (error?.error === 'network') {
+      toast.error('Network issue detected. Please check your internet connection.');
+    } else if (error?.error === 'cookies') {
+      toast.error('Third-party cookies may be blocked by your browser. Please check your browser settings.');
     } else {
       toast.error(`Google authentication failed: ${error?.error || 'Unknown error'}`);
     }
