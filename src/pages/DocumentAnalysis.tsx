@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { ComplianceReport, generateReportPDF } from '../utils/apiService';
 import DocumentHeader from '@/components/document-analysis/DocumentHeader';
@@ -14,6 +14,7 @@ const DocumentAnalysis = () => {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
   const { user } = useAuth();
   const { addScanHistory } = useServiceHistoryStore();
+  const chartsContainerRef = useRef<HTMLDivElement | null>(null);
 
   const handleReportGenerated = (reportData: ComplianceReport) => {
     // Add user ID to the report if available
@@ -47,13 +48,47 @@ const DocumentAnalysis = () => {
     toast.success('Report added to history');
   };
 
+  const captureChartAsImage = async (): Promise<string | undefined> => {
+    // Look for the compliance-charts-container class
+    const chartsContainer = document.querySelector('.compliance-charts-container');
+    
+    if (!chartsContainer) {
+      console.warn('Charts container not found for capture');
+      return undefined;
+    }
+    
+    try {
+      // Use html2canvas to capture the chart
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(chartsContainer as HTMLElement, {
+        scale: 2, // Higher resolution
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      return canvas.toDataURL('image/png');
+    } catch (error) {
+      console.error('Failed to capture chart:', error);
+      return undefined;
+    }
+  };
+
   const handleDownloadReport = async () => {
     if (!report) return;
     
     try {
       setIsGeneratingPDF(true);
       
-      const response = await generateReportPDF(report);
+      // Get chart image before generating the PDF
+      const chartImage = await captureChartAsImage();
+      if (chartImage) {
+        console.log('Chart image captured successfully');
+      } else {
+        console.warn('No chart image could be captured');
+      }
+      
+      const response = await generateReportPDF(report, 'en', chartImage);
       
       if (response.error) {
         toast.error(response.error);

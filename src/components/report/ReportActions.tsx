@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Eye, Loader2, FileText, FileCog } from 'lucide-react';
 import { toast } from 'sonner';
@@ -27,6 +27,7 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
   const [previewOpen, setPreviewOpen] = useState(false);
   const [exportFormat, setExportFormat] = useState<ExportFormat>('pdf');
   const [downloadProgress, setDownloadProgress] = useState(false);
+  const chartContainerRef = useRef<HTMLDivElement | null>(null);
 
   const getDownloadButtonLabel = (): string => {
     switch (language) {
@@ -35,6 +36,32 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
       case 'de': return 'Bericht Herunterladen';
       case 'zh': return '下载报告';
       default: return 'Download Report';
+    }
+  };
+
+  const captureChartAsImage = async (): Promise<string | undefined> => {
+    // Find the charts container in the document
+    const chartsContainer = document.querySelector('.compliance-charts-container');
+    
+    if (!chartsContainer) {
+      console.warn('Charts container not found for capture');
+      return undefined;
+    }
+    
+    try {
+      // Use html2canvas to capture the chart
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(chartsContainer as HTMLElement, {
+        scale: 2, // Higher resolution
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      return canvas.toDataURL('image/png');
+    } catch (error) {
+      console.error('Failed to capture chart:', error);
+      return undefined;
     }
   };
 
@@ -50,36 +77,52 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
     try {
       // Request animation frame to ensure UI updates before heavy operation
       requestAnimationFrame(async () => {
-        // Make sure we pass the report with industry and region
-        const response = await generateReportPDF(report, language);
-        
-        if (!response.success) {
+        try {
+          // First, try to capture the charts as an image
+          const chartImage = await captureChartAsImage();
+          if (chartImage) {
+            console.log('Chart image captured successfully');
+          } else {
+            console.warn('No chart image could be captured');
+          }
+          
+          // Make sure we pass the report with industry and region
+          const response = await generateReportPDF(report, language, chartImage);
+          
+          if (!response.success) {
+            toast.dismiss(toastId);
+            toast.error(response.error || 'Failed to generate report');
+            setIsDownloading(false);
+            setDownloadProgress(false);
+            return;
+          }
+          
+          // Create a download link
+          const url = URL.createObjectURL(response.data);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${report.documentName.replace(/\s+/g, '-').toLowerCase()}-compliance-report.pdf`;
+          
+          // Append to body, click and clean up
+          document.body.appendChild(a);
+          a.click();
+          
+          // Clean up properly to avoid memory leaks
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            setIsDownloading(false);
+            setDownloadProgress(false);
+            toast.dismiss(toastId);
+            toast.success('Report downloaded successfully');
+          }, 100);
+        } catch (error) {
+          console.error('Error in animation frame:', error);
           toast.dismiss(toastId);
-          toast.error(response.error || 'Failed to generate report');
+          toast.error('Failed to download the report. Please try again.');
           setIsDownloading(false);
           setDownloadProgress(false);
-          return;
         }
-        
-        // Create a download link
-        const url = URL.createObjectURL(response.data);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${report.documentName.replace(/\s+/g, '-').toLowerCase()}-compliance-report.pdf`;
-        
-        // Append to body, click and clean up
-        document.body.appendChild(a);
-        a.click();
-        
-        // Clean up properly to avoid memory leaks
-        setTimeout(() => {
-          document.body.removeChild(a);
-          URL.revokeObjectURL(url);
-          setIsDownloading(false);
-          setDownloadProgress(false);
-          toast.dismiss(toastId);
-          toast.success('Report downloaded successfully');
-        }, 100);
       });
     } catch (error) {
       console.error('Error downloading PDF:', error);

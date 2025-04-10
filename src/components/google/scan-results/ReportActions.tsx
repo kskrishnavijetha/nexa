@@ -17,6 +17,32 @@ const ReportActions: React.FC<ReportActionsProps> = ({ violations, industry, ser
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
   const [currentService, setCurrentService] = useState<string | null>(null);
 
+  const captureViolationChartsAsImage = async (): Promise<string | undefined> => {
+    // Find any charts container in the violations view
+    const chartsContainer = document.querySelector('.violation-charts-container');
+    
+    if (!chartsContainer) {
+      console.warn('No charts container found for violations');
+      return undefined;
+    }
+    
+    try {
+      // Use html2canvas to capture the chart
+      const html2canvas = (await import('html2canvas')).default;
+      const canvas = await html2canvas(chartsContainer as HTMLElement, {
+        scale: 2, // Higher resolution
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      return canvas.toDataURL('image/png');
+    } catch (error) {
+      console.error('Failed to capture violation charts:', error);
+      return undefined;
+    }
+  };
+
   const handleDownloadPDF = async (serviceFilter?: string) => {
     if (isGeneratingReport) return;
     
@@ -40,6 +66,12 @@ const ReportActions: React.FC<ReportActionsProps> = ({ violations, industry, ser
       // Use requestAnimationFrame to ensure UI updates before heavy operation
       requestAnimationFrame(async () => {
         try {
+          // Try to capture any charts before generating the PDF
+          const chartImage = await captureViolationChartsAsImage();
+          if (chartImage) {
+            console.log('Violation charts captured successfully');
+          }
+          
           // Create a unique document ID
           const docId = `scan-${Date.now()}`;
           
@@ -108,7 +140,7 @@ const ReportActions: React.FC<ReportActionsProps> = ({ violations, industry, ser
                          ['GDPR', 'ISO/IEC 27001']
           };
           
-          const result = await generateReportPDF(mockReport, 'en' as SupportedLanguage);
+          const result = await generateReportPDF(mockReport, 'en' as SupportedLanguage, chartImage);
           
           if (result.data) {
             // Create a download link for the PDF

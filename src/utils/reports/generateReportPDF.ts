@@ -6,13 +6,15 @@ import { renderComplianceScores } from './sections/complianceScores';
 import { renderComplianceIssues } from './sections/complianceIssues';
 import { renderImprovementSuggestions } from './sections/improvementSuggestions';
 import { addFooter } from './sections/footer';
+import { addComplianceCharts } from './sections/complianceCharts';
 
 /**
  * Generate a downloadable compliance report PDF
  */
 export const generateReportPDF = async (
   report: ComplianceReport,
-  language: SupportedLanguage = 'en'
+  language: SupportedLanguage = 'en',
+  chartImageBase64?: string
 ): Promise<ApiResponse<Blob>> => {
   return new Promise((resolve) => {
     // Use setTimeout to move PDF generation off the main thread
@@ -99,6 +101,17 @@ export const generateReportPDF = async (
         
         // Render compliance scores section
         yPos = renderComplianceScores(doc, report, yPos, language);
+        
+        // Add compliance charts if image is provided
+        if (chartImageBase64) {
+          // Check if we need a new page
+          if (yPos > 220) {
+            doc.addPage();
+            yPos = 20;
+          }
+          
+          yPos = addComplianceCharts(doc, report, chartImageBase64, yPos);
+        }
         
         // Check if we need a new page
         if (yPos > 220) {
