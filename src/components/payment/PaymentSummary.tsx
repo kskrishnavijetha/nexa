@@ -3,13 +3,12 @@ import React from 'react';
 
 interface PaymentSummaryProps {
   selectedTier: string;
-  billingCycle: 'monthly' | 'annually';
+  billingCycle: 'monthly';
   getPrice: (tier: string) => number;
 }
 
 const PaymentSummary: React.FC<PaymentSummaryProps> = ({ 
   selectedTier, 
-  billingCycle, 
   getPrice 
 }) => {
   return (
@@ -30,14 +29,14 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
       </div>
       <div className="flex justify-between text-sm">
         <span className="text-muted-foreground">Billing</span>
-        <span>{selectedTier === 'free' ? 'No billing' : (billingCycle === 'monthly' ? 'Monthly' : 'Annually')}</span>
+        <span>{selectedTier === 'free' ? 'No billing' : 'Monthly'}</span>
       </div>
       <div className="flex justify-between font-medium">
         <span>Total</span>
         <span>
           {getPrice(selectedTier) === 0 
             ? 'Free' 
-            : `$${getPrice(selectedTier)}/${billingCycle === 'monthly' ? 'month' : 'year'}`
+            : `$${getPrice(selectedTier)}/month`
           }
         </span>
       </div>

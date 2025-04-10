@@ -5,7 +5,7 @@ import { pricingTiers } from '@/utils/pricingData';
 
 interface PaymentTierSelectorProps {
   selectedTier: string;
-  billingCycle: 'monthly' | 'annually';
+  billingCycle: 'monthly';
   onSelectTier: (tier: string) => void;
   getPrice: (tier: string) => number;
   disabled?: boolean;
@@ -13,7 +13,6 @@ interface PaymentTierSelectorProps {
 
 const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
   selectedTier,
-  billingCycle,
   onSelectTier,
   getPrice,
   disabled = false
@@ -48,7 +47,7 @@ const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
           <div className="mt-2 font-semibold">
             {getPrice(key) === 0 
               ? 'Free' 
-              : `$${getPrice(key)}/${billingCycle === 'monthly' ? 'month' : 'year'}`
+              : `$${getPrice(key)}/month`
             }
           </div>
         </div>

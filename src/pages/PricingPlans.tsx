@@ -19,7 +19,7 @@ import { Loader2 } from 'lucide-react';
 const PricingPlans = () => {
   const navigate = useNavigate();
   const { user, loading } = useAuth();
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
+  const [billingCycle] = useState<'monthly'>('monthly');
   const [checkingSubscription, setCheckingSubscription] = useState(true);
 
   useEffect(() => {
@@ -71,7 +71,7 @@ const PricingPlans = () => {
         
         <BillingToggle 
           billingCycle={billingCycle} 
-          onChange={setBillingCycle} 
+          onChange={() => {}} 
         />
         
         {user && !hasActiveSubscription() && (

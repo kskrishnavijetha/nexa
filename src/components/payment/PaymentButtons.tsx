@@ -14,7 +14,7 @@ interface PaymentButtonsProps {
   tier: string;
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  billingCycle: 'monthly' | 'annually';
+  billingCycle: 'monthly';
 }
 
 const PaymentButtons: React.FC<PaymentButtonsProps> = ({
