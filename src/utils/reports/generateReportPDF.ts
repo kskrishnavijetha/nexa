@@ -214,13 +214,16 @@ export const generateReportPDF = async (
           }
         ];
         
-        // Execute tasks in small chunks with 1 task per chunk to prevent UI blocking
-        const results = await executeInChunks(tasks, 1, (processed, total) => {
+        // FIX: Define a union type for our task results that includes both string and Blob
+        type TaskResult = string | Blob;
+        
+        // FIX: Change the executeInChunks call to use the correct type
+        const results = await executeInChunks<TaskResult>(tasks, 1, (processed, total) => {
           const percent = Math.floor((processed / total) * 80);
           console.log(`PDF generation progress: ${percent}%`);
         });
         
-        // The last task returns the PDF blob
+        // FIX: The last task returns the PDF blob, cast it properly
         const pdfBlob = results[results.length - 1] as Blob;
         
         resolve({
