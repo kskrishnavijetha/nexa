@@ -118,7 +118,8 @@ export function useGoogleApiInit({
               
               // Enable demo mode when there's an API error
               setIsDemoMode(ENABLE_DEMO_MODE || true);
-              setInitializationAttempts(prev => prev + 1);
+              // Fixed: Using a direct number instead of a function
+              setInitializationAttempts(initializationAttempts + 1);
             });
         },
         // On error loading script
@@ -127,7 +128,8 @@ export function useGoogleApiInit({
           setApiError('Failed to load Google services. Please check your internet connection and try again.');
           // Enable demo mode when there's an API error
           setIsDemoMode(true);
-          setInitializationAttempts(prev => prev + 1);
+          // Fixed: Using a direct number instead of a function
+          setInitializationAttempts(initializationAttempts + 1);
         }
       );
     };
