@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, AlertCircle } from 'lucide-react';
 import { GoogleServicesScannerProps } from './types';
 import { GoogleService } from './types';
 import { useServiceScanner } from '@/hooks/useServiceScanner';
@@ -11,6 +11,8 @@ import TabsContainer from './scanner/TabsContainer';
 import ScannerControls from './scanner/ScannerControls';
 import ConnectionStatus from './ConnectionStatus';
 import { SupportedLanguage } from '@/utils/language';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useGoogleAuth } from '@/hooks/google/useGoogleAuth';
 
 const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   industry,
@@ -21,7 +23,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   onServicesUpdate,
   isCompactView = false
 }) => {
-  const [activeTab, setActiveTab] = useState('scanner');
+  const [activeTab, setActiveTab] = useState('connect');
   const [uploadedFileName, setUploadedFileName] = useState<string | undefined>(file?.name);
   
   const {
@@ -37,6 +39,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   } = useGoogleServiceConnections();
   
   const { addScanHistory } = useServiceHistoryStore();
+  const { gApiInitialized } = useGoogleAuth();
   
   const {
     isScanning,
@@ -120,6 +123,15 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
           )}
         </CardHeader>
         <CardContent className={isCompactView ? "px-4 py-2" : ""}>
+          {!gApiInitialized && (
+            <Alert variant="warning" className="mb-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Initializing Google Drive integration. Please wait...
+              </AlertDescription>
+            </Alert>
+          )}
+          
           {isCompactView && connectedServices.length > 0 && (
             <div className="mb-4">
               <ConnectionStatus 

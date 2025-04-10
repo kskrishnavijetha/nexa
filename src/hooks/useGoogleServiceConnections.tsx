@@ -4,6 +4,7 @@ import { GoogleService } from '@/components/google/types';
 import { connectGoogleService, disconnectGoogleService } from '@/utils/google/connectionService';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import { useGoogleAuth } from '@/hooks/google/useGoogleAuth';
 
 export function useGoogleServiceConnections() {
   const [isConnectingDrive, setIsConnectingDrive] = useState(false);
@@ -11,13 +12,30 @@ export function useGoogleServiceConnections() {
   const [isConnectingDocs, setIsConnectingDocs] = useState(false);
   const [connectedServices, setConnectedServices] = useState<GoogleService[]>([]);
   const { user } = useAuth();
-
+  const { signInToGoogle, signOutFromGoogle, isGoogleAuthenticated, gApiInitialized } = useGoogleAuth();
+  
   // Clear connections if user signs out
   useEffect(() => {
     if (!user) {
       setConnectedServices([]);
     }
   }, [user]);
+
+  const scanGoogleDrive = async () => {
+    try {
+      const response = await window.gapi.client.drive.files.list({
+        'pageSize': 25,
+        'fields': 'files(id, name, mimeType, createdTime, modifiedTime, size)'
+      });
+      
+      console.log('Google Drive files:', response.result.files);
+      return response.result.files;
+    } catch (error) {
+      console.error('Error scanning Google Drive:', error);
+      toast.error('Failed to scan Google Drive');
+      return [];
+    }
+  };
 
   const handleConnectDrive = async () => {
     if (!user) {
@@ -27,17 +45,19 @@ export function useGoogleServiceConnections() {
     
     setIsConnectingDrive(true);
     try {
-      // Mock Google OAuth flow - in a real app, this would redirect to Google
-      // const authUrl = 'https://accounts.google.com/o/oauth2/v2/auth?...' 
-      // window.location.href = authUrl;
+      // Connect to Google using OAuth
+      const success = await signInToGoogle();
       
-      // For demo purposes, simulate successful connection
-      const result = await connectGoogleService('drive-1');
-      if (result.data && result.data.connected) {
+      if (success) {
+        // Initialize scan after successful authentication
+        const files = await scanGoogleDrive();
+        
+        // Add drive to connected services
         setConnectedServices(prev => [...prev.filter(s => s !== 'drive'), 'drive']);
-        toast.success('Google Drive connected successfully');
-      } else if (result.error) {
-        toast.error(`Failed to connect: ${result.error}`);
+        toast.success(`Google Drive connected successfully. Found ${files.length} files.`);
+        
+        // Update mock connection service
+        await connectGoogleService('drive-1');
       }
     } catch (error) {
       console.error('Error connecting Drive:', error);
@@ -55,13 +75,18 @@ export function useGoogleServiceConnections() {
     
     setIsConnectingGmail(true);
     try {
-      // Mock authentication
-      const result = await connectGoogleService('gmail-1');
-      if (result.data && result.data.connected) {
-        setConnectedServices(prev => [...prev.filter(s => s !== 'gmail'), 'gmail']);
-        toast.success('Gmail connected successfully');
-      } else if (result.error) {
-        toast.error(`Failed to connect: ${result.error}`);
+      // For now, we'll just use the mock authentication
+      // In a real implementation, you'd add Gmail-specific OAuth scope
+      const success = await signInToGoogle();
+      
+      if (success) {
+        const result = await connectGoogleService('gmail-1');
+        if (result.data && result.data.connected) {
+          setConnectedServices(prev => [...prev.filter(s => s !== 'gmail'), 'gmail']);
+          toast.success('Gmail connected successfully');
+        } else if (result.error) {
+          toast.error(`Failed to connect: ${result.error}`);
+        }
       }
     } catch (error) {
       console.error('Error connecting Gmail:', error);
@@ -79,13 +104,18 @@ export function useGoogleServiceConnections() {
     
     setIsConnectingDocs(true);
     try {
-      // Mock authentication
-      const result = await connectGoogleService('docs-1');
-      if (result.data && result.data.connected) {
-        setConnectedServices(prev => [...prev.filter(s => s !== 'docs'), 'docs']);
-        toast.success('Google Docs connected successfully');
-      } else if (result.error) {
-        toast.error(`Failed to connect: ${result.error}`);
+      // For now, we'll just use the mock authentication
+      // In a real implementation, you'd add Google Docs-specific OAuth scope
+      const success = await signInToGoogle();
+      
+      if (success) {
+        const result = await connectGoogleService('docs-1');
+        if (result.data && result.data.connected) {
+          setConnectedServices(prev => [...prev.filter(s => s !== 'docs'), 'docs']);
+          toast.success('Google Docs connected successfully');
+        } else if (result.error) {
+          toast.error(`Failed to connect: ${result.error}`);
+        }
       }
     } catch (error) {
       console.error('Error connecting Docs:', error);
@@ -102,6 +132,11 @@ export function useGoogleServiceConnections() {
     }
     
     try {
+      // If disconnecting Drive, also sign out from Google
+      if (service === 'drive' && isGoogleAuthenticated) {
+        await signOutFromGoogle();
+      }
+      
       const serviceId = 
         service === 'drive' ? 'drive-1' : 
         service === 'gmail' ? 'gmail-1' : 'docs-1';
