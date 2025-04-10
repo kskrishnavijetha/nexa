@@ -25,6 +25,12 @@ export const loadGoogleApiScript = (
 
   console.log('Loading Google API script');
   
+  // Remove any existing failed script elements
+  const existingScript = document.querySelector('script[src*="apis.google.com"]');
+  if (existingScript) {
+    document.body.removeChild(existingScript);
+  }
+  
   const script = document.createElement('script');
   script.src = 'https://apis.google.com/js/api.js';
   script.async = true;
@@ -60,6 +66,7 @@ export const initializeGoogleApiClient = (): Promise<void> => {
           clientId: CLIENT_ID,
           discoveryDocs: DISCOVERY_DOCS,
           scope: SCOPES,
+          cookiepolicy: 'single_host_origin'
         });
         
         console.log('Google API initialized successfully');
@@ -97,7 +104,7 @@ export const signInToGoogle = async (): Promise<boolean> => {
     }
 
     const authInstance = window.gapi.auth2.getAuthInstance();
-    await authInstance.signIn();
+    await authInstance.signIn({prompt: 'select_account'});
     
     console.log('Google authentication successful');
     toast.success('Connected to Google successfully');

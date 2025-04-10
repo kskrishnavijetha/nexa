@@ -58,6 +58,8 @@ export function useGoogleAuth() {
                 setApiError('API key or client ID may be invalid. Please check your credentials.');
               } else if (errorMessage.includes('network') || errorMessage.includes('timeout')) {
                 setApiError('Network issue detected. Please check your internet connection.');
+              } else if (errorMessage.includes('cookies')) {
+                setApiError('Third-party cookies may be blocked by your browser. Please check your browser settings.');
               } else {
                 setApiError('Failed to initialize Google services. Please try again or check your API credentials.');
               }
@@ -100,11 +102,17 @@ export function useGoogleAuth() {
     setApiLoading(true);
     setApiError(null);
     setGApiInitialized(false);
+    // Reset counter to allow for more attempts
     setInitializationAttempts(0);
   };
 
   // Sign in to Google
   const signInToGoogle = async () => {
+    if (!gApiInitialized) {
+      toast.error('Google API not initialized yet. Please try again after the API initializes.');
+      return false;
+    }
+    
     const success = await googleSignIn();
     if (success) {
       setIsGoogleAuthenticated(true);
