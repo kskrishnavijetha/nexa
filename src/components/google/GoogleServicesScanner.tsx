@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ShieldCheck, AlertCircle } from 'lucide-react';
+import { ShieldCheck, AlertCircle, Loader2 } from 'lucide-react';
 import { GoogleServicesScannerProps } from './types';
 import { GoogleService } from './types';
 import { useServiceScanner } from '@/hooks/useServiceScanner';
@@ -39,7 +39,7 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
   } = useGoogleServiceConnections();
   
   const { addScanHistory } = useServiceHistoryStore();
-  const { gApiInitialized } = useGoogleAuth();
+  const { gApiInitialized, apiLoading } = useGoogleAuth();
   
   const {
     isScanning,
@@ -123,11 +123,22 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
           )}
         </CardHeader>
         <CardContent className={isCompactView ? "px-4 py-2" : ""}>
-          {!gApiInitialized && (
-            <Alert className="mb-4">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                Initializing Google Drive integration. Please wait...
+          {apiLoading && (
+            <Alert className="mb-4 bg-blue-50 border-blue-200">
+              <div className="flex items-center">
+                <Loader2 className="h-4 w-4 mr-2 animate-spin text-blue-500" />
+                <AlertDescription className="text-blue-700">
+                  Initializing Google services. Please wait...
+                </AlertDescription>
+              </div>
+            </Alert>
+          )}
+          
+          {!gApiInitialized && !apiLoading && (
+            <Alert className="mb-4 bg-amber-50 border-amber-200">
+              <AlertCircle className="h-4 w-4 mr-2 text-amber-500" />
+              <AlertDescription className="text-amber-700">
+                Failed to initialize Google services. Please refresh the page and try again.
               </AlertDescription>
             </Alert>
           )}
@@ -185,4 +196,3 @@ const GoogleServicesScanner: React.FC<GoogleServicesScannerProps> = ({
 };
 
 export default GoogleServicesScanner;
-

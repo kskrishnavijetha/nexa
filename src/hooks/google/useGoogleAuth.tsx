@@ -10,54 +10,101 @@ const API_KEY = "AIzaSyCw2nTK_NMP8Eg3X94eF1L3BA0T_hLo9J8"; // Google API Key
 const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 
+// Add global type declaration for gapi
+declare global {
+  interface Window {
+    gapi: any;
+    google: any;
+  }
+}
+
 export function useGoogleAuth() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [authChecked, setAuthChecked] = useState(false);
   const [gApiInitialized, setGApiInitialized] = useState(false);
   const [isGoogleAuthenticated, setIsGoogleAuthenticated] = useState(false);
+  const [apiLoading, setApiLoading] = useState(true);
 
   // Initialize the Google API client
   useEffect(() => {
+    let scriptLoaded = false;
+
     const loadGoogleApi = () => {
+      if (window.gapi) {
+        console.log('Google API script already loaded, initializing client');
+        initGoogleApi();
+        return;
+      }
+
+      console.log('Loading Google API script');
+      setApiLoading(true);
+      
       const script = document.createElement('script');
       script.src = 'https://apis.google.com/js/api.js';
       script.async = true;
       script.defer = true;
-      script.onload = initGoogleApi;
+      script.onload = () => {
+        console.log('Google API script loaded successfully');
+        scriptLoaded = true;
+        initGoogleApi();
+      };
+      script.onerror = (error) => {
+        console.error('Error loading Google API script:', error);
+        setApiLoading(false);
+        toast.error('Failed to load Google services. Please check your internet connection.');
+      };
+      
       document.body.appendChild(script);
     };
 
-    if (!gApiInitialized) {
-      loadGoogleApi();
-    }
-  }, [gApiInitialized]);
+    const initGoogleApi = () => {
+      if (!window.gapi) {
+        console.error('Google API script failed to provide window.gapi');
+        setApiLoading(false);
+        toast.error('Failed to initialize Google services');
+        return;
+      }
 
-  const initGoogleApi = () => {
-    window.gapi.load('client:auth2', () => {
-      window.gapi.client
-        .init({
-          apiKey: API_KEY,
-          clientId: CLIENT_ID,
-          discoveryDocs: DISCOVERY_DOCS,
-          scope: SCOPES,
-        })
-        .then(() => {
-          console.log('Google API initialized');
+      console.log('Initializing Google API client');
+      window.gapi.load('client:auth2', async () => {
+        try {
+          console.log('Google API libraries loaded, initializing client with config');
+          await window.gapi.client.init({
+            apiKey: API_KEY,
+            clientId: CLIENT_ID,
+            discoveryDocs: DISCOVERY_DOCS,
+            scope: SCOPES,
+          });
+          
+          console.log('Google API initialized successfully');
           setGApiInitialized(true);
+          setApiLoading(false);
           
           // Check if user is already signed in
           if (window.gapi.auth2.getAuthInstance().isSignedIn.get()) {
-            setIsGoogleAuthenticated(true);
             console.log('User already signed in to Google');
+            setIsGoogleAuthenticated(true);
+          } else {
+            console.log('User not signed in to Google');
           }
-        })
-        .catch(error => {
+        } catch (error) {
           console.error('Error initializing Google API:', error);
-          toast.error('Failed to initialize Google services');
-        });
-    });
-  };
+          setApiLoading(false);
+          toast.error('Failed to initialize Google services. Please try again.');
+        }
+      });
+    };
+
+    if (!gApiInitialized && !scriptLoaded) {
+      loadGoogleApi();
+    }
+
+    // Cleanup function
+    return () => {
+      // No cleanup needed for script loading
+    };
+  }, [gApiInitialized]);
 
   // Check if user is authenticated with our app
   useEffect(() => {
@@ -118,6 +165,7 @@ export function useGoogleAuth() {
     isGoogleAuthenticated, 
     signInToGoogle, 
     signOutFromGoogle,
-    gApiInitialized
+    gApiInitialized,
+    apiLoading
   };
 }

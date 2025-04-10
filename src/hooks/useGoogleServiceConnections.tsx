@@ -22,6 +22,12 @@ export function useGoogleServiceConnections() {
   }, [user]);
 
   const scanGoogleDrive = async () => {
+    if (!window.gapi || !window.gapi.client || !window.gapi.client.drive) {
+      console.error('Google Drive API not available');
+      toast.error('Google Drive API not available. Please try again.');
+      return [];
+    }
+
     try {
       const response = await window.gapi.client.drive.files.list({
         'pageSize': 25,
@@ -40,6 +46,11 @@ export function useGoogleServiceConnections() {
   const handleConnectDrive = async () => {
     if (!user) {
       toast.error('Please sign in to connect services');
+      return;
+    }
+    
+    if (!gApiInitialized) {
+      toast.error('Google API not initialized yet. Please wait a moment and try again.');
       return;
     }
     
