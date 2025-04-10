@@ -16,6 +16,7 @@ const Payment = () => {
   const [isRenewal, setIsRenewal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     // Check if user has an active subscription and redirected from another page
@@ -43,6 +44,8 @@ const Payment = () => {
 
   const handlePaymentSuccess = (paymentId: string) => {
     console.log('Payment successful:', paymentId);
+    setIsProcessing(true);
+    
     toast.success('Subscription activated successfully!');
     
     // Update subscription state
@@ -50,6 +53,7 @@ const Payment = () => {
     
     // Redirect to dashboard page after 1.5 seconds
     setTimeout(() => {
+      setIsProcessing(false);
       navigate('/dashboard');
     }, 1500);
   };
@@ -95,6 +99,7 @@ const Payment = () => {
                 onSuccess={handlePaymentSuccess} 
                 initialPlan={selectedPlan} 
                 initialBillingCycle={billingCycle}
+                isProcessing={isProcessing}
               />
             </div>
             <div className="flex-1">

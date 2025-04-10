@@ -1,35 +1,37 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 
 interface PaymentBillingToggleProps {
   billingCycle: 'monthly' | 'annually';
   setBillingCycle: (cycle: 'monthly' | 'annually') => void;
+  disabled?: boolean;
 }
 
 const PaymentBillingToggle: React.FC<PaymentBillingToggleProps> = ({ 
   billingCycle, 
-  setBillingCycle 
+  setBillingCycle,
+  disabled = false 
 }) => {
+  const isAnnually = billingCycle === 'annually';
+  
   return (
-    <div className="flex items-center justify-center space-x-2 mb-4">
-      <span className={`text-sm ${billingCycle === 'monthly' ? 'font-semibold' : ''}`}>Monthly</span>
-      <Button
-        variant="outline"
-        size="sm"
-        className={`relative px-8 h-7 ${billingCycle === 'annually' ? 'bg-primary/10' : ''}`}
-        onClick={() => setBillingCycle(billingCycle === 'monthly' ? 'annually' : 'monthly')}
-      >
-        <div
-          className={`absolute top-1 bottom-1 left-1 w-6 bg-primary rounded-sm transition-transform ${
-            billingCycle === 'annually' ? 'translate-x-[calc(100%-2px)]' : ''
-          }`}
+    <div className="flex items-center justify-between p-4 border rounded-lg bg-white">
+      <div>
+        <h4 className="text-sm font-medium">Billing Cycle</h4>
+        <p className="text-xs text-muted-foreground">
+          {isAnnually ? 'Save 10% with annual billing' : 'Billed monthly'}
+        </p>
+      </div>
+      <div className="flex items-center gap-2">
+        <span className="text-sm">Monthly</span>
+        <Switch
+          checked={isAnnually}
+          onCheckedChange={(checked) => setBillingCycle(checked ? 'annually' : 'monthly')}
+          disabled={disabled}
         />
-        <span className="sr-only">Toggle</span>
-      </Button>
-      <span className={`text-sm ${billingCycle === 'annually' ? 'font-semibold' : ''}`}>
-        Annually <span className="text-xs text-green-600">(Save 10%)</span>
-      </span>
+        <span className="text-sm">Annually</span>
+      </div>
     </div>
   );
 };

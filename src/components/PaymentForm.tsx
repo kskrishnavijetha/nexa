@@ -8,6 +8,7 @@ interface PaymentFormProps {
   onSuccess?: (paymentId: string) => void;
   initialPlan?: string | null;
   initialBillingCycle?: 'monthly' | 'annually';
+  isProcessing?: boolean;
 }
 
 const PaymentForm: React.FC<PaymentFormProps> = (props) => {

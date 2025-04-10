@@ -8,25 +8,33 @@ interface PaymentTierSelectorProps {
   billingCycle: 'monthly' | 'annually';
   onSelectTier: (tier: string) => void;
   getPrice: (tier: string) => number;
+  disabled?: boolean;
 }
 
 const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
   selectedTier,
   billingCycle,
   onSelectTier,
-  getPrice
+  getPrice,
+  disabled = false
 }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {Object.entries(pricingTiers).map(([key, tier]) => (
         <div 
           key={key}
-          className={`relative rounded-lg border p-4 cursor-pointer transition-all ${
+          className={`relative rounded-lg border p-4 transition-all ${
+            disabled ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'
+          } ${
             selectedTier === key 
               ? 'border-primary bg-primary/5 shadow-sm' 
               : 'border-input hover:border-primary/50'
           }`}
-          onClick={() => onSelectTier(key)}
+          onClick={() => {
+            if (!disabled) {
+              onSelectTier(key);
+            }
+          }}
         >
           <div className="flex justify-between">
             <div className="font-medium">{tier.name}</div>

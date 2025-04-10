@@ -11,12 +11,14 @@ interface CheckoutFormProps {
   onSuccess?: (paymentId: string) => void;
   initialPlan?: string | null;
   initialBillingCycle?: 'monthly' | 'annually';
+  isProcessing?: boolean;
 }
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ 
   onSuccess = () => {},
   initialPlan, 
-  initialBillingCycle 
+  initialBillingCycle,
+  isProcessing = false
 }) => {
   const [selectedTier, setSelectedTier] = useState<string>(initialPlan || 'free');
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>(initialBillingCycle || 'monthly');
@@ -35,6 +37,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       }
     }
   }, [initialPlan, currentSubscription]);
+
+  // Set loading state if processing
+  useEffect(() => {
+    if (isProcessing) {
+      setLoading(true);
+    }
+  }, [isProcessing]);
 
   // Helper function to get price for the selected tier
   const getPriceForTier = (tier: string) => {
@@ -61,6 +70,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         <PaymentBillingToggle 
           billingCycle={billingCycle}
           setBillingCycle={setBillingCycle}
+          disabled={loading || isProcessing}
         />
         
         <PaymentTierSelector
@@ -68,6 +78,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           billingCycle={billingCycle}
           onSelectTier={setSelectedTier}
           getPrice={getPriceForTier}
+          disabled={loading || isProcessing}
         />
       </div>
 
@@ -81,7 +92,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         <PaymentButtons 
           onSuccess={handleSuccess}
           tier={selectedTier}
-          loading={loading}
+          loading={loading || isProcessing}
           setLoading={setLoading}
           billingCycle={billingCycle}
         />

@@ -5,7 +5,8 @@
 import { saveSubscription } from './subscriptionService';
 import type { PaymentResult } from './paymentProcessor';
 
-// PayPal client ID - Replace with your actual PayPal client ID
+// PayPal client ID - Replace with your actual PayPal client ID for production
+// This is a publishable key, safe to include in client-side code
 const PAYPAL_CLIENT_ID = 'AXKd2EHw7ySZihlaN06rqnABzzQdhD8ueu738V8iCtC93o8PwlZdjO7hwVITJgTsmjOq8dHJaC1vMMKT';
 
 // PayPal plan IDs - Updated with actual plan IDs
