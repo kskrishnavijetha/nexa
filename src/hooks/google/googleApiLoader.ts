@@ -67,10 +67,24 @@ export const initializeGoogleApiClient = (): Promise<void> => {
     window.gapi.load('client:auth2', async () => {
       try {
         console.log('Google API libraries loaded, initializing client with config');
+        
+        // Clear any existing auth instance to prevent stale state issues
+        try {
+          const existingAuth = window.gapi.auth2?.getAuthInstance();
+          if (existingAuth) {
+            console.log('Found existing auth instance, signing out to reinitialize');
+            await existingAuth.signOut();
+          }
+        } catch (e) {
+          // Ignore errors when trying to access non-existent auth instance
+          console.log('No existing auth instance found');
+        }
+        
         const clientConfig: any = {
           clientId: CLIENT_ID,
           discoveryDocs: DISCOVERY_DOCS,
           scope: SCOPES,
+          ux_mode: 'popup',  // Use popup mode to avoid redirect issues
           cookiepolicy: 'single_host_origin'
         };
         
@@ -85,7 +99,14 @@ export const initializeGoogleApiClient = (): Promise<void> => {
         resolve();
       } catch (error: any) {
         console.error('Error initializing Google API:', error);
-        const errorMessage = error?.error || error?.message || 'Unknown error';
+        let errorMessage = error?.error || error?.message || 'Unknown error';
+        
+        // Add more specific information for idpiframe_initialization_failed
+        if (errorMessage.includes('idpiframe_initialization_failed')) {
+          errorMessage = 'Google authentication initialization failed. This usually happens when your domain is not authorized in Google Cloud Console.';
+          console.error('idpiframe error details:', error?.details || 'No details available');
+        }
+        
         reject(new Error(`Google API initialization failed: ${errorMessage}`));
       }
     });
@@ -118,7 +139,10 @@ export const signInToGoogle = async (): Promise<boolean> => {
     }
 
     const authInstance = window.gapi.auth2.getAuthInstance();
-    await authInstance.signIn({prompt: 'select_account'});
+    await authInstance.signIn({
+      prompt: 'select_account',
+      ux_mode: 'popup' // Force popup mode to avoid redirect issues
+    });
     
     console.log('Google authentication successful');
     toast.success('Connected to Google successfully');

@@ -33,7 +33,7 @@ export function useGoogleAuth() {
       return;
     }
     
-    const initializeGoogleApi = () => {
+    const initializeGoogleApi = async () => {
       setApiLoading(true);
       setApiError(null);
       
@@ -44,6 +44,36 @@ export function useGoogleAuth() {
         setApiError('Missing Google API credentials. Please check the configuration.');
         setIsDemoMode(true);
         return;
+      }
+      
+      // Force clear browser storage of gapi-related data to prevent stale state
+      try {
+        // Clear localStorage items related to Google auth
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && (key.includes('gapi') || key.includes('google'))) {
+            localStorage.removeItem(key);
+          }
+        }
+        
+        // Clear sessionStorage items related to Google auth
+        for (let i = 0; i < sessionStorage.length; i++) {
+          const key = sessionStorage.key(i);
+          if (key && (key.includes('gapi') || key.includes('google'))) {
+            sessionStorage.removeItem(key);
+          }
+        }
+        
+        // Also try to clear all cookies related to Google auth
+        document.cookie.split(';').forEach(cookie => {
+          const [name] = cookie.split('=');
+          if (name && (name.trim().includes('gapi') || name.trim().includes('google'))) {
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/;`;
+          }
+        });
+      } catch (e) {
+        console.log('Error clearing storage:', e);
+        // Continue anyway, this is just a precaution
       }
       
       loadGoogleApiScript(
@@ -75,7 +105,9 @@ export function useGoogleAuth() {
               if (!CLIENT_ID || CLIENT_ID.length === 0) {
                 setApiError('Missing Google Client ID. Please check the configuration.');
               } else if (errorMessage.includes('invalid_client')) {
-                setApiError(`Invalid client: Your domain (${DEBUG_HOST_INFO.currentHost}) may not be authorized in Google Cloud Console.`);
+                setApiError(`Invalid client: Your domain (${DEBUG_HOST_INFO.currentHost}) is not authorized in Google Cloud Console.`);
+              } else if (errorMessage.includes('idpiframe_initialization_failed')) {
+                setApiError(`Google authentication initialization failed: Your domain (${DEBUG_HOST_INFO.currentHost}) must be authorized in Google Cloud Console.`);
               } else if (errorMessage.includes('403')) {
                 setApiError('API key or client ID may be invalid. Please check your credentials.');
               } else if (errorMessage.includes('network') || errorMessage.includes('timeout')) {
@@ -87,7 +119,7 @@ export function useGoogleAuth() {
               }
               
               // Enable demo mode when there's an API error
-              setIsDemoMode(ENABLE_DEMO_MODE);
+              setIsDemoMode(ENABLE_DEMO_MODE || true);
               setInitializationAttempts(prev => prev + 1);
             });
         },
@@ -96,7 +128,7 @@ export function useGoogleAuth() {
           setApiLoading(false);
           setApiError('Failed to load Google services. Please check your internet connection and try again.');
           // Enable demo mode when there's an API error
-          setIsDemoMode(ENABLE_DEMO_MODE);
+          setIsDemoMode(true);
           setInitializationAttempts(prev => prev + 1);
         }
       );

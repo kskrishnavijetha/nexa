@@ -128,12 +128,22 @@ export const GoogleApiStatusInfo: React.FC<GoogleApiStatusInfoProps> = ({
             </AlertDescription>
           </div>
           <div className="text-sm text-gray-600 ml-6 mb-2">
+            {apiError?.includes('idpiframe_initialization_failed') && (
+              <p className="mb-2 text-amber-700">
+                <strong>This is likely a domain authorization issue.</strong> Make sure your current domain is authorized in Google Cloud Console.
+              </p>
+            )}
             <div className="bg-gray-50 p-3 rounded border border-gray-200 mb-2 whitespace-pre-wrap font-mono text-xs">
               {GOOGLE_API_HELP_TEXT}
             </div>
             <p>Your current domain: <code className="bg-gray-100 px-1 py-0.5 rounded">{DEBUG_HOST_INFO.currentHost}</code></p>
+            {DEBUG_HOST_INFO.isLocalhost && (
+              <p className="mt-2 text-amber-700">
+                <strong>You're on localhost:</strong> Make sure to add <code className="bg-gray-100 px-1 py-0.5 rounded">{DEBUG_HOST_INFO.currentHost}</code> as an authorized JavaScript origin in the Google Cloud Console.
+              </p>
+            )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
             <Button 
               variant="outline" 
               size="sm" 
@@ -150,6 +160,14 @@ export const GoogleApiStatusInfo: React.FC<GoogleApiStatusInfoProps> = ({
               onClick={() => window.open('https://console.cloud.google.com/apis/credentials', '_blank')}
             >
               Open Google Console
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="flex items-center justify-center gap-2 mt-2"
+              onClick={() => window.open('https://developers.google.com/identity/gsi/web/guides/overview', '_blank')}
+            >
+              Google Auth Documentation
             </Button>
           </div>
         </div>
