@@ -5,6 +5,10 @@ import { PredictiveAnalysis } from '@/utils/types';
 import ScoreComparisonChart from './ScoreComparisonChart';
 import RiskTrendList from './RiskTrendList';
 import RecommendationsList from './RecommendationsList';
+import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
+import { toast } from 'sonner';
+import { exportSimulationPDF } from '@/utils/simulation/exportSimulationPDF';
 
 interface SimulationResultsProps {
   analysisData: PredictiveAnalysis;
@@ -13,6 +17,40 @@ interface SimulationResultsProps {
 }
 
 const SimulationResults: React.FC<SimulationResultsProps> = ({ analysisData, loading = false, onReset }) => {
+  const [downloading, setDownloading] = React.useState(false);
+  
+  const handleDownloadPDF = async () => {
+    if (!analysisData || downloading) return;
+    
+    setDownloading(true);
+    toast.loading('Generating PDF report...');
+    
+    try {
+      const pdfBlob = await exportSimulationPDF(analysisData);
+      
+      // Create a download link for the PDF
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `simulation-${analysisData.scenarioName.replace(/\s+/g, '-').toLowerCase()}-${new Date().getTime()}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+      
+      toast.dismiss();
+      toast.success('Simulation report downloaded successfully');
+    } catch (error) {
+      console.error('Error downloading simulation PDF:', error);
+      toast.dismiss();
+      toast.error('Failed to generate simulation PDF report');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -49,6 +87,19 @@ const SimulationResults: React.FC<SimulationResultsProps> = ({ analysisData, loa
 
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-medium">Simulation Results: {analysisData.scenarioName}</h3>
+        <Button 
+          onClick={handleDownloadPDF} 
+          disabled={downloading}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <Download className="h-4 w-4" />
+          {downloading ? 'Generating...' : 'Download PDF Report'}
+        </Button>
+      </div>
+      
       <ScoreComparisonChart analysis={analysisData} />
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
