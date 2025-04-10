@@ -23,8 +23,8 @@ export function useGoogleAuth() {
   const [initializationAttempts, setInitializationAttempts] = useState(0);
   const [isDemoMode, setIsDemoMode] = useState(ENABLE_DEMO_MODE);
 
-  // Check if credentials are actually provided
-  const hasCredentials = !!CLIENT_ID && CLIENT_ID.length > 0;
+  // Check if credentials are actually provided with type-safe check
+  const hasCredentials = !!CLIENT_ID && typeof CLIENT_ID === 'string' && CLIENT_ID !== '';
 
   // Initialize the Google API client
   useEffect(() => {
@@ -102,7 +102,7 @@ export function useGoogleAuth() {
               console.error('Google API initialization error:', errorMessage);
               console.log('Debug host info:', DEBUG_HOST_INFO);
               
-              if (!CLIENT_ID || CLIENT_ID.length === 0) {
+              if (!CLIENT_ID || typeof CLIENT_ID !== 'string' || CLIENT_ID === '') {
                 setApiError('Missing Google Client ID. Please check the configuration.');
               } else if (errorMessage.includes('invalid_client')) {
                 setApiError(`Invalid client: Your domain (${DEBUG_HOST_INFO.currentHost}) is not authorized in Google Cloud Console.`);

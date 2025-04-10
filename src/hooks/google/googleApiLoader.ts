@@ -57,8 +57,8 @@ export const initializeGoogleApiClient = (): Promise<void> => {
       return;
     }
 
-    // Check if client ID is configured
-    if (!CLIENT_ID || CLIENT_ID === '') {
+    // Check if client ID is configured - using a type-safe check
+    if (!CLIENT_ID || typeof CLIENT_ID !== 'string' || CLIENT_ID === '') {
       reject(new Error('Google Client ID not configured. Please set a valid Client ID.'));
       return;
     }
@@ -88,8 +88,8 @@ export const initializeGoogleApiClient = (): Promise<void> => {
           cookiepolicy: 'single_host_origin'
         };
         
-        // Only add API key if it's provided
-        if (API_KEY && API_KEY !== '') {
+        // Only add API key if it's provided - using a type-safe check
+        if (API_KEY && typeof API_KEY === 'string' && API_KEY !== '') {
           clientConfig.apiKey = API_KEY;
         }
         
