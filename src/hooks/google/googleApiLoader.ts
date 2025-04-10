@@ -1,4 +1,3 @@
-
 import { toast } from 'sonner';
 import { CLIENT_ID, API_KEY, DISCOVERY_DOCS, SCOPES } from './googleAuthConfig';
 
@@ -63,22 +62,23 @@ export const initializeGoogleApiClient = (): Promise<void> => {
       return;
     }
 
-    if (!API_KEY || API_KEY === "") {
-      reject(new Error('Google API Key not configured. Please set a valid API Key.'));
-      return;
-    }
-
     console.log('Initializing Google API client');
     window.gapi.load('client:auth2', async () => {
       try {
         console.log('Google API libraries loaded, initializing client with config');
-        await window.gapi.client.init({
-          apiKey: API_KEY,
+        const clientConfig: any = {
           clientId: CLIENT_ID,
           discoveryDocs: DISCOVERY_DOCS,
           scope: SCOPES,
           cookiepolicy: 'single_host_origin'
-        });
+        };
+        
+        // Only add API key if it's provided
+        if (API_KEY && API_KEY !== "") {
+          clientConfig.apiKey = API_KEY;
+        }
+        
+        await window.gapi.client.init(clientConfig);
         
         console.log('Google API initialized successfully');
         resolve();

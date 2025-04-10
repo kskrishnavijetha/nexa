@@ -1,7 +1,7 @@
 
 // Google API configuration constants
 // These are publishable client IDs that can be safely stored in client-side code
-export const CLIENT_ID = ""; // Add your client ID here
+export const CLIENT_ID = "466449188211-kjde3tmajlmur4gafcuu40an8nuvpktn.apps.googleusercontent.com"; // Google OAuth Client ID
 export const API_KEY = ""; // Add your API key here
 export const DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/drive/v3/rest"];
 export const SCOPES = "https://www.googleapis.com/auth/drive.readonly";

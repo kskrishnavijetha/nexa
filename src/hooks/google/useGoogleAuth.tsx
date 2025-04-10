@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -24,11 +23,8 @@ export function useGoogleAuth() {
   const [isDemoMode, setIsDemoMode] = useState(ENABLE_DEMO_MODE);
 
   // Check if credentials are actually provided
-  const hasCredentials = !!CLIENT_ID && !!API_KEY && 
-    CLIENT_ID !== "YOUR_CLIENT_ID_GOES_HERE" && 
-    API_KEY !== "YOUR_API_KEY_GOES_HERE" &&
-    CLIENT_ID !== "" && 
-    API_KEY !== "";
+  const hasCredentials = !!CLIENT_ID && CLIENT_ID !== "" && 
+    CLIENT_ID !== "YOUR_CLIENT_ID_GOES_HERE";
 
   // Initialize the Google API client
   useEffect(() => {
@@ -76,11 +72,11 @@ export function useGoogleAuth() {
               console.error('Google API initialization error:', errorMessage);
               console.log('Debug host info:', DEBUG_HOST_INFO);
               
-              if (!CLIENT_ID || !API_KEY || CLIENT_ID === "" || API_KEY === "") {
-                setApiError('Missing Google API credentials. Please check the configuration.');
+              if (!CLIENT_ID || CLIENT_ID === "") {
+                setApiError('Missing Google Client ID. Please check the configuration.');
               } else if (errorMessage.includes('invalid_client')) {
-                setApiError(`Invalid client: Your domain (${DEBUG_HOST_INFO.currentHost}) is not authorized in Google Cloud Console.`);
-              } else if (errorMessage.includes('403') || errorMessage.includes('invalid_client')) {
+                setApiError(`Invalid client: Your domain (${DEBUG_HOST_INFO.currentHost}) may not be authorized in Google Cloud Console.`);
+              } else if (errorMessage.includes('403')) {
                 setApiError('API key or client ID may be invalid. Please check your credentials.');
               } else if (errorMessage.includes('network') || errorMessage.includes('timeout')) {
                 setApiError('Network issue detected. Please check your internet connection.');
