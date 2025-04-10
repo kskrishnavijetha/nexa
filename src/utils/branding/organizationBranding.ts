@@ -15,7 +15,6 @@ export interface OrganizationBranding {
 const defaultBranding: OrganizationBranding = {
   name: "Nexabloom",
   primaryColor: "rgb(79, 70, 229)", // Indigo color
-  website: "www.nexabloom.xyz",
   legalDisclaimer: "LEGAL DISCLAIMER: This report is for informational purposes only and does not constitute legal advice."
 };
 
@@ -112,12 +111,7 @@ export const applyBrandingToFooter = (
       doc.setFontSize(10);
       doc.text(branding.name, 98, logoPositionY);
       
-      // Add website if provided
-      if (branding.website) {
-        doc.setFontSize(7);
-        doc.setTextColor(100, 100, 100);
-        doc.text(branding.website, 160, logoPositionY, { align: 'right' });
-      }
+      // Remove website display - we don't show the website URL anymore
       
       // Add hash verification information if available
       if (verificationMetadata && verificationMetadata.hash) {
@@ -143,9 +137,7 @@ export const applyBrandingToFooter = (
       doc.text(`Page ${i} of ${pageCount}`, 20, 280);
       doc.text(branding.name, 105, 280, { align: 'center' });
       
-      if (branding.website) {
-        doc.text(branding.website, 190, 280, { align: 'right' });
-      }
+      // Remove website URL from fallback as well
       
       // Add simple disclaimer
       doc.setFontSize(6);
@@ -166,3 +158,4 @@ function hexToRgb(hex: string): { r: number, g: number, b: number } | null {
     b: parseInt(result[3], 16)
   } : null;
 }
+
