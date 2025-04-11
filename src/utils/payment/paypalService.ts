@@ -95,7 +95,7 @@ export const createPayPalButtons = (
         layout: 'vertical',
         color: 'gold',
         shape: 'rect',
-        label: 'paypal'
+        label: plan === 'basic' ? 'paypal' : 'subscribe'
       },
       createSubscription: function(data: any, actions: any) {
         console.log('Creating subscription with plan ID:', planId);

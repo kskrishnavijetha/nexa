@@ -24,9 +24,9 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const scriptLoaded = useRef(false);
 
-  // Effect for PayPal integration for basic tier
+  // Effect for PayPal integration for basic and pro tiers
   useEffect(() => {
-    if (tier === 'basic' && !scriptLoaded.current) {
+    if ((tier === 'basic' || tier === 'pro') && !scriptLoaded.current) {
       const loadScript = async () => {
         try {
           await loadPayPalScript();
@@ -34,24 +34,28 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
           if (window.paypal && paypalContainerRef.current) {
             scriptLoaded.current = true;
             
+            // Select the appropriate plan ID based on the tier
+            const planId = tier === 'basic' ? 'P-0G576384KT1375804M7UPCYY' : 'P-0F289070AR785993EM7UO47Y';
+            const containerId = tier === 'basic' ? 'paypal-button-container-P-0G576384KT1375804M7UPCYY' : 'paypal-button-container-P-0F289070AR785993EM7UO47Y';
+            
             window.paypal.Buttons({
               style: {
                 shape: 'rect',
                 color: 'gold',
                 layout: 'vertical',
-                label: 'paypal'
+                label: tier === 'basic' ? 'paypal' : 'subscribe'
               },
               createSubscription: function(data: any, actions: any) {
                 return actions.subscription.create({
                   /* Creates the subscription */
-                  plan_id: 'P-0G576384KT1375804M7UPCYY'
+                  plan_id: planId
                 });
               },
               onApprove: function(data: any, actions: any) {
                 // Handle successful subscription
                 console.log('Subscription created:', data.subscriptionID);
                 onSuccess(data.subscriptionID);
-                toast.success('Basic plan subscription created successfully!');
+                toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan subscription created successfully!`);
               },
               onError: function(err: any) {
                 console.error('PayPal error:', err);
@@ -69,16 +73,21 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
     }
   }, [tier, onSuccess]);
 
-  // For free tier and other tiers (not basic), use a regular button
+  // For free tier and enterprise tier, use a regular button
   const needsUpgrade = tier !== 'free' || shouldUpgrade();
   const buttonText = tier === 'free' 
     ? (needsUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan')
     : `Subscribe to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`;
   
-  if (tier === 'basic') {
+  // For basic and pro tiers, use PayPal buttons
+  if (tier === 'basic' || tier === 'pro') {
+    const containerId = tier === 'basic' 
+      ? 'paypal-button-container-P-0G576384KT1375804M7UPCYY' 
+      : 'paypal-button-container-P-0F289070AR785993EM7UO47Y';
+      
     return (
       <div className="w-full">
-        <div id="paypal-button-container-P-0G576384KT1375804M7UPCYY" ref={paypalContainerRef} className="w-full"></div>
+        <div id={containerId} ref={paypalContainerRef} className="w-full"></div>
         {loading && (
           <div className="flex justify-center items-center mt-2">
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
