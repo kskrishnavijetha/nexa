@@ -104,11 +104,18 @@ const PayPalContainer: React.FC<PayPalContainerProps> = ({
     initializePayPal();
   };
   
+  // Initialize PayPal on component mount
+  useEffect(() => {
+    if (!loading) {
+      initializePayPal();
+    }
+  }, []);
+  
   return (
     <div className="w-full">
       {loading && (
         <div className="flex items-center justify-center py-2 mb-4">
-          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+          <Loader2 className="h-4 w-4 animate-spin mr-2" data-testid="loading-spinner" />
           <span>Preparing payment options...</span>
         </div>
       )}
@@ -135,6 +142,7 @@ const PayPalContainer: React.FC<PayPalContainerProps> = ({
       <div 
         id="paypal-button-container" 
         ref={paypalContainerRef}
+        data-testid="paypal-container"
         className="w-full min-h-[150px] border border-dashed border-gray-200 rounded-md flex items-center justify-center"
       />
     </div>
