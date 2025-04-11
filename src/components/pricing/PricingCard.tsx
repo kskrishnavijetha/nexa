@@ -10,11 +10,9 @@ interface PricingCardProps {
   price: string;
   features: string[];
   isRecommended?: boolean;
-  highlighted?: boolean;
   onSelectPlan: () => void;
   buttonText: string;
-  buttonDisabled?: boolean;
-  buttonVariant?: 'default' | 'outline' | 'secondary';
+  buttonVariant?: 'default' | 'outline';
 }
 
 const PricingCard: React.FC<PricingCardProps> = ({
@@ -23,18 +21,14 @@ const PricingCard: React.FC<PricingCardProps> = ({
   price,
   features,
   isRecommended = false,
-  highlighted = false,
   onSelectPlan,
   buttonText,
-  buttonDisabled = false,
   buttonVariant = 'default'
 }) => {
   return (
     <Card className={`flex flex-col ${isRecommended 
       ? 'border-primary bg-primary/5 hover:bg-primary/10' 
-      : highlighted 
-        ? 'border-amber-400 bg-amber-50/50 hover:bg-amber-50'
-        : 'border-border hover:border-primary/50'} transition-colors`}
+      : 'border-border hover:border-primary/50'} transition-colors`}
     >
       {isRecommended && (
         <div className="bg-primary text-primary-foreground text-center py-1 text-sm font-medium">
@@ -56,7 +50,6 @@ const PricingCard: React.FC<PricingCardProps> = ({
           variant={buttonVariant} 
           className="w-full"
           onClick={onSelectPlan}
-          disabled={buttonDisabled}
         >
           {buttonText}
         </Button>

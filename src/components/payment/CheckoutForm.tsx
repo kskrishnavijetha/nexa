@@ -5,7 +5,7 @@ import PaymentTierSelector from './PaymentTierSelector';
 import PaymentBillingToggle from './PaymentBillingToggle';
 import PaymentButtons from './PaymentButtons';
 import PaymentSummary from './PaymentSummary';
-import { pricing } from '@/components/pricing/PricingData';
+import { getPrice } from '@/utils/pricingData';
 
 interface CheckoutFormProps {
   onSuccess?: (paymentId: string) => void;
@@ -39,13 +39,27 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   // Helper function to get price for the selected tier
   const getPriceForTier = (tier: string) => {
-    return pricing[tier as keyof typeof pricing]?.monthly || 0;
+    return getPrice(tier, 'monthly');
+  };
+
+  const handleSuccess = (paymentId: string) => {
+    // Create local subscription record
+    import('@/utils/payment/subscriptionService').then(({ saveSubscription }) => {
+      saveSubscription(selectedTier, paymentId, 'monthly');
+      
+      // Call the onSuccess callback
+      if (onSuccess) {
+        onSuccess(paymentId);
+      }
+    });
   };
 
   return (
     <div className="space-y-6">
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Select a Plan</h3>
+        
+        <PaymentBillingToggle />
         
         <PaymentTierSelector
           selectedTier={selectedTier}
@@ -63,7 +77,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           }
         </p>
         <PaymentButtons 
-          onSuccess={onSuccess}
+          onSuccess={handleSuccess}
           tier={selectedTier}
           loading={loading}
           setLoading={setLoading}

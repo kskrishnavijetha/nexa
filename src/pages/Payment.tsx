@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PaymentForm from '@/components/PaymentForm';
-import { getSubscription, hasActiveSubscription } from '@/utils/payment/subscriptionService';
+import { getSubscription, hasActiveSubscription } from '@/utils/paymentService';
 import SubscriptionStatus from '@/components/payment/SubscriptionStatus';
 import FeatureSummary from '@/components/payment/FeatureSummary';
 import { toast } from 'sonner';

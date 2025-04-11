@@ -8,8 +8,6 @@ import AnalysisResults from '@/components/document-analysis/AnalysisResults';
 import { addReportToHistory } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
-import { hasScansRemaining, recordScanUsage, getScansRemaining, getSubscription } from '@/utils/payment/subscriptionService';
-import { useNavigate } from 'react-router-dom';
 
 const DocumentAnalysis = () => {
   const [report, setReport] = useState<ComplianceReport | null>(null);
@@ -17,55 +15,8 @@ const DocumentAnalysis = () => {
   const { user } = useAuth();
   const { addScanHistory } = useServiceHistoryStore();
   const chartsContainerRef = useRef<HTMLDivElement | null>(null);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Check if user has scans remaining
-    if (user && !hasScansRemaining()) {
-      const subscription = getSubscription();
-      const plan = subscription?.plan || 'free';
-      
-      toast.error(`You've reached the scan limit for your ${plan} plan. Please upgrade to continue scanning.`, {
-        action: {
-          label: 'View Plans',
-          onClick: () => navigate('/pricing'),
-        },
-        duration: 8000,
-      });
-      
-      // Redirect to pricing page
-      navigate('/pricing');
-    }
-  }, [user, navigate]);
 
   const handleReportGenerated = (reportData: ComplianceReport) => {
-    // Record scan usage
-    recordScanUsage();
-    
-    // Check remaining scans after recording usage
-    const remainingScans = getScansRemaining();
-    if (remainingScans <= 3 && remainingScans > 0) {
-      toast.warning(`You have ${remainingScans} scan${remainingScans === 1 ? '' : 's'} remaining in your current plan.`, {
-        action: {
-          label: 'View Plans',
-          onClick: () => navigate('/pricing'),
-        },
-        duration: 8000,
-      });
-    } else if (remainingScans === 0) {
-      // Will show toast but allow this last scan to complete
-      const subscription = getSubscription();
-      const plan = subscription?.plan || 'free';
-      
-      toast.error(`You've reached the scan limit for your ${plan} plan. This is your last scan.`, {
-        action: {
-          label: 'Upgrade Now',
-          onClick: () => navigate('/pricing'),
-        },
-        duration: 10000,
-      });
-    }
-    
     // Add user ID to the report if available
     const reportWithUser = user?.id 
       ? { ...reportData, userId: user.id }
@@ -171,20 +122,7 @@ const DocumentAnalysis = () => {
       <div className="container mx-auto py-8">
         <DocumentHeader />
         
-        {!hasScansRemaining() ? (
-          <div className="text-center py-10">
-            <h2 className="text-2xl font-bold mb-4">Scan Limit Reached</h2>
-            <p className="mb-6 text-muted-foreground">
-              You've reached the scan limit for your current plan. Please upgrade to continue scanning documents.
-            </p>
-            <button 
-              onClick={() => navigate('/pricing')}
-              className="bg-primary text-white px-6 py-3 rounded-md hover:bg-primary/90"
-            >
-              View Pricing Plans
-            </button>
-          </div>
-        ) : !report ? (
+        {!report ? (
           <DocumentUploader onReportGenerated={handleReportGenerated} />
         ) : (
           <AnalysisResults

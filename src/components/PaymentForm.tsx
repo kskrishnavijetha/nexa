@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { getSubscription } from '@/utils/payment/subscriptionService';
+import { getSubscription } from '@/utils/paymentService';
 import CheckoutForm from './payment/CheckoutForm';
 import PaymentPageHeader from './payment/PaymentPageHeader';
 

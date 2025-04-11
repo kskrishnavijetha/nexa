@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { hasActiveSubscription, getSubscription, shouldUpgrade } from '@/utils/paymentService';
+import { hasActiveSubscription } from '@/utils/paymentService';
 import BillingToggle from '@/components/pricing/BillingToggle';
 import PricingCard from '@/components/pricing/PricingCard';
 import { toast } from 'sonner';
@@ -22,25 +22,10 @@ const PricingPlans = () => {
   // Always use monthly billing now
   const billingCycle = 'monthly';
   const [checkingSubscription, setCheckingSubscription] = useState(true);
-  const [needsUpgrade, setNeedsUpgrade] = useState(false);
-  const [currentPlan, setCurrentPlan] = useState<string | null>(null);
-  const [expiredPlan, setExpiredPlan] = useState<string | null>(null);
 
   useEffect(() => {
     // Check subscription status when component mounts
     if (user && !loading) {
-      const subscription = getSubscription();
-      setCurrentPlan(subscription?.plan || null);
-      
-      const upgrade = shouldUpgrade();
-      setNeedsUpgrade(upgrade);
-      
-      // If subscription exists but needs upgrade, it means it has expired
-      if (subscription && upgrade) {
-        setExpiredPlan(subscription.plan);
-        toast.warning(`Your ${subscription.plan} plan has expired. Please renew or select a new plan.`);
-      }
-      
       setCheckingSubscription(false);
     } else if (!loading && !user) {
       setCheckingSubscription(false);
@@ -63,15 +48,9 @@ const PricingPlans = () => {
     }
   };
 
-  const getButtonText = (plan: string) => {
+  const getButtonText = () => {
     if (!user) return 'Sign Up & Subscribe';
-    if (expiredPlan === plan) return 'Renew Plan';
-    if (currentPlan === plan && !needsUpgrade) return 'Current Plan';
     return hasActiveSubscription() ? 'Change Plan' : 'Subscribe';
-  };
-
-  const isCurrentPlan = (plan: string) => {
-    return currentPlan === plan && !needsUpgrade;
   };
 
   if (loading || checkingSubscription) {
@@ -93,14 +72,6 @@ const PricingPlans = () => {
         
         <BillingToggle />
         
-        {user && needsUpgrade && expiredPlan && (
-          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-            <p className="text-amber-700 font-medium">
-              Your {expiredPlan} plan has expired. Please renew or select a new plan to continue using all features.
-            </p>
-          </div>
-        )}
-        
         {user && !hasActiveSubscription() && (
           <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
             <p className="text-amber-700">
@@ -117,10 +88,8 @@ const PricingPlans = () => {
           description="Get started with basic compliance checks"
           price={formatPrice(pricing.free[billingCycle], billingCycle)}
           features={freeFeatures}
-          buttonText={getButtonText('free')}
-          buttonVariant={isCurrentPlan('free') ? "secondary" : "outline"}
-          buttonDisabled={isCurrentPlan('free')}
-          highlighted={expiredPlan === 'free'}
+          buttonText={getButtonText()}
+          buttonVariant="outline"
           onSelectPlan={() => handleSelectPlan('free')}
         />
 
@@ -130,10 +99,7 @@ const PricingPlans = () => {
           description="Essential compliance tools for small businesses"
           price={formatPrice(pricing.basic[billingCycle], billingCycle)}
           features={basicFeatures}
-          buttonText={getButtonText('basic')}
-          buttonDisabled={isCurrentPlan('basic')}
-          buttonVariant={isCurrentPlan('basic') ? "secondary" : "default"}
-          highlighted={expiredPlan === 'basic'}
+          buttonText={getButtonText()}
           onSelectPlan={() => handleSelectPlan('basic')}
         />
 
@@ -143,11 +109,8 @@ const PricingPlans = () => {
           description="Advanced compliance for growing organizations"
           price={formatPrice(pricing.pro[billingCycle], billingCycle)}
           features={proFeatures}
-          isRecommended={!needsUpgrade || currentPlan !== 'free'}
-          buttonText={getButtonText('pro')}
-          buttonDisabled={isCurrentPlan('pro')}
-          buttonVariant={isCurrentPlan('pro') ? "secondary" : "default"}
-          highlighted={expiredPlan === 'pro'}
+          isRecommended={true}
+          buttonText={getButtonText()}
           onSelectPlan={() => handleSelectPlan('pro')}
         />
 
@@ -157,10 +120,7 @@ const PricingPlans = () => {
           description="Complete compliance solution for large enterprises"
           price={formatPrice(pricing.enterprise[billingCycle], billingCycle)}
           features={enterpriseFeatures}
-          buttonText={getButtonText('enterprise')}
-          buttonDisabled={isCurrentPlan('enterprise')}
-          buttonVariant={isCurrentPlan('enterprise') ? "secondary" : "default"}
-          highlighted={expiredPlan === 'enterprise'}
+          buttonText={getButtonText()}
           onSelectPlan={() => handleSelectPlan('enterprise')}
         />
       </div>

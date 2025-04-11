@@ -10,10 +10,7 @@ export {
   hasActiveSubscription,
   hasScansRemaining,
   recordScanUsage,
-  shouldUpgrade,
-  getScansRemaining,
-  hasScanLimitReached,
-  isApproachingScanLimit
+  shouldUpgrade
 } from './payment/subscriptionService';
 
 // Export type separately to avoid TypeScript isolatedModules error
@@ -22,8 +19,7 @@ export type { SubscriptionInfo } from './payment/subscriptionService';
 // Export from paypalService
 export {
   loadPayPalScript,
-  createPayPalButtons,
-  isPayPalSDKLoaded
+  createPayPalButtons
 } from './payment/paypalService';
 
 // Export from paymentProcessor

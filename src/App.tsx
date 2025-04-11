@@ -1,84 +1,45 @@
 
 import React from 'react';
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
-import { ThemeProvider } from 'next-themes';
-import { Toaster } from 'sonner';
-
-import Layout from './components/layout/Layout';
-import NotFound from './pages/NotFound';
 import Index from './pages/Index';
-import Dashboard from './pages/Dashboard';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import PricingPlans from './pages/PricingPlans';
+import Dashboard from './pages/Dashboard';
 import DocumentAnalysis from './pages/DocumentAnalysis';
-import Payment from './pages/Payment';
-import Settings from './pages/Settings';
 import History from './pages/History';
-import GoogleServices from './pages/GoogleServices';
 import AuditReports from './pages/AuditReports';
+import GoogleServices from './pages/GoogleServices';
 import SlackMonitoring from './pages/SlackMonitoring';
+import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import { Toaster } from 'sonner';
+import Settings from './pages/Settings';
+import Layout from './components/layout/Layout';
 
-import './App.css';
-
-// Create a client
-const queryClient = new QueryClient();
-
-function App() {
+export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <ThemeProvider attribute="class">
-            <Routes>
-              <Route element={<Layout><Outlet /></Layout>}>
-                <Route index element={<Index />} />
-                <Route path="sign-in" element={<SignIn />} />
-                <Route path="sign-up" element={<SignUp />} />
-                <Route path="pricing" element={<PricingPlans />} />
-                <Route path="payment" element={<Payment />} />
-                
-                {/* Protected routes */}
-                <Route path="dashboard" element={<ProtectedRoute />}>
-                  <Route index element={<Dashboard />} />
-                </Route>
-                
-                <Route path="document-analysis" element={<ProtectedRoute />}>
-                  <Route index element={<DocumentAnalysis />} />
-                </Route>
-                
-                <Route path="history" element={<ProtectedRoute />}>
-                  <Route index element={<History />} />
-                </Route>
-                
-                <Route path="google-services" element={<ProtectedRoute />}>
-                  <Route index element={<GoogleServices />} />
-                </Route>
-                
-                <Route path="audit-reports" element={<ProtectedRoute />}>
-                  <Route index element={<AuditReports />} />
-                </Route>
-                
-                <Route path="slack-monitoring" element={<ProtectedRoute />}>
-                  <Route index element={<SlackMonitoring />} />
-                </Route>
-                
-                <Route path="settings" element={<ProtectedRoute />}>
-                  <Route index element={<Settings />} />
-                </Route>
-                
-                <Route path="*" element={<NotFound />} />
-              </Route>
-            </Routes>
-            <Toaster position="top-right" richColors />
-          </ThemeProvider>
-        </AuthProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <Toaster />
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/pricing" element={<PricingPlans />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/document-analysis" element={<DocumentAnalysis />} />
+            <Route path="/history" element={<History />} />
+            <Route path="/audit-reports" element={<AuditReports />} />
+            <Route path="/google-services" element={<GoogleServices />} />
+            <Route path="/slack-monitoring" element={<SlackMonitoring />} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
-
-export default App;

@@ -31,7 +31,7 @@ export const saveSubscription = (plan: string, paymentId: string, billingCycle: 
     scansUsed: 0,
     scansLimit: selectedTier.scans,
     expirationDate: expirationDate,
-    billingCycle: billingCycle
+    billingCycle: 'monthly' // Always monthly now
   };
   
   localStorage.setItem('subscription', JSON.stringify(subscription));
@@ -76,7 +76,7 @@ export const recordScanUsage = (): void => {
     
     // Check if scans limit reached
     if (subscription.scansUsed >= subscription.scansLimit) {
-      // Mark as inactive if scan limit reached (for free plan)
+      // Mark as inactive if it's a free plan and limit reached
       if (subscription.plan === 'free') {
         subscription.active = false;
       }
@@ -86,67 +86,17 @@ export const recordScanUsage = (): void => {
   }
 };
 
-// Check if user needs to upgrade (subscription expired or scan limit reached)
+// Check if user needs to upgrade (free plan with no scans left or expired)
 export const shouldUpgrade = (): boolean => {
   const subscription = getSubscription();
   
   if (!subscription) {
-    return true; // No subscription, needs to select a plan
+    return false; // No subscription yet, they'll be directed to pricing anyway
   }
   
-  // For free/basic/pro plans, check if scan limit reached
-  if (subscription.plan !== 'enterprise' && subscription.scansUsed >= subscription.scansLimit) {
-    return true;
-  }
-  
-  // Return true if subscription is not active (expired)
-  return !subscription.active;
-};
-
-// Get scans remaining count
-export const getScansRemaining = (): number => {
-  const subscription = getSubscription();
-  if (!subscription || !subscription.active) {
-    return 0;
-  }
-  
-  // For enterprise plan, return a large number to represent unlimited
-  if (subscription.plan === 'enterprise') {
-    return 999;
-  }
-  
-  return Math.max(0, subscription.scansLimit - subscription.scansUsed);
-};
-
-// Check if user has reached scan limit
-export const hasScanLimitReached = (): boolean => {
-  const subscription = getSubscription();
-  
-  if (!subscription || !subscription.active) {
-    return true;
-  }
-  
-  // Enterprise plan has unlimited scans
-  if (subscription.plan === 'enterprise') {
-    return false;
-  }
-  
-  return subscription.scansUsed >= subscription.scansLimit;
-};
-
-// Check if user is approaching scan limit (80% used)
-export const isApproachingScanLimit = (): boolean => {
-  const subscription = getSubscription();
-  
-  if (!subscription || !subscription.active) {
-    return false;
-  }
-  
-  // Enterprise plan has unlimited scans
-  if (subscription.plan === 'enterprise') {
-    return false;
-  }
-  
-  // Check if used 80% or more of available scans
-  return subscription.scansUsed >= (subscription.scansLimit * 0.8);
+  // If free plan and either expired or no scans left
+  return (
+    subscription.plan === 'free' && 
+    (!subscription.active || subscription.scansUsed >= subscription.scansLimit)
+  );
 };
