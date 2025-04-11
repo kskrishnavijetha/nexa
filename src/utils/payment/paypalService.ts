@@ -6,7 +6,7 @@ import { saveSubscription } from './subscriptionService';
 import type { PaymentResult } from './paymentProcessor';
 
 // PayPal client ID - Replace with your actual PayPal client ID
-const PAYPAL_CLIENT_ID = 'this paypal id client id';
+const PAYPAL_CLIENT_ID = 'AXKd2EHw7ySZihlaN06rqnABzzQdhD8ueu738V8iCtC93o8PwlZdjO7hwVITJgTsmjOq8dHJaC1vMMKT';
 
 // PayPal plan IDs - Updated with actual plan IDs for monthly only
 const PAYPAL_PLAN_IDS = {
