@@ -33,16 +33,28 @@ declare global {
  */
 export const loadPayPalScript = (): Promise<void> => {
   return new Promise((resolve, reject) => {
+    // Check if PayPal script is already loaded
     if (window.paypal) {
+      console.log('PayPal SDK already loaded, resolving');
       resolve();
       return;
     }
 
+    console.log('Loading PayPal SDK...');
     const script = document.createElement('script');
-    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription`;
+    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&components=buttons`;
     script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load PayPal SDK'));
+    
+    script.onload = () => {
+      console.log('PayPal SDK loaded successfully');
+      resolve();
+    };
+    
+    script.onerror = (error) => {
+      console.error('Failed to load PayPal SDK:', error);
+      reject(new Error('Failed to load PayPal SDK'));
+    };
+    
     document.body.appendChild(script);
   });
 };
@@ -65,13 +77,13 @@ export const createPayPalButtons = (
 
   // Clear existing buttons if any
   const container = document.getElementById(containerId);
-  if (container) {
-    container.innerHTML = '';
-  } else {
+  if (!container) {
     console.error(`Container with ID ${containerId} not found`);
     onError(new Error(`Container with ID ${containerId} not found`));
     return;
   }
+  
+  container.innerHTML = '';
 
   // Skip PayPal integration for free plan
   if (plan === 'free') {
@@ -90,7 +102,13 @@ export const createPayPalButtons = (
   console.log(`Creating PayPal buttons for plan: ${plan}, planId: ${planId}`);
 
   try {
-    window.paypal.Buttons({
+    if (!window.paypal?.Buttons) {
+      console.error('PayPal Buttons not available');
+      onError(new Error('PayPal Buttons not available'));
+      return;
+    }
+    
+    const paypalButtons = window.paypal.Buttons({
       style: {
         layout: 'vertical',
         color: 'blue',
@@ -112,9 +130,16 @@ export const createPayPalButtons = (
         console.error('PayPal error:', err);
         onError(err);
       }
-    }).render(`#${containerId}`);
+    });
     
-    console.log(`PayPal buttons rendered in #${containerId}`);
+    if (paypalButtons.isEligible()) {
+      console.log('PayPal buttons eligible for rendering');
+      paypalButtons.render(`#${containerId}`);
+      console.log(`PayPal buttons rendered in #${containerId}`);
+    } else {
+      console.error('PayPal buttons not eligible for this browser/device');
+      onError(new Error('PayPal not available for this browser/device'));
+    }
   } catch (error) {
     console.error('Error rendering PayPal buttons:', error);
     onError(error);

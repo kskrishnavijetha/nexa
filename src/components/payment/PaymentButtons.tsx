@@ -1,14 +1,14 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { 
   loadPayPalScript,
   createPayPalButtons
-} from '@/utils/payment/paypalService';
-import { saveSubscription } from '@/utils/payment/subscriptionService';
+} from '@/utils/paymentService';
+import { saveSubscription } from '@/utils/paymentService';
 import { toast } from 'sonner';
-import { shouldUpgrade } from '@/utils/payment/subscriptionService';
+import { shouldUpgrade } from '@/utils/paymentService';
 
 interface PaymentButtonsProps {
   onSuccess?: (paymentId: string) => void;
@@ -26,6 +26,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   billingCycle
 }) => {
   const paypalContainerRef = useRef<HTMLDivElement>(null);
+  const [paypalError, setPaypalError] = useState<string | null>(null);
   
   useEffect(() => {
     // For free tier, create a custom button instead of PayPal
@@ -41,6 +42,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
       try {
         console.log(`Initializing PayPal for tier: ${tier}, billing cycle: ${billingCycle}`);
         setLoading(true);
+        setPaypalError(null);
         await loadPayPalScript();
         
         // Create PayPal buttons
@@ -69,6 +71,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
           // On error handler
           (err) => {
             console.error('PayPal error:', err);
+            setPaypalError('Failed to load PayPal. Please try again later.');
             toast.error('PayPal payment failed. Please try again.');
             setLoading(false);
           }
@@ -76,6 +79,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
         setLoading(false);
       } catch (error) {
         console.error('Failed to load PayPal:', error);
+        setPaypalError('Failed to load PayPal. Please try again later.');
         toast.error('Failed to load PayPal. Please try again later.');
         setLoading(false);
       }
@@ -141,6 +145,27 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
           <span>Preparing payment options...</span>
         </div>
       )}
+      
+      {paypalError && (
+        <div className="text-red-500 text-center mb-4">
+          {paypalError}
+          <Button 
+            variant="outline" 
+            className="block mx-auto mt-2"
+            onClick={() => {
+              // Reset the error and try again
+              setPaypalError(null);
+              setLoading(false);
+              // Force re-render by toggling loading state
+              setLoading(true);
+              setTimeout(() => setLoading(false), 100);
+            }}
+          >
+            Retry
+          </Button>
+        </div>
+      )}
+      
       <div 
         id="paypal-button-container" 
         ref={paypalContainerRef}

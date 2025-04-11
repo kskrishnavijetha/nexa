@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { getSubscription, saveSubscription } from '@/utils/payment/subscriptionService';
+import { getSubscription } from '@/utils/paymentService';
 import PaymentTierSelector from './PaymentTierSelector';
 import PaymentBillingToggle from './PaymentBillingToggle';
 import PaymentButtons from './PaymentButtons';
@@ -42,16 +42,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     return pricing[tier as keyof typeof pricing]?.monthly || 0;
   };
 
-  const handleSuccess = (paymentId: string) => {
-    // Create local subscription record
-    saveSubscription(selectedTier, paymentId, 'monthly');
-    
-    // Call the onSuccess callback
-    if (onSuccess) {
-      onSuccess(paymentId);
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="space-y-4">
@@ -75,7 +65,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           }
         </p>
         <PaymentButtons 
-          onSuccess={handleSuccess}
+          onSuccess={onSuccess}
           tier={selectedTier}
           loading={loading}
           setLoading={setLoading}
