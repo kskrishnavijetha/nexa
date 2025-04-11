@@ -38,7 +38,10 @@ export const generateReportPDF = async (
         });
         
         // Break down processing into micro-tasks to avoid UI blocking
-        const tasks = [
+        // Define our task result type that can be string or Blob
+        type TaskResult = string | Blob;
+        
+        const tasks: Array<() => Promise<TaskResult>> = [
           // Task 1: Document Header
           async () => {
             // Set font size and styles
@@ -214,16 +217,13 @@ export const generateReportPDF = async (
           }
         ];
         
-        // FIX: Define a union type for our task results that includes both string and Blob
-        type TaskResult = string | Blob;
-        
-        // FIX: Change the executeInChunks call to use the correct type
+        // Execute tasks in small chunks with 1 task per chunk to prevent UI blocking
         const results = await executeInChunks<TaskResult>(tasks, 1, (processed, total) => {
           const percent = Math.floor((processed / total) * 80);
           console.log(`PDF generation progress: ${percent}%`);
         });
         
-        // FIX: The last task returns the PDF blob, cast it properly
+        // The last task returns the PDF blob
         const pdfBlob = results[results.length - 1] as Blob;
         
         resolve({
