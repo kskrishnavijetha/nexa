@@ -5,9 +5,9 @@ import { Loader2 } from 'lucide-react';
 import { 
   loadPayPalScript,
   createPayPalButtons
-} from '@/utils/paymentService';
+} from '@/utils/payment/paypalService';
 import { toast } from 'sonner';
-import { shouldUpgrade } from '@/utils/paymentService';
+import { shouldUpgrade } from '@/utils/payment/subscriptionService';
 
 interface PaymentButtonsProps {
   onSuccess?: (paymentId: string) => void;

@@ -1,11 +1,11 @@
 
 import React, { useState, useEffect } from 'react';
-import { getSubscription } from '@/utils/paymentService';
+import { getSubscription } from '@/utils/payment/subscriptionService';
 import PaymentTierSelector from './PaymentTierSelector';
 import PaymentBillingToggle from './PaymentBillingToggle';
 import PaymentButtons from './PaymentButtons';
 import PaymentSummary from './PaymentSummary';
-import { getPrice } from '@/utils/pricingData';
+import { pricing } from '@/components/pricing/PricingData';
 
 interface CheckoutFormProps {
   onSuccess?: (paymentId: string) => void;
@@ -39,7 +39,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   // Helper function to get price for the selected tier
   const getPriceForTier = (tier: string) => {
-    return getPrice(tier, 'monthly');
+    return pricing[tier as keyof typeof pricing]?.monthly || 0;
   };
 
   const handleSuccess = (paymentId: string) => {
