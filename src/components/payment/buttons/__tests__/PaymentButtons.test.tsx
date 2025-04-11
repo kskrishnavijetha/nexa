@@ -3,11 +3,11 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi } from 'vitest';
 import { toast } from 'sonner';
-import PaymentButtons from '../PaymentButtons';
+import PaymentButtons from '../../PaymentButtons';
 import * as paymentService from '@/utils/paymentService';
 
 // Mock child components
-vi.mock('../FreePlanButton', () => ({
+vi.mock('../../buttons/FreePlanButton', () => ({
   default: ({ onSuccess, loading, setLoading }: any) => (
     <button 
       data-testid="free-plan-button"
@@ -18,7 +18,7 @@ vi.mock('../FreePlanButton', () => ({
   )
 }));
 
-vi.mock('../PayPalContainer', () => ({
+vi.mock('../../buttons/PayPalContainer', () => ({
   default: (props: any) => (
     <div data-testid="paypal-container">
       <button 
@@ -37,7 +37,7 @@ vi.mock('../PayPalContainer', () => ({
   )
 }));
 
-vi.mock('../usePayPalState', () => ({
+vi.mock('../../buttons/usePayPalState', () => ({
   usePayPalState: () => ({
     paypalError: null,
     setPaypalError: vi.fn(),
