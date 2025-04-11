@@ -78,7 +78,7 @@ describe('usePayPalState', () => {
   test('resets state when tier changes', () => {
     const { result, rerender } = renderHook(
       ({ tier, billingCycle }) => usePayPalState(tier, billingCycle),
-      { initialProps: { tier: 'basic', billingCycle: 'monthly' } }
+      { initialProps: { tier: 'basic', billingCycle: 'monthly' as const } }
     );
 
     // Set some state to verify it gets reset
@@ -89,7 +89,7 @@ describe('usePayPalState', () => {
     });
 
     // Change the tier prop
-    rerender({ tier: 'pro', billingCycle: 'monthly' });
+    rerender({ tier: 'pro', billingCycle: 'monthly' as const });
 
     // Check if state was reset
     expect(result.current.retryCount).toBe(0);
@@ -100,7 +100,7 @@ describe('usePayPalState', () => {
   test('resets state when billing cycle changes', () => {
     const { result, rerender } = renderHook(
       ({ tier, billingCycle }) => usePayPalState(tier, billingCycle),
-      { initialProps: { tier: 'basic', billingCycle: 'monthly' } }
+      { initialProps: { tier: 'basic', billingCycle: 'monthly' as const } }
     );
 
     // Set some state to verify it gets reset
@@ -111,7 +111,7 @@ describe('usePayPalState', () => {
     });
 
     // Change the billing cycle prop
-    rerender({ tier: 'basic', billingCycle: 'annually' });
+    rerender({ tier: 'basic', billingCycle: 'annually' as const });
 
     // Check if state was reset
     expect(result.current.retryCount).toBe(0);
