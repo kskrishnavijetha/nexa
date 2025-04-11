@@ -22,7 +22,8 @@ export type { SubscriptionInfo } from './payment/subscriptionService';
 // Export from paypalService
 export {
   loadPayPalScript,
-  createPayPalButtons
+  createPayPalButtons,
+  isPayPalSDKLoaded
 } from './payment/paypalService';
 
 // Export from paymentProcessor

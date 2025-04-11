@@ -4,7 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { 
   loadPayPalScript,
-  createPayPalButtons
+  createPayPalButtons,
+  isPayPalSDKLoaded
 } from '@/utils/paymentService';
 import { saveSubscription } from '@/utils/paymentService';
 import { toast } from 'sonner';
@@ -28,6 +29,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const [paypalError, setPaypalError] = useState<string | null>(null);
   const [paypalButtonsRendered, setPaypalButtonsRendered] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   
   const initializePayPal = async () => {
     if (tier === 'free') return;
@@ -37,11 +39,16 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
       setLoading(true);
       setPaypalError(null);
       
+      // Load the PayPal SDK
       await loadPayPalScript();
       console.log("PayPal script loaded successfully");
       
+      if (!isPayPalSDKLoaded()) {
+        throw new Error('PayPal SDK did not load correctly');
+      }
+      
       // Create PayPal buttons
-      createPayPalButtons(
+      const buttonsRendered = await createPayPalButtons(
         'paypal-button-container',
         tier,
         billingCycle,
@@ -72,7 +79,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
         }
       );
       
-      setPaypalButtonsRendered(true);
+      setPaypalButtonsRendered(buttonsRendered);
       setLoading(false);
       
     } catch (error) {
@@ -83,13 +90,27 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
     }
   };
   
+  // Effect for automatic retry
+  useEffect(() => {
+    if (paypalError && retryCount < 2) {
+      const timer = setTimeout(() => {
+        console.log(`Auto-retry attempt ${retryCount + 1}`);
+        setRetryCount(prev => prev + 1);
+        setPaypalButtonsRendered(false);
+        initializePayPal();
+      }, 3000); // Wait 3 seconds before retry
+      
+      return () => clearTimeout(timer);
+    }
+  }, [paypalError, retryCount]);
+  
   useEffect(() => {
     // Only initialize PayPal for paid plans and if buttons aren't already rendered
     if (tier !== 'free' && !paypalButtonsRendered && !loading) {
       // Small delay to ensure the container is ready
       const timer = setTimeout(() => {
         initializePayPal();
-      }, 100);
+      }, 300);
       
       return () => clearTimeout(timer);
     }
@@ -99,8 +120,9 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
       if (paypalContainerRef.current) {
         paypalContainerRef.current.innerHTML = '';
       }
+      setPaypalButtonsRendered(false);
     };
-  }, [tier, billingCycle, paypalButtonsRendered]);
+  }, [tier, billingCycle]);
   
   // For free tier, use a regular button
   if (tier === 'free') {
