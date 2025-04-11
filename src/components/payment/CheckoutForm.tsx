@@ -3,14 +3,14 @@ import React, { useState, useEffect } from 'react';
 import { getSubscription } from '@/utils/paymentService';
 import PaymentTierSelector from './PaymentTierSelector';
 import PaymentBillingToggle from './PaymentBillingToggle';
-import PaymentButtons from './PaymentButtons';
 import PaymentSummary from './PaymentSummary';
 import { getPrice } from '@/utils/pricingData';
+import PaymentButtons from './buttons/PaymentButtons';
 
 interface CheckoutFormProps {
   onSuccess?: (paymentId: string) => void;
   initialPlan?: string | null;
-  initialBillingCycle?: 'monthly' | 'annually';
+  initialBillingCycle?: 'monthly';
 }
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ 
@@ -79,8 +79,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         <PaymentButtons 
           onSuccess={handleSuccess}
           tier={selectedTier}
-          loading={loading}
-          setLoading={setLoading}
           billingCycle={billingCycle}
         />
       </div>
