@@ -1,3 +1,4 @@
+
 /**
  * Service for PayPal payment processing
  */
@@ -119,3 +120,4 @@ export const createPayPalButtons = (
     onError(error);
   }
 };
+
