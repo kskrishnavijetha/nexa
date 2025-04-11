@@ -36,7 +36,7 @@ export const createPayPalButtons = (
       return;
     }
 
-    // Clear existing buttons if any
+    // Find the container element
     const container = document.getElementById(containerId);
     if (!container) {
       console.error(`Container with ID ${containerId} not found`);
@@ -45,6 +45,7 @@ export const createPayPalButtons = (
       return;
     }
     
+    // Clear existing buttons if any
     container.innerHTML = '';
 
     // Skip PayPal integration for free plan
@@ -74,6 +75,7 @@ export const createPayPalButtons = (
         return;
       }
       
+      // Create buttons configuration
       const paypalButtons = window.paypal.Buttons({
         style: {
           layout: 'vertical',

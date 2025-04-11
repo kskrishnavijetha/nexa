@@ -30,15 +30,7 @@ export const isPayPalSDKLoaded = (): boolean => {
  */
 export const loadPayPalScript = (): Promise<void> => {
   return new Promise((resolve, reject) => {
-    // First, remove any existing PayPal script to avoid conflicts
-    const existingScript = document.querySelector('script[src*="paypal.com/sdk/js"]');
-    if (existingScript) {
-      document.body.removeChild(existingScript);
-      paypalSDKLoaded = false;
-      console.log('Removed existing PayPal script');
-    }
-
-    // Check if PayPal script is already loaded
+    // First check if PayPal script is already loaded
     if (isPayPalSDKLoaded()) {
       console.log('PayPal SDK already loaded, resolving immediately');
       resolve();
@@ -56,24 +48,39 @@ export const loadPayPalScript = (): Promise<void> => {
     console.log('Loading PayPal SDK...');
     
     try {
+      // Remove any existing script to avoid conflicts
+      const existingScript = document.querySelector('script[src*="paypal.com/sdk/js"]');
+      if (existingScript) {
+        document.body.removeChild(existingScript);
+        paypalSDKLoaded = false;
+        console.log('Removed existing PayPal script');
+      }
+      
+      // Create new script element
       const script = document.createElement('script');
+      
+      // Use currency=USD and intent=subscription with buttons component
+      // Add debug=true to help with troubleshooting
       script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&components=buttons&disable-funding=credit,card&debug=true`;
       script.async = true;
       
       script.onload = () => {
         console.log('PayPal SDK loaded successfully');
-        paypalSDKLoaded = true;
-        paypalSDKLoading = false;
         
         // Add a small delay to ensure PayPal is fully initialized
         setTimeout(() => {
+          paypalSDKLoaded = true;
+          paypalSDKLoading = false;
+          
           // Resolve this promise
           resolve();
           
           // Resolve any queued promises
           loadCallbacks.forEach(callback => callback.resolve());
           loadCallbacks = [];
-        }, 500);
+          
+          console.log('PayPal initialization complete, SDK ready to use');
+        }, 1000); // Increase timeout to 1000ms to ensure proper initialization
       };
       
       script.onerror = (error) => {

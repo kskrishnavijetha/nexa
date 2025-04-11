@@ -30,6 +30,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   const [paypalError, setPaypalError] = useState<string | null>(null);
   const [paypalButtonsRendered, setPaypalButtonsRendered] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const maxRetries = 3;
   
   const initializePayPal = async () => {
     if (tier === 'free') return;
@@ -39,51 +40,73 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
       setLoading(true);
       setPaypalError(null);
       
-      // Load the PayPal SDK
-      await loadPayPalScript();
-      console.log("PayPal script loaded successfully, waiting for DOM update");
+      // Clear the container before attempting to render
+      if (paypalContainerRef.current) {
+        paypalContainerRef.current.innerHTML = '';
+      }
+      
+      // Load the PayPal SDK with error handling
+      try {
+        await loadPayPalScript();
+        console.log("PayPal script loaded successfully, waiting for DOM update");
+      } catch (error) {
+        console.error("Failed to load PayPal script:", error);
+        throw new Error("PayPal SDK failed to load. Please check your internet connection and try again.");
+      }
       
       // Give the DOM a moment to update after script load
       setTimeout(async () => {
-        if (!isPayPalSDKLoaded()) {
-          throw new Error('PayPal SDK did not load correctly');
-        }
-        
-        // Create PayPal buttons
-        const buttonsRendered = await createPayPalButtons(
-          'paypal-button-container',
-          tier,
-          billingCycle,
-          // On approve handler
-          async (data) => {
-            console.log('PayPal subscription approved:', data);
-            try {
-              // Save the subscription locally
-              const subscriptionId = data.subscriptionID || 'paypal_sub_id';
-              // Create a subscription record
-              saveSubscription(tier, subscriptionId, billingCycle);
-              
-              toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
-              onSuccess(subscriptionId);
-            } catch (error) {
-              console.error('Subscription processing error:', error);
-              toast.error('Failed to process subscription. Please try again.');
-            } finally {
+        try {
+          if (!isPayPalSDKLoaded()) {
+            throw new Error('PayPal SDK did not load correctly');
+          }
+          
+          if (!paypalContainerRef.current) {
+            throw new Error('PayPal container not found in DOM');
+          }
+          
+          // Create PayPal buttons
+          console.log("Creating PayPal buttons...");
+          const buttonsRendered = await createPayPalButtons(
+            'paypal-button-container',
+            tier,
+            billingCycle,
+            // On approve handler
+            async (data) => {
+              console.log('PayPal subscription approved:', data);
+              try {
+                // Save the subscription locally
+                const subscriptionId = data.subscriptionID || 'paypal_sub_id';
+                // Create a subscription record
+                saveSubscription(tier, subscriptionId, billingCycle);
+                
+                toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
+                onSuccess(subscriptionId);
+              } catch (error) {
+                console.error('Subscription processing error:', error);
+                toast.error('Failed to process subscription. Please try again.');
+              } finally {
+                setLoading(false);
+              }
+            },
+            // On error handler
+            (err) => {
+              console.error('PayPal error:', err);
+              setPaypalError('Failed to load PayPal. Please try again later.');
+              toast.error('PayPal payment failed. Please try again.');
               setLoading(false);
             }
-          },
-          // On error handler
-          (err) => {
-            console.error('PayPal error:', err);
-            setPaypalError('Failed to load PayPal. Please try again later.');
-            toast.error('PayPal payment failed. Please try again.');
-            setLoading(false);
-          }
-        );
-        
-        setPaypalButtonsRendered(buttonsRendered);
-        setLoading(false);
-      }, 1000);
+          );
+          
+          console.log("PayPal buttons creation result:", buttonsRendered ? "Success" : "Failed");
+          setPaypalButtonsRendered(buttonsRendered);
+          setLoading(false);
+        } catch (error) {
+          console.error("Error setting up PayPal buttons:", error);
+          setPaypalError(`Failed to set up PayPal: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          setLoading(false);
+        }
+      }, 1500); // Increased timeout to ensure DOM is ready
       
     } catch (error) {
       console.error('Failed to initialize PayPal:', error);
@@ -95,23 +118,30 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   
   // Effect for automatic retry
   useEffect(() => {
-    if (paypalError && retryCount < 2) {
+    if (paypalError && retryCount < maxRetries) {
       const timer = setTimeout(() => {
-        console.log(`Auto-retry attempt ${retryCount + 1}`);
+        console.log(`Auto-retry attempt ${retryCount + 1} of ${maxRetries}`);
         setRetryCount(prev => prev + 1);
         setPaypalButtonsRendered(false);
         initializePayPal();
       }, 3000); // Wait 3 seconds before retry
       
       return () => clearTimeout(timer);
+    } else if (retryCount >= maxRetries && paypalError) {
+      toast.error("Maximum retry attempts reached. Please refresh the page and try again.");
     }
   }, [paypalError, retryCount]);
   
+  // Initialize PayPal when component mounts or tier/billing cycle changes
   useEffect(() => {
     if (paypalContainerRef.current) {
       paypalContainerRef.current.innerHTML = '';
       setPaypalButtonsRendered(false);
     }
+    
+    // Reset retry count when component rerenders with new props
+    setRetryCount(0);
+    setPaypalError(null);
     
     // Only initialize PayPal for paid plans and if buttons aren't already rendered
     if (tier !== 'free' && !paypalButtonsRendered && !loading) {

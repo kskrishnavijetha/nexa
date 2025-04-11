@@ -40,13 +40,36 @@ function App() {
                 <Route path="sign-up" element={<SignUp />} />
                 <Route path="pricing" element={<PricingPlans />} />
                 <Route path="payment" element={<Payment />} />
-                <Route path="dashboard" element={<ProtectedRoute />} />
-                <Route path="document-analysis" element={<ProtectedRoute />} />
-                <Route path="history" element={<ProtectedRoute />} />
-                <Route path="google-services" element={<ProtectedRoute />} />
-                <Route path="audit-reports" element={<ProtectedRoute />} />
-                <Route path="slack-monitoring" element={<ProtectedRoute />} />
-                <Route path="settings" element={<ProtectedRoute />} />
+                
+                {/* Protected routes */}
+                <Route path="dashboard" element={<ProtectedRoute />}>
+                  <Route index element={<Dashboard />} />
+                </Route>
+                
+                <Route path="document-analysis" element={<ProtectedRoute />}>
+                  <Route index element={<DocumentAnalysis />} />
+                </Route>
+                
+                <Route path="history" element={<ProtectedRoute />}>
+                  <Route index element={<History />} />
+                </Route>
+                
+                <Route path="google-services" element={<ProtectedRoute />}>
+                  <Route index element={<GoogleServices />} />
+                </Route>
+                
+                <Route path="audit-reports" element={<ProtectedRoute />}>
+                  <Route index element={<AuditReports />} />
+                </Route>
+                
+                <Route path="slack-monitoring" element={<ProtectedRoute />}>
+                  <Route index element={<SlackMonitoring />} />
+                </Route>
+                
+                <Route path="settings" element={<ProtectedRoute />}>
+                  <Route index element={<Settings />} />
+                </Route>
+                
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
