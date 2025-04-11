@@ -10,7 +10,9 @@ export {
   hasActiveSubscription,
   hasScansRemaining,
   recordScanUsage,
-  shouldUpgrade
+  shouldUpgrade,
+  getScansRemaining,
+  hasScanLimitReached
 } from './payment/subscriptionService';
 
 // Export type separately to avoid TypeScript isolatedModules error

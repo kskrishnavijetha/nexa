@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { getSubscription } from '@/utils/payment/subscriptionService';
+import { getSubscription, saveSubscription } from '@/utils/payment/subscriptionService';
 import PaymentTierSelector from './PaymentTierSelector';
 import PaymentBillingToggle from './PaymentBillingToggle';
 import PaymentButtons from './PaymentButtons';
@@ -44,14 +44,12 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   const handleSuccess = (paymentId: string) => {
     // Create local subscription record
-    import('@/utils/payment/subscriptionService').then(({ saveSubscription }) => {
-      saveSubscription(selectedTier, paymentId, 'monthly');
-      
-      // Call the onSuccess callback
-      if (onSuccess) {
-        onSuccess(paymentId);
-      }
-    });
+    saveSubscription(selectedTier, paymentId, 'monthly');
+    
+    // Call the onSuccess callback
+    if (onSuccess) {
+      onSuccess(paymentId);
+    }
   };
 
   return (

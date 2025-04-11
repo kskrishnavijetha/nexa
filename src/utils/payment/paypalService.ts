@@ -79,7 +79,7 @@ export const createPayPalButtons = (
     return;
   }
 
-  // Get plan ID based on selected plan (always using monthly now)
+  // Get plan ID based on selected plan and billing cycle
   const planId = PAYPAL_PLAN_IDS[plan as keyof typeof PAYPAL_PLAN_IDS]?.monthly;
   if (!planId) {
     console.error(`No PayPal plan ID found for plan: ${plan}`);
@@ -104,7 +104,7 @@ export const createPayPalButtons = (
         });
       },
       onApprove: function(data: any, actions: any) {
-        console.log('Subscription approved:', data);
+        console.log('PayPal subscription approved:', data);
         // Handle subscription success
         onApprove(data);
       },

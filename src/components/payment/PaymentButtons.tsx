@@ -6,6 +6,7 @@ import {
   loadPayPalScript,
   createPayPalButtons
 } from '@/utils/payment/paypalService';
+import { saveSubscription } from '@/utils/payment/subscriptionService';
 import { toast } from 'sonner';
 import { shouldUpgrade } from '@/utils/payment/subscriptionService';
 
@@ -53,6 +54,9 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
             try {
               // Save the subscription locally
               const subscriptionId = data.subscriptionID || 'paypal_sub_id';
+              // Create a subscription record
+              const subscription = saveSubscription(tier, subscriptionId, billingCycle);
+              
               toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
               onSuccess(subscriptionId);
             } catch (error) {
@@ -110,6 +114,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
             
             // For free tier, just create a local subscription record
             const subscriptionId = 'free_' + Math.random().toString(36).substring(2, 15);
+            saveSubscription('free', subscriptionId, 'monthly');
             toast.success('Free plan activated!');
             onSuccess(subscriptionId);
           } catch (error) {
