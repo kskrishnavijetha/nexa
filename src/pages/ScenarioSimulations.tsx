@@ -15,12 +15,11 @@ const sampleReport: ComplianceReport = {
   documentName: "Sample Compliance Document",
   industry: "Healthcare",
   timestamp: new Date().toISOString(),
-  scores: {
-    overall: 78,
-    gdpr: 82,
-    hipaa: 75,
-    soc2: 76
-  },
+  overallScore: 78,
+  gdprScore: 82,
+  hipaaScore: 75,
+  soc2Score: 76,
+  summary: "Sample summary for demonstration purposes.",
   risks: []
 };
 
