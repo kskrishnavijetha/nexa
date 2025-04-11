@@ -12,6 +12,7 @@ import History from './pages/History';
 import AuditReports from './pages/AuditReports';
 import GoogleServices from './pages/GoogleServices';
 import SlackMonitoring from './pages/SlackMonitoring';
+import ScenarioSimulations from './pages/ScenarioSimulations';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toaster } from 'sonner';
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="/document-analysis" element={<DocumentAnalysis />} />
             <Route path="/history" element={<History />} />
             <Route path="/audit-reports" element={<AuditReports />} />
+            <Route path="/scenario-simulations" element={<ScenarioSimulations />} />
             <Route path="/google-services" element={<GoogleServices />} />
             <Route path="/slack-monitoring" element={<SlackMonitoring />} />
             <Route path="/settings" element={<Settings />} />

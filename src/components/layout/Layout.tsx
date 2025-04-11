@@ -4,7 +4,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { BarChart, FileText, History, Settings, ClipboardList, MessageSquare, Palette } from 'lucide-react';
+import { BarChart, FileText, History, Settings, ClipboardList, MessageSquare, Palette, Radar } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface LayoutProps {
@@ -67,6 +67,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       <Link to="/audit-reports" draggable="false">
                         <ClipboardList className="h-4 w-4 mr-2" />
                         Audit Reports
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === '/scenario-simulations'}>
+                      <Link to="/scenario-simulations" draggable="false">
+                        <Radar className="h-4 w-4 mr-2" />
+                        Scenario Simulation
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
