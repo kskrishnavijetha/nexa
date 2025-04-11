@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { getSubscription } from '@/utils/paymentService';
 import PaymentTierSelector from './PaymentTierSelector';
-import PaymentBillingToggle from './PaymentBillingToggle';
 import PaymentButtons from './PaymentButtons';
 import PaymentSummary from './PaymentSummary';
 import { getPrice } from '@/utils/pricingData';
@@ -59,8 +58,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Select a Plan</h3>
         
-        <PaymentBillingToggle />
-        
         <PaymentTierSelector
           selectedTier={selectedTier}
           billingCycle={billingCycle}
@@ -73,7 +70,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         <p className="text-sm text-muted-foreground mb-4">
           {selectedTier === 'free' 
             ? 'Activate your free plan to start analyzing documents'
-            : 'Set up your subscription with PayPal for quick and secure payments.'
+            : 'Subscribe to continue with premium features'
           }
         </p>
         <PaymentButtons 
