@@ -31,7 +31,7 @@ export const saveSubscription = (plan: string, paymentId: string, billingCycle: 
     scansUsed: 0,
     scansLimit: selectedTier.scans,
     expirationDate: expirationDate,
-    billingCycle: 'monthly' // Always monthly now
+    billingCycle: billingCycle
   };
   
   localStorage.setItem('subscription', JSON.stringify(subscription));
@@ -76,25 +76,38 @@ export const recordScanUsage = (): void => {
     
     // Check if scans limit reached
     if (subscription.scansUsed >= subscription.scansLimit) {
-      // Mark as inactive if it's a free plan and limit reached
-      if (subscription.plan === 'free') {
-        subscription.active = false;
-      }
+      // Mark as inactive if scan limit reached (for all plans)
+      subscription.active = false;
     }
     
     localStorage.setItem('subscription', JSON.stringify(subscription));
   }
 };
 
-// Check if user needs to upgrade (subscription expired or needs renewal)
+// Check if user needs to upgrade (subscription expired or scan limit reached)
 export const shouldUpgrade = (): boolean => {
   const subscription = getSubscription();
   
   if (!subscription) {
-    return false; // No subscription yet, they'll be directed to pricing anyway
+    return true; // No subscription, needs to select a plan
   }
   
-  // Return true if subscription is not active (expired for any plan)
+  // Return true if subscription is not active (expired or scan limit reached)
   return !subscription.active;
 };
 
+// Get scans remaining count
+export const getScansRemaining = (): number => {
+  const subscription = getSubscription();
+  if (!subscription || !subscription.active) {
+    return 0;
+  }
+  
+  return Math.max(0, subscription.scansLimit - subscription.scansUsed);
+};
+
+// Check if user has reached scan limit
+export const hasScanLimitReached = (): boolean => {
+  const subscription = getSubscription();
+  return !!subscription && subscription.scansUsed >= subscription.scansLimit;
+};

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { GoogleService, ScanResults, ScanViolation } from '@/components/google/types';
 import { SupportedLanguage } from '@/utils/language';
@@ -7,10 +8,13 @@ import { toast } from 'sonner';
 import { useScanState } from './google/useScanState';
 import { useRealTimeSimulation } from './google/useRealTimeSimulation';
 import { useFallbackResults } from './google/useFallbackResults';
+import { hasScansRemaining, recordScanUsage, getScansRemaining, getSubscription } from '@/utils/payment/subscriptionService';
+import { useNavigate } from 'react-router-dom';
 
 export function useServiceScanner() {
   const scanState = useScanState();
   const { generateIndustrySpecificFallbackResults } = useFallbackResults();
+  const navigate = useNavigate();
   
   // Setup real-time simulation
   useRealTimeSimulation(
@@ -25,6 +29,24 @@ export function useServiceScanner() {
     language?: SupportedLanguage,
     region?: Region
   ) => {
+    // Check if user has scans remaining before starting the scan
+    if (!hasScansRemaining()) {
+      const subscription = getSubscription();
+      const plan = subscription?.plan || 'free';
+      
+      toast.error(`You've reached the scan limit for your ${plan} plan. Please upgrade to continue scanning.`, {
+        action: {
+          label: 'View Plans',
+          onClick: () => navigate('/pricing'),
+        },
+        duration: 8000,
+      });
+      
+      // Redirect to pricing page
+      navigate('/pricing');
+      return;
+    }
+    
     if (!industry) {
       toast.error('Please select an industry before scanning');
       return;
@@ -95,6 +117,32 @@ export function useServiceScanner() {
       });
       
       console.log('Processed violations for industry:', industry, violations);
+      
+      // Record scan usage
+      recordScanUsage();
+      
+      // Check remaining scans after recording usage
+      const remainingScans = getScansRemaining();
+      if (remainingScans <= 3 && remainingScans > 0) {
+        toast.warning(`You have ${remainingScans} scan${remainingScans === 1 ? '' : 's'} remaining in your current plan.`, {
+          action: {
+            label: 'View Plans',
+            onClick: () => navigate('/pricing'),
+          },
+          duration: 8000,
+        });
+      } else if (remainingScans === 0) {
+        const subscription = getSubscription();
+        const plan = subscription?.plan || 'free';
+        
+        toast.error(`You've reached the scan limit for your ${plan} plan. This was your last scan.`, {
+          action: {
+            label: 'Upgrade Now',
+            onClick: () => navigate('/pricing'),
+          },
+          duration: 10000,
+        });
+      }
       
       // Set results in state
       scanState.setLastScanTime(new Date());
