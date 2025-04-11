@@ -47,8 +47,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Select a Plan</h3>
         
-        <PaymentBillingToggle />
-        
         <PaymentTierSelector
           selectedTier={selectedTier}
           billingCycle={billingCycle}

@@ -102,6 +102,7 @@ export const createPayPalButtons = (
   console.log(`Creating PayPal buttons for plan: ${plan}, planId: ${planId}`);
 
   try {
+    // Verify that window.paypal.Buttons exists
     if (!window.paypal?.Buttons) {
       console.error('PayPal Buttons not available');
       onError(new Error('PayPal Buttons not available'));
@@ -132,8 +133,9 @@ export const createPayPalButtons = (
       }
     });
     
+    console.log('Checking if PayPal buttons are eligible for rendering');
     if (paypalButtons.isEligible()) {
-      console.log('PayPal buttons eligible for rendering');
+      console.log(`PayPal buttons eligible, rendering in #${containerId}`);
       paypalButtons.render(`#${containerId}`);
       console.log(`PayPal buttons rendered in #${containerId}`);
     } else {
