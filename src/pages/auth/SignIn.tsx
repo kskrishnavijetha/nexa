@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { hasActiveSubscription } from '@/utils/paymentService';
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -32,7 +33,15 @@ const SignIn: React.FC = () => {
         toast.error(error.message);
       } else {
         toast.success('Signed in successfully');
-        navigate('/dashboard');
+        
+        // Check if user has an active subscription
+        if (hasActiveSubscription()) {
+          navigate('/dashboard');
+        } else {
+          // If no active subscription, redirect to pricing page
+          navigate('/pricing');
+          toast.info('Please select a subscription plan to continue');
+        }
       }
     } catch (error: any) {
       toast.error(error.message || 'An error occurred during sign in');

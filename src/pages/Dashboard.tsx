@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { shouldUpgrade } from '@/utils/paymentService';
+import { shouldUpgrade, hasActiveSubscription } from '@/utils/paymentService';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -16,6 +17,22 @@ const Dashboard = () => {
   const [hasData, setHasData] = useState<boolean>(false);
 
   useEffect(() => {
+    // Check if the user has an active subscription
+    if (!hasActiveSubscription()) {
+      toast.error('You need an active subscription to access the dashboard.', {
+        action: {
+          label: 'Subscribe',
+          onClick: () => navigate('/pricing'),
+        },
+        duration: 8000,
+      });
+      
+      // Redirect to pricing page
+      navigate('/pricing');
+      return;
+    }
+    
+    // Check if the free plan needs upgrading
     const needsUpgrade = shouldUpgrade();
     if (needsUpgrade) {
       toast.info('Your free plan usage is complete. Please upgrade to continue.', {
@@ -23,6 +40,7 @@ const Dashboard = () => {
           label: 'Upgrade',
           onClick: () => navigate('/pricing'),
         },
+        duration: 5000,
       });
     }
   }, [navigate]);
