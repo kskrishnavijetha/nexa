@@ -24,9 +24,9 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const scriptLoaded = useRef(false);
 
-  // Effect for PayPal integration for basic and pro tiers
+  // Effect for PayPal integration for paid tiers
   useEffect(() => {
-    if ((tier === 'basic' || tier === 'pro') && !scriptLoaded.current) {
+    if ((tier === 'basic' || tier === 'pro' || tier === 'enterprise') && !scriptLoaded.current) {
       const loadScript = async () => {
         try {
           await loadPayPalScript();
@@ -35,8 +35,19 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
             scriptLoaded.current = true;
             
             // Select the appropriate plan ID based on the tier
-            const planId = tier === 'basic' ? 'P-0G576384KT1375804M7UPCYY' : 'P-0F289070AR785993EM7UO47Y';
-            const containerId = tier === 'basic' ? 'paypal-button-container-P-0G576384KT1375804M7UPCYY' : 'paypal-button-container-P-0F289070AR785993EM7UO47Y';
+            let planId;
+            let containerId;
+            
+            if (tier === 'basic') {
+              planId = 'P-0G576384KT1375804M7UPCYY';
+              containerId = 'paypal-button-container-P-0G576384KT1375804M7UPCYY';
+            } else if (tier === 'pro') {
+              planId = 'P-0F289070AR785993EM7UO47Y';
+              containerId = 'paypal-button-container-P-0F289070AR785993EM7UO47Y';
+            } else if (tier === 'enterprise') {
+              planId = 'P-76C19200WU898035NM7UO5YQ';
+              containerId = 'paypal-button-container-P-76C19200WU898035NM7UO5YQ';
+            }
             
             window.paypal.Buttons({
               style: {
@@ -73,18 +84,24 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
     }
   }, [tier, onSuccess]);
 
-  // For free tier and enterprise tier, use a regular button
+  // For free tier, use a regular button
   const needsUpgrade = tier !== 'free' || shouldUpgrade();
   const buttonText = tier === 'free' 
     ? (needsUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan')
     : `Subscribe to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`;
   
-  // For basic and pro tiers, use PayPal buttons
-  if (tier === 'basic' || tier === 'pro') {
-    const containerId = tier === 'basic' 
-      ? 'paypal-button-container-P-0G576384KT1375804M7UPCYY' 
-      : 'paypal-button-container-P-0F289070AR785993EM7UO47Y';
-      
+  // For paid tiers, use PayPal buttons
+  if (tier === 'basic' || tier === 'pro' || tier === 'enterprise') {
+    let containerId;
+    
+    if (tier === 'basic') {
+      containerId = 'paypal-button-container-P-0G576384KT1375804M7UPCYY';
+    } else if (tier === 'pro') {
+      containerId = 'paypal-button-container-P-0F289070AR785993EM7UO47Y';
+    } else {
+      containerId = 'paypal-button-container-P-76C19200WU898035NM7UO5YQ';
+    }
+    
     return (
       <div className="w-full">
         <div id={containerId} ref={paypalContainerRef} className="w-full"></div>

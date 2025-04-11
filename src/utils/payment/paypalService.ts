@@ -1,4 +1,3 @@
-
 /**
  * Service for PayPal payment processing
  */
