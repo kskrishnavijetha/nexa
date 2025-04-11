@@ -76,8 +76,10 @@ export const recordScanUsage = (): void => {
     
     // Check if scans limit reached
     if (subscription.scansUsed >= subscription.scansLimit) {
-      // Mark as inactive if scan limit reached (for all plans)
-      subscription.active = false;
+      // Mark as inactive if scan limit reached (for free plan)
+      if (subscription.plan === 'free') {
+        subscription.active = false;
+      }
     }
     
     localStorage.setItem('subscription', JSON.stringify(subscription));
@@ -92,7 +94,12 @@ export const shouldUpgrade = (): boolean => {
     return true; // No subscription, needs to select a plan
   }
   
-  // Return true if subscription is not active (expired or scan limit reached)
+  // For free/basic/pro plans, check if scan limit reached
+  if (subscription.plan !== 'enterprise' && subscription.scansUsed >= subscription.scansLimit) {
+    return true;
+  }
+  
+  // Return true if subscription is not active (expired)
   return !subscription.active;
 };
 
@@ -103,11 +110,43 @@ export const getScansRemaining = (): number => {
     return 0;
   }
   
+  // For enterprise plan, return a large number to represent unlimited
+  if (subscription.plan === 'enterprise') {
+    return 999;
+  }
+  
   return Math.max(0, subscription.scansLimit - subscription.scansUsed);
 };
 
 // Check if user has reached scan limit
 export const hasScanLimitReached = (): boolean => {
   const subscription = getSubscription();
-  return !!subscription && subscription.scansUsed >= subscription.scansLimit;
+  
+  if (!subscription || !subscription.active) {
+    return true;
+  }
+  
+  // Enterprise plan has unlimited scans
+  if (subscription.plan === 'enterprise') {
+    return false;
+  }
+  
+  return subscription.scansUsed >= subscription.scansLimit;
+};
+
+// Check if user is approaching scan limit (80% used)
+export const isApproachingScanLimit = (): boolean => {
+  const subscription = getSubscription();
+  
+  if (!subscription || !subscription.active) {
+    return false;
+  }
+  
+  // Enterprise plan has unlimited scans
+  if (subscription.plan === 'enterprise') {
+    return false;
+  }
+  
+  // Check if used 80% or more of available scans
+  return subscription.scansUsed >= (subscription.scansLimit * 0.8);
 };

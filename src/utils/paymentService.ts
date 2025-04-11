@@ -12,7 +12,8 @@ export {
   recordScanUsage,
   shouldUpgrade,
   getScansRemaining,
-  hasScanLimitReached
+  hasScanLimitReached,
+  isApproachingScanLimit
 } from './payment/subscriptionService';
 
 // Export type separately to avoid TypeScript isolatedModules error

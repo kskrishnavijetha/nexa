@@ -55,7 +55,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
               // Save the subscription locally
               const subscriptionId = data.subscriptionID || 'paypal_sub_id';
               // Create a subscription record
-              const subscription = saveSubscription(tier, subscriptionId, billingCycle);
+              saveSubscription(tier, subscriptionId, billingCycle);
               
               toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
               onSuccess(subscriptionId);
