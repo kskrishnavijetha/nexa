@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PaymentForm from '@/components/PaymentForm';
@@ -14,8 +15,7 @@ const Payment = () => {
   const [subscription, setSubscription] = useState(getSubscription());
   const [isRenewal, setIsRenewal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-  const [billingCycle, setBillingCycle] = useState<'monthly'>('monthly');
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
 
   useEffect(() => {
     // Check if user has an active subscription and redirected from another page
@@ -29,8 +29,8 @@ const Payment = () => {
     }
     
     // Check if billing cycle was selected
-    if (location.state?.billingCycle === 'monthly') {
-      setBillingCycle('monthly');
+    if (location.state?.billingCycle) {
+      setBillingCycle(location.state.billingCycle);
     }
     
     // Check if user has a subscription but it's expired (renewal case)
@@ -43,8 +43,6 @@ const Payment = () => {
 
   const handlePaymentSuccess = (paymentId: string) => {
     console.log('Payment successful:', paymentId);
-    setIsProcessing(true);
-    
     toast.success('Subscription activated successfully!');
     
     // Update subscription state
@@ -52,7 +50,6 @@ const Payment = () => {
     
     // Redirect to dashboard page after 1.5 seconds
     setTimeout(() => {
-      setIsProcessing(false);
       navigate('/dashboard');
     }, 1500);
   };
@@ -98,7 +95,6 @@ const Payment = () => {
                 onSuccess={handlePaymentSuccess} 
                 initialPlan={selectedPlan} 
                 initialBillingCycle={billingCycle}
-                isProcessing={isProcessing}
               />
             </div>
             <div className="flex-1">

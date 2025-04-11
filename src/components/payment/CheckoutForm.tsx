@@ -10,17 +10,16 @@ import { getPrice } from '@/utils/pricingData';
 interface CheckoutFormProps {
   onSuccess?: (paymentId: string) => void;
   initialPlan?: string | null;
-  initialBillingCycle?: 'monthly';
-  isProcessing?: boolean;
+  initialBillingCycle?: 'monthly' | 'annually';
 }
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ 
   onSuccess = () => {},
   initialPlan, 
-  isProcessing = false
+  initialBillingCycle 
 }) => {
   const [selectedTier, setSelectedTier] = useState<string>(initialPlan || 'free');
-  const [billingCycle] = useState<'monthly'>('monthly');
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>(initialBillingCycle || 'monthly');
   const [loading, setLoading] = useState(false);
   const currentSubscription = getSubscription();
   
@@ -37,22 +36,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     }
   }, [initialPlan, currentSubscription]);
 
-  // Set loading state if processing
-  useEffect(() => {
-    if (isProcessing) {
-      setLoading(true);
-    }
-  }, [isProcessing]);
-
   // Helper function to get price for the selected tier
   const getPriceForTier = (tier: string) => {
-    return getPrice(tier, 'monthly');
+    return getPrice(tier, billingCycle);
   };
 
   const handleSuccess = (paymentId: string) => {
     // Create local subscription record
     import('@/utils/payment/subscriptionService').then(({ saveSubscription }) => {
-      saveSubscription(selectedTier, paymentId, 'monthly');
+      saveSubscription(selectedTier, paymentId, billingCycle);
       
       // Call the onSuccess callback
       if (onSuccess) {
@@ -67,17 +59,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         <h3 className="text-lg font-medium">Select a Plan</h3>
         
         <PaymentBillingToggle 
-          billingCycle={'monthly'}
-          setBillingCycle={() => {}}
-          disabled={loading || isProcessing}
+          billingCycle={billingCycle}
+          setBillingCycle={setBillingCycle}
         />
         
         <PaymentTierSelector
           selectedTier={selectedTier}
-          billingCycle={'monthly'}
+          billingCycle={billingCycle}
           onSelectTier={setSelectedTier}
           getPrice={getPriceForTier}
-          disabled={loading || isProcessing}
         />
       </div>
 
@@ -91,15 +81,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         <PaymentButtons 
           onSuccess={handleSuccess}
           tier={selectedTier}
-          loading={loading || isProcessing}
+          loading={loading}
           setLoading={setLoading}
-          billingCycle={'monthly'}
+          billingCycle={billingCycle}
         />
       </div>
 
       <PaymentSummary 
         selectedTier={selectedTier}
-        billingCycle={'monthly'}
+        billingCycle={billingCycle}
         getPrice={getPriceForTier}
       />
     </div>

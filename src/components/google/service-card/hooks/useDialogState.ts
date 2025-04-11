@@ -1,6 +1,5 @@
 
 import { useState } from 'react';
-import { useGoogleAuth } from '@/hooks/google/useGoogleAuth';
 
 export const useDialogState = (
   serviceId: string,
@@ -11,16 +10,10 @@ export const useDialogState = (
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [showGoogleDocsDialog, setShowGoogleDocsDialog] = useState(false);
-  const { isGoogleAuthenticated } = useGoogleAuth();
 
   const handleConnect = () => {
     if (!isConnected) {
-      // For Google Drive, we'll bypass the dialog and use direct OAuth
-      if (serviceId.includes('drive')) {
-        onConnect();
-      } else {
-        setShowAuthDialog(true);
-      }
+      setShowAuthDialog(true);
     } else {
       onDisconnect();
     }

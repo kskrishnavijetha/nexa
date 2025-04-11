@@ -55,7 +55,7 @@ export const processOneTimePayment = async (
 /**
  * Send payment confirmation email
  */
-const sendPaymentConfirmationEmail = async (email: string, plan: string, billingCycle: 'monthly') => {
+const sendPaymentConfirmationEmail = async (email: string, plan: string, billingCycle: 'monthly' | 'annually') => {
   try {
     const amount = calculatePlanAmount(plan, billingCycle);
     
@@ -82,12 +82,12 @@ const sendPaymentConfirmationEmail = async (email: string, plan: string, billing
 /**
  * Helper to calculate plan amount in cents
  */
-const calculatePlanAmount = (plan: string, billingCycle: 'monthly'): number => {
+const calculatePlanAmount = (plan: string, billingCycle: 'monthly' | 'annually'): number => {
   const pricing = {
     free: 0,
-    basic: 3500, // Monthly price only
-    pro: 11000, // Monthly price only
-    enterprise: 39900, // Monthly price only
+    basic: billingCycle === 'monthly' ? 3500 : 37800,
+    pro: billingCycle === 'monthly' ? 11000 : 118800,
+    enterprise: billingCycle === 'monthly' ? 39900 : 430900,
   };
   
   return pricing[plan as keyof typeof pricing] || 0;
@@ -102,9 +102,14 @@ export const createSubscription = async (
 ): Promise<PaymentResult> => {
   // This is a mock implementation. In a real app, you would call your backend.
   try {
-    // Extract billing cycle from priceId if present (e.g., price_basic_monthly)
+    // Extract billing cycle from priceId if present (e.g., price_basic_annually)
     let planName = priceId.split('_')[1];
-    let billingCycle: 'monthly' = 'monthly';
+    let billingCycle: 'monthly' | 'annually' = 'monthly';
+    
+    // Check if there's a billing cycle in the price ID
+    if (priceId.includes('_annually')) {
+      billingCycle = 'annually';
+    }
     
     // Free tier doesn't need subscription processing
     if (planName === 'free') {

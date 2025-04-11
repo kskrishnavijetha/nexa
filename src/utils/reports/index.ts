@@ -5,5 +5,3 @@ export { generateReportPDF } from './generateReportPDF';
 export { getScoreColor } from './utils/colorUtils';
 // Export the new export formats functionality
 export { exportReport, exportReportAsCSV, exportReportAsDOCX, type ExportFormat } from './exportFormats';
-// Export newly refactored generator functions
-export { generatePDF } from './generators/corePdfGenerator';

@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import AuditTrailContext from './context/AuditTrailContext';
 import { useAuditEventManager } from './hooks/useAuditEventManager';
-import { useAuditReport } from './hooks/report/useAuditReport';
+import { useAuditReport } from './hooks/useAuditReport';
 import { AuditEvent } from './types';
 import { Industry } from '@/utils/types';
 import { generateAuditHash, verifyAuditIntegrity } from '@/utils/audit/hashVerification';

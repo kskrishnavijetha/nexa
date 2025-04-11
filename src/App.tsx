@@ -6,7 +6,6 @@ import Index from './pages/Index';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import PricingPlans from './pages/PricingPlans';
-import Payment from './pages/Payment';
 import Dashboard from './pages/Dashboard';
 import DocumentAnalysis from './pages/DocumentAnalysis';
 import History from './pages/History';
@@ -29,7 +28,6 @@ export default function App() {
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/pricing" element={<PricingPlans />} />
-          <Route path="/payment" element={<Payment />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/document-analysis" element={<DocumentAnalysis />} />
