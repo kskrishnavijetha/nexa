@@ -3,7 +3,6 @@ import React, { useEffect } from 'react';
 import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
-import Layout from '@/components/layout/Layout';
 import { hasActiveSubscription, shouldUpgrade, getSubscription } from '@/utils/paymentService';
 import { toast } from 'sonner';
 
@@ -58,12 +57,8 @@ const ProtectedRoute: React.FC = () => {
     return <Navigate to="/pricing" replace />;
   }
 
-  // User is authenticated with active subscription, render the protected layout and outlet
-  return (
-    <Layout>
-      <Outlet />
-    </Layout>
-  );
+  // User is authenticated with active subscription, render the outlet (child routes)
+  return <Outlet />;
 };
 
 export default ProtectedRoute;

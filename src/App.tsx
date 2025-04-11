@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
 import { ThemeProvider } from 'next-themes';
@@ -34,19 +34,19 @@ function App() {
         <AuthProvider>
           <ThemeProvider attribute="class">
             <Routes>
-              <Route path="/" element={<Layout />}>
+              <Route element={<Layout><Outlet /></Layout>}>
                 <Route index element={<Index />} />
                 <Route path="sign-in" element={<SignIn />} />
                 <Route path="sign-up" element={<SignUp />} />
                 <Route path="pricing" element={<PricingPlans />} />
                 <Route path="payment" element={<Payment />} />
-                <Route path="dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="document-analysis" element={<ProtectedRoute><DocumentAnalysis /></ProtectedRoute>} />
-                <Route path="history" element={<ProtectedRoute><History /></ProtectedRoute>} />
-                <Route path="google-services" element={<ProtectedRoute><GoogleServices /></ProtectedRoute>} />
-                <Route path="audit-reports" element={<ProtectedRoute><AuditReports /></ProtectedRoute>} />
-                <Route path="slack-monitoring" element={<ProtectedRoute><SlackMonitoring /></ProtectedRoute>} />
-                <Route path="settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+                <Route path="dashboard" element={<ProtectedRoute />} />
+                <Route path="document-analysis" element={<ProtectedRoute />} />
+                <Route path="history" element={<ProtectedRoute />} />
+                <Route path="google-services" element={<ProtectedRoute />} />
+                <Route path="audit-reports" element={<ProtectedRoute />} />
+                <Route path="slack-monitoring" element={<ProtectedRoute />} />
+                <Route path="settings" element={<ProtectedRoute />} />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Routes>
