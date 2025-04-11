@@ -4,7 +4,7 @@ import { Navigate, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
-import { hasActiveSubscription, shouldUpgrade } from '@/utils/paymentService';
+import { hasActiveSubscription, shouldUpgrade, getSubscription } from '@/utils/paymentService';
 import { toast } from 'sonner';
 
 const ProtectedRoute: React.FC = () => {
@@ -30,20 +30,35 @@ const ProtectedRoute: React.FC = () => {
   // Check if the user's subscription needs upgrading
   useEffect(() => {
     const needsUpgrade = shouldUpgrade();
+    const subscription = getSubscription();
     
     // Only notify once when they need to upgrade and they're not already on the pricing page
     if (needsUpgrade && location.pathname !== '/pricing' && location.pathname !== '/payment') {
-      toast.info('Your free plan has expired. Please upgrade to continue.', {
+      // Display appropriate message based on the subscription plan
+      const plan = subscription?.plan || 'free';
+      const message = `Your ${plan} plan has expired. Please renew or upgrade to continue.`;
+      
+      toast.info(message, {
         action: {
-          label: 'Upgrade',
+          label: 'View Plans',
           onClick: () => navigate('/pricing'),
         },
         duration: 5000,
       });
+      
+      // Redirect to pricing if they're trying to access protected content with expired subscription
+      navigate('/pricing');
+      return;
     }
   }, [navigate, location.pathname]);
 
-  // User is authenticated, render the protected layout and outlet
+  // User is authenticated, but check for active subscription before allowing protected routes
+  if (!hasActiveSubscription() && location.pathname !== '/pricing' && location.pathname !== '/payment') {
+    // Just redirect to pricing instead of rendering the outlet
+    return <Navigate to="/pricing" replace />;
+  }
+
+  // User is authenticated with active subscription, render the protected layout and outlet
   return (
     <Layout>
       <Outlet />

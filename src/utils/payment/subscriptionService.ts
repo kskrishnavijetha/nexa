@@ -86,7 +86,7 @@ export const recordScanUsage = (): void => {
   }
 };
 
-// Check if user needs to upgrade (free plan with no scans left or expired)
+// Check if user needs to upgrade (subscription expired or needs renewal)
 export const shouldUpgrade = (): boolean => {
   const subscription = getSubscription();
   
@@ -94,9 +94,7 @@ export const shouldUpgrade = (): boolean => {
     return false; // No subscription yet, they'll be directed to pricing anyway
   }
   
-  // If free plan and either expired or no scans left
-  return (
-    subscription.plan === 'free' && 
-    (!subscription.active || subscription.scansUsed >= subscription.scansLimit)
-  );
+  // Return true if subscription is not active (expired for any plan)
+  return !subscription.active;
 };
+

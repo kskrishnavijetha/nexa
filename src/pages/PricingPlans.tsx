@@ -24,13 +24,23 @@ const PricingPlans = () => {
   const [checkingSubscription, setCheckingSubscription] = useState(true);
   const [needsUpgrade, setNeedsUpgrade] = useState(false);
   const [currentPlan, setCurrentPlan] = useState<string | null>(null);
+  const [expiredPlan, setExpiredPlan] = useState<string | null>(null);
 
   useEffect(() => {
     // Check subscription status when component mounts
     if (user && !loading) {
       const subscription = getSubscription();
       setCurrentPlan(subscription?.plan || null);
-      setNeedsUpgrade(shouldUpgrade());
+      
+      const upgrade = shouldUpgrade();
+      setNeedsUpgrade(upgrade);
+      
+      // If subscription exists but needs upgrade, it means it has expired
+      if (subscription && upgrade) {
+        setExpiredPlan(subscription.plan);
+        toast.warning(`Your ${subscription.plan} plan has expired. Please renew or select a new plan.`);
+      }
+      
       setCheckingSubscription(false);
     } else if (!loading && !user) {
       setCheckingSubscription(false);
@@ -55,8 +65,8 @@ const PricingPlans = () => {
 
   const getButtonText = (plan: string) => {
     if (!user) return 'Sign Up & Subscribe';
+    if (expiredPlan === plan) return 'Renew Plan';
     if (currentPlan === plan && !needsUpgrade) return 'Current Plan';
-    if (currentPlan === plan && needsUpgrade) return 'Renew Plan';
     return hasActiveSubscription() ? 'Change Plan' : 'Subscribe';
   };
 
@@ -83,10 +93,10 @@ const PricingPlans = () => {
         
         <BillingToggle />
         
-        {user && needsUpgrade && currentPlan === 'free' && (
+        {user && needsUpgrade && expiredPlan && (
           <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
             <p className="text-amber-700 font-medium">
-              Your free plan has expired. Please upgrade to continue using all features.
+              Your {expiredPlan} plan has expired. Please renew or select a new plan to continue using all features.
             </p>
           </div>
         )}
@@ -110,6 +120,7 @@ const PricingPlans = () => {
           buttonText={getButtonText('free')}
           buttonVariant={isCurrentPlan('free') ? "secondary" : "outline"}
           buttonDisabled={isCurrentPlan('free')}
+          highlighted={expiredPlan === 'free'}
           onSelectPlan={() => handleSelectPlan('free')}
         />
 
@@ -122,7 +133,7 @@ const PricingPlans = () => {
           buttonText={getButtonText('basic')}
           buttonDisabled={isCurrentPlan('basic')}
           buttonVariant={isCurrentPlan('basic') ? "secondary" : "default"}
-          highlighted={needsUpgrade && currentPlan === 'free'}
+          highlighted={expiredPlan === 'basic'}
           onSelectPlan={() => handleSelectPlan('basic')}
         />
 
@@ -136,6 +147,7 @@ const PricingPlans = () => {
           buttonText={getButtonText('pro')}
           buttonDisabled={isCurrentPlan('pro')}
           buttonVariant={isCurrentPlan('pro') ? "secondary" : "default"}
+          highlighted={expiredPlan === 'pro'}
           onSelectPlan={() => handleSelectPlan('pro')}
         />
 
@@ -148,6 +160,7 @@ const PricingPlans = () => {
           buttonText={getButtonText('enterprise')}
           buttonDisabled={isCurrentPlan('enterprise')}
           buttonVariant={isCurrentPlan('enterprise') ? "secondary" : "default"}
+          highlighted={expiredPlan === 'enterprise'}
           onSelectPlan={() => handleSelectPlan('enterprise')}
         />
       </div>
