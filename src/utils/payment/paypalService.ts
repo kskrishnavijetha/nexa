@@ -1,4 +1,3 @@
-
 /**
  * Service for PayPal payment processing
  */
@@ -8,19 +7,16 @@ import type { PaymentResult } from './paymentProcessor';
 // PayPal client ID - Replace with your actual PayPal client ID
 const PAYPAL_CLIENT_ID = 'AXKd2EHw7ySZihlaN06rqnABzzQdhD8ueu738V8iCtC93o8PwlZdjO7hwVITJgTsmjOq8dHJaC1vMMKT';
 
-// PayPal plan IDs - Updated with actual plan IDs
+// PayPal plan IDs - Updated with actual plan IDs for monthly only
 const PAYPAL_PLAN_IDS = {
   basic: {
-    monthly: 'P-0G576384KT1375804M7UPCYY',
-    annually: 'P-0G576384KT1375804M7UPCYY'
+    monthly: 'P-0G576384KT1375804M7UPCYY'
   },
   pro: {
-    monthly: 'P-0F289070AR785993EM7UO47Y',
-    annually: 'P-0F289070AR785993EM7UO47Y'
+    monthly: 'P-0F289070AR785993EM7UO47Y'
   },
   enterprise: {
-    monthly: 'P-76C19200WU898035NM7UO5YQ',
-    annually: 'P-76C19200WU898035NM7UO5YQ'
+    monthly: 'P-76C19200WU898035NM7UO5YQ'
   }
 };
 
@@ -82,15 +78,15 @@ export const createPayPalButtons = (
     return;
   }
 
-  // Get plan ID based on selected plan and billing cycle
-  const planId = PAYPAL_PLAN_IDS[plan as keyof typeof PAYPAL_PLAN_IDS]?.[billingCycle];
+  // Get plan ID based on selected plan (always using monthly now)
+  const planId = PAYPAL_PLAN_IDS[plan as keyof typeof PAYPAL_PLAN_IDS]?.monthly;
   if (!planId) {
-    console.error(`No PayPal plan ID found for plan: ${plan} (${billingCycle})`);
-    onError(new Error(`No PayPal plan ID found for plan: ${plan} (${billingCycle})`));
+    console.error(`No PayPal plan ID found for plan: ${plan}`);
+    onError(new Error(`No PayPal plan ID found for plan: ${plan}`));
     return;
   }
 
-  console.log(`Creating PayPal buttons for plan: ${plan}, cycle: ${billingCycle}, planId: ${planId}`);
+  console.log(`Creating PayPal buttons for plan: ${plan}, planId: ${planId}`);
 
   try {
     window.paypal.Buttons({

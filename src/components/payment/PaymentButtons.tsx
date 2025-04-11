@@ -7,7 +7,7 @@ import {
   createPayPalButtons
 } from '@/utils/paymentService';
 import { toast } from 'sonner';
-import { shouldUpgrade } from '@/utils/paymentService'; // Add this import
+import { shouldUpgrade } from '@/utils/paymentService';
 
 interface PaymentButtonsProps {
   onSuccess?: (paymentId: string) => void;

@@ -16,9 +16,9 @@ export interface SubscriptionInfo {
 export const saveSubscription = (plan: string, paymentId: string, billingCycle: 'monthly' | 'annually' = 'monthly') => {
   const pricingTiers = {
     free: { scans: 1, days: 30 },
-    basic: { scans: 10, days: billingCycle === 'monthly' ? 30 : 365 },
-    pro: { scans: 50, days: billingCycle === 'monthly' ? 30 : 365 },
-    enterprise: { scans: 999, days: billingCycle === 'monthly' ? 30 : 365 }, // Using 999 to represent unlimited
+    basic: { scans: 10, days: 30 },
+    pro: { scans: 50, days: 30 },
+    enterprise: { scans: 999, days: 30 }, // Using 999 to represent unlimited
   };
   
   const selectedTier = pricingTiers[plan as keyof typeof pricingTiers];
@@ -31,7 +31,7 @@ export const saveSubscription = (plan: string, paymentId: string, billingCycle: 
     scansUsed: 0,
     scansLimit: selectedTier.scans,
     expirationDate: expirationDate,
-    billingCycle: billingCycle
+    billingCycle: 'monthly' // Always monthly now
   };
   
   localStorage.setItem('subscription', JSON.stringify(subscription));

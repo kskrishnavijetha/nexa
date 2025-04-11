@@ -7,7 +7,6 @@ import PaymentPageHeader from './payment/PaymentPageHeader';
 interface PaymentFormProps {
   onSuccess?: (paymentId: string) => void;
   initialPlan?: string | null;
-  initialBillingCycle?: 'monthly' | 'annually';
 }
 
 const PaymentForm: React.FC<PaymentFormProps> = (props) => {

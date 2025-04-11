@@ -19,7 +19,8 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   initialBillingCycle 
 }) => {
   const [selectedTier, setSelectedTier] = useState<string>(initialPlan || 'free');
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>(initialBillingCycle || 'monthly');
+  // Always use monthly billing now
+  const billingCycle = 'monthly';
   const [loading, setLoading] = useState(false);
   const currentSubscription = getSubscription();
   
@@ -38,13 +39,13 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
 
   // Helper function to get price for the selected tier
   const getPriceForTier = (tier: string) => {
-    return getPrice(tier, billingCycle);
+    return getPrice(tier, 'monthly');
   };
 
   const handleSuccess = (paymentId: string) => {
     // Create local subscription record
     import('@/utils/payment/subscriptionService').then(({ saveSubscription }) => {
-      saveSubscription(selectedTier, paymentId, billingCycle);
+      saveSubscription(selectedTier, paymentId, 'monthly');
       
       // Call the onSuccess callback
       if (onSuccess) {
@@ -58,10 +59,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       <div className="space-y-4">
         <h3 className="text-lg font-medium">Select a Plan</h3>
         
-        <PaymentBillingToggle 
-          billingCycle={billingCycle}
-          setBillingCycle={setBillingCycle}
-        />
+        <PaymentBillingToggle />
         
         <PaymentTierSelector
           selectedTier={selectedTier}

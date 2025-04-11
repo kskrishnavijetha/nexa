@@ -30,31 +30,24 @@ export const enterpriseFeatures = [
   "24/7 priority support"
 ];
 
-// Apply 10% discount for annual billing
-export const annualDiscount = 0.1; // 10% discount
-
-// Pricing data
+// Pricing data (monthly only now)
 export const pricing = {
   free: {
     monthly: 0,
-    annually: 0,
   },
   basic: {
     monthly: 35,
-    annually: Math.round(35 * 12 * (1 - annualDiscount)),
   },
   pro: {
     monthly: 110,
-    annually: Math.round(110 * 12 * (1 - annualDiscount)),
   },
   enterprise: {
     monthly: 399,
-    annually: Math.round(399 * 12 * (1 - annualDiscount)),
   }
 };
 
-// Format price helper
+// Format price helper (simplified for monthly only)
 export const formatPrice = (price: number, cycle: 'monthly' | 'annually') => {
   if (price === 0) return "Free";
-  return `$${price}${cycle === 'monthly' ? '/month' : '/year'}`;
+  return `$${price}/month`;
 };
