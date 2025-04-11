@@ -110,8 +110,8 @@ describe('usePayPalState', () => {
       result.current.setPaypalButtonsRendered(true);
     });
 
-    // Change the billing cycle prop
-    rerender({ tier: 'basic', billingCycle: 'annually' as const });
+    // Change the billing cycle prop - fixed to use 'monthly' instead of 'annually'
+    rerender({ tier: 'basic', billingCycle: 'monthly' as const });
 
     // Check if state was reset
     expect(result.current.retryCount).toBe(0);
