@@ -45,6 +45,14 @@ export const isPayPalSDKLoaded = (): boolean => {
  */
 export const loadPayPalScript = (): Promise<void> => {
   return new Promise((resolve, reject) => {
+    // First, remove any existing PayPal script to avoid conflicts
+    const existingScript = document.querySelector('script[src*="paypal.com/sdk/js"]');
+    if (existingScript) {
+      document.body.removeChild(existingScript);
+      paypalSDKLoaded = false;
+      console.log('Removed existing PayPal script');
+    }
+
     // Check if PayPal script is already loaded
     if (isPayPalSDKLoaded()) {
       console.log('PayPal SDK already loaded, resolving immediately');
@@ -64,7 +72,7 @@ export const loadPayPalScript = (): Promise<void> => {
     
     try {
       const script = document.createElement('script');
-      script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&components=buttons`;
+      script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&components=buttons&disable-funding=credit,card&debug=true`;
       script.async = true;
       
       script.onload = () => {
@@ -72,12 +80,15 @@ export const loadPayPalScript = (): Promise<void> => {
         paypalSDKLoaded = true;
         paypalSDKLoading = false;
         
-        // Resolve this promise
-        resolve();
-        
-        // Resolve any queued promises
-        loadCallbacks.forEach(callback => callback.resolve());
-        loadCallbacks = [];
+        // Add a small delay to ensure PayPal is fully initialized
+        setTimeout(() => {
+          // Resolve this promise
+          resolve();
+          
+          // Resolve any queued promises
+          loadCallbacks.forEach(callback => callback.resolve());
+          loadCallbacks = [];
+        }, 500);
       };
       
       script.onerror = (error) => {
@@ -163,7 +174,7 @@ export const createPayPalButtons = (
       const paypalButtons = window.paypal.Buttons({
         style: {
           layout: 'vertical',
-          color: 'blue',
+          color: 'gold',
           shape: 'rect',
           label: 'subscribe'
         },
@@ -181,6 +192,9 @@ export const createPayPalButtons = (
         onError: function(err: any) {
           console.error('PayPal error:', err);
           onError(err);
+        },
+        onCancel: function() {
+          console.log('Subscription canceled by user');
         }
       });
       

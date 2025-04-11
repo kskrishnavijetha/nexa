@@ -1,47 +1,82 @@
 
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './contexts/AuthContext';
+import { ThemeProvider } from 'next-themes';
+import { Toaster } from 'sonner';
+
+import Layout from './components/layout/Layout';
+import NotFound from './pages/NotFound';
 import Index from './pages/Index';
+import Dashboard from './pages/Dashboard';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import PricingPlans from './pages/PricingPlans';
-import Payment from './pages/Payment';
-import Dashboard from './pages/Dashboard';
 import DocumentAnalysis from './pages/DocumentAnalysis';
-import History from './pages/History';
-import AuditReports from './pages/AuditReports';
-import GoogleServices from './pages/GoogleServices';
-import SlackMonitoring from './pages/SlackMonitoring';
-import NotFound from './pages/NotFound';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import { Toaster } from 'sonner';
+import Payment from './pages/Payment';
 import Settings from './pages/Settings';
-import Layout from './components/layout/Layout';
+import History from './pages/History';
+import GoogleServices from './pages/GoogleServices';
+import AuditReports from './pages/AuditReports';
+import SlackMonitoring from './pages/SlackMonitoring';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 
-export default function App() {
+import './App.css';
+
+// Create a client
+const queryClient = new QueryClient();
+
+function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <Toaster />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/pricing" element={<PricingPlans />} />
-          <Route path="/payment" element={<Payment />} />
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/document-analysis" element={<DocumentAnalysis />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/audit-reports" element={<AuditReports />} />
-            <Route path="/google-services" element={<GoogleServices />} />
-            <Route path="/slack-monitoring" element={<SlackMonitoring />} />
-            <Route path="/settings" element={<Settings />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AuthProvider>
+          <ThemeProvider attribute="class">
+            <Routes>
+              <Route path="/" element={<Layout />}>
+                <Route index element={<Index />} />
+                <Route path="sign-in" element={<SignIn />} />
+                <Route path="sign-up" element={<SignUp />} />
+                <Route path="pricing" element={<PricingPlans />} />
+                <Route path="payment" element={<Payment />} />
+                <Route 
+                  path="dashboard" 
+                  element={<ProtectedRoute><Dashboard /></ProtectedRoute>} 
+                />
+                <Route 
+                  path="document-analysis" 
+                  element={<ProtectedRoute><DocumentAnalysis /></ProtectedRoute>} 
+                />
+                <Route 
+                  path="history" 
+                  element={<ProtectedRoute><History /></ProtectedRoute>} 
+                />
+                <Route 
+                  path="google-services" 
+                  element={<ProtectedRoute><GoogleServices /></ProtectedRoute>} 
+                />
+                <Route 
+                  path="audit-reports" 
+                  element={<ProtectedRoute><AuditReports /></ProtectedRoute>} 
+                />
+                <Route 
+                  path="slack-monitoring" 
+                  element={<ProtectedRoute><SlackMonitoring /></ProtectedRoute>} 
+                />
+                <Route 
+                  path="settings" 
+                  element={<ProtectedRoute><Settings /></ProtectedRoute>} 
+                />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+            <Toaster position="top-right" richColors />
+          </ThemeProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
+
+export default App;

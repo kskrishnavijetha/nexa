@@ -41,46 +41,49 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
       
       // Load the PayPal SDK
       await loadPayPalScript();
-      console.log("PayPal script loaded successfully");
+      console.log("PayPal script loaded successfully, waiting for DOM update");
       
-      if (!isPayPalSDKLoaded()) {
-        throw new Error('PayPal SDK did not load correctly');
-      }
-      
-      // Create PayPal buttons
-      const buttonsRendered = await createPayPalButtons(
-        'paypal-button-container',
-        tier,
-        billingCycle,
-        // On approve handler
-        async (data) => {
-          console.log('PayPal subscription approved:', data);
-          try {
-            // Save the subscription locally
-            const subscriptionId = data.subscriptionID || 'paypal_sub_id';
-            // Create a subscription record
-            saveSubscription(tier, subscriptionId, billingCycle);
-            
-            toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
-            onSuccess(subscriptionId);
-          } catch (error) {
-            console.error('Subscription processing error:', error);
-            toast.error('Failed to process subscription. Please try again.');
-          } finally {
+      // Give the DOM a moment to update after script load
+      setTimeout(async () => {
+        if (!isPayPalSDKLoaded()) {
+          throw new Error('PayPal SDK did not load correctly');
+        }
+        
+        // Create PayPal buttons
+        const buttonsRendered = await createPayPalButtons(
+          'paypal-button-container',
+          tier,
+          billingCycle,
+          // On approve handler
+          async (data) => {
+            console.log('PayPal subscription approved:', data);
+            try {
+              // Save the subscription locally
+              const subscriptionId = data.subscriptionID || 'paypal_sub_id';
+              // Create a subscription record
+              saveSubscription(tier, subscriptionId, billingCycle);
+              
+              toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
+              onSuccess(subscriptionId);
+            } catch (error) {
+              console.error('Subscription processing error:', error);
+              toast.error('Failed to process subscription. Please try again.');
+            } finally {
+              setLoading(false);
+            }
+          },
+          // On error handler
+          (err) => {
+            console.error('PayPal error:', err);
+            setPaypalError('Failed to load PayPal. Please try again later.');
+            toast.error('PayPal payment failed. Please try again.');
             setLoading(false);
           }
-        },
-        // On error handler
-        (err) => {
-          console.error('PayPal error:', err);
-          setPaypalError('Failed to load PayPal. Please try again later.');
-          toast.error('PayPal payment failed. Please try again.');
-          setLoading(false);
-        }
-      );
-      
-      setPaypalButtonsRendered(buttonsRendered);
-      setLoading(false);
+        );
+        
+        setPaypalButtonsRendered(buttonsRendered);
+        setLoading(false);
+      }, 1000);
       
     } catch (error) {
       console.error('Failed to initialize PayPal:', error);
@@ -105,23 +108,20 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   }, [paypalError, retryCount]);
   
   useEffect(() => {
+    if (paypalContainerRef.current) {
+      paypalContainerRef.current.innerHTML = '';
+      setPaypalButtonsRendered(false);
+    }
+    
     // Only initialize PayPal for paid plans and if buttons aren't already rendered
     if (tier !== 'free' && !paypalButtonsRendered && !loading) {
       // Small delay to ensure the container is ready
       const timer = setTimeout(() => {
         initializePayPal();
-      }, 300);
+      }, 500);
       
       return () => clearTimeout(timer);
     }
-    
-    // Cleanup function
-    return () => {
-      if (paypalContainerRef.current) {
-        paypalContainerRef.current.innerHTML = '';
-      }
-      setPaypalButtonsRendered(false);
-    };
   }, [tier, billingCycle]);
   
   // For free tier, use a regular button
@@ -195,11 +195,16 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
         </div>
       )}
       
+      {!loading && !paypalError && (
+        <div className="text-center mb-2 text-sm text-muted-foreground">
+          PayPal subscription will be processed securely
+        </div>
+      )}
+      
       <div 
         id="paypal-button-container" 
         ref={paypalContainerRef}
-        className="w-full min-h-[40px]"
-        style={{ minHeight: '150px' }}
+        className="w-full min-h-[150px] border border-dashed border-gray-200 rounded-md flex items-center justify-center"
       />
     </div>
   );
