@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { shouldUpgrade } from '@/utils/paymentService';
+import { loadPayPalScript } from '@/utils/payment/paypalService';
 
 interface PaymentButtonsProps {
   onSuccess?: (paymentId: string) => void;
@@ -20,11 +21,73 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   setLoading,
   billingCycle
 }) => {
-  // For all tiers, use a regular button now
+  const paypalContainerRef = useRef<HTMLDivElement>(null);
+  const scriptLoaded = useRef(false);
+
+  // Effect for PayPal integration for basic tier
+  useEffect(() => {
+    if (tier === 'basic' && !scriptLoaded.current) {
+      const loadScript = async () => {
+        try {
+          await loadPayPalScript();
+          
+          if (window.paypal && paypalContainerRef.current) {
+            scriptLoaded.current = true;
+            
+            window.paypal.Buttons({
+              style: {
+                shape: 'rect',
+                color: 'gold',
+                layout: 'vertical',
+                label: 'paypal'
+              },
+              createSubscription: function(data: any, actions: any) {
+                return actions.subscription.create({
+                  /* Creates the subscription */
+                  plan_id: 'P-0G576384KT1375804M7UPCYY'
+                });
+              },
+              onApprove: function(data: any, actions: any) {
+                // Handle successful subscription
+                console.log('Subscription created:', data.subscriptionID);
+                onSuccess(data.subscriptionID);
+                toast.success('Basic plan subscription created successfully!');
+              },
+              onError: function(err: any) {
+                console.error('PayPal error:', err);
+                toast.error('There was an error processing your subscription. Please try again.');
+              }
+            }).render(paypalContainerRef.current);
+          }
+        } catch (error) {
+          console.error('Failed to load PayPal script:', error);
+          toast.error('Failed to load payment system. Please refresh and try again.');
+        }
+      };
+
+      loadScript();
+    }
+  }, [tier, onSuccess]);
+
+  // For free tier and other tiers (not basic), use a regular button
   const needsUpgrade = tier !== 'free' || shouldUpgrade();
   const buttonText = tier === 'free' 
     ? (needsUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan')
     : `Subscribe to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`;
+  
+  if (tier === 'basic') {
+    return (
+      <div className="w-full">
+        <div id="paypal-button-container-P-0G576384KT1375804M7UPCYY" ref={paypalContainerRef} className="w-full"></div>
+        {loading && (
+          <div className="flex justify-center items-center mt-2">
+            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+            <span>Processing...</span>
+          </div>
+        )}
+      </div>
+    );
+  }
   
   return (
     <Button 

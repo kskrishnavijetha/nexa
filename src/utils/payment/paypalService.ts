@@ -39,7 +39,7 @@ export const loadPayPalScript = (): Promise<void> => {
     }
 
     const script = document.createElement('script');
-    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription`;
+    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&vault=true`;
     script.async = true;
     script.onload = () => resolve();
     script.onerror = () => reject(new Error('Failed to load PayPal SDK'));
@@ -93,9 +93,9 @@ export const createPayPalButtons = (
     window.paypal.Buttons({
       style: {
         layout: 'vertical',
-        color: 'blue',
+        color: 'gold',
         shape: 'rect',
-        label: 'subscribe'
+        label: 'paypal'
       },
       createSubscription: function(data: any, actions: any) {
         console.log('Creating subscription with plan ID:', planId);
@@ -120,4 +120,3 @@ export const createPayPalButtons = (
     onError(error);
   }
 };
-
