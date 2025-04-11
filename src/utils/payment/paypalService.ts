@@ -38,7 +38,8 @@ export const loadPayPalScript = (): Promise<void> => {
     }
 
     const script = document.createElement('script');
-    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&vault=true`;
+    // Add intent=subscription and disable automatic redirects
+    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&vault=true&commit=false`;
     script.async = true;
     script.onload = () => resolve();
     script.onerror = () => reject(new Error('Failed to load PayPal SDK'));

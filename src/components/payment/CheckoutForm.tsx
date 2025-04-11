@@ -5,6 +5,7 @@ import PaymentTierSelector from './PaymentTierSelector';
 import PaymentButtons from './PaymentButtons';
 import PaymentSummary from './PaymentSummary';
 import { getPrice } from '@/utils/pricingData';
+import { toast } from 'sonner';
 
 interface CheckoutFormProps {
   onSuccess?: (paymentId: string) => void;
@@ -42,9 +43,14 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   };
 
   const handleSuccess = (paymentId: string) => {
+    console.log("Handling subscription success:", paymentId, "for tier:", selectedTier);
+    
     // Create local subscription record
     import('@/utils/payment/subscriptionService').then(({ saveSubscription }) => {
-      saveSubscription(selectedTier, paymentId, 'monthly');
+      const subscription = saveSubscription(selectedTier, paymentId, 'monthly');
+      console.log("Subscription saved:", subscription);
+      
+      toast.success(`Your ${selectedTier} plan is now active!`);
       
       // Call the onSuccess callback
       if (onSuccess) {
