@@ -23,7 +23,7 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
       <div className="flex justify-between text-sm">
         <span className="text-muted-foreground">Scans per month</span>
         <span>{selectedTier === 'enterprise' ? 'Unlimited' : (
-          selectedTier === 'free' ? '1' : 
+          selectedTier === 'free' ? '30 (1 per day)' : 
           selectedTier === 'basic' ? '10' : 
           selectedTier === 'pro' ? '50' : ''
         )}</span>

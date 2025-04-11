@@ -1,6 +1,6 @@
 
 export const freeFeatures = [
-  "1 compliance scan per month",
+  "1 compliance scan per day",
   "Basic GDPR compliance check",
   "Basic PDF report",
   "Community support"
