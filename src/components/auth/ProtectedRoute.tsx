@@ -4,7 +4,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 import Layout from '@/components/layout/Layout';
-import { hasActiveSubscription } from '@/utils/paymentService';
+import { hasActiveSubscription, shouldUpgrade } from '@/utils/paymentService';
 import { toast } from 'sonner';
 
 const ProtectedRoute: React.FC = () => {
@@ -27,15 +27,22 @@ const ProtectedRoute: React.FC = () => {
     return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
-  // If user is authenticated but doesn't have an active subscription
-  // and they're not already on the pricing page, redirect to pricing
+  // Check for both missing and expired/completed plans
   const hasSubscription = hasActiveSubscription();
-  if (!hasSubscription && location.pathname !== '/pricing') {
-    toast.info('Please select a subscription plan to continue');
+  const needsUpgrade = shouldUpgrade();
+  
+  // If user is authenticated but doesn't have an active subscription
+  // or needs to upgrade and they're not already on the pricing page, redirect to pricing
+  if ((!hasSubscription || needsUpgrade) && location.pathname !== '/pricing') {
+    if (needsUpgrade) {
+      toast.info('Your plan has expired or reached its scan limit. Please select a new plan to continue.');
+    } else {
+      toast.info('Please select a subscription plan to continue');
+    }
     return <Navigate to="/pricing" replace />;
   }
 
-  // User is authenticated and has a subscription, render the protected layout and outlet
+  // User is authenticated and has a valid subscription, render the protected layout and outlet
   return (
     <Layout>
       <Outlet />

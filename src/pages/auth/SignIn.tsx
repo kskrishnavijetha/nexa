@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -6,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
-import { hasActiveSubscription } from '@/utils/paymentService';
+import { hasActiveSubscription, shouldUpgrade, getSubscription } from '@/utils/paymentService';
 
 const SignIn: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -38,8 +39,22 @@ const SignIn: React.FC = () => {
         toast.success('Signed in successfully');
         
         const hasSubscription = hasActiveSubscription();
+        const subscription = getSubscription();
+        const needsUpgrade = shouldUpgrade();
         
-        if (!hasSubscription) {
+        // If user has no active subscription or needs to upgrade (expired or used all scans)
+        if (!hasSubscription || needsUpgrade) {
+          // Show appropriate toast message
+          if (needsUpgrade && subscription) {
+            if (subscription.scansUsed >= subscription.scansLimit) {
+              toast.info(`You've used all ${subscription.scansLimit} scans in your ${subscription.plan} plan. Please select a new plan.`);
+            } else {
+              toast.info(`Your ${subscription.plan} plan has expired. Please select a new plan.`);
+            }
+          } else {
+            toast.info('Please select a subscription plan to continue');
+          }
+          
           navigate('/pricing', { replace: true });
         } else {
           navigate(from, { replace: true });

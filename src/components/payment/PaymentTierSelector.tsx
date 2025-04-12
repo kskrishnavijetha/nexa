@@ -25,8 +25,8 @@ const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
     if (initialTier) {
       onSelectTier(initialTier);
     } else if (currentSubscription) {
-      // If they've exhausted a plan, suggest the next tier up
-      if (currentSubscription.scansUsed >= currentSubscription.scansLimit) {
+      // If they've exhausted a plan or it expired, suggest the next tier up
+      if (currentSubscription.scansUsed >= currentSubscription.scansLimit || !currentSubscription.active) {
         if (currentSubscription.plan === 'free') {
           onSelectTier('basic');
         } else if (currentSubscription.plan === 'basic') {
@@ -44,18 +44,25 @@ const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
   };
 
   const shouldDisableTier = (tier: string) => {
-    // If the user has a current subscription and they're out of scans,
-    // don't let them select the same or lower tiers
-    if (currentSubscription && currentSubscription.scansUsed >= currentSubscription.scansLimit) {
-      if (tier === 'free') return true;
+    // If the user has a current subscription and they're out of scans or it expired,
+    // don't let them select the same or lower tiers, and don't let them select free
+    if (currentSubscription) {
+      if ((currentSubscription.scansUsed >= currentSubscription.scansLimit || !currentSubscription.active) && tier === 'free') {
+        return true;
+      }
       
-      if (tier === 'basic' && currentSubscription.plan === 'basic') return true;
-      
-      if (tier === 'pro' && currentSubscription.plan === 'pro') return true;
+      if (currentSubscription.scansUsed >= currentSubscription.scansLimit || !currentSubscription.active) {
+        if (tier === 'basic' && currentSubscription.plan === 'basic') return true;
+        if (tier === 'pro' && currentSubscription.plan === 'pro') return true;
+      }
     }
     
     return false;
   };
+
+  // Update free tier option visibility
+  const shouldHideFreeTier = currentSubscription && 
+    (currentSubscription.scansUsed >= currentSubscription.scansLimit || !currentSubscription.active);
 
   return (
     <div>
@@ -65,6 +72,24 @@ const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
         onValueChange={onSelectTier}
         className="space-y-2"
       >
+        {!shouldHideFreeTier && (
+          <div className={`flex items-center space-x-2 p-3 rounded border ${selectedTier === 'free' ? 'border-primary bg-primary/5' : 'border-gray-200'} ${shouldDisableTier('free') ? 'opacity-50' : ''}`}>
+            <input
+              type="radio"
+              id="free"
+              value="free"
+              checked={selectedTier === 'free'}
+              onChange={() => onSelectTier('free')}
+              disabled={shouldDisableTier('free')}
+              className="h-4 w-4 text-primary"
+            />
+            <Label htmlFor="free" className="flex-1 cursor-pointer">
+              <span>Free Plan</span>
+              <p className="text-sm text-muted-foreground">{getTierLabel('free')}</p>
+            </Label>
+          </div>
+        )}
+        
         <div className={`flex items-center space-x-2 p-3 rounded border ${selectedTier === 'basic' ? 'border-primary bg-primary/5' : 'border-gray-200'} ${shouldDisableTier('basic') ? 'opacity-50' : ''}`}>
           <input
             type="radio"
@@ -117,6 +142,12 @@ const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
       {currentSubscription && currentSubscription.scansUsed >= currentSubscription.scansLimit && (
         <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded text-sm text-amber-700">
           You've used all scans in your {currentSubscription.plan} plan. Please upgrade to continue.
+        </div>
+      )}
+      
+      {currentSubscription && !currentSubscription.active && (
+        <div className="mt-3 p-2 bg-amber-50 border border-amber-200 rounded text-sm text-amber-700">
+          Your {currentSubscription.plan} plan has expired. Please subscribe to a new plan to continue.
         </div>
       )}
     </div>

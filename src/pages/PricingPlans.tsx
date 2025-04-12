@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { hasActiveSubscription } from '@/utils/paymentService';
+import { hasActiveSubscription, getSubscription, shouldUpgrade } from '@/utils/paymentService';
 import BillingToggle from '@/components/pricing/BillingToggle';
 import PricingCard from '@/components/pricing/PricingCard';
 import { toast } from 'sonner';
@@ -22,11 +22,20 @@ const PricingPlans = () => {
   // Always use monthly billing now
   const billingCycle = 'monthly';
   const [checkingSubscription, setCheckingSubscription] = useState(true);
+  const [needsUpgrade, setNeedsUpgrade] = useState(false);
+  const [subscription, setSubscription] = useState<any>(null);
 
   useEffect(() => {
     // Check subscription status when component mounts
     if (user && !loading) {
       setCheckingSubscription(false);
+      
+      // Check if user needs to upgrade
+      const currentSubscription = getSubscription();
+      const upgradeNeeded = shouldUpgrade();
+      
+      setSubscription(currentSubscription);
+      setNeedsUpgrade(upgradeNeeded);
     } else if (!loading && !user) {
       setCheckingSubscription(false);
     }
@@ -50,8 +59,16 @@ const PricingPlans = () => {
 
   const getButtonText = () => {
     if (!user) return 'Sign Up & Subscribe';
-    return hasActiveSubscription() ? 'Change Plan' : 'Subscribe';
+    
+    if (hasActiveSubscription()) {
+      return needsUpgrade ? 'Upgrade Plan' : 'Change Plan';
+    }
+    
+    return 'Subscribe';
   };
+
+  // Check if the free plan should be displayed
+  const shouldShowFreePlan = !needsUpgrade || !subscription;
 
   if (loading || checkingSubscription) {
     return (
@@ -79,19 +96,35 @@ const PricingPlans = () => {
             </p>
           </div>
         )}
+        
+        {user && subscription && needsUpgrade && (
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-md">
+            <p className="text-amber-700 font-medium">
+              {subscription.scansUsed >= subscription.scansLimit 
+                ? `You've used all ${subscription.scansLimit} scans in your ${subscription.plan} plan.` 
+                : `Your ${subscription.plan} plan has expired.`}
+            </p>
+            <p className="text-amber-700">
+              Please select a new plan to continue using Nexabloom.
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-        {/* Free Plan */}
-        <PricingCard
-          title="Free"
-          description="Get started with basic compliance checks"
-          price={formatPrice(pricing.free[billingCycle], billingCycle)}
-          features={freeFeatures}
-          buttonText={getButtonText()}
-          buttonVariant="outline"
-          onSelectPlan={() => handleSelectPlan('free')}
-        />
+        {/* Only show Free Plan if not upgrading from an existing plan that's expired or depleted */}
+        {shouldShowFreePlan && (
+          <PricingCard
+            title="Free"
+            description="Get started with basic compliance checks"
+            price={formatPrice(pricing.free[billingCycle], billingCycle)}
+            features={freeFeatures}
+            buttonText={getButtonText()}
+            buttonVariant="outline"
+            onSelectPlan={() => handleSelectPlan('free')}
+            disabled={needsUpgrade}
+          />
+        )}
 
         {/* Basic Plan */}
         <PricingCard
