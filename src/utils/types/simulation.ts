@@ -74,4 +74,11 @@ export interface SimulationDetails {
   analysisDate: string;
   baseDocumentId?: string;
   baseDocumentName?: string;
+  predictedImprovements?: {
+    overall: number;
+    gdpr: number;
+    hipaa: number;
+    soc2: number;
+    pciDss?: number;
+  };
 }
