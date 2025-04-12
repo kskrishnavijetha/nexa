@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { shouldUpgrade } from '@/utils/paymentService';
 import { loadPayPalScript, createPayPalButtons } from '@/utils/payment/paypalService';
@@ -25,8 +25,6 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const scriptLoaded = useRef(false);
   const [isPayPalReady, setIsPayPalReady] = useState(false);
-  const [paypalError, setPaypalError] = useState<string | null>(null);
-  const [loadingPayPal, setLoadingPayPal] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -53,46 +51,42 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   }, [onSuccess]);
 
   // Effect for PayPal integration for paid tiers
-  const loadPayPalSDK = async () => {
-    if ((tier === 'basic' || tier === 'pro' || tier === 'enterprise') && !scriptLoaded.current) {
-      try {
-        setLoading(true);
-        setLoadingPayPal(true);
-        setPaypalError(null);
-        await loadPayPalScript();
-        
-        if (window.paypal && paypalContainerRef.current) {
-          scriptLoaded.current = true;
-          setIsPayPalReady(true);
-          
-          createPayPalButtons(
-            paypalContainerRef.current.id,
-            tier,
-            billingCycle,
-            (data) => {
-              console.log('PayPal subscription created:', data);
-              // The redirect will happen automatically, but we save the data beforehand
-            },
-            (error) => {
-              console.error('PayPal error:', error);
-              setPaypalError('There was an error processing your subscription. Please try again.');
-              setLoading(false);
-            }
-          );
-        }
-        setLoading(false);
-        setLoadingPayPal(false);
-      } catch (error) {
-        console.error('Failed to load PayPal script:', error);
-        setPaypalError('Failed to load payment system. Please refresh and try again.');
-        setLoading(false);
-        setLoadingPayPal(false);
-      }
-    }
-  };
-
   useEffect(() => {
-    loadPayPalSDK();
+    if ((tier === 'basic' || tier === 'pro' || tier === 'enterprise') && !scriptLoaded.current) {
+      const loadScript = async () => {
+        try {
+          setLoading(true);
+          await loadPayPalScript();
+          
+          if (window.paypal && paypalContainerRef.current) {
+            scriptLoaded.current = true;
+            setIsPayPalReady(true);
+            setLoading(false);
+            
+            createPayPalButtons(
+              paypalContainerRef.current.id,
+              tier,
+              billingCycle,
+              (data) => {
+                console.log('PayPal subscription created:', data);
+                // The redirect will happen automatically, but we save the data beforehand
+              },
+              (error) => {
+                console.error('PayPal error:', error);
+                toast.error('There was an error processing your subscription. Please try again.');
+                setLoading(false);
+              }
+            );
+          }
+        } catch (error) {
+          console.error('Failed to load PayPal script:', error);
+          toast.error('Failed to load payment system. Please refresh and try again.');
+          setLoading(false);
+        }
+      };
+
+      loadScript();
+    }
   }, [tier, billingCycle, setLoading, onSuccess]);
 
   // For free tier, use a regular button
@@ -101,38 +95,15 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
     ? (needsUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan')
     : `Subscribe to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`;
   
-  const handleRetry = () => {
-    scriptLoaded.current = false;
-    setPaypalError(null);
-    setIsPayPalReady(false);
-    loadPayPalSDK();
-  };
-  
   // For paid tiers, use PayPal buttons
   if (tier === 'basic' || tier === 'pro' || tier === 'enterprise') {
     return (
       <div className="w-full">
         <div id="paypal-button-container" ref={paypalContainerRef} className="w-full"></div>
-        
-        {loadingPayPal && (
+        {loading && (
           <div className="flex justify-center items-center mt-2">
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            <span>Loading payment system...</span>
-          </div>
-        )}
-        
-        {paypalError && (
-          <div className="mt-4 text-center">
-            <p className="text-red-500 text-sm mb-2">{paypalError}</p>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleRetry}
-              className="flex items-center"
-            >
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Retry Loading PayPal
-            </Button>
+            <span>Processing...</span>
           </div>
         )}
       </div>
