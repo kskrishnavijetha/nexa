@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { shouldUpgrade } from '@/utils/paymentService';
-import { loadPayPalScript } from '@/utils/payment/paypalService';
+import { loadPayPalScript, createPayPalButtons } from '@/utils/payment/paypalService';
 
 interface PaymentButtonsProps {
   onSuccess?: (paymentId: string) => void;
@@ -60,15 +60,14 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
                 });
               },
               onApprove: function(data: any, actions: any) {
-                // Handle successful subscription - prevent navigation
+                // Handle successful subscription
                 console.log('Subscription created:', data.subscriptionID);
                 
-                // Use the onSuccess callback directly here instead of navigating
+                // Use the onSuccess callback directly here
                 onSuccess(data.subscriptionID);
                 toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan subscription created successfully!`);
                 
-                // Return false to prevent PayPal from redirecting
-                return false;
+                // Allow PayPal to complete its flow
               },
               onCancel: function() {
                 console.log('Subscription canceled');

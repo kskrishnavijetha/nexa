@@ -1,3 +1,4 @@
+
 /**
  * Service for PayPal payment processing
  */
@@ -38,8 +39,8 @@ export const loadPayPalScript = (): Promise<void> => {
     }
 
     const script = document.createElement('script');
-    // Add intent=subscription and disable automatic redirects
-    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&vault=true&commit=false`;
+    // Remove commit=false to allow PayPal to handle the flow naturally
+    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&vault=true`;
     script.async = true;
     script.onload = () => resolve();
     script.onerror = () => reject(new Error('Failed to load PayPal SDK'));
@@ -107,6 +108,7 @@ export const createPayPalButtons = (
         console.log('Subscription approved:', data);
         // Handle subscription success
         onApprove(data);
+        // Don't return false here - allow PayPal to complete its flow
       },
       onError: function(err: any) {
         console.error('PayPal error:', err);
