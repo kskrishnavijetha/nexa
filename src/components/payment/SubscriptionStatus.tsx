@@ -74,7 +74,7 @@ const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscription, o
               {subscription.scansUsed >= subscription.scansLimit 
                 ? "You've used all available scans in your free plan." 
                 : "Your free plan has expired."}
-              {" "}Please upgrade to continue using CompliZen.
+              {" "}Please upgrade to continue using Nexabloom.
             </p>
           </div>
         </div>
@@ -83,7 +83,7 @@ const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscription, o
       {(!subscription.active || needsUpgrade) && (
         <div className="mt-4">
           {!needsUpgrade && (
-            <p className="text-amber-600 mb-2">Your subscription has expired. Please renew to continue using CompliZen.</p>
+            <p className="text-amber-600 mb-2">Your subscription has expired. Please renew to continue using Nexabloom.</p>
           )}
           <Button 
             onClick={onRenew} 

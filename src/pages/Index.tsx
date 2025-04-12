@@ -1,5 +1,4 @@
-
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Features from '@/components/Features';
 import Hero from '@/components/home/Hero';
@@ -64,7 +63,7 @@ const Index = () => {
                     {subscription?.scansUsed >= (subscription?.scansLimit || 0)
                       ? `You've used all ${subscription?.scansLimit} scans in your ${subscription?.plan} plan.`
                       : 'Your subscription has expired.'}
-                    {' '}Please upgrade to continue using all features.
+                    {' '}Please upgrade to continue using Nexabloom.
                   </p>
                 </div>
                 <Button 
