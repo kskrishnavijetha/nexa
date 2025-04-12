@@ -94,6 +94,20 @@ export const getUserHistoricalReports = (userId: string | null | undefined): Com
 };
 
 /**
+ * Get simulation reports for a specific user
+ */
+export const getUserSimulationReports = (userId: string | null | undefined): ComplianceReport[] => {
+  if (!userId) {
+    return [];
+  }
+  
+  return historicalReports.filter(report => 
+    report.userId === userId && 
+    (report.isSimulation || report.documentName.toLowerCase().includes('simulation'))
+  );
+};
+
+/**
  * Get a specific report by documentId
  */
 export const getReportById = (documentId: string): ComplianceReport | undefined => {

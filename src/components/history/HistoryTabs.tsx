@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ComplianceReport } from '@/utils/types';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { Trash2, BarChart } from 'lucide-react';
 import { toast } from 'sonner';
 import { deleteReportFromHistory } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
@@ -65,8 +65,9 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({
     setDeleteDialogOpen(false);
   };
 
-  // Check if the selected document is a Slack scan
+  // Check if the selected document is a Slack scan or simulation
   const isSlackScan = selectedDocument?.toLowerCase().includes('slack');
+  const isSimulation = selectedReport?.isSimulation || selectedDocument?.toLowerCase().includes('simulation');
 
   return (
     <>
@@ -84,7 +85,16 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({
         <TabsContent value="reports" className="mt-6">
           <div className="flex flex-col gap-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-xl font-semibold">Document Reports</h2>
+              <h2 className="text-xl font-semibold">
+                {isSimulation ? (
+                  <div className="flex items-center">
+                    <BarChart className="h-5 w-5 mr-2 text-blue-600" />
+                    Simulation Report
+                  </div>
+                ) : (
+                  "Document Reports"
+                )}
+              </h2>
               <div className="flex items-center gap-4">
                 {selectedDocument && (
                   <Button 
@@ -108,6 +118,20 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({
             
             {selectedReport ? (
               <div className="grid grid-cols-1 gap-6">
+                {isSimulation && selectedReport.simulationDetails && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+                    <h3 className="text-blue-800 font-medium flex items-center">
+                      <BarChart className="h-4 w-4 mr-2" />
+                      Simulation: {selectedReport.simulationDetails.scenarioName}
+                    </h3>
+                    <p className="text-blue-600 mt-1 text-sm">
+                      This is a predictive simulation based on document: {selectedReport.simulationDetails.baseDocumentName || "Unknown"}
+                    </p>
+                    <p className="text-sm text-blue-500 mt-2">
+                      Analysis date: {new Date(selectedReport.simulationDetails.analysisDate).toLocaleString()}
+                    </p>
+                  </div>
+                )}
                 <ComplianceDetails report={selectedReport} />
               </div>
             ) : (
