@@ -121,14 +121,7 @@ export const startRealTimeMonitoring = (options: RealTimeMonitoringOptions) => {
               mitigation: 'Review and remove sensitive information'
             })),
             complianceStatus: 'partially-compliant',
-            regulations: ['GDPR', 'Data Privacy'],
-            // Add flag to indicate this is a simulation result
-            isSimulation: true,
-            simulationDetails: {
-              simulationType: 'real-time-monitoring',
-              scenarioName: 'Slack Communication Analysis',
-              analysisDate: new Date().toISOString()
-            }
+            regulations: ['GDPR', 'Data Privacy']
           });
         }
       }

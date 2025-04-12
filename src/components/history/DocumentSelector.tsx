@@ -1,21 +1,15 @@
 
 import React from 'react';
-import { Check, ChevronDown, ChevronUp, Loader2, BarChart } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import { ComplianceReport } from '@/utils/types';
+import { 
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from '@/components/ui/navigation-menu';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, FileText, AlertCircle } from 'lucide-react';
 
 interface DocumentSelectorProps {
   selectedDocument: string | null;
@@ -24,82 +18,70 @@ interface DocumentSelectorProps {
   analyzingDocument: string | null;
 }
 
-const DocumentSelector: React.FC<DocumentSelectorProps> = ({ 
-  selectedDocument, 
-  reports, 
+const DocumentSelector: React.FC<DocumentSelectorProps> = ({
+  selectedDocument,
+  reports,
   onSelectDocument,
   analyzingDocument
 }) => {
-  const [open, setOpen] = React.useState(false);
-
-  if (reports.length === 0) {
-    return <Button disabled>No reports available</Button>;
-  }
+  const getSelectedDisplayName = () => {
+    if (!selectedDocument) return 'Select Document';
+    return selectedDocument;
+  };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          className="min-w-[200px] justify-between"
-        >
-          {selectedDocument ? (
-            <span className="truncate max-w-[200px] flex-1 text-left">
-              {selectedDocument}
-            </span>
-          ) : (
-            "Select document..."
-          )}
-          <div className="flex gap-1">
-            {analyzingDocument && (
-              <Loader2 className="ml-2 h-4 w-4 animate-spin text-muted-foreground" />
-            )}
-            {open ? (
-              <ChevronUp className="h-4 w-4 opacity-50" />
-            ) : (
-              <ChevronDown className="h-4 w-4 opacity-50" />
-            )}
-          </div>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="min-w-[300px] p-0" align="end">
-        <Command>
-          <CommandInput placeholder="Search documents..." />
-          <CommandList>
-            <CommandEmpty>No documents found.</CommandEmpty>
-            <CommandGroup>
-              {reports.map((report) => {
-                // Check if report is a simulation
-                const isSimulation = report.isSimulation || report.documentName.toLowerCase().includes('simulation');
-                
-                return (
-                  <CommandItem
-                    key={report.documentId}
-                    value={report.documentName}
-                    onSelect={() => {
-                      onSelectDocument(report.documentName);
-                      setOpen(false);
-                    }}
-                    className="flex items-center"
-                  >
-                    {isSimulation && <BarChart className="mr-2 h-4 w-4 text-blue-500" />}
-                    <span className="flex-1 truncate">{report.documentName}</span>
-                    {selectedDocument === report.documentName && (
-                      <Check className="h-4 w-4 ml-2" />
-                    )}
-                    {analyzingDocument === report.documentName && (
-                      <Loader2 className="h-4 w-4 ml-2 animate-spin" />
-                    )}
-                  </CommandItem>
-                );
-              })}
-            </CommandGroup>
-          </CommandList>
-        </Command>
-      </PopoverContent>
-    </Popover>
+    <NavigationMenu>
+      <NavigationMenuList>
+        <NavigationMenuItem>
+          <NavigationMenuTrigger>
+            {getSelectedDisplayName()}
+          </NavigationMenuTrigger>
+          <NavigationMenuContent>
+            <div className="p-4 w-[300px]">
+              <div className="font-medium mb-2">Documents</div>
+              {reports.length > 0 ? (
+                <ul className="space-y-2 max-h-[300px] overflow-y-auto">
+                  {reports.map((scan) => {
+                    return (
+                      <li 
+                        key={scan.documentId}
+                        className="cursor-pointer rounded p-2 hover:bg-slate-100"
+                        onClick={() => onSelectDocument(scan.documentName)}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="flex items-center">
+                            <FileText className="h-4 w-4 mr-2 text-blue-500" />
+                            {scan.documentName}
+                          </span>
+                          {scan.documentName === selectedDocument && (
+                            <Badge variant="outline" className="ml-2">Selected</Badge>
+                          )}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              ) : (
+                <div className="p-4 text-center border rounded-md bg-slate-50">
+                  <AlertCircle className="h-5 w-5 mx-auto mb-2 text-slate-400" />
+                  <p className="text-sm text-slate-500">No documents available</p>
+                </div>
+              )}
+              
+              {analyzingDocument && (
+                <div className="mt-4 p-2 border border-blue-200 rounded bg-blue-50">
+                  <div className="flex items-center text-sm text-blue-600">
+                    <Loader2 className="h-3 w-3 mr-2 animate-spin" />
+                    <FileText className="h-3 w-3 mr-2" />
+                    <span>Analyzing: {analyzingDocument}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </NavigationMenuContent>
+        </NavigationMenuItem>
+      </NavigationMenuList>
+    </NavigationMenu>
   );
 };
 

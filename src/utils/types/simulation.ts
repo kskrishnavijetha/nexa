@@ -66,19 +66,3 @@ export interface RiskTrend {
   previousScore?: number;
   predictedScore?: number;
 }
-
-export interface SimulationDetails {
-  simulationType: 'predictive-analysis' | 'real-time-monitoring' | 'what-if';
-  scenarioName: string;
-  scenarioId?: string;
-  analysisDate: string;
-  baseDocumentId?: string;
-  baseDocumentName?: string;
-  predictedImprovements?: {
-    overall: number;
-    gdpr: number;
-    hipaa: number;
-    soc2: number;
-    pciDss?: number;
-  };
-}

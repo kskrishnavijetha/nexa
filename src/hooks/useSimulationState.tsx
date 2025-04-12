@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { ComplianceReport, SimulationScenario, PredictiveAnalysis } from '@/utils/types';
 import { getSimulationScenarios, runSimulationAnalysis } from '@/utils/simulationService';
 import { toast } from 'sonner';
-import { addReportToHistory } from '@/utils/historyService';
 
 export function useSimulationState(report: ComplianceReport) {
   const [selectedScenarioId, setSelectedScenarioId] = useState<string | undefined>();
@@ -88,48 +87,6 @@ export function useSimulationState(report: ComplianceReport) {
         console.log("Simulation results:", response.data);
         setAnalysisResult(response.data);
         toast.success('Predictive analysis completed');
-        
-        // Save the simulation results to history
-        const selectedScenario = scenarios.find(s => s.id === scenarioId);
-        if (selectedScenario && response.data) {
-          const simulationReport: ComplianceReport = {
-            documentId: `simulation-${report.documentId}-${Date.now()}`,
-            documentName: `Simulation: ${selectedScenario.name}`,
-            timestamp: new Date().toISOString(),
-            scanDate: new Date().toISOString(),
-            industry: report.industry,
-            overallScore: response.data.predictedScores?.overall || report.overallScore,
-            gdprScore: response.data.predictedScores?.gdpr || report.gdprScore,
-            hipaaScore: response.data.predictedScores?.hipaa || report.hipaaScore,
-            soc2Score: response.data.predictedScores?.soc2 || report.soc2Score,
-            summary: `Simulation of "${selectedScenario.name}" based on "${report.documentName}"`,
-            risks: response.data.riskTrends?.map(trend => ({
-              id: trend.riskId || `risk-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
-              title: trend.regulation,
-              description: trend.description,
-              severity: trend.projectedSeverity || trend.currentSeverity,
-              regulation: trend.regulation,
-              mitigation: `Address the ${trend.impact} impact of this regulation change`
-            })) || [],
-            userId: report.userId,
-            complianceStatus: 'simulation',
-            regulations: report.regulations,
-            // Add simulation metadata
-            isSimulation: true,
-            simulationDetails: {
-              simulationType: 'predictive-analysis',
-              scenarioName: selectedScenario.name,
-              scenarioId: selectedScenario.id,
-              analysisDate: new Date().toISOString(),
-              baseDocumentId: report.documentId,
-              baseDocumentName: report.documentName
-            }
-          };
-          
-          // Add to history
-          addReportToHistory(simulationReport);
-          console.log("Added simulation report to history:", simulationReport);
-        }
       } else {
         throw new Error('No simulation data returned');
       }

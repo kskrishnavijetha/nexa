@@ -1,7 +1,6 @@
 
 import { Industry, RiskSeverity, Region } from './common';
 import { Suggestion } from './suggestion';
-import { SimulationDetails } from './simulation';
 
 export interface ComplianceRisk {
   id?: string;
@@ -43,9 +42,6 @@ export interface ComplianceReport {
   suggestions?: Suggestion[];
   pageCount?: number;
   originalFileName?: string;
-  // Add simulation-related fields
-  isSimulation?: boolean;
-  simulationDetails?: SimulationDetails;
 }
 
 export type RiskItem = ComplianceRisk;
