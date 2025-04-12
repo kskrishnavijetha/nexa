@@ -37,11 +37,6 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     }
   }, [initialPlan, currentSubscription]);
 
-  // Helper function to get price for the selected tier
-  const getPriceForTier = (tier: string) => {
-    return getPrice(tier, 'monthly');
-  };
-
   const handleSuccess = (paymentId: string) => {
     console.log("Handling subscription success:", paymentId, "for tier:", selectedTier);
     
@@ -68,7 +63,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           selectedTier={selectedTier}
           billingCycle={billingCycle}
           onSelectTier={setSelectedTier}
-          getPrice={getPriceForTier}
+          initialTier={initialPlan}
         />
       </div>
 
@@ -91,7 +86,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
       <PaymentSummary 
         selectedTier={selectedTier}
         billingCycle={billingCycle}
-        getPrice={getPriceForTier}
+        getPrice={getPrice}
       />
     </div>
   );
