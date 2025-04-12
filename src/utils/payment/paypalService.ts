@@ -112,13 +112,12 @@ export const createPayPalButtons = (
           plan_id: planId,
           application_context: {
             shipping_preference: 'NO_SHIPPING',
-            user_action: 'CONTINUE',
+            // Using PAY_NOW with a login landing page to force authentication
+            user_action: 'PAY_NOW',
             return_url: appBasePath,
             cancel_url: appBasePath,
             brand_name: 'ComplianceGuard',
             no_shipping: 1,
-            // Force users to enter their own PayPal credentials
-            user_action: 'PAY_NOW',
             // Set landing page to login to force authentication and prevent auto-login
             landing_page: 'LOGIN'
           }
