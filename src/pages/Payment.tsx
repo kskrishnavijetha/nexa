@@ -1,16 +1,18 @@
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import PaymentForm from '@/components/PaymentForm';
 import { getSubscription, hasActiveSubscription } from '@/utils/paymentService';
 import SubscriptionStatus from '@/components/payment/SubscriptionStatus';
 import FeatureSummary from '@/components/payment/FeatureSummary';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
+import Layout from '@/components/layout/Layout';
 
 const Payment = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const { user } = useAuth();
   const [subscription, setSubscription] = useState(getSubscription());
   const [isRenewal, setIsRenewal] = useState(false);
@@ -18,6 +20,32 @@ const Payment = () => {
   const [processingPayment, setProcessingPayment] = useState(false);
   
   useEffect(() => {
+    // Check if this is a return from PayPal
+    const token = searchParams.get('token');
+    const subscriptionId = searchParams.get('subscription_id');
+    const paypalPaymentId = searchParams.get('paymentId');
+    
+    if (token || subscriptionId || paypalPaymentId) {
+      console.log('Detected return from PayPal payment', { token, subscriptionId, paypalPaymentId });
+      
+      // Check for pending subscription in local storage
+      const pendingSubscription = localStorage.getItem('pendingSubscription');
+      if (pendingSubscription) {
+        try {
+          // Process the stored data
+          const subData = JSON.parse(pendingSubscription);
+          setSelectedPlan(subData.plan);
+          
+          // Clear the storage item after retrieving the data
+          localStorage.removeItem('pendingSubscription');
+          
+          toast.success('Payment processed successfully! Activating your subscription...');
+        } catch (err) {
+          console.error('Error processing PayPal return data:', err);
+        }
+      }
+    }
+    
     // Check if user has an active subscription and redirected from another page
     if (hasActiveSubscription() && location.state?.fromProtectedRoute) {
       navigate('/dashboard');
@@ -34,7 +62,7 @@ const Payment = () => {
       setIsRenewal(true);
     }
     setSubscription(currentSubscription);
-  }, [location.state, navigate]);
+  }, [location.state, navigate, searchParams]);
 
   const handlePaymentSuccess = (paymentId: string) => {
     console.log('Payment successful:', paymentId);
@@ -59,48 +87,52 @@ const Payment = () => {
   // If user is not authenticated, they shouldn't be on this page
   if (!user) {
     return (
-      <div className="container mx-auto py-12 text-center">
-        <h1 className="text-3xl font-bold mb-4">Please sign in to continue</h1>
-        <p className="mb-4">You need to sign in to access subscription options.</p>
-        <button 
-          className="bg-primary text-white px-4 py-2 rounded"
-          onClick={() => navigate('/sign-in')}
-        >
-          Sign In
-        </button>
-      </div>
+      <Layout>
+        <div className="container mx-auto py-12 text-center">
+          <h1 className="text-3xl font-bold mb-4">Please sign in to continue</h1>
+          <p className="mb-4">You need to sign in to access subscription options.</p>
+          <button 
+            className="bg-primary text-white px-4 py-2 rounded"
+            onClick={() => navigate('/sign-in')}
+          >
+            Sign In
+          </button>
+        </div>
+      </Layout>
     );
   }
 
   return (
-    <div className="container mx-auto py-12">
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold text-center mb-10">
-          {isRenewal ? 'Renew Your Subscription' : (hasActiveSubscription() ? 'Manage Your Subscription' : 'Choose Your Subscription Plan')}
-        </h1>
-        
-        {subscription && (
-          <SubscriptionStatus 
-            subscription={subscription} 
-            onRenew={handleRenewClick} 
-          />
-        )}
-        
-        {(isRenewal || !hasActiveSubscription()) && (
-          <div className="flex flex-col md:flex-row gap-8">
-            <div className="flex-1">
-              <PaymentForm 
-                onSuccess={handlePaymentSuccess} 
-                initialPlan={selectedPlan} 
-              />
+    <Layout>
+      <div className="container mx-auto py-12">
+        <div className="max-w-5xl mx-auto">
+          <h1 className="text-3xl font-bold text-center mb-10">
+            {isRenewal ? 'Renew Your Subscription' : (hasActiveSubscription() ? 'Manage Your Subscription' : 'Choose Your Subscription Plan')}
+          </h1>
+          
+          {subscription && (
+            <SubscriptionStatus 
+              subscription={subscription} 
+              onRenew={handleRenewClick} 
+            />
+          )}
+          
+          {(isRenewal || !hasActiveSubscription()) && (
+            <div className="flex flex-col md:flex-row gap-8">
+              <div className="flex-1">
+                <PaymentForm 
+                  onSuccess={handlePaymentSuccess} 
+                  initialPlan={selectedPlan} 
+                />
+              </div>
+              <div className="flex-1">
+                <FeatureSummary />
+              </div>
             </div>
-            <div className="flex-1">
-              <FeatureSummary />
-            </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

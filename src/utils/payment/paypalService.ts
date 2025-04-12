@@ -39,7 +39,10 @@ export const loadPayPalScript = (): Promise<void> => {
     }
 
     const script = document.createElement('script');
-    // Remove commit=false to allow PayPal to handle the flow naturally
+    // Add return_url parameter for redirect after payment completion
+    const currentUrl = window.location.href.split('?')[0]; // Remove any query parameters
+    const returnUrl = currentUrl.endsWith('/') ? `${currentUrl}payment` : `${currentUrl}/payment`;
+    
     script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&vault=true`;
     script.async = true;
     script.onload = () => resolve();
@@ -91,6 +94,10 @@ export const createPayPalButtons = (
   console.log(`Creating PayPal buttons for plan: ${plan}, planId: ${planId}`);
 
   try {
+    // Create the application return URL
+    const appUrl = window.location.href.split('?')[0].split('#')[0]; // Clean URL
+    const appBasePath = appUrl.endsWith('/payment') ? appUrl : (appUrl.endsWith('/') ? `${appUrl}payment` : `${appUrl}/payment`);
+    
     window.paypal.Buttons({
       style: {
         layout: 'vertical',
@@ -101,14 +108,24 @@ export const createPayPalButtons = (
       createSubscription: function(data: any, actions: any) {
         console.log('Creating subscription with plan ID:', planId);
         return actions.subscription.create({
-          plan_id: planId
+          plan_id: planId,
+          application_context: {
+            return_url: appBasePath,
+            cancel_url: appBasePath
+          }
         });
       },
       onApprove: function(data: any, actions: any) {
         console.log('Subscription approved:', data);
         // Handle subscription success
         onApprove(data);
-        // Don't return false here - allow PayPal to complete its flow
+        // Save subscription data to local storage before PayPal redirects
+        const subscriptionDetails = {
+          subscriptionID: data.subscriptionID,
+          plan: plan,
+          timestamp: new Date().toISOString()
+        };
+        localStorage.setItem('pendingSubscription', JSON.stringify(subscriptionDetails));
       },
       onError: function(err: any) {
         console.error('PayPal error:', err);

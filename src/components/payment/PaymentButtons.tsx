@@ -1,10 +1,11 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { shouldUpgrade } from '@/utils/paymentService';
 import { loadPayPalScript, createPayPalButtons } from '@/utils/payment/paypalService';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface PaymentButtonsProps {
   onSuccess?: (paymentId: string) => void;
@@ -23,6 +24,31 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
 }) => {
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const scriptLoaded = useRef(false);
+  const [isPayPalReady, setIsPayPalReady] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check for pending subscriptions on component mount
+  useEffect(() => {
+    const pendingSubscription = localStorage.getItem('pendingSubscription');
+    if (pendingSubscription) {
+      try {
+        const subData = JSON.parse(pendingSubscription);
+        console.log('Found pending subscription:', subData);
+        
+        // Clear the pending subscription
+        localStorage.removeItem('pendingSubscription');
+        
+        // Process the subscription
+        if (subData.subscriptionID) {
+          toast.success(`${subData.plan.charAt(0).toUpperCase() + subData.plan.slice(1)} plan subscription created successfully!`);
+          onSuccess(subData.subscriptionID);
+        }
+      } catch (error) {
+        console.error('Error processing pending subscription:', error);
+      }
+    }
+  }, [onSuccess]);
 
   // Effect for PayPal integration for paid tiers
   useEffect(() => {
@@ -34,54 +60,23 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
           
           if (window.paypal && paypalContainerRef.current) {
             scriptLoaded.current = true;
+            setIsPayPalReady(true);
+            setLoading(false);
             
-            // Select the appropriate plan ID based on the tier
-            let planId;
-            
-            if (tier === 'basic') {
-              planId = 'P-0G576384KT1375804M7UPCYY';
-            } else if (tier === 'pro') {
-              planId = 'P-0F289070AR785993EM7UO47Y';
-            } else if (tier === 'enterprise') {
-              planId = 'P-76C19200WU898035NM7UO5YQ';
-            }
-            
-            window.paypal.Buttons({
-              style: {
-                shape: 'rect',
-                color: 'gold',
-                layout: 'vertical',
-                label: tier === 'basic' ? 'paypal' : 'subscribe'
+            createPayPalButtons(
+              paypalContainerRef.current.id,
+              tier,
+              billingCycle,
+              (data) => {
+                console.log('PayPal subscription created:', data);
+                // The redirect will happen automatically, but we save the data beforehand
               },
-              createSubscription: function(data: any, actions: any) {
-                return actions.subscription.create({
-                  /* Creates the subscription */
-                  plan_id: planId
-                });
-              },
-              onApprove: function(data: any, actions: any) {
-                // Handle successful subscription
-                console.log('Subscription created:', data.subscriptionID);
-                
-                // Use the onSuccess callback directly here
-                onSuccess(data.subscriptionID);
-                toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan subscription created successfully!`);
-                
-                // Allow PayPal to complete its flow
-              },
-              onCancel: function() {
-                console.log('Subscription canceled');
-                toast.info('Subscription process was canceled.');
-                setLoading(false);
-              },
-              onError: function(err: any) {
-                console.error('PayPal error:', err);
+              (error) => {
+                console.error('PayPal error:', error);
                 toast.error('There was an error processing your subscription. Please try again.');
                 setLoading(false);
               }
-            }).render(paypalContainerRef.current);
-            
-            setLoading(false);
+            );
           }
         } catch (error) {
           console.error('Failed to load PayPal script:', error);
@@ -92,7 +87,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
 
       loadScript();
     }
-  }, [tier, onSuccess, setLoading]);
+  }, [tier, billingCycle, setLoading, onSuccess]);
 
   // For free tier, use a regular button
   const needsUpgrade = tier !== 'free' || shouldUpgrade();
@@ -104,7 +99,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   if (tier === 'basic' || tier === 'pro' || tier === 'enterprise') {
     return (
       <div className="w-full">
-        <div ref={paypalContainerRef} className="w-full"></div>
+        <div id="paypal-button-container" ref={paypalContainerRef} className="w-full"></div>
         {loading && (
           <div className="flex justify-center items-center mt-2">
             <Loader2 className="h-4 w-4 animate-spin mr-2" />

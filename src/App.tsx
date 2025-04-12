@@ -6,6 +6,7 @@ import Index from './pages/Index';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import PricingPlans from './pages/PricingPlans';
+import Payment from './pages/Payment';
 import Dashboard from './pages/Dashboard';
 import DocumentAnalysis from './pages/DocumentAnalysis';
 import History from './pages/History';
@@ -16,7 +17,6 @@ import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toaster } from 'sonner';
 import Settings from './pages/Settings';
-import Layout from './components/layout/Layout';
 
 export default function App() {
   return (
@@ -28,6 +28,7 @@ export default function App() {
           <Route path="/sign-in" element={<SignIn />} />
           <Route path="/sign-up" element={<SignUp />} />
           <Route path="/pricing" element={<PricingPlans />} />
+          <Route path="/payment" element={<Payment />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/document-analysis" element={<DocumentAnalysis />} />
