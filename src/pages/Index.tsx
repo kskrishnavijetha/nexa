@@ -4,11 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import Features from '@/components/Features';
 import Hero from '@/components/home/Hero';
 import WhyChooseSection from '@/components/home/WhyChooseSection';
+import FaqSection from '@/components/home/FaqSection';
 import ComplianceFeaturesSection from '@/components/home/ComplianceFeaturesSection';
 import IndustriesSection from '@/components/home/IndustriesSection';
 import ResultsSection from '@/components/home/ResultsSection';
 import UserGuide from '@/components/home/UserGuide';
-import FaqSection from '@/components/home/FaqSection';
 import TrustedBySection from '@/components/home/TrustedBySection';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -54,10 +54,10 @@ const Index = () => {
           <Hero />
           <TrustedBySection />
           <WhyChooseSection />
+          <FaqSection />
           <ComplianceFeaturesSection />
           <IndustriesSection />
           <ResultsSection />
-          <FaqSection />
           <UserGuide />
           <Features />
         </div>
@@ -67,3 +67,4 @@ const Index = () => {
 };
 
 export default Index;
+
