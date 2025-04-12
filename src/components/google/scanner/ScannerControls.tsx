@@ -7,7 +7,7 @@ import { GoogleService } from '../types';
 import { Industry } from '@/utils/types';
 import { SupportedLanguage } from '@/utils/language';
 import { Region } from '@/utils/types';
-import { shouldUpgradeTier } from '@/utils/paymentService';
+import { shouldUpgradeTier, recordScanUsage, getSubscription } from '@/utils/paymentService';
 import { useNavigate } from 'react-router-dom';
 
 interface ScannerControlsProps {
@@ -72,6 +72,16 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
     }
     
     try {
+      // Record scan usage when starting a scan
+      recordScanUsage();
+      
+      // Display remaining scans notification
+      const subscription = getSubscription();
+      if (subscription) {
+        const scansRemaining = subscription.scansLimit - subscription.scansUsed;
+        toast.info(`Scan started. You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);
+      }
+      
       await onScan(connectedServices, industry, language, region);
     } catch (error) {
       console.error('Error starting scan:', error);

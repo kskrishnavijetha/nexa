@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { uploadDocument } from '@/utils/fileUploadService';
 import { requestComplianceCheck } from '@/utils/complianceService';
 import { ComplianceReport, Industry, Region } from '@/utils/types';
+import { getSubscription, shouldUpgradeTier } from '@/utils/paymentService';
 
 export const useDocumentUpload = (onReportGenerated: (report: ComplianceReport) => void) => {
   const [file, setFile] = useState<File | null>(null);
@@ -16,6 +17,12 @@ export const useDocumentUpload = (onReportGenerated: (report: ComplianceReport) 
   const handleUpload = async (region?: Region) => {
     if (!file) {
       toast.error('Please select a file first');
+      return;
+    }
+
+    // Check if user has reached scan limit
+    if (shouldUpgradeTier()) {
+      toast.error('You have used all available scans for your current plan');
       return;
     }
 
@@ -58,7 +65,7 @@ export const useDocumentUpload = (onReportGenerated: (report: ComplianceReport) 
       
       if (complianceResult.data) {
         toast.success('Document analyzed successfully');
-        // Let the parent component handle adding to history
+        // Let the parent component handle adding to history and recording scan usage
         onReportGenerated(complianceResult.data);
       }
     } catch (error) {

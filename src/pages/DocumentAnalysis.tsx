@@ -9,7 +9,7 @@ import AnalysisResults from '@/components/document-analysis/AnalysisResults';
 import { addReportToHistory } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
-import { shouldUpgradeTier } from '@/utils/paymentService';
+import { shouldUpgradeTier, recordScanUsage, getSubscription } from '@/utils/paymentService';
 
 const DocumentAnalysis = () => {
   const [report, setReport] = useState<ComplianceReport | null>(null);
@@ -28,6 +28,16 @@ const DocumentAnalysis = () => {
   }, [navigate]);
 
   const handleReportGenerated = (reportData: ComplianceReport) => {
+    // Record scan usage when a report is generated
+    recordScanUsage();
+    
+    // Display remaining scans notification
+    const subscription = getSubscription();
+    if (subscription) {
+      const scansRemaining = subscription.scansLimit - subscription.scansUsed;
+      toast.info(`Scan complete. You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);
+    }
+    
     // Add user ID to the report if available
     const reportWithUser = user?.id 
       ? { ...reportData, userId: user.id }

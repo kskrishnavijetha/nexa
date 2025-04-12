@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { GoogleService, ScanResults, ScanViolation } from '@/components/google/types';
 import { SupportedLanguage } from '@/utils/language';
@@ -7,6 +8,7 @@ import { toast } from 'sonner';
 import { useScanState } from './google/useScanState';
 import { useRealTimeSimulation } from './google/useRealTimeSimulation';
 import { useFallbackResults } from './google/useFallbackResults';
+import { recordScanUsage, getSubscription, shouldUpgradeTier } from '@/utils/paymentService';
 
 export function useServiceScanner() {
   const scanState = useScanState();
@@ -35,7 +37,16 @@ export function useServiceScanner() {
       return;
     }
     
+    // Check if the user has reached scan limit before continuing
+    if (shouldUpgradeTier()) {
+      toast.error('You have used all available scans for your current plan');
+      return;
+    }
+    
     console.log('Starting scan with:', { connectedServices, industry, language, region });
+    
+    // Record scan usage - the actual counting is done in recordScanUsage
+    // No need to call this here as it's already called in ScannerControls
     
     // Store the selected industry for later reference
     scanState.setSelectedIndustry(industry);
@@ -106,6 +117,13 @@ export function useServiceScanner() {
         toast.success(`Scan completed with ${violations.length} issues detected`);
       } else {
         toast.success('Scan completed successfully. No issues detected.');
+      }
+      
+      // Show remaining scans after completion
+      const subscription = getSubscription();
+      if (subscription) {
+        const scansRemaining = subscription.scansLimit - subscription.scansUsed;
+        toast.info(`You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);
       }
     } catch (error) {
       console.error('Error scanning:', error);
