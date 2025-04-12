@@ -4,6 +4,7 @@
  */
 import { saveSubscription } from './subscriptionService';
 import type { PaymentResult } from './paymentProcessor';
+import { toast } from 'sonner';
 
 // PayPal client ID - Replace with your actual PayPal client ID
 const PAYPAL_CLIENT_ID = 'AXKd2EHw7ySZihlaN06rqnABzzQdhD8ueu738V8iCtC93o8PwlZdjO7hwVITJgTsmjOq8dHJaC1vMMKT';
@@ -38,17 +39,41 @@ export const loadPayPalScript = (): Promise<void> => {
       return;
     }
 
+    // First remove any existing paypal script to avoid conflicts
+    const existingScript = document.querySelector('script[src*="paypal.com/sdk/js"]');
+    if (existingScript) {
+      document.body.removeChild(existingScript);
+    }
+
     const script = document.createElement('script');
     // Add return_url parameter for redirect after payment completion
     const currentUrl = window.location.href.split('?')[0]; // Remove any query parameters
     const returnUrl = currentUrl.endsWith('/') ? `${currentUrl}payment` : `${currentUrl}/payment`;
     
-    // Explicitly prevent email pre-filling by setting specific parameters
-    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&vault=false&disable-card=false`;
+    // Set up parameters to force user authentication and no email pre-filling
+    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&vault=false&disable-funding=credit`;
     script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load PayPal SDK'));
+    
+    script.onload = () => {
+      console.log('PayPal SDK loaded successfully');
+      resolve();
+    };
+    
+    script.onerror = (error) => {
+      console.error('Failed to load PayPal SDK:', error);
+      toast.error('Failed to load payment system. Please refresh and try again.');
+      reject(new Error('Failed to load PayPal SDK'));
+    };
+    
     document.body.appendChild(script);
+    
+    // Set a timeout in case the script takes too long to load
+    setTimeout(() => {
+      if (!window.paypal) {
+        toast.error('Payment system loading timed out. Please refresh and try again.');
+        reject(new Error('PayPal SDK loading timeout'));
+      }
+    }, 10000);
   });
 };
 
@@ -137,6 +162,7 @@ export const createPayPalButtons = (
       },
       onError: function(err: any) {
         console.error('PayPal error:', err);
+        toast.error('There was an error with PayPal. Please try again.');
         onError(err);
       }
     }).render(`#${containerId}`);
@@ -144,6 +170,7 @@ export const createPayPalButtons = (
     console.log(`PayPal buttons rendered in #${containerId}`);
   } catch (error) {
     console.error('Error rendering PayPal buttons:', error);
+    toast.error('Failed to display payment options. Please refresh the page.');
     onError(error);
   }
 };

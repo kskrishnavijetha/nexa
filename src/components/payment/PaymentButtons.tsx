@@ -25,6 +25,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const scriptLoaded = useRef(false);
   const [isPayPalReady, setIsPayPalReady] = useState(false);
+  const [paypalError, setPaypalError] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -56,12 +57,12 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
       const loadScript = async () => {
         try {
           setLoading(true);
+          setPaypalError(null);
           await loadPayPalScript();
           
           if (window.paypal && paypalContainerRef.current) {
             scriptLoaded.current = true;
             setIsPayPalReady(true);
-            setLoading(false);
             
             createPayPalButtons(
               paypalContainerRef.current.id,
@@ -73,19 +74,32 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
               },
               (error) => {
                 console.error('PayPal error:', error);
-                toast.error('There was an error processing your subscription. Please try again.');
+                setPaypalError('There was an error processing your subscription. Please try again.');
                 setLoading(false);
               }
             );
           }
+          setLoading(false);
         } catch (error) {
           console.error('Failed to load PayPal script:', error);
-          toast.error('Failed to load payment system. Please refresh and try again.');
+          setPaypalError('Failed to load payment system. Please refresh and try again.');
           setLoading(false);
         }
       };
 
       loadScript();
+      
+      // Add a fallback to retry loading if it fails
+      const retryTimeout = setTimeout(() => {
+        if (!scriptLoaded.current) {
+          console.log('Retrying PayPal script load...');
+          loadScript();
+        }
+      }, 3000);
+      
+      return () => {
+        clearTimeout(retryTimeout);
+      };
     }
   }, [tier, billingCycle, setLoading, onSuccess]);
 
@@ -95,15 +109,35 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
     ? (needsUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan')
     : `Subscribe to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`;
   
+  const handleRetry = () => {
+    scriptLoaded.current = false;
+    setPaypalError(null);
+    setIsPayPalReady(false);
+  };
+  
   // For paid tiers, use PayPal buttons
   if (tier === 'basic' || tier === 'pro' || tier === 'enterprise') {
     return (
       <div className="w-full">
         <div id="paypal-button-container" ref={paypalContainerRef} className="w-full"></div>
+        
         {loading && (
           <div className="flex justify-center items-center mt-2">
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
             <span>Processing...</span>
+          </div>
+        )}
+        
+        {paypalError && (
+          <div className="mt-4 text-center">
+            <p className="text-red-500 text-sm mb-2">{paypalError}</p>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleRetry}
+            >
+              Retry Loading PayPal
+            </Button>
           </div>
         )}
       </div>
