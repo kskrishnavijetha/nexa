@@ -30,42 +30,59 @@ declare global {
 }
 
 /**
- * Load PayPal SDK
+ * Load PayPal SDK with enhanced error handling and retry capabilities
  */
 export const loadPayPalScript = (): Promise<void> => {
   return new Promise((resolve, reject) => {
+    // If PayPal is already loaded, resolve immediately
     if (window.paypal) {
+      console.log('PayPal SDK already loaded');
       resolve();
       return;
     }
 
-    // First remove any existing paypal script to avoid conflicts
-    const existingScript = document.querySelector('script[src*="paypal.com/sdk/js"]');
-    if (existingScript) {
-      document.body.removeChild(existingScript);
-    }
-
-    const script = document.createElement('script');
-    // Add return_url parameter for redirect after payment completion
-    const currentUrl = window.location.href.split('?')[0]; // Remove any query parameters
-    const returnUrl = currentUrl.endsWith('/') ? `${currentUrl}payment` : `${currentUrl}/payment`;
+    let retryCount = 0;
+    const maxRetries = 3;
     
-    // Set up parameters to force user authentication and no email pre-filling
-    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&vault=false&disable-funding=credit`;
-    script.async = true;
-    
-    script.onload = () => {
-      console.log('PayPal SDK loaded successfully');
-      resolve();
+    const loadScript = () => {
+      // First remove any existing paypal script to avoid conflicts
+      const existingScript = document.querySelector('script[src*="paypal.com/sdk/js"]');
+      if (existingScript) {
+        console.log('Removing existing PayPal script');
+        existingScript.parentNode?.removeChild(existingScript);
+      }
+      
+      const script = document.createElement('script');
+      // Add return_url parameter for redirect after payment completion
+      const currentUrl = window.location.href.split('?')[0]; // Remove any query parameters
+      const returnUrl = currentUrl.endsWith('/') ? `${currentUrl}payment` : `${currentUrl}/payment`;
+      
+      // Set up parameters to force user authentication and no email pre-filling
+      script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&vault=false&disable-funding=credit`;
+      script.async = true;
+      
+      script.onload = () => {
+        console.log('PayPal SDK loaded successfully');
+        resolve();
+      };
+      
+      script.onerror = (error) => {
+        console.error(`Failed to load PayPal SDK (attempt ${retryCount + 1}/${maxRetries}):`, error);
+        
+        if (retryCount < maxRetries) {
+          retryCount++;
+          console.log(`Retrying PayPal SDK load (${retryCount}/${maxRetries})...`);
+          setTimeout(loadScript, 2000); // Retry after 2 seconds
+        } else {
+          toast.error('Failed to load payment system. Please refresh and try again.');
+          reject(new Error(`Failed to load PayPal SDK after ${maxRetries} attempts`));
+        }
+      };
+      
+      document.body.appendChild(script);
     };
     
-    script.onerror = (error) => {
-      console.error('Failed to load PayPal SDK:', error);
-      toast.error('Failed to load payment system. Please refresh and try again.');
-      reject(new Error('Failed to load PayPal SDK'));
-    };
-    
-    document.body.appendChild(script);
+    loadScript();
     
     // Set a timeout in case the script takes too long to load
     setTimeout(() => {
@@ -73,7 +90,7 @@ export const loadPayPalScript = (): Promise<void> => {
         toast.error('Payment system loading timed out. Please refresh and try again.');
         reject(new Error('PayPal SDK loading timeout'));
       }
-    }, 10000);
+    }, 15000); // 15 seconds timeout
   });
 };
 
@@ -137,13 +154,12 @@ export const createPayPalButtons = (
           plan_id: planId,
           application_context: {
             shipping_preference: 'NO_SHIPPING',
-            // Using PAY_NOW with a login landing page to force authentication
             user_action: 'PAY_NOW',
             return_url: appBasePath,
             cancel_url: appBasePath,
             brand_name: 'ComplianceGuard',
             no_shipping: 1,
-            // Set landing page to login to force authentication and prevent auto-login
+            // Set landing page to login to force authentication
             landing_page: 'LOGIN'
           }
         });
