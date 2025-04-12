@@ -15,6 +15,8 @@ interface PaymentButtonsProps {
   billingCycle: 'monthly' | 'annually';
 }
 
+const MAX_RETRIES = 2;
+
 const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   onSuccess = () => {},
   tier,
@@ -25,6 +27,8 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   const paypalContainerRef = useRef<HTMLDivElement>(null);
   const scriptLoaded = useRef(false);
   const [isPayPalReady, setIsPayPalReady] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const [paypalError, setPaypalError] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -56,6 +60,8 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
       const loadScript = async () => {
         try {
           setLoading(true);
+          setPaypalError(null);
+          
           await loadPayPalScript();
           
           if (window.paypal && paypalContainerRef.current) {
@@ -80,14 +86,28 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
           }
         } catch (error) {
           console.error('Failed to load PayPal script:', error);
-          toast.error('Failed to load payment system. Please refresh and try again.');
+          setPaypalError(error instanceof Error ? error.message : 'Failed to load payment system');
           setLoading(false);
+          
+          // Auto-retry if we haven't exceeded max retries
+          if (retryCount < MAX_RETRIES) {
+            const nextRetry = retryCount + 1;
+            setRetryCount(nextRetry);
+            console.log(`Retrying PayPal script load (${nextRetry}/${MAX_RETRIES})...`);
+            
+            // Wait a moment before retry
+            setTimeout(() => {
+              scriptLoaded.current = false;
+            }, 2000);
+          } else {
+            toast.error('Failed to load payment system. Please refresh and try again.');
+          }
         }
       };
 
       loadScript();
     }
-  }, [tier, billingCycle, setLoading, onSuccess]);
+  }, [tier, billingCycle, setLoading, onSuccess, retryCount]);
 
   // For free tier, use a regular button
   const needsUpgrade = tier !== 'free' || shouldUpgrade();
@@ -100,10 +120,29 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
     return (
       <div className="w-full">
         <div id="paypal-button-container" ref={paypalContainerRef} className="w-full"></div>
+        
         {loading && (
           <div className="flex justify-center items-center mt-2">
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            <span>Processing...</span>
+            <span>Preparing payment options...</span>
+          </div>
+        )}
+        
+        {paypalError && !loading && (
+          <div className="mt-4">
+            <p className="text-red-500 text-sm mb-2">
+              {paypalError}
+            </p>
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setRetryCount(0);
+                scriptLoaded.current = false;
+              }}
+              className="w-full"
+            >
+              Retry Loading Payment System
+            </Button>
           </div>
         )}
       </div>

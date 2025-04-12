@@ -29,25 +29,56 @@ declare global {
 }
 
 /**
+ * Clean up any existing PayPal scripts
+ */
+const cleanupExistingScripts = () => {
+  const existingScripts = document.querySelectorAll('script[src*="paypal.com/sdk/js"]');
+  existingScripts.forEach(script => {
+    document.body.removeChild(script);
+  });
+};
+
+/**
  * Load PayPal SDK
  */
 export const loadPayPalScript = (): Promise<void> => {
   return new Promise((resolve, reject) => {
+    // If already loaded, just resolve
     if (window.paypal) {
+      console.log('PayPal SDK already loaded');
       resolve();
       return;
     }
+    
+    // Clean up any existing script tags to prevent conflicts
+    cleanupExistingScripts();
 
     const script = document.createElement('script');
-    // Add return_url parameter for redirect after payment completion
-    const currentUrl = window.location.href.split('?')[0]; // Remove any query parameters
+    const currentUrl = window.location.href.split('?')[0]; 
     const returnUrl = currentUrl.endsWith('/') ? `${currentUrl}payment` : `${currentUrl}/payment`;
     
-    // Remove any buyer-email parameter that might pre-fill the email field
-    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&vault=true`;
+    // Enable card funding sources explicitly
+    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&vault=true&enable-funding=card,credit,venmo`;
     script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error('Failed to load PayPal SDK'));
+    
+    // Add timeout to catch loading issues
+    const timeoutId = setTimeout(() => {
+      console.error('PayPal SDK loading timed out');
+      reject(new Error('Failed to load PayPal SDK: timeout'));
+    }, 10000);
+    
+    script.onload = () => {
+      console.log('PayPal SDK loaded successfully');
+      clearTimeout(timeoutId);
+      resolve();
+    };
+    
+    script.onerror = (error) => {
+      console.error('Error loading PayPal SDK:', error);
+      clearTimeout(timeoutId);
+      reject(new Error('Failed to load PayPal SDK'));
+    };
+    
     document.body.appendChild(script);
   });
 };
@@ -115,7 +146,6 @@ export const createPayPalButtons = (
             user_action: 'CONTINUE',
             return_url: appBasePath,
             cancel_url: appBasePath,
-            // Prevent auto login and force user to enter their own credentials
             brand_name: 'ComplianceGuard',
             no_shipping: 1
           }
