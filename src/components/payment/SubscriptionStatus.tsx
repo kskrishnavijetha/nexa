@@ -3,7 +3,8 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { SubscriptionInfo } from '@/utils/paymentService';
 import { shouldUpgrade } from '@/utils/paymentService';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Gauge } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
 interface SubscriptionStatusProps {
   subscription: SubscriptionInfo;
@@ -16,6 +17,13 @@ const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscription, o
   const expirationDate = new Date(subscription.expirationDate);
   const formattedDate = expirationDate.toLocaleDateString();
   const needsUpgrade = shouldUpgrade();
+  
+  // Calculate percentage of scans used
+  const scansPercentage = subscription.scansLimit === 999 ? 
+    0 : // Don't show progress for unlimited plans
+    Math.min(100, Math.round((subscription.scansUsed / subscription.scansLimit) * 100));
+  
+  const scansRemaining = subscription.scansLimit - subscription.scansUsed;
   
   return (
     <div className="bg-muted/30 p-6 rounded-lg mb-8">
@@ -31,9 +39,25 @@ const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscription, o
             {subscription.active ? 'Active' : 'Expired'}
           </span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-muted-foreground">Scans used:</span>
-          <span>{subscription.scansUsed} of {subscription.scansLimit === 999 ? 'Unlimited' : subscription.scansLimit}</span>
+        <div>
+          <div className="flex justify-between mb-1">
+            <span className="text-muted-foreground">Scans usage:</span>
+            <span className="text-sm font-medium">
+              {subscription.scansUsed} of {subscription.scansLimit === 999 ? 'Unlimited' : subscription.scansLimit}
+            </span>
+          </div>
+          {subscription.scansLimit !== 999 && (
+            <div className="space-y-1">
+              <Progress 
+                value={scansPercentage} 
+                indicatorClassName={scansPercentage > 80 ? 'bg-amber-500' : 'bg-primary'}
+              />
+              <p className="text-xs text-muted-foreground flex items-center">
+                <Gauge className="h-3 w-3 mr-1 inline" />
+                {scansRemaining} scans remaining this month
+              </p>
+            </div>
+          )}
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Expires on:</span>

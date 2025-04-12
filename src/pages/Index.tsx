@@ -25,6 +25,32 @@ const Index = () => {
     <Layout>
       <div className="min-h-screen">
         <div className="container mx-auto px-4 py-8">
+          {user && subscription && (
+            <div className="mb-8 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+              <div className="flex flex-col md:flex-row items-center justify-between">
+                <div className="mb-4 md:mb-0">
+                  <h3 className="text-lg font-semibold">
+                    Your {subscription.plan} plan
+                  </h3>
+                  <p className="text-sm">
+                    {subscription.scansLimit === 999 ? 
+                      'Unlimited scans available' : 
+                      `${subscription.scansLimit - subscription.scansUsed} of ${subscription.scansLimit} scans remaining this month`
+                    }
+                  </p>
+                </div>
+                {needsUpgrade && (
+                  <Button 
+                    onClick={() => navigate('/pricing')}
+                    className="bg-amber-600 hover:bg-amber-700"
+                  >
+                    {subscription?.plan === 'free' ? 'Upgrade Plan' : 'Renew Subscription'}
+                  </Button>
+                )}
+              </div>
+            </div>
+          )}
+          
           {needsUpgrade && (
             <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
               <div className="flex flex-col md:flex-row items-center justify-between">
@@ -52,12 +78,12 @@ const Index = () => {
           )}
           
           <Hero />
-          <TrustedBySection />
           <WhyChooseSection />
+          <FaqSection />
+          <TrustedBySection />
           <ComplianceFeaturesSection />
           <IndustriesSection />
           <ResultsSection />
-          <FaqSection />
           <UserGuide />
           <Features />
         </div>

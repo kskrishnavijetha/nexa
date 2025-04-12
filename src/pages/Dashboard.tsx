@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { shouldUpgrade } from '@/utils/paymentService';
+import { shouldUpgrade, getSubscription } from '@/utils/paymentService';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
@@ -14,6 +15,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [hasData, setHasData] = useState<boolean>(false);
+  const subscription = user ? getSubscription() : null;
 
   useEffect(() => {
     const needsUpgrade = shouldUpgrade();
@@ -52,6 +54,31 @@ const Dashboard = () => {
     <SelectedReportProvider>
       <div className="container mx-auto px-4 py-8">
         <DashboardHeader />
+        
+        {subscription && (
+          <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+            <div className="flex flex-wrap items-center justify-between">
+              <div>
+                <h3 className="text-base font-medium text-slate-700">Your {subscription.plan} Plan Usage</h3>
+                <p className="text-sm text-slate-600">
+                  {subscription.scansLimit === 999 ? 
+                    'Unlimited scans available' : 
+                    `${subscription.scansLimit - subscription.scansUsed} of ${subscription.scansLimit} scans remaining this month`
+                  }
+                </p>
+              </div>
+              
+              {subscription.plan !== 'enterprise' && (
+                <button 
+                  onClick={() => navigate('/pricing')}
+                  className="text-primary hover:underline text-sm"
+                >
+                  Upgrade Plan →
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
