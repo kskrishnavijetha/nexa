@@ -94,9 +94,24 @@ export const shouldUpgrade = (): boolean => {
     return false; // No subscription yet, they'll be directed to pricing anyway
   }
   
-  // If free plan and either expired or no scans left
+  // If subscription has expired or no scans left
   return (
-    subscription.plan === 'free' && 
-    (!subscription.active || subscription.scansUsed >= subscription.scansLimit)
+    !subscription.active || 
+    subscription.scansUsed >= subscription.scansLimit
+  );
+};
+
+// Check if user needs to upgrade specifically to a higher tier than they currently have
+export const shouldUpgradeTier = (): boolean => {
+  const subscription = getSubscription();
+  
+  if (!subscription) {
+    return false;
+  }
+  
+  // Check if scans limit reached and not on enterprise plan
+  return (
+    subscription.scansUsed >= subscription.scansLimit && 
+    subscription.plan !== 'enterprise'
   );
 };

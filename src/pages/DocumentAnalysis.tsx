@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 import { ComplianceReport, generateReportPDF } from '../utils/apiService';
 import DocumentHeader from '@/components/document-analysis/DocumentHeader';
 import DocumentUploader from '@/components/document-uploader/DocumentUploader';
@@ -8,6 +9,7 @@ import AnalysisResults from '@/components/document-analysis/AnalysisResults';
 import { addReportToHistory } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
+import { shouldUpgradeTier } from '@/utils/paymentService';
 
 const DocumentAnalysis = () => {
   const [report, setReport] = useState<ComplianceReport | null>(null);
@@ -15,6 +17,15 @@ const DocumentAnalysis = () => {
   const { user } = useAuth();
   const { addScanHistory } = useServiceHistoryStore();
   const chartsContainerRef = useRef<HTMLDivElement | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if user needs to upgrade before allowing more scans
+    if (shouldUpgradeTier()) {
+      toast.error('You have used all available scans for your current plan');
+      navigate('/pricing');
+    }
+  }, [navigate]);
 
   const handleReportGenerated = (reportData: ComplianceReport) => {
     // Add user ID to the report if available

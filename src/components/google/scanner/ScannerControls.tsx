@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -7,6 +7,8 @@ import { GoogleService } from '../types';
 import { Industry } from '@/utils/types';
 import { SupportedLanguage } from '@/utils/language';
 import { Region } from '@/utils/types';
+import { shouldUpgradeTier } from '@/utils/paymentService';
+import { useNavigate } from 'react-router-dom';
 
 interface ScannerControlsProps {
   connectedServices: GoogleService[];
@@ -39,7 +41,26 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
   onScanComplete,
   isCompactView
 }) => {
+  const navigate = useNavigate();
+  const [needsUpgrade, setNeedsUpgrade] = useState(false);
+  
+  useEffect(() => {
+    // Check if user needs to upgrade
+    const upgradeNeeded = shouldUpgradeTier();
+    setNeedsUpgrade(upgradeNeeded);
+    
+    if (upgradeNeeded) {
+      toast.error('You have reached the scan limit for your current plan');
+    }
+  }, []);
+
   const handleStartScan = async () => {
+    if (needsUpgrade) {
+      toast.error('Please upgrade your plan to continue scanning');
+      navigate('/pricing');
+      return;
+    }
+    
     if (!industry) {
       toast.error('Please select an industry before scanning');
       return;
@@ -60,7 +81,7 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
 
   return (
     <Button 
-      disabled={isScanning || connectedServices.length === 0 || !industry}
+      disabled={isScanning || connectedServices.length === 0 || !industry || needsUpgrade}
       className="w-full"
       onClick={handleStartScan}
     >
@@ -69,6 +90,8 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
           Scanning...
         </>
+      ) : needsUpgrade ? (
+        'Upgrade Plan to Scan'
       ) : (
         'Start Compliance Scan'
       )}
