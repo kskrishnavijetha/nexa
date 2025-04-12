@@ -3,12 +3,12 @@
 export const pricingTiers = {
   free: {
     name: 'Free',
-    scans: 1,
+    scans: 5,
     days: 30
   },
   basic: {
     name: 'Basic',
-    scans: 10,
+    scans: 15,
     days: 30
   },
   pro: {

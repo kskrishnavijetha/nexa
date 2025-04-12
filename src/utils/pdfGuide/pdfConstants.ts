@@ -54,8 +54,8 @@ export const INTEGRATIONS = [
 
 // Pricing plans
 export const PRICING_PLANS = [
-  'Free: Basic compliance scanning (1 scan per month)',
-  'Basic: 10 scans per month with standard features',
+  'Free: Basic compliance scanning (5 scans per month)',
+  'Basic: 15 scans per month with standard features',
   'Pro: 50 scans per month with advanced features and integrations',
   'Enterprise: Unlimited scans with all features and priority support'
 ];
