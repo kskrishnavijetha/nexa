@@ -43,7 +43,8 @@ const SignUp: React.FC = () => {
         toast.error(error.message);
       } else {
         toast.success('Signup successful! Please check your email to verify your account.');
-        navigate('/');
+        // Redirect to pricing page after successful signup
+        navigate('/pricing');
       }
     } catch (error: any) {
       toast.error(error.message || 'An error occurred during sign up');
