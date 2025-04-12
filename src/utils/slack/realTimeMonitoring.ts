@@ -3,6 +3,7 @@ import { SlackScanOptions, SlackViolation } from './types';
 import { isSlackConnected } from './slackAuth';
 import { toast } from 'sonner';
 import { addReportToHistory } from '../historyService';
+import { Industry } from '@/utils/types';
 
 interface RealTimeMonitoringOptions {
   options: SlackScanOptions;
@@ -105,7 +106,7 @@ export const startRealTimeMonitoring = (options: RealTimeMonitoringOptions) => {
             documentName: `Slack Monitoring ${new Date().toLocaleString()}`,
             timestamp: new Date().toISOString(),
             scanDate: new Date().toISOString(),
-            industry: 'Technology',
+            industry: 'Cloud & SaaS' as Industry,
             overallScore: 75,
             gdprScore: 70,
             hipaaScore: 80,
@@ -113,11 +114,11 @@ export const startRealTimeMonitoring = (options: RealTimeMonitoringOptions) => {
             summary: `Real-time monitoring detected ${currentViolations.length} violations`,
             risks: currentViolations.map(v => ({
               id: v.messageId,
-              category: v.rule,
-              details: v.text,
+              title: v.rule,
+              description: v.text,
               severity: v.severity as any,
-              impact: 'High',
-              recommendation: 'Review and remove sensitive information'
+              regulation: v.rule,
+              mitigation: 'Review and remove sensitive information'
             })),
             complianceStatus: 'partially-compliant',
             regulations: ['GDPR', 'Data Privacy']

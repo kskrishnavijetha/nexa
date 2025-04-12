@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { SlackScanOptions } from '@/utils/slack/types';
+import type { SlackScanOptions as SlackScanOptionsType } from '@/utils/slack/types';
 import { SupportedLanguage } from '@/utils/language';
 import { 
   ChannelSelector, 
@@ -13,8 +13,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 
 interface SlackScanOptionsProps {
-  options: SlackScanOptions;
-  onOptionsChange: (options: SlackScanOptions) => void;
+  options: SlackScanOptionsType;
+  onOptionsChange: (options: SlackScanOptionsType) => void;
   disabled?: boolean;
 }
 
@@ -27,11 +27,11 @@ const SlackScanOptions: React.FC<SlackScanOptionsProps> = ({
     onOptionsChange({ ...options, channels });
   };
 
-  const handleTimeRangeChange = (timeRange: SlackScanOptions['timeRange']) => {
+  const handleTimeRangeChange = (timeRange: SlackScanOptionsType['timeRange']) => {
     onOptionsChange({ ...options, timeRange });
   };
 
-  const handleSensitivityChange = (sensitivityLevel: SlackScanOptions['sensitivityLevel']) => {
+  const handleSensitivityChange = (sensitivityLevel: SlackScanOptionsType['sensitivityLevel']) => {
     onOptionsChange({ ...options, sensitivityLevel });
   };
 

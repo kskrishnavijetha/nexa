@@ -137,10 +137,10 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({
                   timestamp: selectedReport.timestamp,
                   violations: selectedReport.risks.map(risk => ({
                     messageId: risk.id || Math.random().toString(),
-                    text: risk.details,
+                    text: risk.description,
                     severity: risk.severity as any,
-                    rule: risk.category,
-                    context: risk.details,
+                    rule: risk.title,
+                    context: risk.description,
                     channel: 'general',
                     user: selectedReport.organization || 'User',
                     timestamp: selectedReport.timestamp

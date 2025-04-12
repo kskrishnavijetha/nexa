@@ -7,24 +7,26 @@ import { MessageCircle } from 'lucide-react';
 
 interface ChannelSelectorProps {
   channels: string[];
-  onAddChannel: (channel: string) => void;
-  onRemoveChannel: (channel: string) => void;
+  onChange: (channels: string[]) => void;
   disabled?: boolean;
 }
 
 const ChannelSelector: React.FC<ChannelSelectorProps> = ({
   channels,
-  onAddChannel,
-  onRemoveChannel,
+  onChange,
   disabled = false
 }) => {
   const [channelInput, setChannelInput] = React.useState('');
   
   const handleAddChannel = () => {
     if (channelInput.trim()) {
-      onAddChannel(channelInput.trim());
+      onChange([...channels, channelInput.trim()]);
       setChannelInput('');
     }
+  };
+
+  const handleRemoveChannel = (channel: string) => {
+    onChange(channels.filter(c => c !== channel));
   };
   
   return (
@@ -58,7 +60,7 @@ const ChannelSelector: React.FC<ChannelSelectorProps> = ({
             >
               #{channel}
               <button
-                onClick={() => onRemoveChannel(channel)}
+                onClick={() => handleRemoveChannel(channel)}
                 className="ml-2 text-secondary-foreground/70 hover:text-secondary-foreground"
                 disabled={disabled}
               >
