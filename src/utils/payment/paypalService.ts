@@ -43,8 +43,8 @@ export const loadPayPalScript = (): Promise<void> => {
     const currentUrl = window.location.href.split('?')[0]; // Remove any query parameters
     const returnUrl = currentUrl.endsWith('/') ? `${currentUrl}payment` : `${currentUrl}/payment`;
     
-    // Remove any buyer-email parameter that might pre-fill the email field
-    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&vault=true`;
+    // Explicitly prevent email pre-filling by setting specific parameters
+    script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD&intent=subscription&vault=false&disable-card=false`;
     script.async = true;
     script.onload = () => resolve();
     script.onerror = () => reject(new Error('Failed to load PayPal SDK'));
@@ -115,9 +115,12 @@ export const createPayPalButtons = (
             user_action: 'CONTINUE',
             return_url: appBasePath,
             cancel_url: appBasePath,
-            // Prevent auto login and force user to enter their own credentials
             brand_name: 'ComplianceGuard',
-            no_shipping: 1
+            no_shipping: 1,
+            // Force users to enter their own PayPal credentials
+            user_action: 'PAY_NOW',
+            // Set landing page to login to force authentication and prevent auto-login
+            landing_page: 'LOGIN'
           }
         });
       },
