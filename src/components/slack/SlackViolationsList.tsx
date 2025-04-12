@@ -1,170 +1,147 @@
 
 import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SlackViolation } from '@/utils/slack/types';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, AlertCircle, Info, User, MessageCircle, Calendar } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { formatDistance } from 'date-fns';
+import { AlertTriangle, FileSearch, Loader2 } from 'lucide-react';
 
 interface SlackViolationsListProps {
   violations: SlackViolation[];
-  isLoading?: boolean;
+  isLoading: boolean;
 }
 
-const SlackViolationsList: React.FC<SlackViolationsListProps> = ({ violations, isLoading = false }) => {
+const SlackViolationsList: React.FC<SlackViolationsListProps> = ({ 
+  violations,
+  isLoading
+}) => {
+  // Group violations by severity for the summary
+  const highSeverityCount = violations.filter(v => v.severity === 'high').length;
+  const mediumSeverityCount = violations.filter(v => v.severity === 'medium').length;
+  const lowSeverityCount = violations.filter(v => v.severity === 'low').length;
+
   if (isLoading) {
     return (
-      <Card>
+      <Card className="border border-gray-200">
         <CardHeader>
-          <CardTitle>Scanning for Violations</CardTitle>
-          <CardDescription>
-            Analyzing Slack messages and files for compliance issues...
-          </CardDescription>
+          <CardTitle className="flex items-center">
+            <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+            <span>Scanning Slack Messages</span>
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="flex justify-center py-8">
-            <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary mb-4"></div>
-              <p className="text-muted-foreground">This may take a few moments</p>
-            </div>
-          </div>
+        <CardContent className="py-8 text-center">
+          <Loader2 className="h-12 w-12 mx-auto mb-4 animate-spin text-primary" />
+          <p className="text-muted-foreground">
+            Analyzing messages for compliance violations...
+          </p>
         </CardContent>
       </Card>
     );
   }
-  
-  if (violations.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>No Violations Found</CardTitle>
-          <CardDescription>
-            No compliance violations were detected in the scanned Slack messages and files.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex justify-center py-8 text-green-500">
-            <div className="flex flex-col items-center">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="64" 
-                height="64" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-              >
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                <polyline points="22 4 12 14.01 9 11.01"></polyline>
-              </svg>
-              <p className="mt-4 text-center text-muted-foreground">
-                All scanned content is compliant with your policies
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-  
+
   return (
-    <Card>
+    <Card className="border border-gray-200">
       <CardHeader>
-        <CardTitle className="flex items-center">
-          <AlertTriangle className="h-5 w-5 mr-2 text-orange-500" />
-          Compliance Violations ({violations.length})
-        </CardTitle>
-        <CardDescription>
-          The following compliance issues were detected in Slack messages and files.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-[400px] pr-4">
-          <div className="space-y-4">
-            {violations.map((violation) => (
-              <Card key={`${violation.messageId}-${violation.rule}`} className="border-red-100">
-                <CardHeader className="py-2 px-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      {violation.severity === 'high' ? (
-                        <AlertTriangle className="h-4 w-4 mr-2 text-red-500" />
-                      ) : violation.severity === 'medium' ? (
-                        <AlertCircle className="h-4 w-4 mr-2 text-orange-500" />
-                      ) : (
-                        <Info className="h-4 w-4 mr-2 text-blue-500" />
-                      )}
-                      <span className="font-medium">{getRuleDisplay(violation.rule)}</span>
-                    </div>
-                    <Badge 
-                      className={
-                        violation.severity === 'high' ? 'bg-red-500' : 
-                        violation.severity === 'medium' ? 'bg-orange-500' : 
-                        'bg-blue-500'
-                      }
-                    >
-                      {violation.severity} severity
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="py-2 px-4">
-                  <div className="space-y-2">
-                    <p className="text-sm bg-gray-50 p-2 rounded">{violation.context}</p>
-                    <div className="flex flex-wrap gap-y-1 gap-x-4 text-xs text-muted-foreground">
-                      <div className="flex items-center">
-                        <User className="h-3 w-3 mr-1" />
-                        {violation.user}
-                      </div>
-                      <div className="flex items-center">
-                        <MessageCircle className="h-3 w-3 mr-1" />
-                        #{violation.channel}
-                      </div>
-                      <div className="flex items-center">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        {formatTimeAgo(violation.timestamp)}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center">
+            <FileSearch className="h-5 w-5 mr-2" />
+            <span>Scan Results</span>
           </div>
-        </ScrollArea>
+          <Badge variant="outline" className="bg-gray-50">
+            {violations.length} {violations.length === 1 ? 'violation' : 'violations'} detected
+          </Badge>
+        </CardTitle>
+      </CardHeader>
+      
+      <CardContent>
+        {violations.length > 0 ? (
+          <>
+            <div className="mb-4 flex space-x-2">
+              <Badge variant="destructive" className="flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3" />
+                <span>High: {highSeverityCount}</span>
+              </Badge>
+              
+              <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-300 flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3" />
+                <span>Medium: {mediumSeverityCount}</span>
+              </Badge>
+              
+              <Badge variant="outline" className="bg-blue-50 text-blue-800 border-blue-200 flex items-center gap-1">
+                <AlertTriangle className="h-3 w-3" />
+                <span>Low: {lowSeverityCount}</span>
+              </Badge>
+            </div>
+            
+            <Separator className="my-2" />
+            
+            <ScrollArea className="h-[400px] pr-4">
+              <div className="space-y-3">
+                {violations.map((violation, index) => (
+                  <div 
+                    key={`${violation.messageId}-${index}`} 
+                    className={`p-3 rounded-md ${
+                      violation.severity === 'high' ? 'bg-red-50 border-l-4 border-red-500' :
+                      violation.severity === 'medium' ? 'bg-amber-50 border-l-4 border-amber-500' :
+                      'bg-blue-50 border-l-4 border-blue-500'
+                    }`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-medium text-sm">
+                        {violation.rule.replace(/_/g, ' ')}
+                      </h4>
+                      <Badge 
+                        variant={
+                          violation.severity === 'high' ? 'destructive' :
+                          violation.severity === 'medium' ? 'outline' : 'secondary'
+                        }
+                        className={
+                          violation.severity === 'medium' ? 'bg-amber-100 text-amber-800 border-amber-300' :
+                          violation.severity === 'low' ? 'bg-blue-50 text-blue-800 border-blue-200' : ''
+                        }
+                      >
+                        {violation.severity}
+                      </Badge>
+                    </div>
+                    
+                    <div className="mt-1 text-sm text-gray-600 dark:text-gray-300">
+                      <p className="font-mono text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded my-1">
+                        {violation.context}
+                      </p>
+                    </div>
+                    
+                    <div className="mt-2 flex flex-wrap gap-2 text-xs text-gray-500 dark:text-gray-400">
+                      <span className="inline-flex items-center">
+                        <span className="font-medium">Channel:</span> 
+                        <span className="ml-1">{violation.channel}</span>
+                      </span>
+                      <span className="inline-flex items-center">
+                        <span className="font-medium">User:</span> 
+                        <span className="ml-1">{violation.user}</span>
+                      </span>
+                      <span className="inline-flex items-center">
+                        <span className="font-medium">Time:</span> 
+                        <span className="ml-1">
+                          {new Date(violation.timestamp).toLocaleString()}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
+          </>
+        ) : (
+          <div className="text-center py-8 text-muted-foreground">
+            <AlertTriangle className="h-10 w-10 mx-auto mb-2 text-green-500/50" />
+            <p>No compliance violations detected.</p>
+            <p className="text-sm mt-1">Great job! Your Slack workspace appears to be compliant.</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
-};
-
-// Helper function to format the rule display
-const getRuleDisplay = (rule: string): string => {
-  switch (rule) {
-    case 'SSN_DETECTED':
-      return 'Social Security Number Detected';
-    case 'CREDIT_CARD_DETECTED':
-      return 'Credit Card Number Detected';
-    case 'PASSWORD_REFERENCE':
-      return 'Password Information Shared';
-    case 'CONFIDENTIAL_DATA':
-      return 'Confidential Data Mentioned';
-    case 'PERSONAL_DATA':
-      return 'Personal Data Mentioned';
-    case 'SENSITIVE_FILE_UPLOAD':
-      return 'Sensitive File Uploaded';
-    default:
-      return rule.replace(/_/g, ' ').toLowerCase()
-        .replace(/\b\w/g, char => char.toUpperCase());
-  }
-};
-
-// Helper function to format time ago
-const formatTimeAgo = (timestamp: string): string => {
-  try {
-    return formatDistance(new Date(timestamp), new Date(), { addSuffix: true });
-  } catch (e) {
-    return timestamp;
-  }
 };
 
 export default SlackViolationsList;

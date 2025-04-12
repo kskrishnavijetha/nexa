@@ -7,7 +7,8 @@ const SlackMonitoringPage: React.FC = () => {
   return (
     <div className="container mx-auto py-8 px-4">
       <Helmet>
-        <title>Slack Monitoring | Compliance Scanner</title>
+        <title>Slack Monitoring | Nexabloom</title>
+        <meta name="description" content="Real-time monitoring of Slack messages for compliance violations" />
       </Helmet>
       
       <SlackMonitor />
