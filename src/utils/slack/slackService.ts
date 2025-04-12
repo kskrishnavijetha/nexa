@@ -4,6 +4,7 @@ import { SlackScanOptions, SlackScanResults } from './types';
 import { getSlackToken, setSlackToken, clearSlackToken, isSlackConnected } from './slackAuth';
 import { fetchSlackMessages } from './slackMessages';
 import { analyzeMessagesForViolations } from './slackAnalysis';
+import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
 
 // Re-export the auth functions for backward compatibility
 export { setSlackToken, getSlackToken, clearSlackToken, isSlackConnected };
@@ -31,6 +32,23 @@ export const scanSlackMessages = async (options: SlackScanOptions): Promise<Slac
       status: 'completed'
     };
     
+    // Add the scan to history
+    try {
+      const { addScanHistory } = useServiceHistoryStore.getState();
+      addScanHistory({
+        serviceId: results.scanId,
+        serviceName: 'Slack Compliance Scan',
+        scanDate: results.timestamp,
+        itemsScanned: results.scannedMessages,
+        violationsFound: results.violations.length,
+        documentName: `Slack Scan ${new Date().toLocaleString()}`,
+        industry: 'Technology',
+        regulations: ['Data Privacy', 'Information Security']
+      });
+    } catch (e) {
+      console.error('Failed to add scan to history:', e);
+    }
+    
     return results;
   } catch (error) {
     console.error('Slack scan error:', error);
@@ -45,4 +63,32 @@ export const scanSlackMessages = async (options: SlackScanOptions): Promise<Slac
       status: 'failed'
     };
   }
+};
+
+/**
+ * Export Slack scan results to audit trail format
+ */
+export const exportScanResultsToAudit = (results: SlackScanResults) => {
+  if (!results) return null;
+  
+  // Format for audit trail
+  const auditEvents = results.violations.map(violation => ({
+    id: violation.messageId,
+    timestamp: violation.timestamp,
+    action: violation.rule,
+    severity: violation.severity,
+    user: violation.user,
+    channel: violation.channel,
+    text: violation.text
+  }));
+  
+  return {
+    events: auditEvents,
+    summary: {
+      totalEvents: results.violations.length,
+      scannedMessages: results.scannedMessages,
+      scannedFiles: results.scannedFiles,
+      timestamp: results.timestamp
+    }
+  };
 };

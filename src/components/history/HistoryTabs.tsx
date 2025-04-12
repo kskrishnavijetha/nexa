@@ -11,6 +11,7 @@ import AuditTrail from '@/components/audit/AuditTrail';
 import DocumentSelector from './DocumentSelector';
 import ComplianceDetails from './ComplianceDetails';
 import DeleteDocumentDialog from './DeleteDocumentDialog';
+import SlackAuditTrail from '../slack/SlackAuditTrail';
 
 interface HistoryTabsProps {
   activeTab: string;
@@ -64,6 +65,9 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({
     setDeleteDialogOpen(false);
   };
 
+  // Check if the selected document is a Slack scan
+  const isSlackScan = selectedDocument?.toLowerCase().includes('slack');
+
   return (
     <>
       <Tabs 
@@ -71,9 +75,10 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({
         className="mb-6"
         onValueChange={onTabChange}
       >
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-md grid-cols-3">
           <TabsTrigger value="reports">Compliance Reports</TabsTrigger>
           <TabsTrigger value="audit">Audit Trail</TabsTrigger>
+          <TabsTrigger value="logs">Audit Logs</TabsTrigger>
         </TabsList>
         
         <TabsContent value="reports" className="mt-6">
@@ -119,6 +124,38 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({
               documentName={selectedDocument} 
               industry={selectedReport.industry}
             />
+          )}
+        </TabsContent>
+        
+        <TabsContent value="logs" className="mt-6">
+          {selectedDocument && selectedReport && (
+            <div className="mt-4">
+              {/* Display Slack-specific audit if it's a Slack scan */}
+              {isSlackScan ? (
+                <SlackAuditTrail scanResults={{ 
+                  scanId: selectedReport.documentId,
+                  timestamp: selectedReport.timestamp,
+                  violations: selectedReport.risks.map(risk => ({
+                    messageId: risk.id || Math.random().toString(),
+                    text: risk.details,
+                    severity: risk.severity as any,
+                    rule: risk.category,
+                    context: risk.details,
+                    channel: 'general',
+                    user: selectedReport.organization || 'User',
+                    timestamp: selectedReport.timestamp
+                  })),
+                  scannedMessages: 100,
+                  scannedFiles: 10,
+                  status: 'completed'
+                }} />
+              ) : (
+                <AuditTrail 
+                  documentName={selectedDocument} 
+                  industry={selectedReport.industry}
+                />
+              )}
+            </div>
           )}
         </TabsContent>
       </Tabs>

@@ -1,9 +1,16 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { SlackScanOptions } from '@/utils/slack/types';
-import { ChannelSelector, TimeRangeSelector, SensitivitySelector } from './scan-options';
+import { SupportedLanguage } from '@/utils/language';
+import { 
+  ChannelSelector, 
+  TimeRangeSelector, 
+  SensitivitySelector,
+  FileTypesSelector
+} from './scan-options';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 interface SlackScanOptionsProps {
   options: SlackScanOptions;
@@ -11,72 +18,81 @@ interface SlackScanOptionsProps {
   disabled?: boolean;
 }
 
-const SlackScanOptionsComponent: React.FC<SlackScanOptionsProps> = ({
+const SlackScanOptions: React.FC<SlackScanOptionsProps> = ({
   options,
   onOptionsChange,
   disabled = false
 }) => {
-  const handleAddChannel = (channel: string) => {
-    if (!options.channels.includes(channel)) {
-      const updatedChannels = [...options.channels, channel];
-      onOptionsChange({ ...options, channels: updatedChannels });
-    }
+  const handleChannelChange = (channels: string[]) => {
+    onOptionsChange({ ...options, channels });
   };
-  
-  const handleRemoveChannel = (channel: string) => {
-    const updatedChannels = options.channels.filter(c => c !== channel);
-    onOptionsChange({ ...options, channels: updatedChannels });
+
+  const handleTimeRangeChange = (timeRange: SlackScanOptions['timeRange']) => {
+    onOptionsChange({ ...options, timeRange });
   };
-  
-  const handleTimeRangeChange = (value: "hour" | "day" | "week" | "month") => {
-    onOptionsChange({ 
-      ...options, 
-      timeRange: value 
-    });
+
+  const handleSensitivityChange = (sensitivityLevel: SlackScanOptions['sensitivityLevel']) => {
+    onOptionsChange({ ...options, sensitivityLevel });
   };
-  
-  const handleSensitivityChange = (value: "strict" | "standard" | "relaxed") => {
-    onOptionsChange({ 
-      ...options, 
-      sensitivityLevel: value 
-    });
+
+  const handleLanguageChange = (language: SupportedLanguage) => {
+    onOptionsChange({ ...options, language });
   };
-  
+
+  const handleIncludeAttachmentsChange = (checked: boolean) => {
+    onOptionsChange({ ...options, includeAttachments: checked });
+  };
+
+  const handleGenerateAuditTrailChange = (checked: boolean) => {
+    onOptionsChange({ ...options, generateAuditTrail: checked });
+  };
+
   return (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          <Shield className="h-5 w-5 mr-2" />
-          Scan Configuration
-        </CardTitle>
-        <CardDescription>
-          Configure the scanning options for Slack messages and file uploads.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
+    <Card>
+      <CardContent className="pt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <ChannelSelector 
             channels={options.channels}
-            onAddChannel={handleAddChannel}
-            onRemoveChannel={handleRemoveChannel}
+            onChange={handleChannelChange}
             disabled={disabled}
           />
           
-          <TimeRangeSelector
+          <TimeRangeSelector 
             timeRange={options.timeRange}
             onChange={handleTimeRangeChange}
             disabled={disabled}
           />
           
-          <SensitivitySelector
+          <SensitivitySelector 
             sensitivityLevel={options.sensitivityLevel}
             onChange={handleSensitivityChange}
             disabled={disabled}
           />
+
+          <FileTypesSelector
+            includeAttachments={options.includeAttachments || false}
+            onToggleAttachments={handleIncludeAttachmentsChange}
+            disabled={disabled}
+          />
+
+          <div className="space-y-2">
+            <Label>Audit Trail</Label>
+            <div className="flex items-center space-x-2">
+              <Checkbox 
+                id="generate-audit-trail" 
+                checked={options.generateAuditTrail} 
+                onCheckedChange={handleGenerateAuditTrailChange}
+                disabled={disabled}
+              />
+              <Label htmlFor="generate-audit-trail" className="font-normal">
+                Generate audit trail for compliance records
+              </Label>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
   );
 };
 
-export default SlackScanOptionsComponent;
+export default SlackScanOptions;

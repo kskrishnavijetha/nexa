@@ -1,8 +1,8 @@
 
 import React from 'react';
-import SlackViolationsList from '../SlackViolationsList';
-import SlackRealTimeMonitor from '../SlackRealTimeMonitor';
 import { SlackScanResults, SlackViolation } from '@/utils/slack/types';
+import SlackViolationsList from '../SlackViolationsList';
+import SlackAuditTrail from '../SlackAuditTrail';
 
 interface SlackMonitorDisplayProps {
   isRealTimeMonitoring: boolean;
@@ -11,6 +11,8 @@ interface SlackMonitorDisplayProps {
   isScanning: boolean;
   hasScanned: boolean;
   scanResults: SlackScanResults | null;
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
 }
 
 const SlackMonitorDisplay: React.FC<SlackMonitorDisplayProps> = ({
@@ -19,26 +21,42 @@ const SlackMonitorDisplay: React.FC<SlackMonitorDisplayProps> = ({
   lastUpdated,
   isScanning,
   hasScanned,
-  scanResults
+  scanResults,
+  activeTab = 'violations',
+  onTabChange
 }) => {
+  const tabs = [
+    { id: 'violations', label: 'Violations' },
+    { id: 'audit', label: 'Audit Trail' }
+  ];
+
   return (
-    <>
-      {/* Show real-time monitoring status and results if active */}
-      {isRealTimeMonitoring && (
-        <SlackRealTimeMonitor 
-          violations={realTimeViolations}
-          lastUpdated={lastUpdated}
-        />
-      )}
-      
-      {/* Show regular scan results if available */}
-      {(isScanning || hasScanned) && !isRealTimeMonitoring && (
+    <div className="mt-6">
+      <div className="flex border-b mb-4">
+        {tabs.map(tab => (
+          <button
+            key={tab.id}
+            className={`px-4 py-2 ${activeTab === tab.id 
+              ? 'border-b-2 border-primary text-primary font-medium' 
+              : 'text-muted-foreground'}`}
+            onClick={() => onTabChange && onTabChange(tab.id)}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'violations' && (
         <SlackViolationsList 
-          violations={scanResults?.violations || []} 
+          violations={isRealTimeMonitoring ? realTimeViolations : scanResults?.violations || []}
           isLoading={isScanning}
         />
       )}
-    </>
+
+      {activeTab === 'audit' && (
+        <SlackAuditTrail scanResults={scanResults} />
+      )}
+    </div>
   );
 };
 

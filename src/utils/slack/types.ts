@@ -35,6 +35,8 @@ export interface SlackScanOptions {
   timeRange: 'hour' | 'day' | 'week' | 'month';
   language: SupportedLanguage;
   sensitivityLevel: 'strict' | 'standard' | 'relaxed';
+  includeAttachments?: boolean;
+  generateAuditTrail?: boolean;
 }
 
 export interface SlackScanResults {
@@ -44,4 +46,21 @@ export interface SlackScanResults {
   scannedMessages: number;
   scannedFiles: number;
   status: 'completed' | 'in-progress' | 'failed';
+}
+
+export interface SlackAuditTrailEntry {
+  id: string;
+  timestamp: string;
+  user: string;
+  channel: string;
+  rule: string;
+  severity: string;
+  text: string;
+}
+
+export interface SlackAuditSummary {
+  totalEvents: number;
+  scannedMessages: number;
+  scannedFiles: number;
+  timestamp: string;
 }

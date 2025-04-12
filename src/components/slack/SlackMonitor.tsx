@@ -7,13 +7,17 @@ import { Separator } from '@/components/ui/separator';
 import SlackMonitorHeader from './monitoring/SlackMonitorHeader';
 import SlackScanControls from './monitoring/SlackScanControls';
 import SlackMonitorDisplay from './monitoring/SlackMonitorDisplay';
+import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
+import { useAuth } from '@/contexts/AuthContext';
 
 const SlackMonitor: React.FC = () => {
   const [scanOptions, setScanOptions] = useState<SlackScanOptionsType>({
     channels: [],
     timeRange: 'day',
     language: 'en',
-    sensitivityLevel: 'standard'
+    sensitivityLevel: 'standard',
+    includeAttachments: true,
+    generateAuditTrail: true
   });
   
   const [isScanning, setIsScanning] = useState(false);
@@ -22,6 +26,29 @@ const SlackMonitor: React.FC = () => {
   const [isRealTimeMonitoring, setIsRealTimeMonitoring] = useState(false);
   const [realTimeViolations, setRealTimeViolations] = useState<SlackViolation[]>([]);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('violations');
+  
+  // Get access to history store
+  const addScanHistory = useServiceHistoryStore(state => state.addScanHistory);
+  const { user } = useAuth();
+
+  // Add completed scan to history
+  const addToHistory = (results: SlackScanResults) => {
+    if (!results) return;
+    
+    addScanHistory({
+      serviceId: results.scanId,
+      serviceName: 'Slack Compliance Scan',
+      scanDate: new Date().toISOString(),
+      itemsScanned: results.scannedMessages,
+      violationsFound: results.violations.length,
+      documentName: `Slack Scan ${new Date().toLocaleString()}`,
+      fileName: `slack-scan-${Date.now()}.json`,
+      industry: 'Technology',
+      organization: user?.email?.split('@')[1] || 'Unknown',
+      regulations: ['Data Privacy', 'Information Security']
+    });
+  };
   
   return (
     <div className="space-y-6">
@@ -41,7 +68,12 @@ const SlackMonitor: React.FC = () => {
         scanOptions={scanOptions}
         isScanning={isScanning}
         setIsScanning={setIsScanning}
-        setScanResults={setScanResults}
+        setScanResults={(results) => {
+          setScanResults(results);
+          if (results && results.status === 'completed') {
+            addToHistory(results);
+          }
+        }}
         setHasScanned={setHasScanned}
         isRealTimeMonitoring={isRealTimeMonitoring}
         setIsRealTimeMonitoring={setIsRealTimeMonitoring}
@@ -56,6 +88,8 @@ const SlackMonitor: React.FC = () => {
         isScanning={isScanning}
         hasScanned={hasScanned}
         scanResults={scanResults}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
       />
     </div>
   );
