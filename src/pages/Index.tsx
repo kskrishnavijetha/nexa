@@ -8,6 +8,8 @@ import ComplianceFeaturesSection from '@/components/home/ComplianceFeaturesSecti
 import IndustriesSection from '@/components/home/IndustriesSection';
 import ResultsSection from '@/components/home/ResultsSection';
 import UserGuide from '@/components/home/UserGuide';
+import FaqSection from '@/components/home/FaqSection';
+import TrustedBySection from '@/components/home/TrustedBySection';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { shouldUpgrade, getSubscription } from '@/utils/paymentService';
@@ -50,10 +52,12 @@ const Index = () => {
           )}
           
           <Hero />
+          <TrustedBySection />
           <WhyChooseSection />
           <ComplianceFeaturesSection />
           <IndustriesSection />
           <ResultsSection />
+          <FaqSection />
           <UserGuide />
           <Features />
         </div>
