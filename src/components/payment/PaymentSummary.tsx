@@ -4,7 +4,7 @@ import React from 'react';
 interface PaymentSummaryProps {
   selectedTier: string;
   billingCycle: 'monthly' | 'annually';
-  getPrice: (tier: string) => number;
+  getPrice: (tier: string, billingCycle: 'monthly' | 'annually') => number;
 }
 
 const PaymentSummary: React.FC<PaymentSummaryProps> = ({ 
@@ -23,8 +23,8 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
       <div className="flex justify-between text-sm">
         <span className="text-muted-foreground">Scans per month</span>
         <span>{selectedTier === 'enterprise' ? 'Unlimited' : (
-          selectedTier === 'free' ? '1' : 
-          selectedTier === 'basic' ? '10' : 
+          selectedTier === 'free' ? '5' : 
+          selectedTier === 'basic' ? '15' : 
           selectedTier === 'pro' ? '50' : ''
         )}</span>
       </div>
@@ -35,9 +35,9 @@ const PaymentSummary: React.FC<PaymentSummaryProps> = ({
       <div className="flex justify-between font-medium">
         <span>Total</span>
         <span>
-          {getPrice(selectedTier) === 0 
+          {getPrice(selectedTier, billingCycle) === 0 
             ? 'Free' 
-            : `$${getPrice(selectedTier)}/month`
+            : `$${getPrice(selectedTier, billingCycle)}/month`
           }
         </span>
       </div>
