@@ -42,6 +42,21 @@ export interface ComplianceReport {
   suggestions?: Suggestion[];
   pageCount?: number;
   originalFileName?: string;
+  
+  // Fields for simulation reports
+  isSimulation?: boolean;
+  simulationDetails?: {
+    scenarioName?: string;
+    scenarioDescription?: string;
+    regulationChanges?: any[];
+    predictedImprovements?: {
+      overall: number;
+      gdpr: number;
+      hipaa: number;
+      soc2: number;
+      pciDss?: number;
+    };
+  };
 }
 
 export type RiskItem = ComplianceRisk;

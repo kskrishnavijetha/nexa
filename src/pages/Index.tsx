@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Features from '@/components/Features';
@@ -6,13 +7,14 @@ import WhyChooseSection from '@/components/home/WhyChooseSection';
 import ComplianceFeaturesSection from '@/components/home/ComplianceFeaturesSection';
 import IndustriesSection from '@/components/home/IndustriesSection';
 import ResultsSection from '@/components/home/ResultsSection';
-import UserGuide from '@/components/home/UserGuide';
 import FaqSection from '@/components/home/FaqSection';
 import TrustedBySection from '@/components/home/TrustedBySection';
+import UserGuide from '@/components/home/UserGuide';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { shouldUpgrade, getSubscription } from '@/utils/paymentService';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -23,15 +25,15 @@ const Index = () => {
   return (
     <Layout>
       <div className="min-h-screen">
-        <div className="container mx-auto px-4 py-8">
-          {user && subscription && (
-            <div className="mb-8 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+        {user && subscription && (
+          <div className="bg-white shadow-sm border-b">
+            <div className="container mx-auto px-4 py-3">
               <div className="flex flex-col md:flex-row items-center justify-between">
-                <div className="mb-4 md:mb-0">
+                <div className="mb-3 md:mb-0">
                   <h3 className="text-lg font-semibold">
                     Your {subscription.plan} plan
                   </h3>
-                  <p className="text-sm">
+                  <p className="text-sm text-muted-foreground">
                     {subscription.scansLimit === 999 ? 
                       'Unlimited scans available' : 
                       `${subscription.scansLimit - subscription.scansUsed} of ${subscription.scansLimit} scans remaining this month`
@@ -48,12 +50,14 @@ const Index = () => {
                 )}
               </div>
             </div>
-          )}
-          
-          {needsUpgrade && (
-            <div className="mb-8 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          </div>
+        )}
+        
+        {needsUpgrade && (
+          <div className="bg-amber-50 border-b border-amber-200">
+            <div className="container mx-auto px-4 py-3">
               <div className="flex flex-col md:flex-row items-center justify-between">
-                <div className="mb-4 md:mb-0">
+                <div className="mb-3 md:mb-0">
                   <h3 className="text-lg font-semibold text-amber-800">
                     {subscription?.plan === 'free' 
                       ? 'Your free plan is complete' 
@@ -74,18 +78,18 @@ const Index = () => {
                 </Button>
               </div>
             </div>
-          )}
-          
-          <Hero />
-          <WhyChooseSection />
-          <FaqSection />
-          <TrustedBySection />
-          <ComplianceFeaturesSection />
-          <IndustriesSection />
-          <ResultsSection />
-          <UserGuide />
-          <Features />
-        </div>
+          </div>
+        )}
+        
+        <Hero />
+        <TrustedBySection />
+        <ComplianceFeaturesSection />
+        <Separator className="max-w-5xl mx-auto" />
+        <WhyChooseSection />
+        <ResultsSection />
+        <IndustriesSection />
+        <FaqSection />
+        <UserGuide />
       </div>
     </Layout>
   );
