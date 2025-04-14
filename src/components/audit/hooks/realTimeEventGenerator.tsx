@@ -1,105 +1,71 @@
 
-import { ReactNode } from 'react';
-import { toast } from 'sonner';
-import { Clock, Eye, Check, Users, FileCheck, AlertTriangle, Shield, Settings } from 'lucide-react';
-import { AuditEvent } from '../types';
+import { useEffect, useCallback, ReactNode } from 'react';
+import { Eye, AlertTriangle, CheckCircle } from 'lucide-react';
+import { useAuditTrail } from '../context/AuditTrailContext';
 
-/**
- * Create a new real-time audit event
- */
-export const generateRealTimeEvent = (documentName: string): AuditEvent => {
-  const now = new Date();
-  const icons: ReactNode[] = [
-    <Eye className="h-4 w-4 text-gray-500" key="eye" />,
-    <Check className="h-4 w-4 text-green-500" key="check" />,
-    <Users className="h-4 w-4 text-orange-500" key="users" />,
-    <FileCheck className="h-4 w-4 text-blue-500" key="filecheck" />,
-    <AlertTriangle className="h-4 w-4 text-yellow-500" key="alert" />,
-    <Shield className="h-4 w-4 text-purple-500" key="shield" />,
-    <Settings className="h-4 w-4 text-gray-600" key="settings" />
-  ];
-  
-  const actions = [
-    'Document reviewed for compliance with GDPR Article 13',
-    'Data privacy impact assessment performed',
-    'Security vulnerability scan completed',
-    'Cross-department compliance review conducted',
-    'Remediation tasks updated for identified issues',
-    'Quarterly compliance audit performed',
-    'Document encryption status verified',
-    'Access permissions updated per security policy',
-    'Data retention compliance verified',
-    'Sensitive data classification updated'
-  ];
-  
-  const users = [
-    'System', 
-    'Compliance Officer', 
-    'Legal Advisor', 
-    'Security Analyst',
-    'Data Protection Officer',
-    'IT Security Manager',
-    'Regulatory Affairs Specialist',
-    'External Auditor'
-  ];
+// Interval between generating events (in ms)
+const EVENT_GENERATION_INTERVAL = 60000; // 1 minute
 
-  return {
-    id: `audit-${Date.now()}`,
-    action: actions[Math.floor(Math.random() * actions.length)],
-    documentName,
-    timestamp: now.toISOString(),
-    user: users[Math.floor(Math.random() * users.length)],
-    icon: icons[Math.floor(Math.random() * icons.length)],
-    status: Math.random() > 0.5 ? 'completed' : 'in-progress',
-    comments: []
-  };
-};
-
-/**
- * Create the initial real-time monitoring event
- */
-export const generateInitialRealTimeEvent = (documentName: string): AuditEvent => {
-  const now = new Date();
-  return {
-    id: `audit-init-${Date.now()}`,
-    action: 'Real-time compliance monitoring active',
-    documentName,
-    timestamp: now.toISOString(),
+// Define possible events to randomly generate
+const possibleEvents = [
+  {
+    action: 'Automated compliance check',
     user: 'System',
-    icon: <Clock className="h-4 w-4 text-blue-500" />,
-    status: 'completed',
-    comments: []
-  };
-};
-
-/**
- * Notify user of new audit activity
- */
-export const notifyNewActivity = (event: AuditEvent): void => {
-  const icon = event.icon || <Clock className="h-4 w-4" />;
-  const eventType = getEventType(event.action);
-  
-  toast[eventType](`${event.action}`, {
-    description: `By ${event.user} • ${new Date(event.timestamp).toLocaleTimeString()}`,
-    icon: icon,
-    duration: 5000,
-    position: 'top-right',
-  });
-};
-
-/**
- * Determine the type of toast to display based on the action
- */
-const getEventType = (action: string): 'info' | 'success' | 'warning' | 'error' => {
-  const actionLower = action.toLowerCase();
-  
-  if (actionLower.includes('completed') || actionLower.includes('verified') || actionLower.includes('updated')) {
-    return 'success';
-  } else if (actionLower.includes('vulnerability') || actionLower.includes('risk') || actionLower.includes('issue')) {
-    return 'warning';
-  } else if (actionLower.includes('error') || actionLower.includes('failed') || actionLower.includes('critical')) {
-    return 'error';
-  } else {
-    return 'info';
+    status: 'completed' as const,
+    getIcon: () => <Eye className="h-4 w-4 text-blue-500" /> as ReactNode
+  },
+  {
+    action: 'Potential compliance violation detected',
+    user: 'System',
+    status: 'pending' as const,
+    getIcon: () => <AlertTriangle className="h-4 w-4 text-orange-500" /> as ReactNode
+  },
+  {
+    action: 'User access verification',
+    user: 'System',
+    status: 'completed' as const,
+    getIcon: () => <CheckCircle className="h-4 w-4 text-green-500" /> as ReactNode
   }
-};
+];
+
+export function useRealTimeEventGenerator(
+  documentName: string,
+  enabled: boolean = true,
+  intervalOverride?: number
+) {
+  const { addAuditEvent } = useAuditTrail();
+  
+  // Function to generate a random event
+  const generateRandomEvent = useCallback(() => {
+    if (!enabled) return;
+    
+    // Randomly select an event from the possible events (25% chance)
+    if (Math.random() < 0.25) {
+      const randomEvent = possibleEvents[Math.floor(Math.random() * possibleEvents.length)];
+      
+      addAuditEvent({
+        action: randomEvent.action,
+        documentName,
+        user: randomEvent.user,
+        status: randomEvent.status,
+        icon: randomEvent.getIcon()
+      });
+    }
+  }, [enabled, documentName, addAuditEvent]);
+  
+  // Set up interval for generating events
+  useEffect(() => {
+    if (!enabled) return;
+    
+    const interval = setInterval(
+      generateRandomEvent, 
+      intervalOverride || EVENT_GENERATION_INTERVAL
+    );
+    
+    return () => clearInterval(interval);
+  }, [enabled, generateRandomEvent, intervalOverride]);
+  
+  return {
+    generateEvent: generateRandomEvent
+  };
+}

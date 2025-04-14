@@ -24,7 +24,8 @@ export const generateMockAuditTrail = (documentName: string): AuditEvent[] => {
       timestamp: new Date(now.getTime() - 3500000).toISOString(), // 58 minutes ago
       user: 'System',
       icon: <Eye className="h-4 w-4 text-purple-500" />,
-      status: 'completed'
+      status: 'completed',
+      comments: []
     },
     {
       id: '3',
@@ -43,7 +44,8 @@ export const generateMockAuditTrail = (documentName: string): AuditEvent[] => {
       timestamp: new Date(now.getTime() - 3000000).toISOString(), // 50 minutes ago
       user: 'Compliance Officer',
       icon: <Eye className="h-4 w-4 text-gray-500" />,
-      status: 'completed'
+      status: 'completed',
+      comments: []
     },
     {
       id: '5',
@@ -62,7 +64,8 @@ export const generateMockAuditTrail = (documentName: string): AuditEvent[] => {
       timestamp: new Date(now.getTime() - 1800000).toISOString(), // 30 minutes ago
       user: 'Compliance Officer',
       icon: <Download className="h-4 w-4 text-indigo-500" />,
-      status: 'completed'
+      status: 'completed',
+      comments: []
     }
   ];
 };
@@ -74,5 +77,15 @@ export const formatTimestamp = (timestamp: string) => {
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
+  }).format(date);
+};
+
+// Add the missing formatDate function
+export const formatDate = (timestamp: string) => {
+  const date = new Date(timestamp);
+  return new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
   }).format(date);
 };

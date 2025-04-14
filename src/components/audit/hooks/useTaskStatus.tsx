@@ -1,48 +1,46 @@
 
-import { toast } from 'sonner';
-import { UserCheck } from 'lucide-react';
-import { AuditEvent } from '../types';
+import { useState, useCallback } from 'react';
+import { Check } from 'lucide-react';
+import { ReactNode } from 'react';
+
+type TaskStatus = 'pending' | 'in-progress' | 'completed';
 
 interface UseTaskStatusProps {
-  auditEvents: AuditEvent[];
-  updateAuditEvents: (events: AuditEvent[]) => void;
-  documentName: string;
-  setLastActivity: (date: Date) => void;
+  initialStatus: TaskStatus;
+  onStatusUpdate: (status: TaskStatus) => void;
 }
 
-export function useTaskStatus({
-  auditEvents,
-  updateAuditEvents,
-  documentName,
-  setLastActivity
-}: UseTaskStatusProps) {
-  const updateTaskStatus = (eventId: string, status: 'pending' | 'in-progress' | 'completed') => {
-    const updatedEvents = auditEvents.map(event => {
-      if (event.id === eventId) {
-        return { ...event, status };
-      }
-      return event;
-    });
+export function useTaskStatus({ initialStatus, onStatusUpdate }: UseTaskStatusProps) {
+  const [status, setStatus] = useState<TaskStatus>(initialStatus);
+  const [isUpdating, setIsUpdating] = useState(false);
 
-    updateAuditEvents(updatedEvents);
-    setLastActivity(new Date()); // Update last activity timestamp
-    toast.success(`Task status updated to ${status}`);
+  const updateStatus = useCallback((newStatus: TaskStatus) => {
+    if (newStatus === status) return;
     
-    // Add a new audit event for the status change
-    const now = new Date();
-    const statusChangeEvent: AuditEvent = {
-      id: `status-${Date.now()}`,
-      action: `Task status changed to ${status}`,
-      documentName,
-      timestamp: now.toISOString(),
-      user: 'Current User',
-      icon: <UserCheck className="h-4 w-4 text-blue-500" />,
-      status: 'completed',
-      comments: []
-    };
+    setIsUpdating(true);
     
-    updateAuditEvents([statusChangeEvent, ...updatedEvents]);
+    // Simulate API call
+    setTimeout(() => {
+      setStatus(newStatus);
+      setIsUpdating(false);
+      onStatusUpdate(newStatus);
+      
+      // Add a completion icon if the task is completed
+      const statusIcon: ReactNode = newStatus === 'completed' ? (
+        <Check className="h-4 w-4 text-green-500" />
+      ) : undefined;
+      
+      // Return the updated status and icon
+      return {
+        status: newStatus,
+        icon: statusIcon
+      };
+    }, 500);
+  }, [status, onStatusUpdate]);
+
+  return {
+    status,
+    isUpdating,
+    updateStatus
   };
-
-  return { updateTaskStatus };
 }

@@ -1,61 +1,78 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useComments } from './hooks/useComments';
 import { Comment } from './types';
+import { formatTimestamp } from './auditUtils';
 
 interface CommentSectionProps {
-  comments?: Comment[];
-  newComment: string;
   eventId: string;
-  onAddComment: (eventId: string) => void;
-  onCommentChange: (eventId: string, value: string) => void;
-  formatTimestamp: (timestamp: string) => string;
 }
 
-const CommentSection: React.FC<CommentSectionProps> = ({ 
-  comments, 
-  newComment, 
-  eventId, 
-  onAddComment, 
-  onCommentChange,
-  formatTimestamp 
-}) => {
+const CommentSection: React.FC<CommentSectionProps> = ({ eventId }) => {
+  const [newComment, setNewComment] = useState('');
+  const { comments, addComment, isLoadingComments } = useComments(eventId);
+
+  const handleAddComment = () => {
+    if (newComment.trim()) {
+      addComment(newComment);
+      setNewComment('');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleAddComment();
+    }
+  };
+
   return (
-    <>
-      {comments && comments.length > 0 ? (
-        <div className="space-y-2 mb-3">
-          {comments.map(comment => (
-            <div key={comment.id} className="bg-white p-2 rounded border border-gray-100 text-sm">
-              <div className="flex justify-between">
-                <span className="font-medium">{comment.user}</span>
-                <span className="text-xs text-gray-500">{formatTimestamp(comment.timestamp)}</span>
-              </div>
-              <p className="mt-1">{comment.text}</p>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-sm text-gray-500 mb-2">No comments yet</p>
-      )}
+    <div className="mt-3 space-y-3">
+      <h4 className="text-sm font-medium">Comments {comments.length > 0 && `(${comments.length})`}</h4>
       
-      {/* Add comment section */}
+      <div className="space-y-2 mb-3">
+        {comments.map((comment: Comment) => (
+          <div key={comment.id} className="bg-slate-50 p-3 rounded-md">
+            <div className="flex justify-between items-center mb-1">
+              <span className="text-sm font-medium">{comment.user}</span>
+              <span className="text-xs text-gray-500">{formatTimestamp(comment.timestamp)}</span>
+            </div>
+            <p className="text-sm whitespace-pre-wrap">{comment.text}</p>
+          </div>
+        ))}
+        
+        {comments.length === 0 && !isLoadingComments && (
+          <p className="text-sm text-gray-500 italic">No comments yet</p>
+        )}
+        
+        {isLoadingComments && (
+          <div className="animate-pulse flex space-x-4">
+            <div className="flex-1 space-y-3 py-1">
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div className="h-4 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div className="flex gap-2">
-        <input
-          type="text"
+        <textarea
+          className="flex-1 min-h-[60px] p-2 border rounded-md text-sm resize-none"
           placeholder="Add a comment..."
-          className="flex-1 border rounded px-2 py-1 text-sm"
           value={newComment}
-          onChange={(e) => onCommentChange(eventId, e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && onAddComment(eventId)}
+          onChange={(e) => setNewComment(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
-        <Button 
-          size="sm" 
-          onClick={() => onAddComment(eventId)}
+        <Button
+          size="sm"
+          onClick={handleAddComment}
+          disabled={newComment.trim() === ''}
         >
           Add
         </Button>
       </div>
-    </>
+    </div>
   );
 };
 

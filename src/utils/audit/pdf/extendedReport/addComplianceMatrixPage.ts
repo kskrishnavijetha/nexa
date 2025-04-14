@@ -116,11 +116,14 @@ export const addComplianceMatrixPage = (
     }
     
     // Set style for status
-    const statusColor = row.status === 'Pass' 
-      ? [0, 128, 0] 
-      : row.status === 'Warning' 
-        ? [230, 150, 0] 
-        : [200, 0, 0];
+    let statusColor;
+    if (row.status === 'Pass') {
+      statusColor = [0, 128, 0]; // Green
+    } else if (row.status === 'Warning') {
+      statusColor = [230, 150, 0]; // Orange
+    } else {
+      statusColor = [200, 0, 0]; // Red
+    }
     
     // Write row data
     xPos = startX + 3;
@@ -139,11 +142,15 @@ export const addComplianceMatrixPage = (
     xPos += columnWidths[2];
     
     // Severity
-    doc.setTextColor(row.severity === 'High' 
-      ? [200, 0, 0] 
-      : row.severity === 'Medium' 
-        ? [230, 150, 0] 
-        : [100, 100, 100]);
+    let severityColor;
+    if (row.severity === 'High') {
+      severityColor = [200, 0, 0]; 
+    } else if (row.severity === 'Medium') {
+      severityColor = [230, 150, 0]; 
+    } else {
+      severityColor = [100, 100, 100];
+    }
+    doc.setTextColor(severityColor[0], severityColor[1], severityColor[2]);
     doc.text(row.severity, xPos, yPos);
     xPos += columnWidths[3];
     

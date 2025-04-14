@@ -25,8 +25,8 @@ export const generateExtendedAuditReport = async (
       try {
         console.log(`[extendedReport] Generating extended report for ${documentName}`);
         
-        // Get audit events for this document
-        const auditEvents = getAuditEventsForDocument(documentName);
+        // Get audit events for this document - ensure we await the result
+        const auditEvents = await getAuditEventsForDocument(documentName);
         
         // Generate verification metadata for integrity
         const verificationMetadata = await generateVerificationMetadata(auditEvents);

@@ -1,70 +1,44 @@
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { toast } from 'sonner';
-import { AuditEvent, Comment } from '../types';
+import { Comment } from '../types';
+import { getCommentsForEvent, addCommentToEvent } from './mockAuditData';
 
-interface UseCommentsProps {
-  auditEvents: AuditEvent[];
-  updateAuditEvents: (events: AuditEvent[]) => void;
-  addSystemResponse: (eventId: string) => void;
-  setLastActivity: (date: Date) => void;
-}
+export function useComments(eventId: string) {
+  const [comments, setComments] = useState<Comment[]>(() => getCommentsForEvent(eventId));
+  const [isLoadingComments, setIsLoadingComments] = useState(false);
 
-export function useComments({
-  auditEvents,
-  updateAuditEvents,
-  addSystemResponse,
-  setLastActivity
-}: UseCommentsProps) {
-  const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
-  const [expandedEvent, setExpandedEvent] = useState<string | null>(null);
+  const fetchComments = useCallback(() => {
+    setIsLoadingComments(true);
+    // Simulate API call with a small delay
+    setTimeout(() => {
+      const updatedComments = getCommentsForEvent(eventId);
+      setComments(updatedComments);
+      setIsLoadingComments(false);
+    }, 300);
+  }, [eventId]);
 
-  const handleAddComment = (eventId: string) => {
-    if (!newComment[eventId] || newComment[eventId].trim() === '') {
-      toast.error('Comment cannot be empty');
+  const addComment = useCallback((text: string, user: string = 'Current User') => {
+    if (!text.trim()) {
       return;
     }
-
-    const updatedEvents = auditEvents.map(event => {
-      if (event.id === eventId) {
-        const newCommentObj: Comment = {
-          id: `c${Date.now()}`,
-          user: 'Current User',
-          text: newComment[eventId],
-          timestamp: new Date().toISOString()
-        };
-
-        return {
-          ...event,
-          comments: event.comments ? [...event.comments, newCommentObj] : [newCommentObj]
-        };
-      }
-      return event;
-    });
-
-    updateAuditEvents(updatedEvents);
-    setNewComment({ ...newComment, [eventId]: '' });
-    setLastActivity(new Date()); // Update last activity timestamp
-    toast.success('Comment added successfully');
     
-    // Add a system response after a short delay
-    addSystemResponse(eventId);
-  };
-
-  const handleCommentChange = (eventId: string, value: string) => {
-    setNewComment({ ...newComment, [eventId]: value });
-  };
-
-  const toggleEventExpansion = (eventId: string) => {
-    setExpandedEvent(expandedEvent === eventId ? null : eventId);
-    setLastActivity(new Date()); // Update last activity timestamp when user interacts
-  };
+    const newComment: Comment = {
+      id: `comment-${Date.now()}`,
+      user,
+      text,
+      timestamp: new Date().toISOString()
+    };
+    
+    addCommentToEvent(eventId, newComment);
+    fetchComments();
+    toast.success('Comment added successfully');
+  }, [eventId, fetchComments]);
 
   return {
-    newComment,
-    expandedEvent,
-    handleAddComment,
-    handleCommentChange,
-    toggleEventExpansion
+    comments,
+    addComment,
+    isLoadingComments,
+    fetchComments
   };
 }
