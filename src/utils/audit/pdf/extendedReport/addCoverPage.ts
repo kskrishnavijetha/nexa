@@ -1,5 +1,4 @@
 
-
 import { jsPDF } from 'jspdf';
 import { formatDate } from '@/components/audit/auditUtils';
 import { Industry } from '@/utils/types';
@@ -14,12 +13,14 @@ export const addCoverPage = (
     documentName,
     companyDetails,
     industry,
-    verificationMetadata
+    verificationMetadata,
+    region
   }: {
     documentName: string;
     companyDetails?: any;
     industry?: string;
     verificationMetadata: any;
+    region?: Region;
   }
 ) => {
   // Set page properties
@@ -97,11 +98,12 @@ export const addCoverPage = (
     );
   }
   
-  // Add region if available
-  if (companyDetails?.region) {
+  // Add region if available - use company details first, then fallback to parameter
+  const regionToShow = companyDetails?.region || region;
+  if (regionToShow) {
     doc.setFontSize(14);
     doc.text(
-      `Region: ${companyDetails.region}`,
+      `Region: ${regionToShow}`,
       pageWidth / 2,
       145,
       { align: 'center' }

@@ -47,7 +47,8 @@ export const generateExtendedAuditReport = async (
           companyDetails,
           // Use industry from companyDetails first, then fall back to the parameter
           industry: companyDetails?.industry || industry,
-          verificationMetadata
+          verificationMetadata,
+          region: companyDetails?.region
         });
         
         // Add executive summary

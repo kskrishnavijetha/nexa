@@ -62,14 +62,20 @@ export const CompanyDetailsModal: React.FC<CompanyDetailsModalProps> = ({
     'Global'
   ];
 
+  // Fix the Region types to match the allowed values in the Region type
   const regions: Region[] = [
-    'United States',
-    'European Union',
-    'United Kingdom',
-    'Canada',
-    'Australia',
-    'Asia Pacific',
+    'US',
+    'EU',
+    'UK',
+    'APAC',
     'Global',
+    'North America',
+    'European Union',
+    'Asia Pacific',
+    'United Kingdom',
+    'Latin America',
+    'Middle East',
+    'Africa'
   ];
 
   const handleSubmit = (e: React.FormEvent) => {
