@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { ComplianceReport } from '@/utils/types';
-import { getUserHistoricalReports } from '@/utils/historyService';
+import { getHistoricalReports } from '@/utils/historyService';
 import HistoryHeader from './HistoryHeader';
 import DocumentSelector from './DocumentSelector';
 import HistoryTabs from './HistoryTabs';
@@ -22,6 +23,7 @@ const HistoryContainer: React.FC = () => {
   const locationState = location.state as { preventBlink?: boolean; from?: string } | null;
   const { user } = useAuth();
 
+  // Parse URL parameters on component mount
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const documentParam = params.get('document');
@@ -36,6 +38,7 @@ const HistoryContainer: React.FC = () => {
     }
   }, [location.search]);
 
+  // Update URL based on selected document and active tab
   const updateUrl = useCallback(() => {
     if (locationState?.preventBlink) {
       return;
@@ -53,6 +56,7 @@ const HistoryContainer: React.FC = () => {
     });
   }, [selectedDocument, activeTab, navigate, locationState]);
 
+  // Update URL when selected document or active tab changes
   useEffect(() => {
     if (!locationState?.preventBlink) {
       updateUrl();
@@ -64,8 +68,9 @@ const HistoryContainer: React.FC = () => {
     }
   }, [selectedDocument, activeTab, updateUrl, locationState, navigate, location.pathname, location.search]);
 
+  // Load reports data
   const loadReports = useCallback(() => {
-    const historicalReports = getUserHistoricalReports();
+    const historicalReports = getHistoricalReports();
     console.log('History page loaded reports (total):', historicalReports.length);
     
     const userReports = user ? historicalReports.filter(report => report.userId === user.id) : [];

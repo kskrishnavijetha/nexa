@@ -1,3 +1,4 @@
+
 import { User } from '@supabase/supabase-js';
 import { getUserHistoricalReports } from '@/utils/historyService';
 
@@ -10,7 +11,7 @@ export interface DashboardData {
   recentScans: number;
 }
 
-export const loadDashboardData = async (user: User | string | null): Promise<DashboardData> => {
+export const loadDashboardData = async (user: User | null): Promise<DashboardData> => {
   const defaultData: DashboardData = {
     complianceScore: 0,
     documentsScanned: 0,
@@ -20,14 +21,11 @@ export const loadDashboardData = async (user: User | string | null): Promise<Das
     recentScans: 0,
   };
 
-  // Extract user ID if a User object is passed
-  const userId = typeof user === 'object' ? user?.id : user;
-
-  if (!userId) {
+  if (!user?.id) {
     return defaultData;
   }
 
-  const userReports = getUserHistoricalReports(userId);
+  const userReports = getUserHistoricalReports(user.id);
   
   if (userReports.length === 0) {
     return defaultData;

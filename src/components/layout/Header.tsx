@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { User as UserIcon, LogOut, CreditCard } from 'lucide-react';
@@ -35,11 +36,16 @@ const Header: React.FC = () => {
       const loadingToast = toast.loading('Signing out...');
       
       // Call the signOut function from AuthContext
-      await signOut();
+      const { error } = await signOut();
       
       // Dismiss the loading toast
       toast.dismiss(loadingToast);
-      toast.success('Successfully signed out');
+      
+      if (error) {
+        console.error('Error signing out:', error);
+        toast.error('Failed to sign out. Please try again.');
+        return;
+      }
       
       console.log('Header: Sign out completed successfully');
     } catch (error) {

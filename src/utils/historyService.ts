@@ -1,130 +1,128 @@
 
 import { ComplianceReport } from './types';
+import { mockScans } from './historyMocks';
 
-// In-memory storage for report history (would be database in real app)
-let reportHistory: ComplianceReport[] = [];
+// Assign random user IDs to mock data to make them work with our new filtering
+const mockScansWithUserIds = mockScans.map(scan => ({
+  ...scan,
+  userId: scan.userId || Math.random().toString(36).substring(2, 15)
+}));
+
+// In-memory storage for reports (in a real app, this would be persisted)
+let historicalReports: ComplianceReport[] = [...mockScansWithUserIds];
 
 /**
- * Add a report to the history
- * @param report The report to add to history
+ * Add a new report to the history
  */
 export const addReportToHistory = (report: ComplianceReport): void => {
-  // Check if report with same ID already exists
-  const existingIndex = reportHistory.findIndex(r => r.documentId === report.documentId);
+  // Ensure report has a userId
+  const reportToAdd = {
+    ...report,
+    userId: report.userId || null, // Ensure the userId field exists
+    // Generate a timestamp if not provided
+    timestamp: report.timestamp || new Date().toISOString()
+  };
   
-  if (existingIndex >= 0) {
-    // Update existing report
-    reportHistory[existingIndex] = report;
+  console.log('Adding report to history:', reportToAdd);
+  
+  // For documents with the same name and same user, update instead of creating duplicate
+  const existingReportIndex = historicalReports.findIndex(
+    r => r.documentName === reportToAdd.documentName && r.userId === reportToAdd.userId
+  );
+  
+  if (existingReportIndex !== -1) {
+    // Update the existing report 
+    historicalReports[existingReportIndex] = {
+      ...reportToAdd,
+      documentId: historicalReports[existingReportIndex].documentId // Keep the original document ID
+    };
+    console.log('Updated existing document in history:', reportToAdd.documentName);
   } else {
-    // Add new report
-    reportHistory = [report, ...reportHistory];
-  }
-  
-  // Persist to localStorage (would be database in real app)
-  try {
-    window.localStorage.setItem('nexabloom_reportHistory', JSON.stringify(reportHistory));
-  } catch (error) {
-    console.error('Failed to store report history in localStorage:', error);
+    // Add as a new document
+    historicalReports = [reportToAdd, ...historicalReports];
+    console.log('Added new document to history:', reportToAdd.documentName, 'for user:', reportToAdd.userId);
   }
 };
 
 /**
- * Get all reports from history
- * @param userId Optional user ID to filter reports by user
- * @returns Array of reports
+ * Get all historical reports
  */
-export const getUserHistoricalReports = (userId?: string): ComplianceReport[] => {
-  // Load from localStorage if available (would be database in real app)
-  try {
-    const storedHistory = window.localStorage.getItem('nexabloom_reportHistory');
-    if (storedHistory) {
-      reportHistory = JSON.parse(storedHistory);
-    }
-  } catch (error) {
-    console.error('Failed to load report history from localStorage:', error);
-  }
-  
-  // Filter by user ID if provided
-  if (userId) {
-    return reportHistory.filter(report => report.userId === userId);
-  }
-  
-  return reportHistory;
+export const getHistoricalReports = (): ComplianceReport[] => {
+  console.log('Fetching historical reports, count:', historicalReports.length);
+  return historicalReports;
 };
 
 /**
- * Alias for getUserHistoricalReports for backward compatibility
- * @deprecated Use getUserHistoricalReports instead
+ * Get historical reports for a specific user
  */
-export const getHistoricalReports = getUserHistoricalReports;
-
-/**
- * Get a specific report by ID
- * @param reportId The ID of the report to retrieve
- * @returns The report if found, otherwise null
- */
-export const getReportById = (reportId: string): ComplianceReport | null => {
-  // Load from localStorage if available
-  try {
-    const storedHistory = window.localStorage.getItem('nexabloom_reportHistory');
-    if (storedHistory) {
-      reportHistory = JSON.parse(storedHistory);
-    }
-  } catch (error) {
-    console.error('Failed to load report history from localStorage:', error);
+export const getUserHistoricalReports = (userId: string | null | undefined): ComplianceReport[] => {
+  if (!userId) {
+    console.log('No user ID provided, returning empty list');
+    return [];
   }
   
-  return reportHistory.find(report => report.documentId === reportId) || null;
+  // Ensure only one instance of each document name per user
+  const seen = new Set<string>();
+  const uniqueUserReports = historicalReports
+    .filter(report => report.userId === userId)
+    .filter(report => {
+      // If we've already seen this document name for this user, skip it
+      const key = `${report.userId}-${report.documentName}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  
+  console.log(`Fetching unique reports for user ${userId}, found:`, uniqueUserReports.length);
+  
+  // FIXED: Remove the recursive call and instead directly assign reports if needed
+  if (uniqueUserReports.length === 0) {
+    // For demo purposes, create new reports for this user but don't modify the original array yet
+    const reportsToAssign = mockScans.slice(0, 3).map(report => ({
+      ...report,
+      userId: userId
+    }));
+    
+    console.log(`Created ${reportsToAssign.length} demo reports for user ${userId}`);
+    
+    // Return the demo reports without adding them to historicalReports
+    // This prevents the infinite recursion issue
+    return reportsToAssign;
+  }
+  
+  return uniqueUserReports;
 };
 
 /**
- * Get a report by document name
- * @param documentName The name of the document to find a report for
- * @returns The report if found, otherwise null
+ * Get a specific report by documentId
  */
-export const getReportFromHistoryByName = (documentName: string): ComplianceReport | null => {
-  // Load from localStorage if available
-  try {
-    const storedHistory = window.localStorage.getItem('nexabloom_reportHistory');
-    if (storedHistory) {
-      reportHistory = JSON.parse(storedHistory);
-    }
-  } catch (error) {
-    console.error('Failed to load report history from localStorage:', error);
-  }
-  
-  return reportHistory.find(report => report.documentName === documentName) || null;
+export const getReportById = (documentId: string): ComplianceReport | undefined => {
+  return historicalReports.find(report => report.documentId === documentId);
 };
-
-// Alias for backward compatibility
-export const getReportFromHistory = getReportById;
 
 /**
  * Delete a report from history
- * @param reportId The ID of the report to delete
- * @param userId Optional user ID to ensure only a user's own reports are deleted
- * @returns true if report was deleted, false otherwise
  */
-export const deleteReportFromHistory = (reportId: string, userId?: string): boolean => {
-  const initialLength = reportHistory.length;
+export const deleteReportFromHistory = (documentId: string, userId?: string | null): boolean => {
+  const initialLength = historicalReports.length;
   
   if (userId) {
-    reportHistory = reportHistory.filter(report => 
-      !(report.documentId === reportId && report.userId === userId)
+    // Only delete if the report belongs to this user
+    historicalReports = historicalReports.filter(report => 
+      !(report.documentId === documentId && report.userId === userId)
     );
   } else {
-    reportHistory = reportHistory.filter(report => report.documentId !== reportId);
+    // Delete any report with matching documentId
+    historicalReports = historicalReports.filter(report => report.documentId !== documentId);
   }
   
-  // If any report was removed, update localStorage
-  if (initialLength !== reportHistory.length) {
-    try {
-      window.localStorage.setItem('nexabloom_reportHistory', JSON.stringify(reportHistory));
-      return true;
-    } catch (error) {
-      console.error('Failed to update report history in localStorage:', error);
-    }
-  }
-  
-  return false;
+  // Return true if a report was deleted
+  return initialLength > historicalReports.length;
+};
+
+/**
+ * Clear all reports from history (useful for testing)
+ */
+export const clearHistory = (): void => {
+  historicalReports = [];
 };

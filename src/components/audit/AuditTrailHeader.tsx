@@ -2,21 +2,18 @@
 import React from 'react';
 import { CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Download, FileText, HelpCircle, RefreshCw, ClipboardList } from 'lucide-react';
+import { Download, FileText, HelpCircle, RefreshCw } from 'lucide-react';
 import { useAuditTrail } from './AuditTrailProvider';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 import { getScoreColor } from '@/utils/reports';
 import { Separator } from '@/components/ui/separator';
-import { useNavigate } from 'react-router-dom';
-import { getReportFromHistoryByName } from '@/utils/historyService';
 
 interface AuditTrailHeaderProps {
   documentName: string;
 }
 
 const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => {
-  const navigate = useNavigate();
   const { 
     auditEvents, 
     isGeneratingReport, 
@@ -46,18 +43,6 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
 
   const complianceScore = calculateComplianceScore();
   const scoreColorClass = getScoreColor(complianceScore);
-  
-  // Find the associated report from history to get its ID
-  const handleCreateExtendedReport = () => {
-    const report = getReportFromHistoryByName(documentName);
-    if (report) {
-      navigate(`/extended-audit-report/${report.documentId}`);
-    } else {
-      // If no report is found, display an error message
-      // In a real app, you might create a new report here
-      alert("No associated report found for this document");
-    }
-  };
 
   return (
     <CardHeader className="flex flex-col space-y-2 md:flex-row md:justify-between md:items-center md:space-y-0">
@@ -98,7 +83,7 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
         </CardDescription>
       </div>
       
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex items-center space-x-2">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -136,8 +121,7 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
                 ) : (
                   <>
                     <FileText size={14} />
-                    <span className="hidden sm:inline">Download Logs</span>
-                    <span className="sm:hidden">Logs</span>
+                    <span>Download Logs</span>
                   </>
                 )}
               </Button>
@@ -149,7 +133,7 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
         </TooltipProvider>
         
         <Button 
-          variant="outline" 
+          variant="default" 
           size="sm" 
           className={`gap-1 transition-all ${isGeneratingReport ? 'opacity-80' : ''}`}
           onClick={downloadAuditReport}
@@ -163,21 +147,9 @@ const AuditTrailHeader: React.FC<AuditTrailHeaderProps> = ({ documentName }) => 
           ) : (
             <>
               <Download size={14} />
-              <span className="hidden sm:inline">AI Report</span>
-              <span className="sm:hidden">AI Report</span>
+              <span>AI Enhanced Report</span>
             </>
           )}
-        </Button>
-        
-        <Button 
-          variant="default" 
-          size="sm" 
-          className="gap-1 bg-[#1A8DE0] hover:bg-[#0E6CBD]"
-          onClick={handleCreateExtendedReport}
-        >
-          <ClipboardList size={14} />
-          <span className="hidden sm:inline">Extended Report</span>
-          <span className="sm:hidden">Extended</span>
         </Button>
       </div>
     </CardHeader>
