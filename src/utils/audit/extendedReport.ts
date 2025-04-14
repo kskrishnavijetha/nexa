@@ -9,6 +9,7 @@ import { addAuditTimelinePage } from './pdf/extendedReport/addAuditTimelinePage'
 import { addRemediationPage } from './pdf/extendedReport/addRemediationPage';
 import { addIntegrityPage } from './pdf/extendedReport/addIntegrityPage';
 import { addAppendixPage } from './pdf/extendedReport/addAppendixPage';
+import { addChartsPage } from './pdf/extendedReport/addChartsPage';
 import { generateVerificationMetadata } from './hashVerification';
 import { Industry } from '@/utils/types';
 
@@ -31,6 +32,9 @@ export const generateExtendedAuditReport = async (
         
         // Generate verification metadata for integrity
         const verificationMetadata = await generateVerificationMetadata(auditEvents);
+        
+        // Capture chart images if any charts exist in the document
+        const chartImage = await captureChartImage();
         
         // Create PDF with optimized settings
         const pdf = new jsPDF({
@@ -58,6 +62,15 @@ export const generateExtendedAuditReport = async (
           auditEvents,
           industry: companyDetails?.industry || industry,
           companyDetails
+        });
+        
+        // Add charts page with visualizations (new)
+        pdf.addPage();
+        addChartsPage(pdf, {
+          documentName,
+          auditEvents,
+          industry: companyDetails?.industry || industry,
+          chartImage
         });
         
         // Add compliance matrix
@@ -118,4 +131,38 @@ export const generateExtendedAuditReport = async (
       }
     }, 10);
   });
+};
+
+/**
+ * Helper function to capture chart images from the DOM
+ */
+const captureChartImage = async (): Promise<string | undefined> => {
+  // Look for chart containers in the document
+  const chartContainers = [
+    '.compliance-charts-container',
+    '.risk-chart-container',
+    '.audit-chart'
+  ];
+  
+  for (const selector of chartContainers) {
+    const container = document.querySelector(selector);
+    if (container) {
+      try {
+        // Use html2canvas to capture the chart
+        const html2canvas = (await import('html2canvas')).default;
+        const canvas = await html2canvas(container as HTMLElement, {
+          scale: 2, // Higher resolution
+          useCORS: true,
+          logging: false,
+          backgroundColor: '#ffffff'
+        });
+        
+        return canvas.toDataURL('image/png');
+      } catch (error) {
+        console.error('Failed to capture chart:', error);
+      }
+    }
+  }
+  
+  return undefined;
 };

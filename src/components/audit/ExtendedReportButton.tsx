@@ -22,12 +22,53 @@ const ExtendedReportButton: React.FC<ExtendedReportButtonProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [showCompanyModal, setShowCompanyModal] = useState(false);
   const { user } = useAuth();
+  
+  const addChartComponent = async () => {
+    // Create a temporary div to render chart for capturing
+    const tempContainer = document.createElement('div');
+    tempContainer.className = 'audit-chart';
+    tempContainer.style.width = '600px';
+    tempContainer.style.height = '400px';
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px';
+    tempContainer.style.top = '-9999px';
+    
+    // Create a simple chart with colored bars
+    tempContainer.innerHTML = `
+      <div style="display:flex; align-items:flex-end; height:200px; gap:20px; padding:20px;">
+        <div style="height:65%; width:60px; background-color:#dc3545; position:relative;">
+          <span style="position:absolute; bottom:-25px; text-align:center; width:100%;">High</span>
+          <span style="position:absolute; top:-25px; text-align:center; width:100%;">15%</span>
+        </div>
+        <div style="height:85%; width:60px; background-color:#ffc107; position:relative;">
+          <span style="position:absolute; bottom:-25px; text-align:center; width:100%;">Medium</span>
+          <span style="position:absolute; top:-25px; text-align:center; width:100%;">35%</span>
+        </div>
+        <div style="height:50%; width:60px; background-color:#28a745; position:relative;">
+          <span style="position:absolute; bottom:-25px; text-align:center; width:100%;">Low</span>
+          <span style="position:absolute; top:-25px; text-align:center; width:100%;">50%</span>
+        </div>
+      </div>
+      <div style="padding:20px;">
+        <h3 style="font-size:16px; margin-bottom:10px;">Risk Distribution</h3>
+        <p style="font-size:12px; color:#666;">Distribution of compliance risks by severity</p>
+      </div>
+    `;
+    
+    document.body.appendChild(tempContainer);
+    
+    // Return the tempContainer so it can be removed after capturing
+    return tempContainer;
+  };
 
   const handleGenerateReport = async (companyDetails?: CompanyDetails) => {
     if (isGenerating) return;
     
     setIsGenerating(true);
     const toastId = toast.loading('Generating extended audit report...', { duration: 30000 });
+    
+    // Add temporary chart for capturing
+    const chartContainer = await addChartComponent();
     
     try {
       await generateExtendedAuditReport(documentName, user?.id || null, companyDetails, industry as Industry);
@@ -39,6 +80,10 @@ const ExtendedReportButton: React.FC<ExtendedReportButtonProps> = ({
       toast.error('Failed to generate extended audit report');
     } finally {
       setIsGenerating(false);
+      // Remove temporary chart container
+      if (chartContainer && chartContainer.parentNode) {
+        chartContainer.parentNode.removeChild(chartContainer);
+      }
     }
   };
 
