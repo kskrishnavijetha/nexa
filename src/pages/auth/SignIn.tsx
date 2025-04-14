@@ -1,136 +1,110 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import Layout from '@/components/layout/Layout';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2 } from 'lucide-react';
 
-const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters long" }),
-});
-
-export default function SignIn() {
-  const { signIn, user } = useAuth();
+const SignIn: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const { signIn } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  
-  // Get redirect path from state, if provided
-  const from = location.state?.from?.pathname || "/dashboard";
-  const redirectAfterLogin = location.state?.redirectAfterLogin;
-  
-  // Redirect authenticated users
-  useEffect(() => {
-    if (user) {
-      // Special handling for lifetime payment redirect
-      if (redirectAfterLogin === 'lifetime-payment') {
-        window.location.href = 'https://www.paypal.com/ncp/payment/YF2GNLBJ2YCEE';
-      } else {
-        navigate(from, { replace: true });
-      }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !password) {
+      toast.error('Please enter both email and password');
+      return;
     }
-  }, [user, navigate, from, redirectAfterLogin]);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    
     setLoading(true);
     
     try {
-      const { error } = await signIn(values.email, values.password);
-      
-      if (error) {
-        console.error("Error signing in:", error);
-        toast.error("Failed to sign in. Please check your credentials.");
-      } else {
-        toast.success("Signed in successfully!");
-        // Redirect will happen in useEffect
+      if (!signIn) {
+        throw new Error('Sign in function not available');
       }
-    } catch (err) {
-      console.error("Exception during sign in:", err);
-      toast.error("An unexpected error occurred. Please try again.");
+
+      await signIn(email, password);
+      
+      // If we get here without errors, navigate to dashboard
+      toast.success('Signed in successfully');
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Sign in error:', error);
+      toast.error('Failed to sign in. Please check your credentials and try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Layout>
-      <div className="flex min-h-[calc(100vh-180px)] items-center justify-center px-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-2xl">Sign In</CardTitle>
-            <CardDescription>
-              Enter your credentials to access your account
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="your.email@example.com" {...field} type="email" disabled={loading} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="password" disabled={loading} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Signing in...
-                    </>
-                  ) : (
-                    "Sign In"
-                  )}
-                </Button>
-              </form>
-            </Form>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Sign In</CardTitle>
+          <CardDescription>Enter your email and password to sign in to your account</CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium">
+                Email
+              </label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="your@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label htmlFor="password" className="text-sm font-medium">
+                  Password
+                </label>
+                <Link to="/reset-password" className="text-sm text-primary hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
           </CardContent>
-          <CardFooter className="flex-col space-y-4">
-            <div className="text-sm text-muted-foreground text-center">
-              Don't have an account?{" "}
-              <Button variant="link" className="p-0" onClick={() => navigate("/sign-up")}>
+          <CardFooter className="flex flex-col space-y-4">
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Signing In...
+                </>
+              ) : (
+                'Sign In'
+              )}
+            </Button>
+            <div className="text-center text-sm">
+              Don't have an account?{' '}
+              <Link to="/sign-up" className="text-primary hover:underline">
                 Sign up
-              </Button>
+              </Link>
             </div>
           </CardFooter>
-        </Card>
-      </div>
-    </Layout>
+        </form>
+      </Card>
+    </div>
   );
-}
+};
+
+export default SignIn;

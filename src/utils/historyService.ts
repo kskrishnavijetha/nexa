@@ -53,11 +53,17 @@ export const getUserHistoricalReports = (userId?: string): ComplianceReport[] =>
 };
 
 /**
+ * Alias for getUserHistoricalReports for backward compatibility
+ * @deprecated Use getUserHistoricalReports instead
+ */
+export const getHistoricalReports = getUserHistoricalReports;
+
+/**
  * Get a specific report by ID
  * @param reportId The ID of the report to retrieve
  * @returns The report if found, otherwise null
  */
-export const getReportFromHistory = (reportId: string): ComplianceReport | null => {
+export const getReportById = (reportId: string): ComplianceReport | null => {
   // Load from localStorage if available
   try {
     const storedHistory = window.localStorage.getItem('nexabloom_reportHistory');
@@ -89,6 +95,9 @@ export const getReportFromHistoryByName = (documentName: string): ComplianceRepo
   
   return reportHistory.find(report => report.documentName === documentName) || null;
 };
+
+// Alias for backward compatibility
+export const getReportFromHistory = getReportById;
 
 /**
  * Delete a report from history

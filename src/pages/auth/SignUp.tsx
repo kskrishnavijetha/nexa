@@ -1,31 +1,25 @@
 
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
 
 const SignUp: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSignUp = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password || !confirmPassword) {
-      toast.error('Please fill in all fields');
-      return;
-    }
-    
-    if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+    if (!email || !password) {
+      toast.error('Please enter both email and password');
       return;
     }
     
@@ -34,104 +28,81 @@ const SignUp: React.FC = () => {
       return;
     }
     
-    setIsLoading(true);
+    setLoading(true);
     
     try {
-      const { error } = await signUp(email, password);
-      
-      if (error) {
-        toast.error(error.message);
-      } else {
-        toast.success('Signup successful! Please check your email to verify your account.');
-        // Redirect to pricing page after successful signup
-        navigate('/pricing');
+      if (!signUp) {
+        throw new Error('Sign up function not available');
       }
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred during sign up');
+      
+      await signUp(email, password);
+      
+      toast.success('Account created successfully! Please check your email for verification.');
+      navigate('/sign-in');
+    } catch (error) {
+      console.error('Sign up error:', error);
+      toast.error('Failed to create account. The email may already be in use.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Create Your Account</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Join Nexabloom and streamline your compliance processes
-          </p>
-        </div>
-        
-        <form onSubmit={handleSignUp} className="mt-8 space-y-6">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="email">Email</Label>
+    <div className="flex items-center justify-center min-h-screen bg-gray-50">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold">Create an Account</CardTitle>
+          <CardDescription>Enter your information to create an account</CardDescription>
+        </CardHeader>
+        <form onSubmit={handleSubmit}>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="email" className="text-sm font-medium">
+                Email
+              </label>
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="your@email.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="mt-1"
-                autoComplete="email"
                 required
               />
             </div>
-            
-            <div>
-              <Label htmlFor="password">Password</Label>
+            <div className="space-y-2">
+              <label htmlFor="password" className="text-sm font-medium">
+                Password
+              </label>
               <Input
                 id="password"
                 type="password"
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1"
-                autoComplete="new-password"
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Must be at least 6 characters
-              </p>
+              <p className="text-xs text-gray-500">Password must be at least 6 characters</p>
             </div>
-            
-            <div>
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="••••••••"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="mt-1"
-                autoComplete="new-password"
-                required
-              />
-            </div>
-          </div>
-          
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating account...
-              </>
-            ) : (
-              'Sign Up'
-            )}
-          </Button>
-          
-          <div className="text-center mt-4">
-            <p className="text-sm text-gray-600">
+          </CardContent>
+          <CardFooter className="flex flex-col space-y-4">
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating Account...
+                </>
+              ) : (
+                'Create Account'
+              )}
+            </Button>
+            <div className="text-center text-sm">
               Already have an account?{' '}
               <Link to="/sign-in" className="text-primary hover:underline">
                 Sign in
               </Link>
-            </p>
-          </div>
+            </div>
+          </CardFooter>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };

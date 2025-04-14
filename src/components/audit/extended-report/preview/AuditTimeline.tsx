@@ -21,6 +21,17 @@ export const AuditTimeline: React.FC<AuditTimelineProps> = ({ report }) => {
     }
     eventsByDate[date].push(event);
   });
+  
+  // Format timestamps for display
+  const formatTime = (timestamp: string): string => {
+    // Check how many arguments formatTimestamp expects
+    try {
+      return formatTimestamp(timestamp);
+    } catch (error) {
+      // Fallback formatting if the original function fails
+      return new Date(timestamp).toLocaleTimeString();
+    }
+  };
 
   return (
     <Card>
@@ -43,7 +54,7 @@ export const AuditTimeline: React.FC<AuditTimelineProps> = ({ report }) => {
                       
                       <div className="mb-1 flex items-center">
                         <time className="block text-xs font-normal leading-none text-gray-500">
-                          {formatTimestamp(event.timestamp, true)}
+                          {formatTime(event.timestamp)}
                         </time>
                         
                         <div className="ml-2">

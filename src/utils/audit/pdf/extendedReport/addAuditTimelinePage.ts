@@ -58,7 +58,7 @@ export const addAuditTimelinePage = (
   };
   
   // Function to get action color
-  const getActionColor = (action: string) => {
+  const getActionColor = (action: string): [number, number, number] => {
     switch (action.toLowerCase()) {
       case 'upload':
       case 'create':
@@ -90,12 +90,12 @@ export const addAuditTimelinePage = (
     }
     
     // Draw timeline dot
-    doc.setFillColor(...actionColor);
+    doc.setFillColor(actionColor[0], actionColor[1], actionColor[2]);
     doc.circle(25, y - 1, 1.5, 'F');
     
     // Draw vertical line to connect dots
     if (i < sortedEvents.length - 1) {
-      doc.setDrawColor(...actionColor);
+      doc.setDrawColor(actionColor[0], actionColor[1], actionColor[2]);
       doc.setLineWidth(0.3);
       doc.line(25, y + 1, 25, y + lineHeight - 1);
     }
@@ -109,7 +109,7 @@ export const addAuditTimelinePage = (
     // Event action
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
-    doc.setTextColor(...actionColor);
+    doc.setTextColor(actionColor[0], actionColor[1], actionColor[2]);
     
     // Capitalize the first letter of the action
     const displayAction = event.action.charAt(0).toUpperCase() + event.action.slice(1);
