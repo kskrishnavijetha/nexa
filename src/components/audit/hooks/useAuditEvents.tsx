@@ -2,7 +2,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { AuditEvent } from '../types';
-import { generateMockAuditTrail } from './mockAuditData';
+import { 
+  getAuditEventsForDocument,
+  generateMockAuditTrail
+} from './mockAuditData';
 import { 
   generateRealTimeEvent, 
   generateInitialRealTimeEvent, 

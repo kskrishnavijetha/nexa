@@ -2,6 +2,8 @@
 import { useEffect, useCallback, ReactNode } from 'react';
 import { Eye, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useAuditTrail } from '../context/AuditTrailContext';
+import { AuditEvent } from '../types';
+import { toast } from 'sonner';
 
 // Interval between generating events (in ms)
 const EVENT_GENERATION_INTERVAL = 60000; // 1 minute
@@ -28,6 +30,45 @@ const possibleEvents = [
   }
 ];
 
+// Generate a real-time event for use outside the hook
+export function generateRealTimeEvent(documentName: string): AuditEvent {
+  const randomEvent = possibleEvents[Math.floor(Math.random() * possibleEvents.length)];
+  
+  return {
+    id: `audit-${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    action: randomEvent.action,
+    documentName,
+    user: randomEvent.user,
+    status: randomEvent.status,
+    comments: [],
+    icon: randomEvent.getIcon()
+  };
+}
+
+// Generate an initial real-time event when component mounts
+export function generateInitialRealTimeEvent(documentName: string): AuditEvent {
+  // Use a specific event for the initial notification
+  return {
+    id: `audit-init-${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    action: 'Audit trail monitoring started',
+    documentName,
+    user: 'System',
+    status: 'completed',
+    comments: [],
+    icon: <Eye className="h-4 w-4 text-blue-500" />
+  };
+}
+
+// Show notification for new activity
+export function notifyNewActivity(event: AuditEvent) {
+  toast.info(`New activity: ${event.action}`, {
+    description: event.status === 'pending' ? 'Attention required' : 'For your information',
+    duration: 5000,
+  });
+}
+
 export function useRealTimeEventGenerator(
   documentName: string,
   enabled: boolean = true,
@@ -48,6 +89,7 @@ export function useRealTimeEventGenerator(
         documentName,
         user: randomEvent.user,
         status: randomEvent.status,
+        comments: [],
         icon: randomEvent.getIcon()
       });
     }

@@ -1,6 +1,9 @@
 
 import { AuditEvent, Comment } from '../types';
-import { generateMockAuditTrail } from '../auditUtils';
+import { generateMockAuditTrail as generateMockTrail } from '../auditUtils';
+
+// Export the function from auditUtils
+export const generateMockAuditTrail = generateMockTrail;
 
 // In-memory storage for audit events
 const auditEventsStorage = new Map<string, AuditEvent[]>();
