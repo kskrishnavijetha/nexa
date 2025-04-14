@@ -1,18 +1,21 @@
 
 import { jsPDF } from 'jspdf';
+import { Industry, Region } from '@/utils/types';
 
 /**
- * Add appendix page to the extended audit report
+ * Add appendix page to extended audit report
  */
 export const addAppendixPage = (
   doc: jsPDF,
   {
     documentName,
     industry,
+    region,
     companyDetails
   }: {
     documentName: string;
-    industry?: string;
+    industry?: Industry | string;
+    region?: Region;
     companyDetails?: any;
   }
 ) => {
@@ -20,105 +23,85 @@ export const addAppendixPage = (
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   
-  // Add page header
-  doc.setFillColor(25, 65, 120);
+  // Add background color
+  doc.setFillColor(250, 250, 255);
+  doc.rect(0, 0, pageWidth, pageHeight, 'F');
+  
+  // Add header
+  doc.setFillColor(40, 80, 140);
   doc.rect(0, 0, pageWidth, 20, 'F');
-  
-  doc.setFontSize(14);
   doc.setTextColor(255, 255, 255);
-  doc.text('Appendix', pageWidth / 2, 13, { align: 'center' });
+  doc.setFontSize(14);
+  doc.text('Appendix: Additional Information', pageWidth / 2, 13, { align: 'center' });
   
-  // Add files section
-  let yPos = 30;
+  // Add content
+  let yPos = 40;
+  doc.setTextColor(50, 50, 50);
+  
+  // Document information
   doc.setFontSize(12);
-  doc.setTextColor(25, 65, 120);
-  doc.setFont('helvetica', 'bold');
-  doc.text('A. Files Scanned', 20, yPos);
+  doc.text('Document Information', 20, yPos);
+  yPos += 15;
   
-  yPos += 10;
   doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-  doc.setFont('helvetica', 'normal');
-  doc.text(`• ${documentName}`, 30, yPos);
-  
-  // Add organization metadata section
-  yPos += 20;
-  doc.setFontSize(12);
-  doc.setTextColor(25, 65, 120);
-  doc.setFont('helvetica', 'bold');
-  doc.text('B. Organization Metadata', 20, yPos);
-  
+  doc.text(`Document Name: ${documentName}`, 25, yPos);
   yPos += 10;
+  
+  // Add industry information if available
+  if (industry) {
+    doc.text(`Industry: ${industry}`, 25, yPos);
+    yPos += 10;
+  }
+  
+  // Add region information if available
+  if (region) {
+    doc.text(`Region: ${region}`, 25, yPos);
+    yPos += 10;
+  }
+  
+  // Add organization information if available
+  if (companyDetails?.companyName) {
+    doc.text(`Organization: ${companyDetails.companyName}`, 25, yPos);
+    yPos += 10;
+  }
+  
+  yPos += 15;
+  
+  // Add relevant regulations section
+  doc.setFontSize(12);
+  doc.text('Relevant Regulations', 20, yPos);
+  yPos += 15;
+  
   doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-  doc.setFont('helvetica', 'normal');
   
-  // Organization Name
-  doc.text('Organization Name:', 30, yPos);
-  doc.text(companyDetails?.companyName || 'Not specified', 120, yPos);
+  // Display industry-specific regulations
+  if (industry) {
+    const industryText = `Industry regulations for ${industry} typically include standards for data protection, 
+    information security, and compliance reporting. These may include industry-specific frameworks 
+    and best practices for audit documentation and record-keeping.`;
+    
+    const industryLines = doc.splitTextToSize(industryText, pageWidth - 50);
+    doc.text(industryLines, 25, yPos);
+    yPos += industryLines.length * 7;
+  }
   
-  yPos += 10;
-  doc.text('Industry:', 30, yPos);
-  doc.text(industry || 'Not specified', 120, yPos);
+  // Display region-specific regulations
+  if (region) {
+    yPos += 10;
+    const regionText = `Regional requirements for ${region} include local privacy laws, data sovereignty regulations,
+    and jurisdiction-specific reporting requirements. Organizations should ensure 
+    compliance with these regional standards in addition to industry frameworks.`;
+    
+    const regionLines = doc.splitTextToSize(regionText, pageWidth - 50);
+    doc.text(regionLines, 25, yPos);
+  }
   
-  yPos += 10;
-  doc.text('Region:', 30, yPos);
-  doc.text('Global', 120, yPos); // Default to Global
-  
-  yPos += 10;
-  doc.text('Compliance Framework:', 30, yPos);
-  doc.text(companyDetails?.complianceType || 'Not specified', 120, yPos);
-  
-  // Add audit confirmation section
-  yPos += 20;
-  doc.setFontSize(12);
-  doc.setTextColor(25, 65, 120);
-  doc.setFont('helvetica', 'bold');
-  doc.text('C. Audit Confirmation Contact', 20, yPos);
-  
-  yPos += 10;
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-  doc.setFont('helvetica', 'normal');
-  
-  doc.text('For inquiries regarding this audit report, please contact:', 30, yPos);
-  
-  yPos += 10;
-  doc.text('Name:', 30, yPos);
-  doc.text('Compliance Officer', 120, yPos);
-  
-  yPos += 10;
-  doc.text('Email:', 30, yPos);
-  doc.text('compliance@' + (companyDetails?.companyName || 'yourorganization').toLowerCase().replace(/\s+/g, '') + '.com', 120, yPos);
-  
-  yPos += 10;
-  doc.text('Phone:', 30, yPos);
-  doc.text('Please contact your organization administrator', 120, yPos);
-  
-  // Add terms section
-  yPos += 20;
-  doc.setFontSize(12);
-  doc.setTextColor(25, 65, 120);
-  doc.setFont('helvetica', 'bold');
-  doc.text('D. Terms & Limitations', 20, yPos);
-  
-  yPos += 10;
-  doc.setFontSize(8);
-  doc.setTextColor(80, 80, 80);
-  doc.setFont('helvetica', 'normal');
-  
-  const termsText = "This audit report is generated using AI-powered compliance analysis and is provided for informational purposes only. It does not constitute legal advice or guarantee regulatory compliance. Organizations should consult with qualified compliance professionals before making compliance decisions. The analysis is based on the information available at the time of scanning and may not reflect all compliance requirements for your specific organization or jurisdiction. Results should be reviewed and validated by qualified personnel.";
-  
-  const termsLines = doc.splitTextToSize(termsText, pageWidth - 40);
-  doc.text(termsLines, 20, yPos);
+  // Add footer
+  doc.setDrawColor(40, 80, 140);
+  doc.setLineWidth(1);
+  doc.line(20, pageHeight - 20, pageWidth - 20, pageHeight - 20);
   
   // Add page number
   doc.setFontSize(8);
-  doc.setTextColor(100, 100, 100);
-  doc.text(
-    'Page 7',
-    pageWidth / 2,
-    pageHeight - 10,
-    { align: 'center' }
-  );
+  doc.text('Appendix Page', pageWidth - 25, pageHeight - 10);
 };
