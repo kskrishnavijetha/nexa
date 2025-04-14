@@ -1,137 +1,122 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { ComplianceReport } from '@/utils/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import ComplianceScoreCards from './ComplianceScoreCards';
+import ComplianceScores from '@/components/report/ComplianceScores';
+import ComplianceCharts from '@/components/report/ComplianceCharts';
 import RiskAnalysis from '@/components/RiskAnalysis';
 import { Button } from '@/components/ui/button';
-import { Download, Eye, Loader2 } from 'lucide-react';
+import { FileText, Download, ClipboardList, ArrowRight } from 'lucide-react';
+import { generateReportPDF } from '@/utils/apiService';
 import { toast } from 'sonner';
-import { generateReportPDF } from '@/utils/reports';
-import DocumentPreview from '@/components/document-analysis/DocumentPreview';
+import { useNavigate } from 'react-router-dom';
 
 interface ComplianceDetailsProps {
   report: ComplianceReport;
 }
 
 const ComplianceDetails: React.FC<ComplianceDetailsProps> = ({ report }) => {
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  
+  const navigate = useNavigate();
+  const [isGenerating, setIsGenerating] = React.useState(false);
+
   const handleDownloadReport = async () => {
+    setIsGenerating(true);
     try {
-      setIsDownloading(true);
-      toast.info(`Preparing download for "${report.documentName}"...`);
+      const response = await generateReportPDF(report);
       
-      // Pass the complete report to ensure all data is available
-      const result = await generateReportPDF(report, 'en');
-      
-      if (result.data) {
-        // Create a download link for the PDF
-        const url = URL.createObjectURL(result.data);
+      if (response.data) {
+        const url = URL.createObjectURL(response.data);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `${report.documentName.replace(/\s+/g, '-').toLowerCase()}-compliance-report.pdf`;
+        link.download = `compliance-report-${report.documentId}.pdf`;
         document.body.appendChild(link);
         link.click();
-        
-        // Clean up
-        URL.revokeObjectURL(url);
         document.body.removeChild(link);
+        URL.revokeObjectURL(url);
         
         toast.success('Report downloaded successfully');
-      } else if (result.error) {
-        toast.error(result.error);
+      } else {
+        toast.error('Failed to generate PDF report');
       }
     } catch (error) {
-      console.error('Error downloading report:', error);
-      toast.error('Failed to download the report. Please try again.');
+      console.error('Failed to download report:', error);
+      toast.error('Failed to generate PDF report');
     } finally {
-      setIsDownloading(false);
+      setIsGenerating(false);
     }
   };
 
-  if (!report) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>No Report Selected</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p>Please select a document to view details</p>
-        </CardContent>
-      </Card>
-    );
-  }
+  const handleCreateExtendedReport = () => {
+    navigate(`/extended-audit-report/${report.documentId}`);
+  };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex justify-between items-center">
-          <div className="flex flex-col">
-            <span>{report.documentName}</span>
-            {report.industry && (
-              <span className="text-sm text-muted-foreground">
-                Industry: {report.industry} {report.region && `| Region: ${report.region}`}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-              onClick={() => setPreviewOpen(true)}
-            >
-              <Eye className="h-4 w-4" />
-              Preview
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
-              onClick={handleDownloadReport}
-              disabled={isDownloading}
-            >
-              {isDownloading ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Download className="h-4 w-4" />
-                  Download
-                </>
-              )}
-            </Button>
-            <span className={
-              report.overallScore >= 80 ? 'text-green-500' : 
-              report.overallScore >= 70 ? 'text-amber-500' : 
-              'text-red-500'
-            }>
-              {report.overallScore}%
-            </span>
-          </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <p className="mb-4">{report.summary}</p>
-        <ComplianceScoreCards 
-          gdprScore={report.gdprScore}
-          hipaaScore={report.hipaaScore}
-          soc2Score={report.soc2Score}
-        />
-        <RiskAnalysis risks={report.risks} />
-      </CardContent>
-
-      {/* Document Preview Modal */}
-      <DocumentPreview
-        report={report}
-        isOpen={previewOpen}
-        onClose={() => setPreviewOpen(false)}
-      />
-    </Card>
+    <div className="space-y-6">
+      <div className="flex flex-col md:flex-row md:items-start gap-6">
+        <div className="flex-1">
+          <Card>
+            <CardHeader>
+              <CardTitle>Compliance Scores</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ComplianceScores report={report} />
+            </CardContent>
+          </Card>
+        </div>
+        
+        <div className="flex-1">
+          <Card>
+            <CardHeader>
+              <CardTitle>Compliance Distribution</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="compliance-charts-container">
+                <ComplianceCharts report={report} />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+      
+      <div className="flex flex-col md:flex-row gap-6">
+        <div className="w-full">
+          <RiskAnalysis risks={report.risks || []} />
+        </div>
+      </div>
+      
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <Button
+          variant="outline"
+          size="lg"
+          className="gap-2"
+          onClick={handleDownloadReport}
+          disabled={isGenerating}
+        >
+          {isGenerating ? (
+            <>
+              <FileText className="h-4 w-4" />
+              Generating...
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4" />
+              Download Report PDF
+            </>
+          )}
+        </Button>
+        
+        <Button
+          variant="default"
+          size="lg"
+          className="gap-2 bg-[#1A8DE0] hover:bg-[#0E6CBD]"
+          onClick={handleCreateExtendedReport}
+        >
+          <ClipboardList className="h-4 w-4" />
+          Create Extended Audit-Ready Report
+          <ArrowRight className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
   );
 };
 
