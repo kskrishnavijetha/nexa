@@ -1,52 +1,65 @@
 
 import React from 'react';
+import { Industry, Region } from '@/utils/types';
 import { Button } from '@/components/ui/button';
-import { Industry, Region } from '@/utils/apiService';
-import { UploadCloud, Loader2 } from 'lucide-react';
+import { Loader2, Upload, X } from 'lucide-react';
 
 interface UploadActionsProps {
   file: File | null;
   industry?: Industry;
   region?: Region;
-  frameworks?: string[];
   isUploading: boolean;
   isProcessing: boolean;
   onUpload: () => void;
+  onClear?: () => void;
 }
 
 const UploadActions: React.FC<UploadActionsProps> = ({
   file,
   industry,
   region,
-  frameworks = [],
   isUploading,
   isProcessing,
-  onUpload
+  onUpload,
+  onClear
 }) => {
-  const isDisabled = !file || isUploading || isProcessing || !industry;
-  
+  if (!file) return null;
+
   return (
     <>
       <Button
         onClick={onUpload}
-        disabled={isDisabled}
-        className="bg-primary hover:bg-primary/90 text-white flex items-center gap-2"
-        size="lg"
+        disabled={isUploading || isProcessing}
+        className="flex items-center"
       >
-        {isUploading || isProcessing ? (
+        {isUploading ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            {isUploading ? 'Uploading...' : 'Analyzing...'}
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Uploading...
+          </>
+        ) : isProcessing ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Analyzing...
           </>
         ) : (
           <>
-            <UploadCloud className="h-4 w-4" />
-            {frameworks && frameworks.length > 1 
-              ? `Analyze Against ${frameworks.length} Frameworks` 
-              : 'Analyze Document'}
+            <Upload className="mr-2 h-4 w-4" />
+            Analyze Document
           </>
         )}
       </Button>
+
+      {onClear && (
+        <Button
+          variant="outline"
+          onClick={onClear}
+          disabled={isUploading || isProcessing}
+        >
+          <X className="h-4 w-4 mr-1" />
+          Clear
+        </Button>
+      )}
     </>
   );
 };

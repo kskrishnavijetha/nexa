@@ -43,11 +43,6 @@ export interface ComplianceReport {
   pageCount?: number;
   originalFileName?: string;
   
-  // Fields for multi-framework reports
-  isMultiFramework?: boolean;
-  selectedFrameworks?: string[];
-  frameworkScores?: Record<string, number>;
-  
   // Fields for simulation reports
   isSimulation?: boolean;
   simulationDetails?: {
