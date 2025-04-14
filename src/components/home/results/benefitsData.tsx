@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BarChart, TrendingDown, Clock } from 'lucide-react';
 
@@ -11,8 +10,8 @@ export interface Benefit {
 export const benefits: Benefit[] = [
   {
     icon: <TrendingDown className="h-8 w-8 text-primary" />,
-    title: "Reduce Compliance Costs by 50%",
-    details: "Our AI-powered platform analyzes your compliance processes and identifies cost-saving opportunities, resulting in an average 50% reduction in compliance-related expenses."
+    title: "Reduce Compliance Costs by 80%",
+    details: "Our AI-powered platform analyzes your compliance processes and identifies cost-saving opportunities, resulting in an average 80% reduction in compliance-related expenses."
   },
   {
     icon: <Clock className="h-8 w-8 text-primary" />,
