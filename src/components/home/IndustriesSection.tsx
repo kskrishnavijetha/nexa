@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle, Briefcase, Stethoscope, Building2, ShieldCheck, Factory, Truck, FileText, LandPlot, Microscope, Hospital } from 'lucide-react';
+import { CheckCircle, Briefcase, Stethoscope, Building2, ShieldCheck, Factory, Truck, FileText, LandPlot, Microscope, Hospital, Rocket, Cloud, Lock } from 'lucide-react';
 
 const industries = [
   {
@@ -31,6 +31,16 @@ const industries = [
       "KYC & AML Compliance automation",
       "SOC 2 & PCI-DSS risk assessments",
       "Secure transaction monitoring"
+    ]
+  },
+  {
+    name: "SaaS & Startups",
+    icon: <Rocket className="h-6 w-6" />,
+    features: [
+      "SOC 2 & ISO 27001 certification readiness",
+      "GDPR & CCPA compliance frameworks",
+      "Data privacy by design implementation",
+      "Scalable security infrastructure"
     ]
   },
   {
@@ -115,6 +125,47 @@ const IndustriesSection: React.FC = () => {
                   style={{ maxHeight: '300px' }}
                 />
               </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* SaaS & Startups focus section */}
+        <div className="mt-8 bg-white p-8 rounded-lg shadow-sm">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="md:w-1/2 flex justify-center order-2 md:order-1">
+              <div className="rounded-lg overflow-hidden shadow-md">
+                <img 
+                  src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                  alt="SaaS Compliance" 
+                  className="w-full h-auto object-cover"
+                  style={{ maxHeight: '300px' }}
+                />
+              </div>
+            </div>
+            <div className="md:w-1/2 order-1 md:order-2">
+              <h3 className="text-2xl font-bold mb-4 text-primary">SaaS & Startup Compliance</h3>
+              <p className="mb-4 text-gray-700">
+                Accelerate your growth with compliance solutions designed specifically for fast-moving 
+                tech companies and startups, balancing innovation with security.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">SOC 2 Certification Fast-Track</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Privacy-by-Design Implementation</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Compliance for Fundraising Readiness</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Cloud Infrastructure Security Management</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
