@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BarChart, TrendingDown, Clock } from 'lucide-react';
 
@@ -20,7 +21,7 @@ export const benefits: Benefit[] = [
   },
   {
     icon: <BarChart className="h-8 w-8 text-primary" />,
-    title: "Faster Compliance in Minutes, Not Months",
-    details: "Real-time scanning and analysis allows you to assess compliance status instantly, dramatically reducing the time required to identify and address potential issues."
+    title: "Faster Compliance in Seconds, Not Months",
+    details: "Real-time AI scanning and instant analysis allows you to assess compliance status within seconds, dramatically reducing the time required to identify and address potential issues from months to mere moments."
   }
 ];
