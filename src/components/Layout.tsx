@@ -1,6 +1,5 @@
 
 import React, { ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 interface LayoutProps {
   children: ReactNode;

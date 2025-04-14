@@ -22,10 +22,10 @@ import NotFoundPage from './pages/NotFoundPage';
 function App() {
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <ServiceProvider>
-          <ComplianceFrameworkProvider>
-            <Router>
+      <Router>
+        <AuthProvider>
+          <ServiceProvider>
+            <ComplianceFrameworkProvider>
               <Layout>
                 <Routes>
                   <Route path="/" element={<Home />} />
@@ -40,12 +40,12 @@ function App() {
                   <Route path="*" element={<NotFoundPage />} />
                 </Routes>
               </Layout>
-            </Router>
-            <Toaster />
-            <SonnerToaster position="top-right" richColors closeButton/>
-          </ComplianceFrameworkProvider>
-        </ServiceProvider>
-      </AuthProvider>
+              <Toaster />
+              <SonnerToaster position="top-right" richColors closeButton/>
+            </ComplianceFrameworkProvider>
+          </ServiceProvider>
+        </AuthProvider>
+      </Router>
     </ThemeProvider>
   );
 }
