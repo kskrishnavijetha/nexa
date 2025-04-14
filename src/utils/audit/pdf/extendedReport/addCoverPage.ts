@@ -18,7 +18,7 @@ export const addCoverPage = (
   }: {
     documentName: string;
     companyDetails?: any;
-    industry?: string;
+    industry?: Industry | string;
     verificationMetadata: any;
     region?: Region;
   }
