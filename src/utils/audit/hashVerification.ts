@@ -1,5 +1,3 @@
-
-
 import { AuditEvent } from '@/components/audit/types';
 
 /**
@@ -77,4 +75,3 @@ export const generateVerificationMetadata = async (auditEvents: AuditEvent[]) =>
     eventCount: auditEvents.length
   };
 };
-
