@@ -1,9 +1,29 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle, Briefcase, Stethoscope, Building2, LandPlot, ShieldCheck, Factory, Truck } from 'lucide-react';
+import { CheckCircle, Briefcase, Stethoscope, Building2, ShieldCheck, Factory, Truck, FileText, LandPlot, Microscope, Hospital } from 'lucide-react';
 
 const industries = [
+  {
+    name: "Healthcare",
+    icon: <Hospital className="h-6 w-6" />,
+    features: [
+      "AI-driven HIPAA compliance automation",
+      "Protected health information safeguards",
+      "Medical records security assessment",
+      "Real-time compliance monitoring"
+    ]
+  },
+  {
+    name: "Pharmaceutical & Biotech",
+    icon: <Microscope className="h-6 w-6" />,
+    features: [
+      "FDA compliance management",
+      "GxP validation and documentation",
+      "Clinical trial data protection",
+      "Regulatory submission readiness"
+    ]
+  },
   {
     name: "Finance & Banking",
     icon: <Briefcase className="h-6 w-6" />,
@@ -14,25 +34,7 @@ const industries = [
     ]
   },
   {
-    name: "Healthcare",
-    icon: <Stethoscope className="h-6 w-6" />,
-    features: [
-      "AI-driven HIPAA compliance",
-      "Medical data security & risk checks",
-      "Automated reporting for audits"
-    ]
-  },
-  {
-    name: "Technology",
-    icon: <Building2 className="h-6 w-6" />,
-    features: [
-      "SOC 2 & ISO 27001 readiness",
-      "GDPR & CCPA compliance automation",
-      "Cloud security & risk management"
-    ]
-  },
-  {
-    name: "Government",
+    name: "Government & Defense",
     icon: <ShieldCheck className="h-6 w-6" />,
     features: [
       "FISMA compliance automation",
@@ -74,6 +76,47 @@ const IndustriesSection: React.FC = () => {
               </CardContent>
             </Card>
           ))}
+        </div>
+        
+        {/* Healthcare focus section */}
+        <div className="mt-16 bg-white p-8 rounded-lg shadow-sm">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="md:w-1/2">
+              <h3 className="text-2xl font-bold mb-4 text-primary">Healthcare Compliance Excellence</h3>
+              <p className="mb-4 text-gray-700">
+                Our specialized healthcare compliance solutions address the unique challenges faced by healthcare providers, 
+                ensuring patient data security and regulatory compliance.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">HIPAA Risk Assessment & Remediation</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Patient Privacy Protection Framework</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Electronic Health Record Security Analysis</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Medical Device Compliance Verification</span>
+                </li>
+              </ul>
+            </div>
+            <div className="md:w-1/2 flex justify-center">
+              <div className="rounded-lg overflow-hidden shadow-md">
+                <img 
+                  src="https://images.unsplash.com/photo-1504813184591-01572f98c85f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                  alt="Healthcare Compliance" 
+                  className="w-full h-auto object-cover"
+                  style={{ maxHeight: '300px' }}
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
