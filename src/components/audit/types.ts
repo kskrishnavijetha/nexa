@@ -1,19 +1,3 @@
-import { LucideIcon } from 'lucide-react';
-import { ComplianceReport } from '@/utils/types';
-
-export interface Comment {
-  id: string;
-  user: string;
-  text: string;
-  timestamp: string;
-}
-
-export interface AuditComment {
-  id: string;
-  user: string;
-  text: string;
-  timestamp: string;
-}
 
 export interface AuditEvent {
   id: string;
@@ -21,18 +5,13 @@ export interface AuditEvent {
   action: string;
   documentName: string;
   user: string;
-  status?: 'pending' | 'in-progress' | 'completed';
-  comments?: AuditComment[];
-  icon?: React.ReactNode;
+  status: 'pending' | 'in-progress' | 'completed';
+  comments: string[];
+  icon?: string;
 }
 
-export interface ServiceScanHistory {
-  serviceId: string;
-  serviceName: string;
-  scanDate: string;
-  itemsScanned: number;
-  violationsFound: number;
-  documentName?: string;
-  fileName?: string;
-  report?: ComplianceReport;
+export interface CompanyDetails {
+  companyName: string;
+  complianceType: string;
+  logo?: string | null;
 }
