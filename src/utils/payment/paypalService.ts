@@ -1,3 +1,4 @@
+
 /**
  * Service for PayPal payment processing
  */
@@ -213,14 +214,13 @@ export const processLifetimePaymentCompletion = async (): Promise<{success: bool
     const isVerified = await verifyLifetimePayment(txnId);
     
     if (isVerified) {
-      // Activate lifetime access for the user
-      import('@/utils/payment/subscriptionService').then(({ activateLifetimeAccess }) => {
-        activateLifetimeAccess(txnId);
-      });
+      // Since lifetime plan has been removed, handle this as a generic payment success
+      // or redirect to regular subscription plans
+      console.log('Lifetime plan no longer offered, treating as regular payment');
       
       return {
         success: true,
-        message: 'Lifetime access activated successfully!'
+        message: 'Payment verified successfully! Please select a subscription plan.'
       };
     } else {
       return {
@@ -229,10 +229,11 @@ export const processLifetimePaymentCompletion = async (): Promise<{success: bool
       };
     }
   } catch (error) {
-    console.error('Error processing lifetime payment:', error);
+    console.error('Error processing payment:', error);
     return {
       success: false,
       message: 'An error occurred while processing your payment. Please contact support.'
     };
   }
 };
+
