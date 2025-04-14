@@ -1,11 +1,42 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Image } from '@/components/ui/image';
 
 const TrustedBySection: React.FC = () => {
   const industries = [
-    'Finance', 'Healthcare', 'E-commerce', 'SaaS & Startups',
-    'Government', 'Manufacturing', 'Insurance', 'Telecommunications'
+    {
+      name: 'Finance',
+      image: '/assets/images/industries/finance.jpg'
+    },
+    {
+      name: 'Healthcare',
+      image: '/assets/images/industries/healthcare.jpg'
+    },
+    {
+      name: 'E-commerce',
+      image: '/assets/images/industries/ecommerce.jpg'
+    },
+    {
+      name: 'SaaS & Startups',
+      image: '/assets/images/industries/saas.jpg'
+    },
+    {
+      name: 'Government',
+      image: '/assets/images/industries/government.jpg'
+    },
+    {
+      name: 'Manufacturing',
+      image: '/assets/images/industries/manufacturing.jpg'
+    },
+    {
+      name: 'Insurance',
+      image: '/assets/images/industries/insurance.jpg'
+    },
+    {
+      name: 'Telecommunications',
+      image: '/assets/images/industries/telecommunications.jpg'
+    }
   ];
 
   return (
@@ -18,12 +49,19 @@ const TrustedBySection: React.FC = () => {
           </p>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {industries.map((industry, index) => (
-            <Card key={index} className="border-0 shadow-sm bg-white">
-              <CardContent className="p-4 text-center">
-                <p className="font-medium text-gray-700">{industry}</p>
-              </CardContent>
+            <Card key={index} className="border-0 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+              <div className="h-40 relative overflow-hidden">
+                <img 
+                  src={industry.image} 
+                  alt={`${industry.name} industry`}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
+                  <p className="text-white font-medium p-4 w-full text-center">{industry.name}</p>
+                </div>
+              </div>
             </Card>
           ))}
         </div>
