@@ -1,7 +1,7 @@
 
 import { jsPDF } from 'jspdf';
 import { AuditEvent } from '@/components/audit/types';
-import { calculateRiskDistribution } from '../../riskAnalysis';
+import { calculateRiskDistribution } from '@/utils/riskAnalysis';
 
 /**
  * Add charts and visualizations page to the extended audit report

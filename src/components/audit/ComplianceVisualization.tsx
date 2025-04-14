@@ -89,7 +89,7 @@ const ComplianceVisualization: React.FC<ComplianceVisualizationProps> = ({
                   content={<ChartTooltipContent formatter={(value) => [`${value}%`, 'Score']} />}
                 />
                 <Legend />
-                <Bar dataKey="score" nameKey="name">
+                <Bar dataKey="score">
                   {complianceData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
