@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle, Briefcase, Stethoscope, Building2, ShieldCheck, Factory, Truck, FileText, LandPlot, Microscope, Hospital, Rocket, Cloud, Lock } from 'lucide-react';
+import { CheckCircle, Briefcase, Stethoscope, Building2, ShieldCheck, Factory, Truck, FileText, LandPlot, Microscope, Hospital, Rocket, Cloud, Lock, ShoppingBag, Shield } from 'lucide-react';
 
 const industries = [
   {
@@ -42,6 +41,36 @@ const industries = [
       "GDPR & CCPA compliance frameworks",
       "Data privacy by design implementation",
       "Scalable security infrastructure"
+    ]
+  },
+  {
+    name: "E-commerce",
+    icon: <ShoppingBag className="h-6 w-6" />,
+    features: [
+      "PCI-DSS compliance automation",
+      "Customer data protection framework",
+      "Secure payment processing validation",
+      "GDPR & CCPA implementation"
+    ]
+  },
+  {
+    name: "Manufacturing",
+    icon: <Factory className="h-6 w-6" />,
+    features: [
+      "Supply chain compliance management",
+      "Industrial IoT security framework",
+      "Quality management system validation",
+      "Regulatory reporting automation"
+    ]
+  },
+  {
+    name: "Insurance",
+    icon: <Shield className="h-6 w-6" />,
+    features: [
+      "Customer data protection compliance",
+      "Claims processing security verification",
+      "Underwriting data integrity monitoring",
+      "Regulatory reporting automation"
     ]
   },
   {
@@ -249,6 +278,129 @@ const IndustriesSection: React.FC = () => {
                   <span className="text-gray-700">Cloud Infrastructure Security Management</span>
                 </li>
               </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* E-commerce focus section */}
+        <div className="mt-8 bg-white p-8 rounded-lg shadow-sm">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="md:w-1/2">
+              <h3 className="text-2xl font-bold mb-4 text-primary">E-commerce Compliance Solutions</h3>
+              <p className="mb-4 text-gray-700">
+                Protect your customers' data and secure your payment processes with our comprehensive 
+                e-commerce compliance solutions tailored for online businesses.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">PCI-DSS Compliance Framework</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Payment Gateway Security Verification</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Customer Data Protection & Privacy</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Cross-border Transaction Compliance</span>
+                </li>
+              </ul>
+            </div>
+            <div className="md:w-1/2 flex justify-center">
+              <div className="rounded-lg overflow-hidden shadow-md">
+                <img 
+                  src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                  alt="E-commerce Compliance" 
+                  className="w-full h-auto object-cover"
+                  style={{ maxHeight: '300px' }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Manufacturing focus section */}
+        <div className="mt-8 bg-white p-8 rounded-lg shadow-sm">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="md:w-1/2 flex justify-center order-2 md:order-1">
+              <div className="rounded-lg overflow-hidden shadow-md">
+                <img 
+                  src="https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                  alt="Manufacturing Compliance" 
+                  className="w-full h-auto object-cover"
+                  style={{ maxHeight: '300px' }}
+                />
+              </div>
+            </div>
+            <div className="md:w-1/2 order-1 md:order-2">
+              <h3 className="text-2xl font-bold mb-4 text-primary">Manufacturing Compliance</h3>
+              <p className="mb-4 text-gray-700">
+                Streamline your manufacturing compliance processes and secure your supply chain 
+                with our industry-specific solutions designed for modern factories.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Supply Chain Security Assessment</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Industrial IoT Security Protocol</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">ISO 9001 & ISO 27001 Compliance</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Operational Technology Security Framework</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Insurance focus section */}
+        <div className="mt-8 bg-white p-8 rounded-lg shadow-sm">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="md:w-1/2">
+              <h3 className="text-2xl font-bold mb-4 text-primary">Insurance Compliance Excellence</h3>
+              <p className="mb-4 text-gray-700">
+                Enhance your insurance compliance posture with our specialized solutions designed 
+                to protect sensitive customer data and streamline regulatory reporting.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Policyholder Data Protection Framework</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Claims Processing Security Verification</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">NYDFS Cybersecurity Regulation Compliance</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Underwriting Data Integrity Monitoring</span>
+                </li>
+              </ul>
+            </div>
+            <div className="md:w-1/2 flex justify-center">
+              <div className="rounded-lg overflow-hidden shadow-md">
+                <img 
+                  src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                  alt="Insurance Compliance" 
+                  className="w-full h-auto object-cover"
+                  style={{ maxHeight: '300px' }}
+                />
+              </div>
             </div>
           </div>
         </div>
