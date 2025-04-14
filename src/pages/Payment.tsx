@@ -8,7 +8,6 @@ import FeatureSummary from '@/components/payment/FeatureSummary';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/layout/Layout';
-import { processLifetimePaymentCompletion } from '@/utils/payment/paypalService';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -21,34 +20,9 @@ const Payment = () => {
   const [isRenewal, setIsRenewal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
-  const [isLifetimePaymentComplete, setIsLifetimePaymentComplete] = useState(false);
   
   useEffect(() => {
-    // Check if returning from lifetime payment
-    const txnId = searchParams.get('txnId') || searchParams.get('txn_id');
-    if (txnId && user) {
-      setProcessingPayment(true);
-      
-      // Process the lifetime payment
-      processLifetimePaymentCompletion().then((result) => {
-        if (result.success) {
-          setIsLifetimePaymentComplete(true);
-          toast.success(result.message);
-          // Update subscription state
-          setSubscription(getSubscription());
-          
-          // Redirect to dashboard after a delay
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 3000);
-        } else {
-          toast.error(result.message);
-        }
-        setProcessingPayment(false);
-      });
-    }
-    
-    // Check if this is a return from PayPal subscription
+    // Check if returning from PayPal subscription
     const token = searchParams.get('token');
     const subscriptionId = searchParams.get('subscription_id');
     const paypalPaymentId = searchParams.get('paymentId');
@@ -111,30 +85,6 @@ const Payment = () => {
   const handleRenewClick = () => {
     setIsRenewal(true);
   };
-
-  // Display lifetime payment success message
-  if (isLifetimePaymentComplete) {
-    return (
-      <Layout>
-        <div className="container mx-auto py-12 text-center">
-          <div className="max-w-md mx-auto bg-green-50 p-8 rounded-lg border border-green-200">
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-green-100 text-green-600 mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" className="h-8 w-8">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            </div>
-            <h1 className="text-3xl font-bold mb-4">Lifetime Access Activated!</h1>
-            <p className="mb-8 text-lg">
-              You now have unlimited access to all our premium features. Thank you for your purchase!
-            </p>
-            <Button onClick={() => navigate('/dashboard')} className="w-full">
-              Go to Dashboard
-            </Button>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
 
   // If processing a payment, show loading state
   if (processingPayment) {

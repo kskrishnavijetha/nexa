@@ -12,41 +12,6 @@ interface SubscriptionStatusProps {
 }
 
 const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscription, onRenew }) => {
-  // Special display for lifetime subscriptions
-  if (subscription.isLifetime) {
-    return (
-      <Card className="mb-8 border-green-200 bg-green-50">
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center text-green-900">
-            <Award className="mr-2 h-5 w-5" /> 
-            Lifetime Access Subscription
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <div className="flex items-center text-green-800">
-              <CheckCircle className="mr-2 h-5 w-5 text-green-600" />
-              <span>Unlimited scans available</span>
-            </div>
-            <div className="flex items-center text-green-800">
-              <CheckCircle className="mr-2 h-5 w-5 text-green-600" />
-              <span>All premium features unlocked</span>
-            </div>
-            <div className="flex items-center text-green-800">
-              <CheckCircle className="mr-2 h-5 w-5 text-green-600" />
-              <span>Never expires</span>
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter className="pt-0 pb-3">
-          <p className="text-sm text-green-700">
-            Thank you for your lifetime membership! You have full, unlimited access to all features.
-          </p>
-        </CardFooter>
-      </Card>
-    );
-  }
-
   const isActive = subscription.active;
   const formattedExpiry = formatDistance(new Date(subscription.expirationDate), new Date(), { addSuffix: true });
   
