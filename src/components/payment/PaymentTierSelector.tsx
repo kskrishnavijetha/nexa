@@ -21,7 +21,8 @@ const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
     { id: 'free', name: 'Free', description: 'Basic compliance analysis and 5 scans per month' },
     { id: 'basic', name: 'Basic', description: '15 scans per month with PDF reports' },
     { id: 'pro', name: 'Pro', description: '50 scans per month with advanced analysis' },
-    { id: 'enterprise', name: 'Enterprise', description: 'Unlimited scans with custom templates' }
+    { id: 'enterprise', name: 'Enterprise', description: 'Unlimited scans with custom templates' },
+    { id: 'lifetime', name: 'Lifetime', description: 'One-time payment for unlimited lifetime access' }
   ];
 
   return (
@@ -36,10 +37,14 @@ const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
           return null;
         }
         
-        const price = formatPrice(
-          { free: 0, basic: 35, pro: 110, enterprise: 399 }[tier.id as 'free' | 'basic' | 'pro' | 'enterprise'], 
-          billingCycle
-        );
+        const price = tier.id === 'lifetime' 
+          ? '$999 (one-time)' 
+          : formatPrice(
+              tier.id === 'free' ? 0 : { 
+                free: 0, basic: 35, pro: 110, enterprise: 399 
+              }[tier.id as 'free' | 'basic' | 'pro' | 'enterprise'], 
+              billingCycle
+            );
             
         return (
           <div key={tier.id} className="flex items-start space-x-2">

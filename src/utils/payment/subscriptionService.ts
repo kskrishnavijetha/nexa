@@ -1,3 +1,4 @@
+
 /**
  * Service for managing user subscriptions
  */
@@ -9,15 +10,17 @@ export interface SubscriptionInfo {
   scansLimit: number;
   expirationDate: Date;
   billingCycle?: 'monthly' | 'annually';
+  isLifetime?: boolean;
 }
 
 // Store the user's current subscription in localStorage
-export const saveSubscription = (plan: string, paymentId: string, billingCycle: 'monthly' | 'annually' = 'monthly') => {
+export const saveSubscription = (plan: string, paymentId: string, billingCycle: 'monthly' | 'annually' = 'monthly', isLifetime: boolean = false) => {
   const pricingTiers = {
     free: { scans: 5, days: 30 },
     basic: { scans: 15, days: 30 },
     pro: { scans: 50, days: 30 },
     enterprise: { scans: 999, days: 30 }, // Using 999 to represent unlimited
+    lifetime: { scans: 999, days: 36500 }, // ~100 years for lifetime
   };
   
   const selectedTier = pricingTiers[plan as keyof typeof pricingTiers] || pricingTiers.basic;
@@ -30,7 +33,8 @@ export const saveSubscription = (plan: string, paymentId: string, billingCycle: 
     scansUsed: 0,
     scansLimit: selectedTier.scans,
     expirationDate: expirationDate,
-    billingCycle: billingCycle
+    billingCycle: billingCycle,
+    isLifetime: isLifetime
   };
   
   localStorage.setItem('subscription', JSON.stringify(subscription));
@@ -47,8 +51,8 @@ export const getSubscription = (): SubscriptionInfo | null => {
   const parsedSubscription = JSON.parse(subscription);
   parsedSubscription.expirationDate = new Date(parsedSubscription.expirationDate);
   
-  // Check if subscription is expired
-  if (parsedSubscription.expirationDate < new Date()) {
+  // Check if subscription is expired (lifetime subscriptions don't expire)
+  if (!parsedSubscription.isLifetime && parsedSubscription.expirationDate < new Date()) {
     parsedSubscription.active = false;
   }
   
@@ -65,13 +69,18 @@ export const hasActiveSubscription = (): boolean => {
 export const hasScansRemaining = (): boolean => {
   const subscription = getSubscription();
   return !!subscription && subscription.active && 
-    subscription.scansUsed < subscription.scansLimit;
+    (subscription.isLifetime || subscription.scansUsed < subscription.scansLimit);
 };
 
 // Record a scan usage
 export const recordScanUsage = (): void => {
   const subscription = getSubscription();
   if (subscription && subscription.active) {
+    // Lifetime subscriptions have unlimited scans
+    if (subscription.isLifetime) {
+      return;
+    }
+    
     subscription.scansUsed += 1;
     
     // Check if scans limit reached
@@ -94,6 +103,11 @@ export const shouldUpgrade = (): boolean => {
     return false; // No subscription yet, they'll be directed to pricing anyway
   }
   
+  // Lifetime subscriptions never need upgrade
+  if (subscription.isLifetime) {
+    return false;
+  }
+  
   // If subscription has expired or no scans left
   return (
     !subscription.active || 
@@ -109,9 +123,19 @@ export const shouldUpgradeTier = (): boolean => {
     return false;
   }
   
+  // Lifetime subscriptions never need upgrade
+  if (subscription.isLifetime) {
+    return false;
+  }
+  
   // Check if scans limit reached and not on enterprise plan
   return (
     subscription.scansUsed >= subscription.scansLimit && 
     subscription.plan !== 'enterprise'
   );
+};
+
+// Add a special function to activate lifetime access for the current user
+export const activateLifetimeAccess = (paymentId: string): SubscriptionInfo => {
+  return saveSubscription('lifetime', paymentId, 'monthly', true);
 };

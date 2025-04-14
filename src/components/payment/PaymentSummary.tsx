@@ -10,6 +10,41 @@ interface PaymentSummaryProps {
 }
 
 const PaymentSummary: React.FC<PaymentSummaryProps> = ({ selectedTier, billingCycle, getPrice }) => {
+  // Special handling for lifetime tier
+  if (selectedTier === 'lifetime') {
+    return (
+      <Card className="border-primary/20 bg-primary/5">
+        <CardHeader>
+          <CardTitle>Lifetime Access Summary</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">One-time payment</span>
+            <span className="font-medium">$999</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Access period</span>
+            <span className="font-medium">Lifetime</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Scan limits</span>
+            <span className="font-medium">Unlimited</span>
+          </div>
+          <div className="border-t pt-4 mt-2">
+            <div className="flex items-center justify-between font-medium">
+              <span>Total</span>
+              <span className="text-xl">$999</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              One-time payment. No recurring charges. No expiration date.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Regular subscription tiers
   const price = getPrice(selectedTier, billingCycle);
   const discount = selectedTier !== 'free' && billingCycle === 'annually' ? 10 : 0;
   
