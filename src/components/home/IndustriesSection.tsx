@@ -30,7 +30,8 @@ const industries = [
     features: [
       "KYC & AML Compliance automation",
       "SOC 2 & PCI-DSS risk assessments",
-      "Secure transaction monitoring"
+      "Secure transaction monitoring",
+      "Financial fraud prevention"
     ]
   },
   {
@@ -121,6 +122,88 @@ const IndustriesSection: React.FC = () => {
                 <img 
                   src="https://images.unsplash.com/photo-1504813184591-01572f98c85f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
                   alt="Healthcare Compliance" 
+                  className="w-full h-auto object-cover"
+                  style={{ maxHeight: '300px' }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Pharmaceutical & Biotech focus section */}
+        <div className="mt-8 bg-white p-8 rounded-lg shadow-sm">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="md:w-1/2 flex justify-center order-2 md:order-1">
+              <div className="rounded-lg overflow-hidden shadow-md">
+                <img 
+                  src="https://images.unsplash.com/photo-1579165466949-3180a3d056d5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                  alt="Pharmaceutical Compliance" 
+                  className="w-full h-auto object-cover"
+                  style={{ maxHeight: '300px' }}
+                />
+              </div>
+            </div>
+            <div className="md:w-1/2 order-1 md:order-2">
+              <h3 className="text-2xl font-bold mb-4 text-primary">Pharma & Biotech Compliance</h3>
+              <p className="mb-4 text-gray-700">
+                Navigate complex regulatory landscapes with our specialized compliance solutions for pharmaceutical 
+                companies and biotech research organizations.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">FDA 21 CFR Part 11 Compliance</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Clinical Trial Data Integrity</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">GxP Validation Framework</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Pharmacovigilance Compliance Monitoring</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        {/* Finance & Banking focus section */}
+        <div className="mt-8 bg-white p-8 rounded-lg shadow-sm">
+          <div className="flex flex-col md:flex-row items-center gap-8">
+            <div className="md:w-1/2">
+              <h3 className="text-2xl font-bold mb-4 text-primary">Finance & Banking Solutions</h3>
+              <p className="mb-4 text-gray-700">
+                Secure financial operations and maintain regulatory compliance with our specialized solutions 
+                for banks, credit unions, and fintech companies.
+              </p>
+              <ul className="space-y-3">
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">KYC & AML Compliance Automation</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">PCI-DSS Certification Readiness</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">Financial Fraud Detection & Prevention</span>
+                </li>
+                <li className="flex items-start">
+                  <CheckCircle className="h-5 w-5 text-green-500 mr-2 shrink-0 mt-0.5" />
+                  <span className="text-gray-700">SEC & FINRA Compliance Management</span>
+                </li>
+              </ul>
+            </div>
+            <div className="md:w-1/2 flex justify-center">
+              <div className="rounded-lg overflow-hidden shadow-md">
+                <img 
+                  src="https://images.unsplash.com/photo-1601597111158-2fceff292cdc?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80" 
+                  alt="Finance Compliance" 
                   className="w-full h-auto object-cover"
                   style={{ maxHeight: '300px' }}
                 />

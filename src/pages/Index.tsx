@@ -15,6 +15,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { shouldUpgrade, getSubscription } from '@/utils/paymentService';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import LifetimeOfferBanner from '@/components/home/LifetimeOfferBanner';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -82,6 +83,7 @@ const Index = () => {
         )}
         
         <Hero />
+        <LifetimeOfferBanner />
         <TrustedBySection />
         <ComplianceFeaturesSection />
         <Separator className="max-w-5xl mx-auto" />
