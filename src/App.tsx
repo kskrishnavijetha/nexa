@@ -1,46 +1,53 @@
 
-import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
-import Index from './pages/Index';
-import SignIn from './pages/auth/SignIn';
-import SignUp from './pages/auth/SignUp';
-import PricingPlans from './pages/PricingPlans';
-import Payment from './pages/Payment';
-import Dashboard from './pages/Dashboard';
+import { ServiceProvider } from './contexts/ServiceContext';
+import { ComplianceFrameworkProvider } from './contexts/ComplianceFrameworkContext';
+import Layout from './components/Layout';
+import { Toaster } from './components/ui/toaster';
+import { Toaster as SonnerToaster } from 'sonner';
+import './index.css';
+import Home from './pages/Home';
 import DocumentAnalysis from './pages/DocumentAnalysis';
-import History from './pages/History';
-import AuditReports from './pages/AuditReports';
-import GoogleServices from './pages/GoogleServices';
-import SlackMonitoring from './pages/SlackMonitoring';
-import NotFound from './pages/NotFound';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import { Toaster } from 'sonner';
+import SlackScan from './pages/SlackScan';
+import GoogleScan from './pages/GoogleScan';
+import TeamManagement from './pages/TeamManagement';
 import Settings from './pages/Settings';
+import Compliance from './pages/Compliance';
+import HistoryPage from './pages/HistoryPage';
+import PricingPage from './pages/PricingPage';
+import NotFoundPage from './pages/NotFoundPage';
 
-export default function App() {
+function App() {
   return (
-    <BrowserRouter>
+    <ThemeProvider>
       <AuthProvider>
-        <Toaster />
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/sign-in" element={<SignIn />} />
-          <Route path="/sign-up" element={<SignUp />} />
-          <Route path="/pricing" element={<PricingPlans />} />
-          <Route path="/payment" element={<Payment />} />
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/document-analysis" element={<DocumentAnalysis />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/audit-reports" element={<AuditReports />} />
-            <Route path="/google-services" element={<GoogleServices />} />
-            <Route path="/slack-monitoring" element={<SlackMonitoring />} />
-            <Route path="/settings" element={<Settings />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <ServiceProvider>
+          <ComplianceFrameworkProvider>
+            <Router>
+              <Layout>
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/document-analysis" element={<DocumentAnalysis />} />
+                  <Route path="/slack-scan" element={<SlackScan />} />
+                  <Route path="/google-scan" element={<GoogleScan />} />
+                  <Route path="/compliance" element={<Compliance />} />
+                  <Route path="/team" element={<TeamManagement />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/history" element={<HistoryPage />} />
+                  <Route path="/pricing" element={<PricingPage />} />
+                  <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+              </Layout>
+            </Router>
+            <Toaster />
+            <SonnerToaster position="top-right" richColors closeButton/>
+          </ComplianceFrameworkProvider>
+        </ServiceProvider>
       </AuthProvider>
-    </BrowserRouter>
+    </ThemeProvider>
   );
 }
+
+export default App;

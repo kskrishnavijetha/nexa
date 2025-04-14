@@ -7,6 +7,8 @@ import IndustrySelector from './IndustrySelector';
 import RegionSelector from './RegionSelector';
 import UploadProgress from './UploadProgress';
 import UploadActions from './UploadActions';
+import ComplianceFrameworkSelector from '../compliance-frameworks/ComplianceFrameworkSelector';
+import { useComplianceFrameworks } from '@/contexts/ComplianceFrameworkContext';
 
 interface DocumentUploaderProps {
   onReportGenerated: (report: ComplianceReport) => void;
@@ -27,9 +29,10 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
   } = useDocumentUpload(onReportGenerated);
   
   const [region, setRegion] = useState<Region | undefined>();
+  const { selectedFrameworks, setSelectedFrameworks } = useComplianceFrameworks();
 
   return (
-    <div className="w-full max-w-md mx-auto">
+    <div className="w-full max-w-4xl mx-auto">
       <FileDropzone
         file={file}
         setFile={setFile}
@@ -37,15 +40,23 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
         setIsDragging={setIsDragging}
       />
       
-      <div className="flex flex-col items-center mt-4">
-        <IndustrySelector
-          industry={industry}
-          setIndustry={setIndustry}
-        />
+      <div className="flex flex-col mt-4 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <IndustrySelector
+            industry={industry}
+            setIndustry={setIndustry}
+          />
+          
+          <RegionSelector
+            region={region}
+            setRegion={setRegion}
+          />
+        </div>
         
-        <RegionSelector
-          region={region}
-          setRegion={setRegion}
+        <ComplianceFrameworkSelector 
+          selectedFrameworks={selectedFrameworks}
+          onFrameworksChange={setSelectedFrameworks}
+          disabled={isUploading || isProcessing}
         />
         
         <UploadProgress
@@ -59,9 +70,10 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
             file={file}
             industry={industry}
             region={region}
+            frameworks={selectedFrameworks}
             isUploading={isUploading}
             isProcessing={isProcessing}
-            onUpload={() => handleUpload(region)}
+            onUpload={() => handleUpload(region, selectedFrameworks)}
           />
         </div>
       </div>
