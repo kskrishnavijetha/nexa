@@ -10,6 +10,7 @@ import { addComplianceCharts } from './sections/complianceCharts';
 
 /**
  * Generate a downloadable compliance report PDF
+ * Optimized for better performance
  */
 export const generateReportPDF = async (
   report: ComplianceReport,

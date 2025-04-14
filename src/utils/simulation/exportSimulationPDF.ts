@@ -13,13 +13,14 @@ import { addFooterAndDisclaimer } from './pdf/addFooterAndDisclaimer';
 
 /**
  * Generate a PDF report for a simulation analysis
+ * Optimized version with non-blocking implementation
  */
 export const exportSimulationPDF = async (
   analysis: PredictiveAnalysis,
   chartImageBase64?: string
 ): Promise<Blob> => {
   return new Promise((resolve, reject) => {
-    // Use setTimeout to ensure UI doesn't freeze during PDF generation
+    // Use small timeout to prevent UI freezing
     setTimeout(async () => {
       try {
         console.log('[simulationExport] Generating simulation PDF report');
@@ -56,6 +57,6 @@ export const exportSimulationPDF = async (
         console.error('[simulationExport] Error generating PDF:', error);
         reject(error);
       }
-    }, 10);
+    }, 10); // Small delay to allow UI to update
   });
 };

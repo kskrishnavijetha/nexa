@@ -13,7 +13,7 @@ import { generateVerificationMetadata } from './hashVerification';
 
 /**
  * Generate a PDF report with AI-enhanced insights from audit events
- * Optimized to be non-blocking and prevent UI freezing
+ * Heavily optimized to be non-blocking and prevent UI freezing
  */
 export const generatePDFReport = async (
   documentName: string,
@@ -24,6 +24,7 @@ export const generatePDFReport = async (
   console.log(`[pdfGenerator] Selected industry parameter: ${selectedIndustry || 'not specified'}`);
   
   return new Promise((resolve, reject) => {
+    // Use setTimeout to unblock the main thread
     setTimeout(async () => {
       try {
         // Generate integrity verification information
@@ -36,7 +37,7 @@ export const generatePDFReport = async (
           unit: 'mm',
           format: 'a4',
           compress: true,
-          putOnlyUsedFonts: true
+          putOnlyUsedFonts: true // Memory optimization
         });
         
         // Set document properties and metadata
@@ -53,9 +54,8 @@ export const generatePDFReport = async (
         // Calculate report statistics
         const stats = calculateReportStatistics(auditEvents);
         
-        // Limit the number of events used for AI insights to prevent performance issues
-        // Reduce max events from 500 to 250 for better reliability
-        const maxEvents = 250;
+        // Limit the number of events used for AI insights to improve performance
+        const maxEvents = 250; // Reduced from 500
         const limitedEvents = auditEvents.length > maxEvents 
           ? auditEvents.slice(0, maxEvents) 
           : auditEvents;
@@ -78,6 +78,6 @@ export const generatePDFReport = async (
         console.error('[pdfGenerator] Error generating PDF:', error);
         reject(error);
       }
-    }, 10);
+    }, 10); // Small timeout to allow UI thread to update
   });
 };

@@ -75,16 +75,11 @@ const ReportActions: React.FC<ReportActionsProps> = ({ report, language = 'en' }
     const toastId = toast.loading('Preparing report for download...', { duration: 30000 });
     
     try {
-      // Request animation frame to ensure UI updates before heavy operation
+      // Use requestAnimationFrame to ensure UI updates before heavy operation
       requestAnimationFrame(async () => {
         try {
           // First, try to capture the charts as an image
           const chartImage = await captureChartAsImage();
-          if (chartImage) {
-            console.log('Chart image captured successfully');
-          } else {
-            console.warn('No chart image could be captured');
-          }
           
           // Make sure we pass the report with industry and region
           const response = await generateReportPDF(report, language, chartImage);

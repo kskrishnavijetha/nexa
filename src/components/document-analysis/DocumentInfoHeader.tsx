@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { FileText, Download, Eye, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ComplianceReport } from '@/utils/types';
-import { toast } from 'sonner';
 
 interface DocumentInfoHeaderProps {
   report: ComplianceReport;
@@ -47,11 +46,11 @@ const DocumentInfoHeader: React.FC<DocumentInfoHeaderProps> = ({
         >
           {isGeneratingPDF ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating PDF...
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...
             </>
           ) : (
             <>
-              <Download className="mr-2 h-4 w-4" /> Download PDF Report
+              <Download className="mr-2 h-4 w-4" /> Download PDF
             </>
           )}
         </Button>
