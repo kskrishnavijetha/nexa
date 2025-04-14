@@ -54,7 +54,6 @@ const ReportTabs: React.FC<ReportTabsProps> = ({
       <TabsContent value="risks">
         <ComplianceRisksTab 
           report={report}
-          onClose={onClose}
           language={language}
         />
       </TabsContent>
@@ -62,7 +61,6 @@ const ReportTabs: React.FC<ReportTabsProps> = ({
       <TabsContent value="recommendations">
         <ComplianceRecommendationsTab 
           report={report}
-          onClose={onClose}
           language={language}
         />
       </TabsContent>

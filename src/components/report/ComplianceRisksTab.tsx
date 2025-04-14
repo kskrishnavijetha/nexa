@@ -6,6 +6,8 @@ import { Card, CardContent } from '@/components/ui/card';
 
 interface ComplianceRisksTabProps {
   report: ComplianceReport;
+  onClose?: () => void;
+  language?: string;
 }
 
 const ComplianceRisksTab: React.FC<ComplianceRisksTabProps> = ({ report }) => {
@@ -15,35 +17,35 @@ const ComplianceRisksTab: React.FC<ComplianceRisksTabProps> = ({ report }) => {
       id: '1',
       title: 'Insufficient Data Protection Measures',
       description: 'The document contains personally identifiable information (PII) without proper encryption or access controls.',
-      severity: 'HIGH',
+      severity: 'high' as RiskSeverity,
       regulation: 'GDPR Article 32',
       section: 'Section 3.4',
-      remediation: 'Implement encryption for all stored PII and restrict access based on job responsibilities.'
+      remediationSteps: 'Implement encryption for all stored PII and restrict access based on job responsibilities.'
     },
     {
       id: '2',
       title: 'Missing Consent Mechanism',
       description: 'No clear user consent mechanism defined for data collection purposes.',
-      severity: 'MEDIUM',
+      severity: 'medium' as RiskSeverity,
       regulation: 'GDPR Article 7',
       section: 'Section 2.1',
-      remediation: 'Add explicit consent collection process before gathering any user data.'
+      remediationSteps: 'Add explicit consent collection process before gathering any user data.'
     },
     {
       id: '3',
       title: 'Incomplete Data Retention Policy',
       description: 'The document lacks specific timeframes for data retention and deletion procedures.',
-      severity: 'LOW',
+      severity: 'low' as RiskSeverity,
       regulation: 'CCPA Section 1798.105',
       section: 'Section 5.2',
-      remediation: 'Define clear data retention periods and automated deletion processes.'
+      remediationSteps: 'Define clear data retention periods and automated deletion processes.'
     }
   ];
 
   const getSeverityIcon = (severity: RiskSeverity) => {
-    if (severity === 'HIGH') {
+    if (severity === 'high') {
       return <AlertOctagon className="h-5 w-5 text-destructive mr-2" />;
-    } else if (severity === 'MEDIUM') {
+    } else if (severity === 'medium') {
       return <AlertTriangle className="h-5 w-5 text-amber-500 mr-2" />;
     } else {
       return <AlertCircle className="h-5 w-5 text-blue-500 mr-2" />;
@@ -51,9 +53,9 @@ const ComplianceRisksTab: React.FC<ComplianceRisksTabProps> = ({ report }) => {
   };
 
   const getSeverityClass = (severity: RiskSeverity) => {
-    if (severity === 'HIGH') {
+    if (severity === 'high') {
       return 'bg-destructive/10 border-destructive/20';
-    } else if (severity === 'MEDIUM') {
+    } else if (severity === 'medium') {
       return 'bg-amber-500/10 border-amber-500/20';
     } else {
       return 'bg-blue-500/10 border-blue-500/20';
@@ -93,7 +95,7 @@ const ComplianceRisksTab: React.FC<ComplianceRisksTabProps> = ({ report }) => {
                     
                     <div className="mt-4">
                       <p className="font-medium text-sm">Recommended Action</p>
-                      <p className="text-sm text-muted-foreground">{risk.remediation}</p>
+                      <p className="text-sm text-muted-foreground">{risk.remediationSteps}</p>
                     </div>
                   </div>
                 </div>

@@ -1,8 +1,6 @@
 
-// This file has TypeScript errors. Let's update the code to fix them:
-
 import React, { useState } from 'react';
-import { ComplianceReport, Region } from '@/utils/types';
+import { ComplianceReport, Region, Industry } from '@/utils/types';
 import FileDropzone from './FileDropzone';
 import IndustrySelector from './IndustrySelector';
 import RegionSelector from './RegionSelector';
@@ -17,11 +15,12 @@ interface DocumentUploaderProps {
 
 const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReport }) => {
   const [file, setFile] = useState<File | null>(null);
-  const [industry, setIndustry] = useState<string>('');
+  const [industry, setIndustry] = useState<Industry | null>(null);
   const [region, setRegion] = useState<Region | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
-  const { selectedFrameworks } = useComplianceFrameworks();
+  const { selectedFrameworks, setSelectedFrameworks } = useComplianceFrameworks();
 
   const handleFileSelected = (selectedFile: File) => {
     setFile(selectedFile);
@@ -33,6 +32,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReport }) => {
     }
 
     setIsUploading(true);
+    setIsProcessing(false);
     
     // Simulate upload progress
     const progressInterval = setInterval(() => {
@@ -40,6 +40,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReport }) => {
         const newProgress = prev + 10;
         if (newProgress >= 100) {
           clearInterval(progressInterval);
+          setIsProcessing(true);
           return 100;
         }
         return newProgress;
@@ -75,6 +76,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReport }) => {
       console.error('Error uploading document:', error);
     } finally {
       setIsUploading(false);
+      setIsProcessing(false);
       setUploadProgress(0);
     }
   };
@@ -89,28 +91,36 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReport }) => {
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
         <IndustrySelector 
-          selectedIndustry={industry} 
-          onChange={setIndustry} 
+          industry={industry} 
+          setIndustry={setIndustry} 
           disabled={isUploading}
         />
         
         <RegionSelector 
-          selectedRegion={region} 
-          onChange={setRegion} 
+          region={region} 
+          setRegion={setRegion} 
           disabled={isUploading} 
         />
       </div>
       
       <div className="mt-6">
-        <ComplianceFrameworkSelector disabled={isUploading} />
+        <ComplianceFrameworkSelector 
+          selectedFrameworks={selectedFrameworks} 
+          onFrameworksChange={setSelectedFrameworks}
+          disabled={isUploading} 
+        />
       </div>
       
       {isUploading ? (
-        <UploadProgress progress={uploadProgress} />
+        <UploadProgress 
+          progress={uploadProgress} 
+          isUploading={isUploading} 
+          isProcessing={isProcessing} 
+        />
       ) : (
         <UploadActions 
           onUpload={handleUpload} 
-          disabled={!file || !industry || !region || selectedFrameworks.length === 0}
+          isDisabled={!file || !industry || !region || selectedFrameworks.length === 0}
         />
       )}
     </div>

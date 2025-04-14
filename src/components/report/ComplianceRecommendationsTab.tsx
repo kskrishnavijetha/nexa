@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 
 interface ComplianceRecommendationsTabProps {
   report: ComplianceReport;
+  onClose?: () => void;
+  language?: string;
 }
 
 const ComplianceRecommendationsTab: React.FC<ComplianceRecommendationsTabProps> = ({ report }) => {

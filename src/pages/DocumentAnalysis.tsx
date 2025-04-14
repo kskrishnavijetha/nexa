@@ -144,7 +144,7 @@ const DocumentAnalysis = () => {
         <DocumentHeader />
         
         {!report ? (
-          <DocumentUploader onReportGenerated={handleReportGenerated} />
+          <DocumentUploader onReport={handleReportGenerated} />
         ) : (
           <AnalysisResults
             report={report}
