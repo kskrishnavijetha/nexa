@@ -26,7 +26,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
     isProcessing,
     progress,
     handleUpload
-  } = useDocumentUpload(onReportGenerated);
+  } = useDocumentUpload({ onReportGenerated });
   
   const [region, setRegion] = useState<Region | undefined>();
   const { selectedFrameworks, setSelectedFrameworks } = useComplianceFrameworks();
@@ -73,7 +73,7 @@ const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onReportGenerated }
             frameworks={selectedFrameworks}
             isUploading={isUploading}
             isProcessing={isProcessing}
-            onUpload={() => handleUpload(region, selectedFrameworks)}
+            onUpload={() => handleUpload({ region, frameworks: selectedFrameworks })}
           />
         </div>
       </div>

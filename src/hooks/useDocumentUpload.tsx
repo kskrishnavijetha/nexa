@@ -9,6 +9,11 @@ interface UseDocumentUploadProps {
   onReportGenerated: (report: ComplianceReport) => void;
 }
 
+interface UploadOptions {
+  region?: Region;
+  frameworks?: string[];
+}
+
 export function useDocumentUpload({ onReportGenerated }: UseDocumentUploadProps) {
   const [file, setFile] = useState<File | null>(null);
   const [industry, setIndustry] = useState<Industry | undefined>();
@@ -17,7 +22,7 @@ export function useDocumentUpload({ onReportGenerated }: UseDocumentUploadProps)
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const handleUpload = useCallback(async (region?: Region, frameworks?: string[]) => {
+  const handleUpload = useCallback(async (options?: UploadOptions) => {
     if (!file || !industry) {
       toast.error('Please select a file and industry');
       return;
@@ -50,15 +55,15 @@ export function useDocumentUpload({ onReportGenerated }: UseDocumentUploadProps)
       // Check if we're using multi-framework compliance or standard
       let report: ComplianceReport;
       
-      if (frameworks && frameworks.length > 0) {
+      if (options?.frameworks && options.frameworks.length > 0) {
         // Use multi-framework compliance check
         report = await requestMultiFrameworkComplianceCheck(
           documentId,
           file.name,
-          frameworks,
+          options.frameworks,
           industry,
           undefined,
-          region
+          options.region
         );
       } else {
         // Use standard compliance check
@@ -67,7 +72,7 @@ export function useDocumentUpload({ onReportGenerated }: UseDocumentUploadProps)
           file.name,
           industry,
           undefined,
-          region
+          options?.region
         );
         
         if (!response.success || !response.data) {
