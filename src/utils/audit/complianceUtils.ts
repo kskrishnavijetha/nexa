@@ -10,7 +10,28 @@ export const complianceFrameworks = [
   'CCPA',
   'FERPA',
   'SOX',
-  'GLBA'
+  'GLBA',
+  'NIST 800-53',
+  'FISMA',
+  'FedRAMP',
+  'LGPD',
+  'PIPEDA',
+  'PDPA',
+  'UK-GDPR',
+  'ePrivacy Directive',
+  'APRA CPS 234',
+  'HITECH',
+  'GDPR (Health Records)',
+  'ISO 27799',
+  'NHS DSP Toolkit',
+  'MAS TRM Guidelines',
+  'FINRA',
+  'EMIR/MiFID II',
+  'ISO 27017',
+  'ISO 27018',
+  'CIS Controls',
+  'NIST Cybersecurity Framework (CSF)',
+  'CSA CCM'
 ];
 
 // Map regulations to compliance framework
@@ -56,6 +77,146 @@ export const regulationMapping: Record<string, Record<string, string[]>> = {
     'Encryption': ['PR.DS-1', 'PR.DS-5'],
     'Logging': ['DE.CM', 'DE.AE'],
     'Data Protection': ['PR.DS', 'PR.IP']
+  },
+  'NIST 800-53': {
+    'Data Privacy': ['AC-3', 'AC-4', 'AC-6'],
+    'Access Control': ['AC-1', 'AC-2', 'AC-3'],
+    'Encryption': ['SC-13', 'SC-28'],
+    'Logging': ['AU-2', 'AU-3', 'AU-6'],
+    'Data Protection': ['SC-8', 'SC-13', 'MP-2']
+  },
+  'FISMA': {
+    'Data Privacy': ['Privacy Controls', 'PL-4'],
+    'Access Control': ['AC-1', 'AC-2', 'AC-3'],
+    'Encryption': ['SC-13', 'SC-28'],
+    'Logging': ['AU-2', 'AU-3', 'AU-6'],
+    'Data Protection': ['SC-8', 'SC-13', 'MP-2']
+  },
+  'FedRAMP': {
+    'Data Privacy': ['AC-21', 'AC-22'],
+    'Access Control': ['AC-1', 'AC-2', 'AC-3'],
+    'Encryption': ['SC-13', 'SC-28'],
+    'Logging': ['AU-2', 'AU-3', 'AU-6'],
+    'Data Protection': ['SC-8', 'SC-13', 'MP-2']
+  },
+  'LGPD': {
+    'Data Privacy': ['Art. 7', 'Art. 8', 'Art. 9'],
+    'Access Control': ['Art. 46', 'Art. 47'],
+    'Encryption': ['Art. 46', 'Art. 50'],
+    'Logging': ['Art. 37', 'Art. 38'],
+    'Data Protection': ['Art. 46', 'Art. 47', 'Art. 48']
+  },
+  'PIPEDA': {
+    'Data Privacy': ['Principle 3', 'Principle 4', 'Principle 5'],
+    'Access Control': ['Principle 7', 'Principle 8'],
+    'Encryption': ['Principle 7'],
+    'Logging': ['Principle 7', 'Principle 9'],
+    'Data Protection': ['Principle 7', 'Principle 9']
+  },
+  'PDPA': {
+    'Data Privacy': ['Section 11', 'Section 12', 'Section 13'],
+    'Access Control': ['Section 24', 'Section 25'],
+    'Encryption': ['Section 24'],
+    'Logging': ['Section 24', 'Section 35'],
+    'Data Protection': ['Section 24', 'Section 25', 'Section 26']
+  },
+  'UK-GDPR': {
+    'Data Privacy': ['Art. 5', 'Art. 6', 'Art. 7'],
+    'Access Control': ['Art. 25', 'Art. 32'],
+    'Encryption': ['Art. 32'],
+    'Logging': ['Art. 30', 'Art. 33'],
+    'Data Protection': ['Art. 24', 'Art. 35', 'Art. 37-39']
+  },
+  'ePrivacy Directive': {
+    'Data Privacy': ['Art. 5', 'Art. 6', 'Art. 9'],
+    'Access Control': ['Art. 4', 'Art. 5'],
+    'Encryption': ['Art. 4'],
+    'Logging': ['Art. 4', 'Art. 5'],
+    'Data Protection': ['Art. 4', 'Art. 5', 'Art. 6']
+  },
+  'APRA CPS 234': {
+    'Data Privacy': ['Para. 18', 'Para. 19'],
+    'Access Control': ['Para. 16', 'Para. 17'],
+    'Encryption': ['Para. 22', 'Para. 23'],
+    'Logging': ['Para. 32', 'Para. 33'],
+    'Data Protection': ['Para. 28', 'Para. 29', 'Para. 30']
+  },
+  'HITECH': {
+    'Data Privacy': ['§13401', '§13402', '§13404'],
+    'Access Control': ['§13401', '§13405'],
+    'Encryption': ['§13401', '§13402'],
+    'Logging': ['§13402', '§13405'],
+    'Data Protection': ['§13401', '§13404', '§13405']
+  },
+  'GDPR (Health Records)': {
+    'Data Privacy': ['Art. 9', 'Art. 17', 'Art. 20'],
+    'Access Control': ['Art. 25', 'Art. 32'],
+    'Encryption': ['Art. 32'],
+    'Logging': ['Art. 30', 'Art. 33'],
+    'Data Protection': ['Art. 9', 'Art. 32', 'Art. 35']
+  },
+  'ISO 27799': {
+    'Data Privacy': ['5.4', '5.6', '7.8'],
+    'Access Control': ['7.8', '7.11'],
+    'Encryption': ['7.10', '7.12'],
+    'Logging': ['7.11', '7.13'],
+    'Data Protection': ['7.8', '7.9', '7.12']
+  },
+  'NHS DSP Toolkit': {
+    'Data Privacy': ['1.3', '1.4', '1.5'],
+    'Access Control': ['4.1', '4.2', '4.3'],
+    'Encryption': ['9.1', '9.2', '9.3'],
+    'Logging': ['7.1', '7.2', '7.3'],
+    'Data Protection': ['8.1', '8.2', '8.3']
+  },
+  'MAS TRM Guidelines': {
+    'Data Privacy': ['Section 5', 'Section 6'],
+    'Access Control': ['Section 9', 'Section 10'],
+    'Encryption': ['Section 11', 'Section 12'],
+    'Logging': ['Section 13', 'Section 14'],
+    'Data Protection': ['Section 15', 'Section 16', 'Section 17']
+  },
+  'FINRA': {
+    'Data Privacy': ['Rule 2010', 'Rule 3110'],
+    'Access Control': ['Rule 4511', 'Rule 4513'],
+    'Encryption': ['Rule 4370', 'Notice 05-48'],
+    'Logging': ['Rule 3110', 'Rule 4511'],
+    'Data Protection': ['Rule 2010', 'Rule 3110', 'Rule 4511']
+  },
+  'EMIR/MiFID II': {
+    'Data Privacy': ['Art. 9', 'Art. 16'],
+    'Access Control': ['Art. 21', 'Art. 25'],
+    'Encryption': ['Art. 16', 'Art. 25'],
+    'Logging': ['Art. 16', 'Art. 17', 'Art. 25'],
+    'Data Protection': ['Art. 16', 'Art. 21', 'Art. 25']
+  },
+  'ISO 27017': {
+    'Data Privacy': ['CLD.6.3', 'CLD.8.1'],
+    'Access Control': ['CLD.9.2', 'CLD.9.5'],
+    'Encryption': ['CLD.10.1', 'CLD.10.2'],
+    'Logging': ['CLD.12.4', 'CLD.13.1'],
+    'Data Protection': ['CLD.8.1', 'CLD.13.1', 'CLD.13.2']
+  },
+  'ISO 27018': {
+    'Data Privacy': ['A.2', 'A.3', 'A.5'],
+    'Access Control': ['A.9', 'A.10'],
+    'Encryption': ['A.10', 'A.11'],
+    'Logging': ['A.12', 'A.13'],
+    'Data Protection': ['A.8', 'A.10', 'A.11']
+  },
+  'CIS Controls': {
+    'Data Privacy': ['Control 13', 'Control 14'],
+    'Access Control': ['Control 5', 'Control 6'],
+    'Encryption': ['Control 10', 'Control 15'],
+    'Logging': ['Control 8', 'Control 9'],
+    'Data Protection': ['Control 3', 'Control 13', 'Control 15']
+  },
+  'CSA CCM': {
+    'Data Privacy': ['DCS-07', 'DCS-08', 'DCS-09'],
+    'Access Control': ['IAM-01', 'IAM-02', 'IAM-03'],
+    'Encryption': ['CEK-01', 'CEK-02', 'CEK-03'],
+    'Logging': ['LOG-01', 'LOG-02', 'LOG-03'],
+    'Data Protection': ['DSP-01', 'DSP-02', 'DSP-03']
   },
   'CCPA': {
     'Data Privacy': ['§1798.100', '§1798.105', '§1798.110'],

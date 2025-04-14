@@ -1,4 +1,3 @@
-
 import { ReactNode } from 'react';
 
 export interface AuditEvent {
@@ -16,6 +15,10 @@ export interface CompanyDetails {
   companyName: string;
   complianceType: string;
   logo?: string | null;
+  contactName?: string;
+  designation?: string;
+  email?: string;
+  phone?: string;
 }
 
 // Add Comment type for useComments hook

@@ -93,12 +93,37 @@ export const addCoverPage = (
     );
   }
   
+  // Add contact information if provided
+  if (companyDetails?.contactName) {
+    let yPos = 155;
+    
+    doc.setFontSize(12);
+    doc.setTextColor(60, 60, 60);
+    doc.text(`Contact: ${companyDetails.contactName}`, pageWidth / 2, yPos, { align: 'center' });
+    
+    if (companyDetails?.designation) {
+      yPos += 10;
+      doc.text(`Designation: ${companyDetails.designation}`, pageWidth / 2, yPos, { align: 'center' });
+    }
+    
+    if (companyDetails?.email) {
+      yPos += 10;
+      doc.text(`Email: ${companyDetails.email}`, pageWidth / 2, yPos, { align: 'center' });
+    }
+    
+    if (companyDetails?.phone) {
+      yPos += 10;
+      doc.text(`Phone: ${companyDetails.phone}`, pageWidth / 2, yPos, { align: 'center' });
+    }
+  }
+  
   // Add date and version
   doc.setFontSize(12);
+  doc.setTextColor(60, 60, 60);
   doc.text(
     `Report Date: ${formatDate(new Date().toISOString())}`,
     pageWidth / 2,
-    160,
+    200,
     { align: 'center' }
   );
   
@@ -106,7 +131,7 @@ export const addCoverPage = (
   doc.text(
     `Version: 1.0`,
     pageWidth / 2,
-    170,
+    210,
     { align: 'center' }
   );
   

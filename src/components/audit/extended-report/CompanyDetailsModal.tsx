@@ -37,6 +37,10 @@ export const CompanyDetailsModal: React.FC<CompanyDetailsModalProps> = ({
   const [companyName, setCompanyName] = useState('');
   const [complianceType, setComplianceType] = useState('SOC 2');
   const [logoImage, setLogoImage] = useState<string | null>(null);
+  const [contactName, setContactName] = useState('');
+  const [designation, setDesignation] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +53,11 @@ export const CompanyDetailsModal: React.FC<CompanyDetailsModalProps> = ({
     onSubmit({
       companyName,
       complianceType,
-      logo: logoImage
+      logo: logoImage,
+      contactName,
+      designation,
+      email,
+      phone
     });
     
     onClose();
@@ -73,6 +81,51 @@ export const CompanyDetailsModal: React.FC<CompanyDetailsModalProps> = ({
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
                 placeholder="Enter organization name"
+                className="col-span-3"
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="contactName">Contact Name</Label>
+              <Input
+                id="contactName"
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+                placeholder="Enter contact person name"
+                className="col-span-3"
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="designation">Designation</Label>
+              <Input
+                id="designation"
+                value={designation}
+                onChange={(e) => setDesignation(e.target.value)}
+                placeholder="Enter designation/title"
+                className="col-span-3"
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter contact email"
+                className="col-span-3"
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input
+                id="phone"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Enter contact phone"
                 className="col-span-3"
               />
             </div>
