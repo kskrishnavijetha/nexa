@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/select";
 import { complianceFrameworks } from '@/utils/audit/complianceUtils';
 import { ImageUploader } from './ImageUploader';
+import { Industry } from '@/utils/types';
+import { Region } from '@/utils/types/common';
 
 interface CompanyDetailsModalProps {
   isOpen: boolean;
@@ -41,6 +43,34 @@ export const CompanyDetailsModal: React.FC<CompanyDetailsModalProps> = ({
   const [designation, setDesignation] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [industry, setIndustry] = useState<Industry | undefined>(undefined);
+  const [region, setRegion] = useState<Region | undefined>(undefined);
+
+  const industries: Industry[] = [
+    'Healthcare', 
+    'Finance & Banking', 
+    'Retail & Consumer', 
+    'E-Commerce', 
+    'Cloud & SaaS', 
+    'Government & Defense', 
+    'Energy & Utilities',
+    'Telecom',
+    'Manufacturing & Supply Chain',
+    'Education',
+    'Automotive',
+    'Pharmaceutical & Biotech',
+    'Global'
+  ];
+
+  const regions: Region[] = [
+    'United States',
+    'European Union',
+    'United Kingdom',
+    'Canada',
+    'Australia',
+    'Asia Pacific',
+    'Global',
+  ];
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +87,9 @@ export const CompanyDetailsModal: React.FC<CompanyDetailsModalProps> = ({
       contactName,
       designation,
       email,
-      phone
+      phone,
+      industry,
+      region
     });
     
     onClose();
@@ -65,7 +97,7 @@ export const CompanyDetailsModal: React.FC<CompanyDetailsModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Extended Audit Report</DialogTitle>
           <DialogDescription>
@@ -83,6 +115,44 @@ export const CompanyDetailsModal: React.FC<CompanyDetailsModalProps> = ({
                 placeholder="Enter organization name"
                 className="col-span-3"
               />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="industry">Industry</Label>
+              <Select 
+                value={industry} 
+                onValueChange={(value) => setIndustry(value as Industry)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select industry" />
+                </SelectTrigger>
+                <SelectContent>
+                  {industries.map((ind) => (
+                    <SelectItem key={ind} value={ind}>
+                      {ind}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="region">Region</Label>
+              <Select 
+                value={region} 
+                onValueChange={(value) => setRegion(value as Region)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select region" />
+                </SelectTrigger>
+                <SelectContent>
+                  {regions.map((reg) => (
+                    <SelectItem key={reg} value={reg}>
+                      {reg}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="grid gap-2">

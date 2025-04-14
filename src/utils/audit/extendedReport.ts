@@ -10,6 +10,7 @@ import { addRemediationPage } from './pdf/extendedReport/addRemediationPage';
 import { addIntegrityPage } from './pdf/extendedReport/addIntegrityPage';
 import { addAppendixPage } from './pdf/extendedReport/addAppendixPage';
 import { generateVerificationMetadata } from './hashVerification';
+import { Industry } from '@/utils/types';
 
 /**
  * Generate an extended audit-ready report as a PDF
@@ -18,7 +19,7 @@ export const generateExtendedAuditReport = async (
   documentName: string,
   userId: string | null,
   companyDetails?: CompanyDetails,
-  industry?: string
+  industry?: Industry
 ): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     setTimeout(async () => {
@@ -44,7 +45,8 @@ export const generateExtendedAuditReport = async (
         addCoverPage(pdf, {
           documentName,
           companyDetails,
-          industry,
+          // Use industry from companyDetails first, then fall back to the parameter
+          industry: companyDetails?.industry || industry,
           verificationMetadata
         });
         
@@ -53,7 +55,7 @@ export const generateExtendedAuditReport = async (
         addExecutiveSummaryPage(pdf, {
           documentName,
           auditEvents,
-          industry,
+          industry: companyDetails?.industry || industry,
           companyDetails
         });
         
@@ -84,7 +86,8 @@ export const generateExtendedAuditReport = async (
         pdf.addPage();
         addAppendixPage(pdf, {
           documentName,
-          industry,
+          industry: companyDetails?.industry || industry,
+          region: companyDetails?.region,
           companyDetails
         });
         

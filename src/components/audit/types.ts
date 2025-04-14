@@ -1,4 +1,7 @@
+
 import { ReactNode } from 'react';
+import { Industry } from '@/utils/types';
+import { Region } from '@/utils/types/common';
 
 export interface AuditEvent {
   id: string;
@@ -19,6 +22,8 @@ export interface CompanyDetails {
   designation?: string;
   email?: string;
   phone?: string;
+  industry?: Industry;
+  region?: Region;
 }
 
 // Add Comment type for useComments hook

@@ -7,10 +7,12 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { CompanyDetailsModal } from './extended-report/CompanyDetailsModal';
 import { CompanyDetails } from './types';
+import { Industry } from '@/utils/types';
+import { Region } from '@/utils/types/common';
 
 interface ExtendedReportButtonProps {
   documentName: string;
-  industry?: string;
+  industry?: Industry | string;
 }
 
 const ExtendedReportButton: React.FC<ExtendedReportButtonProps> = ({ 
@@ -28,7 +30,7 @@ const ExtendedReportButton: React.FC<ExtendedReportButtonProps> = ({
     const toastId = toast.loading('Generating extended audit report...', { duration: 30000 });
     
     try {
-      await generateExtendedAuditReport(documentName, user?.id || null, companyDetails, industry);
+      await generateExtendedAuditReport(documentName, user?.id || null, companyDetails, industry as Industry);
       toast.dismiss(toastId);
       toast.success('Extended audit report downloaded successfully');
     } catch (error) {

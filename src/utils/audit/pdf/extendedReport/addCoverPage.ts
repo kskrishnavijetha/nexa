@@ -1,6 +1,9 @@
 
+
 import { jsPDF } from 'jspdf';
 import { formatDate } from '@/components/audit/auditUtils';
+import { Industry } from '@/utils/types';
+import { Region } from '@/utils/types/common';
 
 /**
  * Add cover page to the extended audit report
@@ -82,20 +85,32 @@ export const addCoverPage = (
     { align: 'center' }
   );
   
-  // Add industry if available
-  if (industry) {
+  // Add industry if available - use company details first, then fallback to parameter
+  const industryToShow = companyDetails?.industry || industry;
+  if (industryToShow) {
     doc.setFontSize(14);
     doc.text(
-      `Industry: ${industry}`,
+      `Industry: ${industryToShow}`,
       pageWidth / 2,
       135,
       { align: 'center' }
     );
   }
   
+  // Add region if available
+  if (companyDetails?.region) {
+    doc.setFontSize(14);
+    doc.text(
+      `Region: ${companyDetails.region}`,
+      pageWidth / 2,
+      145,
+      { align: 'center' }
+    );
+  }
+  
   // Add contact information if provided
   if (companyDetails?.contactName) {
-    let yPos = 155;
+    let yPos = 165;
     
     doc.setFontSize(12);
     doc.setTextColor(60, 60, 60);
@@ -123,7 +138,7 @@ export const addCoverPage = (
   doc.text(
     `Report Date: ${formatDate(new Date().toISOString())}`,
     pageWidth / 2,
-    200,
+    220,
     { align: 'center' }
   );
   
@@ -131,7 +146,7 @@ export const addCoverPage = (
   doc.text(
     `Version: 1.0`,
     pageWidth / 2,
-    210,
+    230,
     { align: 'center' }
   );
   
