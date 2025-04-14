@@ -7,35 +7,43 @@ const TrustedBySection: React.FC = () => {
   const industries = [
     {
       name: 'Finance',
-      image: '/assets/images/industries/finance.jpg'
+      image: '/lovable-uploads/f617d74b-d314-4a7a-9e0b-bc6dbbbd227b.png',
+      icon: '💼'
     },
     {
       name: 'Healthcare',
-      image: '/assets/images/industries/healthcare.jpg'
+      image: '/lovable-uploads/f617d74b-d314-4a7a-9e0b-bc6dbbbd227b.png',
+      icon: '🏥'
     },
     {
       name: 'E-commerce',
-      image: '/assets/images/industries/ecommerce.jpg'
+      image: '/lovable-uploads/f617d74b-d314-4a7a-9e0b-bc6dbbbd227b.png',
+      icon: '🛒'
     },
     {
       name: 'SaaS & Startups',
-      image: '/assets/images/industries/saas.jpg'
+      image: '/lovable-uploads/f617d74b-d314-4a7a-9e0b-bc6dbbbd227b.png',
+      icon: '🚀'
     },
     {
       name: 'Government',
-      image: '/assets/images/industries/government.jpg'
+      image: '/lovable-uploads/f617d74b-d314-4a7a-9e0b-bc6dbbbd227b.png',
+      icon: '🏛️'
     },
     {
       name: 'Manufacturing',
-      image: '/assets/images/industries/manufacturing.jpg'
+      image: '/lovable-uploads/f617d74b-d314-4a7a-9e0b-bc6dbbbd227b.png',
+      icon: '⚙️'
     },
     {
       name: 'Insurance',
-      image: '/assets/images/industries/insurance.jpg'
+      image: '/lovable-uploads/f617d74b-d314-4a7a-9e0b-bc6dbbbd227b.png',
+      icon: '🛡️'
     },
     {
       name: 'Telecommunications',
-      image: '/assets/images/industries/telecommunications.jpg'
+      image: '/lovable-uploads/f617d74b-d314-4a7a-9e0b-bc6dbbbd227b.png',
+      icon: '📡'
     }
   ];
 
@@ -59,7 +67,10 @@ const TrustedBySection: React.FC = () => {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent flex items-end">
-                  <p className="text-white font-medium p-4 w-full text-center">{industry.name}</p>
+                  <div className="text-white p-4 w-full">
+                    <span className="text-xl mr-2">{industry.icon}</span>
+                    <span className="font-medium">{industry.name}</span>
+                  </div>
                 </div>
               </div>
             </Card>

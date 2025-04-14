@@ -6,6 +6,8 @@ import { CheckCircle } from 'lucide-react';
 const industries = [
   {
     name: "Finance & Banking",
+    icon: "💼",
+    image: "/lovable-uploads/f617d74b-d314-4a7a-9e0b-bc6dbbbd227b.png",
     features: [
       "KYC & AML Compliance automation",
       "SOC 2 & PCI-DSS risk assessments",
@@ -14,6 +16,8 @@ const industries = [
   },
   {
     name: "Healthcare",
+    icon: "🏥",
+    image: "/lovable-uploads/f617d74b-d314-4a7a-9e0b-bc6dbbbd227b.png",
     features: [
       "AI-driven HIPAA compliance",
       "Medical data security & risk checks",
@@ -22,6 +26,8 @@ const industries = [
   },
   {
     name: "Technology",
+    icon: "🚀",
+    image: "/lovable-uploads/f617d74b-d314-4a7a-9e0b-bc6dbbbd227b.png",
     features: [
       "SOC 2 & ISO 27001 readiness",
       "GDPR & CCPA compliance automation",
@@ -30,6 +36,8 @@ const industries = [
   },
   {
     name: "Government",
+    icon: "🏛️",
+    image: "/lovable-uploads/f617d74b-d314-4a7a-9e0b-bc6dbbbd227b.png",
     features: [
       "FISMA compliance automation",
       "Classified information handling",
@@ -51,9 +59,21 @@ const IndustriesSection: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {industries.map((industry, index) => (
-            <Card key={index} className="hover:shadow-md transition-shadow">
+            <Card key={index} className="hover:shadow-md transition-shadow overflow-hidden">
+              <div className="h-32 relative overflow-hidden">
+                <img 
+                  src={industry.image} 
+                  alt={`${industry.name}`}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
+                  <h3 className="text-xl font-semibold mb-2 text-white p-4 flex items-center">
+                    <span className="mr-2">{industry.icon}</span>
+                    {industry.name}
+                  </h3>
+                </div>
+              </div>
               <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-4 text-primary">{industry.name}</h3>
                 <ul className="space-y-3">
                   {industry.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start">
