@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Shield } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -49,16 +49,6 @@ const HeroContent: React.FC = () => {
         >
           {user ? 'Go to Dashboard' : 'Get Started Now'}
           <ArrowRight className="ml-2 h-5 w-5" />
-        </Button>
-        
-        <Button 
-          size="lg" 
-          variant="outline"
-          className="px-8 py-6 text-lg"
-          onClick={() => navigate('/pricing')}
-        >
-          View Pricing
-          <Shield className="ml-2 h-5 w-5" />
         </Button>
       </div>
     </div>
