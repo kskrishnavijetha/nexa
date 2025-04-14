@@ -1,11 +1,12 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Briefcase, Stethoscope, Building2, LandPlot, ShieldCheck, Factory, Truck } from 'lucide-react';
 
 const industries = [
   {
     name: "Finance & Banking",
+    icon: <Briefcase className="h-6 w-6" />,
     features: [
       "KYC & AML Compliance automation",
       "SOC 2 & PCI-DSS risk assessments",
@@ -14,6 +15,7 @@ const industries = [
   },
   {
     name: "Healthcare",
+    icon: <Stethoscope className="h-6 w-6" />,
     features: [
       "AI-driven HIPAA compliance",
       "Medical data security & risk checks",
@@ -22,6 +24,7 @@ const industries = [
   },
   {
     name: "Technology",
+    icon: <Building2 className="h-6 w-6" />,
     features: [
       "SOC 2 & ISO 27001 readiness",
       "GDPR & CCPA compliance automation",
@@ -30,6 +33,7 @@ const industries = [
   },
   {
     name: "Government",
+    icon: <ShieldCheck className="h-6 w-6" />,
     features: [
       "FISMA compliance automation",
       "Classified information handling",
@@ -53,7 +57,12 @@ const IndustriesSection: React.FC = () => {
           {industries.map((industry, index) => (
             <Card key={index} className="hover:shadow-md transition-shadow">
               <CardContent className="p-6">
-                <h3 className="text-xl font-semibold mb-4 text-primary">{industry.name}</h3>
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                    {industry.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold text-primary">{industry.name}</h3>
+                </div>
                 <ul className="space-y-3">
                   {industry.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start">
