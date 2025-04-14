@@ -1,11 +1,12 @@
 
 import { jsPDF } from 'jspdf';
+import { formatDate } from '@/components/audit/auditUtils';
 
 /**
- * Add integrity verification page to the extended audit report
+ * Add integrity verification page to extended audit report
  */
 export const addIntegrityPage = (
-  doc: jsPDF,
+  doc: jsPDF, 
   {
     documentName,
     verificationMetadata
@@ -18,103 +19,78 @@ export const addIntegrityPage = (
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   
-  // Add page header
-  doc.setFillColor(25, 65, 120);
+  // Add background color
+  doc.setFillColor(250, 250, 255);
+  doc.rect(0, 0, pageWidth, pageHeight, 'F');
+  
+  // Add header
+  doc.setFillColor(40, 80, 140);
   doc.rect(0, 0, pageWidth, 20, 'F');
-  
-  doc.setFontSize(14);
   doc.setTextColor(255, 255, 255);
-  doc.text('Document Integrity & Verification', pageWidth / 2, 13, { align: 'center' });
+  doc.setFontSize(14);
+  doc.text('Document Integrity Verification', pageWidth / 2, 13, { align: 'center' });
   
-  // Add section description
-  let yPos = 30;
+  // Add content
+  doc.setTextColor(50, 50, 50);
+  doc.setFontSize(12);
+  doc.text('Document Integrity Information', 20, 40);
+  
+  // Document metadata
+  let yPos = 60;
   doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-  const descriptionText = `This section provides cryptographic verification of the audit report integrity. The hash signature can be used to verify that the report has not been altered since generation.`;
-  
-  const descriptionLines = doc.splitTextToSize(descriptionText, pageWidth - 40);
-  doc.text(descriptionLines, 20, yPos);
-  
-  // Update position based on number of lines
-  yPos += descriptionLines.length * 6 + 15;
-  
-  // Add hash verification box
-  doc.setFillColor(250, 250, 250);
-  doc.setDrawColor(200, 200, 200);
-  doc.roundedRect(20, yPos, pageWidth - 40, 80, 3, 3, 'FD');
-  
+  doc.text(`Document: ${documentName}`, 25, yPos);
   yPos += 10;
-  doc.setFontSize(11);
-  doc.setTextColor(25, 65, 120);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Document Hash Verification', pageWidth / 2, yPos, { align: 'center' });
+  doc.text(`Verification Date: ${formatDate(new Date().toISOString())}`, 25, yPos);
+  yPos += 10;
+  doc.text(`Verification Hash: ${verificationMetadata.hash}`, 25, yPos);
+  yPos += 10;
+  doc.text(`Short Hash: ${verificationMetadata.shortHash}`, 25, yPos);
+  yPos += 20;
+  
+  // How verification works
+  doc.setFontSize(12);
+  doc.text('How Verification Works', 20, yPos);
+  yPos += 15;
+  
+  doc.setFontSize(10);
+  const verificationText = [
+    'This report includes a unique digital signature that helps verify its integrity and authenticity.',
+    'The verification hash is calculated based on all audit events included in this report.',
+    'If any information in the audit trail is modified or tampered with, the verification hash will change.',
+    'You can verify the integrity of this document by comparing the hash with the one stored in your secure systems.'
+  ];
+  
+  verificationText.forEach(text => {
+    doc.text(text, 25, yPos);
+    yPos += 10;
+  });
   
   yPos += 15;
-  doc.setFontSize(9);
-  doc.setTextColor(0, 0, 0);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Document ID:', 40, yPos);
   
-  doc.setFont('courier', 'normal');
-  doc.text(verificationMetadata.shortHash, 80, yPos);
-  
-  yPos += 10;
-  doc.setFont('helvetica', 'normal');
-  doc.text('Complete Hash:', 40, yPos);
-  
-  yPos += 10;
-  doc.setFont('courier', 'normal');
-  const hashLines = doc.splitTextToSize(verificationMetadata.hash, pageWidth - 80);
-  doc.text(hashLines, 40, yPos);
-  
-  yPos += hashLines.length * 10 + 10;
-  doc.setFont('helvetica', 'normal');
-  doc.text('Generation Date:', 40, yPos);
-  
-  doc.setFont('courier', 'normal');
-  doc.text(new Date().toISOString(), 80, yPos);
-  
-  // Add signature section
-  yPos += 40;
-  doc.setFontSize(11);
-  doc.setTextColor(25, 65, 120);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Electronic Signature', pageWidth / 2, yPos, { align: 'center' });
-  
+  // Verification instructions
+  doc.setFontSize(12);
+  doc.text('Verification Instructions', 20, yPos);
   yPos += 15;
-  doc.setDrawColor(200, 200, 200);
-  doc.setLineWidth(0.5);
-  doc.line(40, yPos, pageWidth - 40, yPos);
   
-  yPos += 5;
-  doc.setFontSize(8);
-  doc.setTextColor(100, 100, 100);
-  doc.text('Signature', 40, yPos);
+  doc.setFontSize(10);
+  const instructions = [
+    '1. Store the verification hash in a secure location separate from this report',
+    '2. When auditing, recalculate the hash using the original audit data',
+    '3. Compare the new hash with the one stored previously',
+    '4. If they match, the audit trail has not been modified'
+  ];
   
-  yPos += 30;
-  doc.line(40, yPos, pageWidth - 40, yPos);
+  instructions.forEach(text => {
+    doc.text(text, 25, yPos);
+    yPos += 10;
+  });
   
-  yPos += 5;
-  doc.setFontSize(8);
-  doc.setTextColor(100, 100, 100);
-  doc.text('Name / Title', 40, yPos);
-  
-  yPos += 30;
-  doc.line(40, yPos, pageWidth / 2 - 10, yPos);
-  
-  doc.line(pageWidth / 2 + 10, yPos, pageWidth - 40, yPos);
-  
-  yPos += 5;
-  doc.text('Date', 40, yPos);
-  doc.text('Organization', pageWidth / 2 + 10, yPos);
+  // Add footer
+  doc.setDrawColor(40, 80, 140);
+  doc.setLineWidth(1);
+  doc.line(20, pageHeight - 20, pageWidth - 20, pageHeight - 20);
   
   // Add page number
   doc.setFontSize(8);
-  doc.setTextColor(100, 100, 100);
-  doc.text(
-    'Page 6',
-    pageWidth / 2,
-    pageHeight - 10,
-    { align: 'center' }
-  );
+  doc.text('Integrity Verification Page', pageWidth - 25, pageHeight - 10);
 };
