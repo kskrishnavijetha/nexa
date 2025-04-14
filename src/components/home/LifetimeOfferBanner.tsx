@@ -2,9 +2,21 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 const LifetimeOfferBanner: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const handlePaymentClick = () => {
+    if (user) {
+      // If user is logged in, redirect directly to PayPal payment link
+      window.open('https://www.paypal.com/ncp/payment/YF2GNLBJ2YCEE', '_blank');
+    } else {
+      // If user is not logged in, redirect to sign in page first
+      navigate('/sign-in', { state: { redirectAfterLogin: 'lifetime-payment' } });
+    }
+  };
 
   return (
     <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white py-8">
@@ -51,7 +63,7 @@ const LifetimeOfferBanner: React.FC = () => {
             <div className="flex-shrink-0">
               <Button 
                 size="lg"
-                onClick={() => navigate('/payment', { state: { selectedPlan: 'lifetime' } })}
+                onClick={handlePaymentClick}
                 className="bg-yellow-400 hover:bg-yellow-300 text-blue-900 font-bold px-8 py-6 text-lg shadow-lg"
               >
                 Get Lifetime Access - $999

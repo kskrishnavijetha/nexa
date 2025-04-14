@@ -1,47 +1,94 @@
 
 import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 interface PaymentSummaryProps {
   selectedTier: string;
   billingCycle: 'monthly' | 'annually';
-  getPrice: (tier: string, billingCycle: 'monthly' | 'annually') => number;
+  getPrice: (tier: string, cycle: 'monthly' | 'annually') => number;
 }
 
-const PaymentSummary: React.FC<PaymentSummaryProps> = ({ 
-  selectedTier, 
-  billingCycle, 
-  getPrice 
-}) => {
+const PaymentSummary: React.FC<PaymentSummaryProps> = ({ selectedTier, billingCycle, getPrice }) => {
+  // Special handling for lifetime tier
+  if (selectedTier === 'lifetime') {
+    return (
+      <Card className="border-primary/20 bg-primary/5">
+        <CardHeader>
+          <CardTitle>Lifetime Access Summary</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">One-time payment</span>
+            <span className="font-medium">$999</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Access period</span>
+            <span className="font-medium">Lifetime</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Scan limits</span>
+            <span className="font-medium">Unlimited</span>
+          </div>
+          <div className="border-t pt-4 mt-2">
+            <div className="flex items-center justify-between font-medium">
+              <span>Total</span>
+              <span className="text-xl">$999</span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              One-time payment. No recurring charges. No expiration date.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Regular subscription tiers
+  const price = getPrice(selectedTier, billingCycle);
+  const discount = selectedTier !== 'free' && billingCycle === 'annually' ? 10 : 0;
+  
   return (
-    <div className="flex flex-col space-y-2">
-      <div className="flex justify-between text-sm">
-        <span className="text-muted-foreground">Plan</span>
-        <span>{selectedTier === 'free' ? 'Free' : 
-          selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1)}
-        </span>
-      </div>
-      <div className="flex justify-between text-sm">
-        <span className="text-muted-foreground">Scans per month</span>
-        <span>{selectedTier === 'enterprise' ? 'Unlimited' : (
-          selectedTier === 'free' ? '5' : 
-          selectedTier === 'basic' ? '15' : 
-          selectedTier === 'pro' ? '50' : ''
-        )}</span>
-      </div>
-      <div className="flex justify-between text-sm">
-        <span className="text-muted-foreground">Billing</span>
-        <span>{selectedTier === 'free' ? 'No billing' : 'Monthly'}</span>
-      </div>
-      <div className="flex justify-between font-medium">
-        <span>Total</span>
-        <span>
-          {getPrice(selectedTier, billingCycle) === 0 
-            ? 'Free' 
-            : `$${getPrice(selectedTier, billingCycle)}/month`
-          }
-        </span>
-      </div>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Order Summary</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-between">
+          <span className="text-muted-foreground">
+            {selectedTier.charAt(0).toUpperCase() + selectedTier.slice(1)} Plan
+          </span>
+          <span className="font-medium">${price}</span>
+        </div>
+        
+        {selectedTier !== 'free' && (
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Billing cycle</span>
+            <span className="font-medium capitalize">{billingCycle}</span>
+          </div>
+        )}
+        
+        {discount > 0 && (
+          <div className="flex items-center justify-between">
+            <span className="text-green-600">Annual discount</span>
+            <span className="font-medium text-green-600">-{discount}%</span>
+          </div>
+        )}
+        
+        <div className={cn("border-t pt-4 mt-2", selectedTier === 'free' && "hidden")}>
+          <div className="flex items-center justify-between font-medium">
+            <span>Total</span>
+            <span className="text-xl">${price}</span>
+          </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            {billingCycle === 'monthly' 
+              ? 'Billed monthly. Cancel anytime.' 
+              : 'Billed annually. Save 10% compared to monthly billing.'
+            }
+          </p>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

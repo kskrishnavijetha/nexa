@@ -1,140 +1,136 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
-import { hasActiveSubscription, shouldUpgrade, getSubscription } from '@/utils/paymentService';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import Layout from '@/components/layout/Layout';
 
-const SignIn: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
+const formSchema = z.object({
+  email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters long" }),
+});
+
+export default function SignIn() {
+  const { signIn, user } = useAuth();
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const { signIn } = useAuth();
-
-  const from = location.state?.from?.pathname || '/dashboard';
-
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!email || !password) {
-      toast.error('Please fill in all fields');
-      return;
+  
+  // Get redirect path from state, if provided
+  const from = location.state?.from?.pathname || "/dashboard";
+  const redirectAfterLogin = location.state?.redirectAfterLogin;
+  
+  // Redirect authenticated users
+  useEffect(() => {
+    if (user) {
+      // Special handling for lifetime payment redirect
+      if (redirectAfterLogin === 'lifetime-payment') {
+        window.location.href = 'https://www.paypal.com/ncp/payment/YF2GNLBJ2YCEE';
+      } else {
+        navigate(from, { replace: true });
+      }
     }
-    
-    setIsLoading(true);
+  }, [user, navigate, from, redirectAfterLogin]);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    setLoading(true);
     
     try {
-      const { error } = await signIn(email, password);
+      const { error } = await signIn(values.email, values.password);
       
       if (error) {
-        toast.error(error.message);
-        setIsLoading(false);
+        console.error("Error signing in:", error);
+        toast.error("Failed to sign in. Please check your credentials.");
       } else {
-        toast.success('Signed in successfully');
-        
-        const hasSubscription = hasActiveSubscription();
-        const subscription = getSubscription();
-        const needsUpgrade = shouldUpgrade();
-        
-        // If user has no active subscription or needs to upgrade (expired or used all scans)
-        if (!hasSubscription || needsUpgrade) {
-          // Show appropriate toast message
-          if (needsUpgrade && subscription) {
-            if (subscription.scansUsed >= subscription.scansLimit) {
-              toast.info(`You've used all ${subscription.scansLimit} scans in your ${subscription.plan} plan. Please select a new plan.`);
-            } else {
-              toast.info(`Your ${subscription.plan} plan has expired. Please select a new plan.`);
-            }
-          } else {
-            toast.info('Please select a subscription plan to continue');
-          }
-          
-          navigate('/pricing', { replace: true });
-        } else {
-          navigate(from, { replace: true });
-        }
+        toast.success("Signed in successfully!");
+        // Redirect will happen in useEffect
       }
-    } catch (error: any) {
-      toast.error(error.message || 'An error occurred during sign in');
-      setIsLoading(false);
+    } catch (err) {
+      console.error("Exception during sign in:", err);
+      toast.error("An unexpected error occurred. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Sign In to Nexabloom</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Enter your credentials to access your account
-          </p>
-        </div>
-        
-        <form onSubmit={handleSignIn} className="mt-8 space-y-6">
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1"
-                autoComplete="email"
-                required
-              />
-            </div>
-            
-            <div>
-              <div className="flex justify-between">
-                <Label htmlFor="password">Password</Label>
-                <Link to="/forgot-password" className="text-sm text-primary hover:underline">
-                  Forgot password?
-                </Link>
-              </div>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1"
-                autoComplete="current-password"
-                required
-              />
-            </div>
-          </div>
-          
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Signing in...
-              </>
-            ) : (
-              'Sign In'
-            )}
-          </Button>
-          
-          <div className="text-center mt-4">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link to="/sign-up" className="text-primary hover:underline">
+    <Layout>
+      <div className="flex min-h-[calc(100vh-180px)] items-center justify-center px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-2xl">Sign In</CardTitle>
+            <CardDescription>
+              Enter your credentials to access your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="your.email@example.com" {...field} type="email" disabled={loading} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="password" disabled={loading} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
+                </Button>
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter className="flex-col space-y-4">
+            <div className="text-sm text-muted-foreground text-center">
+              Don't have an account?{" "}
+              <Button variant="link" className="p-0" onClick={() => navigate("/sign-up")}>
                 Sign up
-              </Link>
-            </p>
-          </div>
-        </form>
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
       </div>
-    </div>
+    </Layout>
   );
-};
-
-export default SignIn;
+}

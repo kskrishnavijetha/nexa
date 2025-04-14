@@ -1,4 +1,3 @@
-
 /**
  * Service for PayPal payment processing
  */
@@ -173,5 +172,67 @@ export const createPayPalButtons = (
   } catch (error) {
     console.error('Error rendering PayPal buttons:', error);
     onError(error);
+  }
+};
+
+/**
+ * Verify lifetime payment by PayPal transaction ID
+ * In a real implementation, this would verify with a backend API
+ * For now, we'll simulate a successful verification
+ */
+export const verifyLifetimePayment = async (transactionId: string): Promise<boolean> => {
+  console.log('Verifying lifetime payment with transaction ID:', transactionId);
+  
+  // In a real implementation, you would call your backend to verify the payment
+  // For demo purposes, we'll simulate a successful payment verification
+  // Wait 1 second to simulate API call
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  
+  // For this demo, we'll consider any transaction ID that starts with 'YF' as verified
+  // In a real implementation, you'd check against actual PayPal transactions
+  return transactionId.startsWith('YF');
+};
+
+/**
+ * Process lifetime payment completion
+ */
+export const processLifetimePaymentCompletion = async (): Promise<{success: boolean, message: string}> => {
+  // Extract transaction ID from URL query parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const txnId = urlParams.get('txnId') || urlParams.get('txn_id');
+  
+  if (!txnId) {
+    return {
+      success: false,
+      message: 'No transaction ID found. Payment verification failed.'
+    };
+  }
+  
+  try {
+    // Verify the payment
+    const isVerified = await verifyLifetimePayment(txnId);
+    
+    if (isVerified) {
+      // Activate lifetime access for the user
+      import('@/utils/payment/subscriptionService').then(({ activateLifetimeAccess }) => {
+        activateLifetimeAccess(txnId);
+      });
+      
+      return {
+        success: true,
+        message: 'Lifetime access activated successfully!'
+      };
+    } else {
+      return {
+        success: false,
+        message: 'Payment verification failed. Please contact support.'
+      };
+    }
+  } catch (error) {
+    console.error('Error processing lifetime payment:', error);
+    return {
+      success: false,
+      message: 'An error occurred while processing your payment. Please contact support.'
+    };
   }
 };
