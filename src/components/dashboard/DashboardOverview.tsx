@@ -22,8 +22,8 @@ const DashboardOverview: React.FC = () => {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        // Pass user ID instead of the entire user object to avoid type mismatch
-        const data = await loadDashboardData(user?.id);
+        // Pass user ID as a string instead of the entire user object
+        const data = await loadDashboardData(user?.id ?? '');
         setDashboardData(data);
         // If we have at least one document scanned, we consider that we have data
         setHasData(data.documentsScanned > 0);
