@@ -1,15 +1,8 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle } from 'lucide-react';
-
-const keyFeatures = [
-  "AI-Powered Compliance Audits – Identify risks, missing policies & compliance gaps instantly.",
-  "Automated Policy Generation – Generate & update compliance documents tailored to your industry.",
-  "Real-Time Risk Monitoring – Get alerts before compliance violations happen.",
-  "Smart Compliance Reporting – Auto-generate reports for regulators & audits.",
-  "Seamless Integrations – Works with AWS, Azure, Salesforce, and more."
-];
+import FeatureItem from './why-choose/FeatureItem';
+import { keyFeatures } from './why-choose/keyFeaturesData';
 
 const WhyChooseSection: React.FC = () => {
   return (
@@ -27,10 +20,7 @@ const WhyChooseSection: React.FC = () => {
             <CardContent className="p-8">
               <div className="space-y-6">
                 {keyFeatures.map((feature, index) => (
-                  <div key={index} className="flex items-start">
-                    <CheckCircle className="h-6 w-6 text-green-500 mr-4 shrink-0 mt-0.5" />
-                    <p className="text-gray-700 text-lg">{feature}</p>
-                  </div>
+                  <FeatureItem key={index} text={feature} />
                 ))}
               </div>
               
