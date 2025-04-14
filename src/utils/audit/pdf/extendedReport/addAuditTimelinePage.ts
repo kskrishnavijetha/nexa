@@ -1,153 +1,142 @@
 
 import { jsPDF } from 'jspdf';
 import { AuditEvent } from '@/components/audit/types';
-import { formatTimestamp } from '@/components/audit/auditUtils';
 
 /**
- * Add audit timeline page to the extended report
+ * Add the audit timeline page to the extended report
  */
 export const addAuditTimelinePage = (
   doc: jsPDF,
   auditEvents: AuditEvent[]
 ): void => {
-  // Page margin
-  const margin = 20;
-  let yPos = margin;
-  
-  // Add section title
+  // Set page title
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(18);
+  doc.setFontSize(16);
   doc.setTextColor(0, 51, 102);
-  doc.text('Audit Trail Timeline', margin, yPos);
-  yPos += 10;
+  doc.text('Audit Timeline', 20, 20);
   
-  // Add horizontal line
-  doc.setDrawColor(200, 200, 200);
-  doc.setLineWidth(0.5);
-  doc.line(margin, yPos, 210 - margin, yPos);
-  yPos += 10;
-  
-  // Add description
+  // Add subtitle
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.setTextColor(0, 0, 0);
-  doc.text(`This timeline shows all ${auditEvents.length} audit events captured during document analysis.`, margin, yPos);
-  yPos += 10;
+  doc.setFontSize(12);
+  doc.setTextColor(80, 80, 80);
+  doc.text('Chronological record of all document activities and compliance checks', 20, 28);
   
-  // If no events, show a message
-  if (auditEvents.length === 0) {
+  // Draw separator line
+  doc.setDrawColor(200, 200, 200);
+  doc.line(20, 33, 190, 33);
+  
+  // Sort events by timestamp
+  const sortedEvents = [...auditEvents].sort((a, b) => 
+    new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+  );
+  
+  // Set initial position for the events list
+  let y = 43;
+  const lineHeight = 10;
+  
+  // Check if we have events
+  if (sortedEvents.length === 0) {
     doc.setFont('helvetica', 'italic');
-    doc.text('No audit events available.', margin, yPos);
-    doc.addPage(); // Still add a page break
+    doc.setTextColor(100, 100, 100);
+    doc.text('No audit events recorded for this document', 20, y);
+    
+    // Add page break
+    doc.addPage();
     return;
   }
   
-  // Group events by date
-  const eventsByDate: Record<string, AuditEvent[]> = {};
-  auditEvents.forEach(event => {
-    const date = new Date(event.timestamp).toDateString();
-    if (!eventsByDate[date]) {
-      eventsByDate[date] = [];
+  // Function to format date
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+  
+  // Function to get action color
+  const getActionColor = (action: string) => {
+    switch (action.toLowerCase()) {
+      case 'upload':
+      case 'create':
+        return [0, 128, 0]; // Green
+      case 'delete':
+      case 'remove':
+        return [220, 20, 20]; // Red
+      case 'update':
+      case 'edit':
+        return [0, 102, 204]; // Blue
+      case 'scan':
+      case 'analyze':
+        return [153, 51, 153]; // Purple
+      default:
+        return [80, 80, 80]; // Gray
     }
-    eventsByDate[date].push(event);
-  });
+  };
   
-  // Sort dates in reverse chronological order
-  const sortedDates = Object.keys(eventsByDate).sort((a, b) => {
-    return new Date(b).getTime() - new Date(a).getTime();
-  });
-  
-  // Draw events grouped by date
-  for (const date of sortedDates) {
-    // Check if we need a new page
-    if (yPos > 270) {
+  // Iterate through events and add them to the timeline
+  for (let i = 0; i < sortedEvents.length; i++) {
+    const event = sortedEvents[i];
+    const formattedDate = formatDate(event.timestamp);
+    const actionColor = getActionColor(event.action);
+    
+    // If we're about to go off the page, add a new page
+    if (y > 260) {
       doc.addPage();
-      yPos = margin;
+      y = 20; // reset y position for new page
     }
     
-    // Draw date header
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.setTextColor(0, 51, 102);
-    doc.text(date, margin, yPos);
-    yPos += 6;
+    // Draw timeline dot
+    doc.setFillColor(...actionColor);
+    doc.circle(25, y - 1, 1.5, 'F');
     
-    // Draw events for this date
-    const events = eventsByDate[date];
-    for (const event of events) {
-      // Check if we need a new page
-      if (yPos > 270) {
-        doc.addPage();
-        yPos = margin;
-      }
-      
-      // Draw time
-      doc.setFont('helvetica', 'normal');
+    // Draw vertical line to connect dots
+    if (i < sortedEvents.length - 1) {
+      doc.setDrawColor(...actionColor);
+      doc.setLineWidth(0.3);
+      doc.line(25, y + 1, 25, y + lineHeight - 1);
+    }
+    
+    // Event timestamp
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(80, 80, 80);
+    doc.text(formattedDate, 30, y);
+    
+    // Event action
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(...actionColor);
+    
+    // Capitalize the first letter of the action
+    const displayAction = event.action.charAt(0).toUpperCase() + event.action.slice(1);
+    doc.text(displayAction, 90, y);
+    
+    // Add user info
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(60, 60, 60);
+    doc.text(`by ${event.user}`, 140, y);
+    
+    // Move to next line
+    y += lineHeight;
+    
+    // Add event details if available (using action as placeholder)
+    if (event.action) {
+      doc.setFont('helvetica', 'italic');
       doc.setFontSize(9);
       doc.setTextColor(100, 100, 100);
-      doc.text(formatTimestamp(event.timestamp, true).split(' ')[1], margin, yPos);
-      
-      // Draw status badge
-      let statusText = '';
-      let statusColor: number[] = [0, 0, 0];
-      
-      switch (event.status) {
-        case 'completed':
-          statusText = 'Completed';
-          statusColor = [0, 128, 0]; // Green
-          break;
-        case 'pending':
-          statusText = 'Pending';
-          statusColor = [255, 165, 0]; // Orange
-          break;
-        case 'in-progress':
-          statusText = 'In Progress';
-          statusColor = [0, 102, 204]; // Blue
-          break;
-      }
-      
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(8);
-      doc.setTextColor(statusColor[0], statusColor[1], statusColor[2]);
-      doc.text(statusText, margin + 30, yPos);
-      
-      // Draw action title
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(10);
-      doc.setTextColor(0, 0, 0);
-      doc.text(event.action, margin + 65, yPos);
-      yPos += 5;
-      
-      // Draw user info
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(9);
-      doc.setTextColor(80, 80, 80);
-      doc.text(`By: ${event.user}`, margin + 65, yPos);
-      yPos += 5;
-      
-      // Draw comment if available
-      if (event.comments && event.comments.length > 0) {
-        doc.setFont('helvetica', 'italic');
-        doc.setFontSize(8);
-        doc.setTextColor(100, 100, 100);
-        const commentText = event.comments[0].text;
-        const commentLines = doc.splitTextToSize(commentText, 105);
-        doc.text(commentLines, margin + 65, yPos);
-        yPos += commentLines.length * 3.5;
-      }
-      
-      // Add space between events
-      yPos += 5;
-      
-      // Draw light separator
-      doc.setDrawColor(230, 230, 230);
-      doc.setLineWidth(0.1);
-      doc.line(margin + 65, yPos, 190, yPos);
-      yPos += 5;
+      // Use a safe way to get details, modify this based on your event structure
+      const details = `Document: ${event.documentName || 'Unknown document'}`;
+      doc.text(details, 30, y);
+      y += lineHeight;
     }
     
-    // Add space between dates
-    yPos += 5;
+    // Add extra spacing between events
+    y += 2;
   }
   
   // Add page break

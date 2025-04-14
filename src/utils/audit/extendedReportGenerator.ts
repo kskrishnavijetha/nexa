@@ -29,7 +29,16 @@ export const generateExtendedReport = async (
   const remediations: RemediationItem[] = generateRemediations(baseReport);
   
   // Generate report hash for document integrity verification
-  const documentHash = await generateAuditHash([...auditEvents, { id: baseReport.documentId }]);
+  // Convert the document ID into a proper AuditEvent for the hash
+  const documentIdEvent: AuditEvent = {
+    id: baseReport.documentId,
+    timestamp: new Date().toISOString(),
+    action: 'report_generation',
+    documentName: baseReport.documentName,
+    user: 'system'
+  };
+  
+  const documentHash = await generateAuditHash([...auditEvents, documentIdEvent]);
   
   // Create PDF document
   const pdf = await generatePDF(baseReport, auditEvents, complianceMatrix, remediations, config, documentHash);
