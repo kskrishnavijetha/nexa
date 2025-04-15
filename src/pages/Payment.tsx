@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import PaymentForm from '@/components/PaymentForm';
-import { getSubscription, hasActiveSubscription } from '@/utils/paymentService';
+import { getSubscription, hasActiveSubscription, SubscriptionInfo } from '@/utils/paymentService';
 import SubscriptionStatus from '@/components/payment/SubscriptionStatus';
 import FeatureSummary from '@/components/payment/FeatureSummary';
 import { toast } from 'sonner';
@@ -16,10 +16,12 @@ const Payment = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const [subscription, setSubscription] = useState(getSubscription());
+  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
   const [isRenewal, setIsRenewal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [isSubscriptionActive, setIsSubscriptionActive] = useState(false);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
     // Check if returning from PayPal subscription
@@ -48,9 +50,34 @@ const Payment = () => {
       }
     }
     
-    // Check if user has an active subscription and redirected from another page
-    if (hasActiveSubscription() && location.state?.fromProtectedRoute) {
-      navigate('/dashboard');
+    async function loadData() {
+      if (user) {
+        try {
+          // Check if user has an active subscription
+          const active = await hasActiveSubscription();
+          setIsSubscriptionActive(active);
+          
+          if (active && location.state?.fromProtectedRoute) {
+            navigate('/dashboard');
+            return;
+          }
+          
+          // Get the subscription details
+          const subDetails = await getSubscription();
+          setSubscription(subDetails);
+          
+          // Check if user has a subscription but it's expired (renewal case)
+          if (subDetails && !subDetails.active) {
+            setIsRenewal(true);
+          }
+        } catch (error) {
+          console.error('Error loading subscription data:', error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
     }
     
     // Check if a plan was selected from the pricing page
@@ -58,28 +85,28 @@ const Payment = () => {
       setSelectedPlan(location.state.selectedPlan);
     }
     
-    // Check if user has a subscription but it's expired (renewal case)
-    const currentSubscription = getSubscription();
-    if (currentSubscription && !currentSubscription.active) {
-      setIsRenewal(true);
-    }
-    setSubscription(currentSubscription);
+    loadData();
   }, [location.state, navigate, searchParams, user]);
 
   const handlePaymentSuccess = (paymentId: string) => {
     console.log('Payment successful:', paymentId);
     setProcessingPayment(true);
     
-    // Update subscription state
-    setSubscription(getSubscription());
+    // Update subscription state (needs to be refreshed from the database)
+    async function refreshSubscription() {
+      const updatedSubscription = await getSubscription();
+      setSubscription(updatedSubscription);
+      
+      toast.success('Subscription activated successfully!');
+      
+      // Redirect to dashboard page after 1.5 seconds
+      setTimeout(() => {
+        navigate('/dashboard');
+        setProcessingPayment(false);
+      }, 1500);
+    }
     
-    toast.success('Subscription activated successfully!');
-    
-    // Redirect to dashboard page after 1.5 seconds
-    setTimeout(() => {
-      navigate('/dashboard');
-      setProcessingPayment(false);
-    }, 1500);
+    refreshSubscription();
   };
 
   const handleRenewClick = () => {
@@ -117,22 +144,32 @@ const Payment = () => {
     );
   }
 
+  if (loading) {
+    return (
+      <Layout>
+        <div className="container mx-auto py-12 text-center">
+          <Loader2 className="animate-spin h-16 w-16 text-primary mx-auto mb-4" />
+          <p>Loading subscription details...</p>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="container mx-auto py-12">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-3xl font-bold text-center mb-10">
-            {isRenewal ? 'Renew Your Subscription' : (hasActiveSubscription() ? 'Manage Your Subscription' : 'Choose Your Subscription Plan')}
+            {isRenewal ? 'Renew Your Subscription' : (isSubscriptionActive ? 'Manage Your Subscription' : 'Choose Your Subscription Plan')}
           </h1>
           
           {subscription && (
             <SubscriptionStatus 
-              subscription={subscription} 
               onRenew={handleRenewClick} 
             />
           )}
           
-          {(isRenewal || !hasActiveSubscription()) && (
+          {(isRenewal || !isSubscriptionActive) && (
             <div className="flex flex-col md:flex-row gap-8">
               <div className="flex-1">
                 <PaymentForm 
