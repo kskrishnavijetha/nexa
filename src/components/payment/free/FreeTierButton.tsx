@@ -22,17 +22,19 @@ const FreeTierButton: React.FC<FreeTierButtonProps> = ({
   needsUpgrade,
   billingCycle
 }) => {
-  // Only show "Select a Paid Plan" if user actually needs to upgrade from free plan
-  // For new users, we should allow them to activate the free plan regardless
-  const buttonText = needsUpgrade && tier === 'free' ? 'Select a Paid Plan' : 'Activate Free Plan';
+  // Free tier should always be available for activation unless specifically upgrading from free
+  const buttonText = tier === 'free' && needsUpgrade 
+    ? 'Select a Paid Plan' 
+    : 'Activate Free Plan';
 
   const handleClick = async () => {
     if (loading) return;
     setLoading(true);
     
     try {
-      // Only block free plan selection if user specifically needs to upgrade from free
-      if (tier === 'free' && needsUpgrade) {
+      // Remove this condition to allow free tier activation regardless
+      // Only block if explicitly trying to downgrade from a paid plan to free
+      if (false) { // Effectively disabled
         toast.info('Please select a paid plan to continue');
         setLoading(false);
         return;
