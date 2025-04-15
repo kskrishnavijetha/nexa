@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -24,8 +23,7 @@ export default function SignIn() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Get redirect path from state, if provided
-  const from = location.state?.from?.pathname || "/dashboard";
+  // Always redirect to pricing page after login
   const redirectAfterLogin = location.state?.redirectAfterLogin;
   
   // Redirect authenticated users
@@ -35,10 +33,11 @@ export default function SignIn() {
       if (redirectAfterLogin === 'lifetime-payment') {
         window.location.href = 'https://www.paypal.com/ncp/payment/YF2GNLBJ2YCEE';
       } else {
-        navigate(from, { replace: true });
+        // Redirect to pricing page instead of dashboard
+        navigate('/pricing', { replace: true });
       }
     }
-  }, [user, navigate, from, redirectAfterLogin]);
+  }, [user, navigate, redirectAfterLogin]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
