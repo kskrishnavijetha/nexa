@@ -4,19 +4,75 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, XCircle, Download, History } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { generateVerificationReport, getVerificationReportFileName, formatFileSize } from '@/utils/audit/verificationReport';
 
 interface HashComparisonResultProps {
   result: 'match' | 'mismatch';
   onDownloadReport: () => void;
   showAuditTrail: boolean;
+  file?: File | null;
+  computedHash: string;
+  comparisonHash: string;
 }
 
 const HashComparisonResult: React.FC<HashComparisonResultProps> = ({ 
   result, 
-  onDownloadReport,
-  showAuditTrail
+  showAuditTrail,
+  file,
+  computedHash,
+  comparisonHash
 }) => {
   const navigate = useNavigate();
+  
+  const handleDownloadReport = async () => {
+    if (!file) {
+      toast.error('No file available for report generation');
+      return;
+    }
+
+    const toastId = toast.loading('Generating verification report...', { duration: 15000 });
+    
+    try {
+      // Prepare report data
+      const reportData = {
+        fileName: file.name,
+        fileSize: formatFileSize(file.size),
+        fileType: file.type || 'Unknown',
+        uploadedAt: new Date().toLocaleString(),
+        computedHash,
+        comparisonHash,
+        verificationResult: result,
+        verifiedBy: 'Document Analysis Platform User'
+      };
+      
+      // Generate the report
+      const reportBlob = await generateVerificationReport(reportData);
+      
+      // Create download link
+      const url = window.URL.createObjectURL(reportBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = getVerificationReportFileName(file.name);
+      
+      // Trigger download
+      document.body.appendChild(link);
+      link.click();
+      
+      // Clean up
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        toast.dismiss(toastId);
+        toast.success('Verification report downloaded successfully');
+      }, 100);
+      
+    } catch (error) {
+      console.error('Error generating verification report:', error);
+      toast.dismiss(toastId);
+      toast.error('Failed to generate verification report');
+    }
+  };
   
   return (
     <Card className={`border-l-4 ${
@@ -57,7 +113,7 @@ const HashComparisonResult: React.FC<HashComparisonResultProps> = ({
             variant="outline" 
             size="sm"
             className="flex items-center"
-            onClick={onDownloadReport}
+            onClick={handleDownloadReport}
           >
             <Download className="h-4 w-4 mr-2" />
             Download Verification Report

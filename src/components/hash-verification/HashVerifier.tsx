@@ -25,9 +25,14 @@ const HashVerifier = () => {
     handleVerification
   } = useHashVerification();
 
-  const handleDownloadReport = () => {
-    // In a real implementation, this would generate and download a PDF report
-    toast.info('Generating verification report...');
+  // Get the comparison hash based on the selected method
+  const getComparisonHash = () => {
+    if (compareMethod === 'paste') {
+      return pastedHash;
+    } else {
+      const selectedDoc = recentDocuments.find(doc => doc.id === selectedDocumentId);
+      return selectedDoc?.hash || '';
+    }
   };
 
   return (
@@ -57,8 +62,11 @@ const HashVerifier = () => {
           {verificationResult && verificationResult !== 'pending' && (
             <HashComparisonResult 
               result={verificationResult} 
-              onDownloadReport={handleDownloadReport}
+              onDownloadReport={() => {}} // This is now handled internally in the component
               showAuditTrail={verificationResult === 'match'}
+              file={file}
+              computedHash={computedHash}
+              comparisonHash={getComparisonHash()}
             />
           )}
           
