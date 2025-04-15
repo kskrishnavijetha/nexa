@@ -24,7 +24,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
     
     // Check if the user can export to PDF
     if (!canExportPdf) {
-      toast.error('PDF export is not available in your current plan. Please upgrade to access this feature.');
+      toast.error('PDF export is only available in Starter, Pro, and Enterprise plans. Please upgrade to access this feature.');
       return;
     }
     
@@ -88,7 +88,7 @@ export function useAuditReport(documentName: string, auditEvents: AuditEvent[], 
     
     // Check if user can export to PDF
     if (!canExportPdf) {
-      toast.error('PDF export is not available in your current plan. Please upgrade to access this feature.');
+      toast.error('PDF export is only available in Starter, Pro, and Enterprise plans. Please upgrade to access this feature.');
       return;
     }
     

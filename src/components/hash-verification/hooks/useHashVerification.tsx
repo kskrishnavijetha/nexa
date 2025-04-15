@@ -4,6 +4,8 @@ import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { AuditEvent } from '@/components/audit/types';
 import { generateAuditHash } from '@/utils/audit/hashVerification';
+import { getSubscription } from '@/utils/paymentService';
+import { isFeatureAvailable } from '@/utils/pricingData';
 
 export type VerificationMethod = 'paste' | 'select';
 export type Document = { id: string; name: string; hash: string; timestamp: string };
@@ -20,6 +22,10 @@ export const useHashVerification = () => {
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
   const [verificationResult, setVerificationResult] = useState<VerificationResult>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  
+  // Check if user's plan allows hash verification
+  const subscription = getSubscription(user?.id);
+  const canUseHashVerification = subscription && isFeatureAvailable('hashVerification', subscription.plan);
 
   // Fetch recent documents
   useEffect(() => {
@@ -49,6 +55,12 @@ export const useHashVerification = () => {
   };
 
   const handleFileSelection = async (selectedFile: File) => {
+    // Check if user can use hash verification
+    if (!canUseHashVerification) {
+      toast.error('Hash verification is only available in Pro and Enterprise plans. Please upgrade to access this feature.');
+      return;
+    }
+    
     setFile(selectedFile);
     setVerificationResult(null);
     
@@ -78,6 +90,12 @@ export const useHashVerification = () => {
   };
 
   const handleVerification = async () => {
+    // Check if user can use hash verification
+    if (!canUseHashVerification) {
+      toast.error('Hash verification is only available in Pro and Enterprise plans. Please upgrade to access this feature.');
+      return;
+    }
+    
     if (!computedHash) {
       toast.error('Please upload a file first');
       return;
@@ -160,6 +178,7 @@ export const useHashVerification = () => {
     isLoading,
     setCompareMethod,
     handleFileSelection,
-    handleVerification
+    handleVerification,
+    canUseHashVerification
   };
 };

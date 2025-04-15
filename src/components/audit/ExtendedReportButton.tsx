@@ -73,7 +73,7 @@ const ExtendedReportButton: React.FC<ExtendedReportButtonProps> = ({
     
     // Check if user can use extended reports
     if (!canUseExtendedReports) {
-      toast.error('Extended audit reports are not available in your current plan. Please upgrade to Pro or Enterprise.');
+      toast.error('Extended audit reports are only available in Pro and Enterprise plans. Please upgrade to access this feature.');
       return;
     }
     

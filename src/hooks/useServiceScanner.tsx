@@ -45,8 +45,8 @@ export function useServiceScanner() {
     // Check if the user has a subscription and has scans remaining before continuing
     const subscription = getSubscription(user?.id);
     if (subscription) {
-      const needsUpgrade = shouldUpgradeTier();
-      const hasScans = hasScansRemaining();
+      const needsUpgrade = shouldUpgradeTier(user?.id);
+      const hasScans = hasScansRemaining(user?.id);
       
       if (needsUpgrade || !hasScans) {
         toast.error('You have used all available scans for your current plan');

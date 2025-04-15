@@ -9,7 +9,6 @@ import {
   enterpriseFeatures,
   pricing
 } from '@/components/pricing/PricingData';
-import { getPrice } from '@/utils/pricingData';
 
 const FeatureSummary: React.FC = () => {
   // Always use monthly pricing for display

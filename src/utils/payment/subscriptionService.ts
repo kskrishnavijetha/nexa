@@ -171,7 +171,8 @@ export const shouldUpgradeTier = (userId?: string): boolean => {
   
   const needsUpgradeTier = (
     subscription.scansUsed >= subscription.scansLimit && 
-    subscription.plan !== 'enterprise'
+    subscription.plan !== 'enterprise' && 
+    subscription.plan !== 'pro'
   );
   
   if (needsUpgradeTier) {

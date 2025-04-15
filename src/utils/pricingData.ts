@@ -105,4 +105,3 @@ export const isFeatureAvailable = (feature: string, tier: string): boolean | str
   // Return the feature value (could be boolean or string)
   return featureValue;
 };
-
