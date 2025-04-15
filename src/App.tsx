@@ -13,6 +13,7 @@ import History from './pages/History';
 import AuditReports from './pages/AuditReports';
 import GoogleServices from './pages/GoogleServices';
 import SlackMonitoring from './pages/SlackMonitoring';
+import HashVerification from './pages/HashVerification';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toaster } from 'sonner';
@@ -36,6 +37,8 @@ export default function App() {
             <Route path="/audit-reports" element={<AuditReports />} />
             <Route path="/google-services" element={<GoogleServices />} />
             <Route path="/slack-monitoring" element={<SlackMonitoring />} />
+            <Route path="/hash-verification" element={<HashVerification />} />
+            <Route path="/verify" element={<HashVerification />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
           <Route path="*" element={<NotFound />} />

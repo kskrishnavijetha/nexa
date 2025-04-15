@@ -1,5 +1,4 @@
 
-
 import { AuditEvent } from '@/components/audit/types';
 
 /**
@@ -32,6 +31,26 @@ export const generateAuditHash = async (auditEvents: AuditEvent[]): Promise<stri
     return hashHex;
   } catch (error) {
     console.error('Error generating audit hash:', error);
+    return 'error-generating-hash';
+  }
+};
+
+/**
+ * Generate a hash from file content
+ * Uses SHA-256 algorithm via the Web Crypto API
+ */
+export const generateFileHash = async (fileData: ArrayBuffer): Promise<string> => {
+  try {
+    // Use Web Crypto API to generate a SHA-256 hash
+    const hashBuffer = await crypto.subtle.digest('SHA-256', fileData);
+    
+    // Convert the hash to a hex string
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    
+    return hashHex;
+  } catch (error) {
+    console.error('Error generating file hash:', error);
     return 'error-generating-hash';
   }
 };
@@ -78,3 +97,34 @@ export const generateVerificationMetadata = async (auditEvents: AuditEvent[]) =>
   };
 };
 
+/**
+ * Verify if two hashes match
+ */
+export const verifyHashesMatch = (hash1: string, hash2: string): boolean => {
+  if (!hash1 || !hash2) return false;
+  return hash1 === hash2;
+};
+
+/**
+ * Log a verification event to the console (and optionally to database)
+ */
+export const logVerificationEvent = async (
+  userId: string | undefined,
+  fileName: string,
+  isMatch: boolean,
+  timestamp: string = new Date().toISOString()
+) => {
+  const event = {
+    userId: userId || 'anonymous',
+    fileName,
+    result: isMatch ? 'verified' : 'failed',
+    timestamp
+  };
+  
+  console.log('Verification event:', event);
+  
+  // In a real implementation, this would save to Supabase
+  // await supabase.from('verification_logs').insert(event);
+  
+  return event;
+};
