@@ -42,6 +42,7 @@ export interface ComplianceReport {
   suggestions?: Suggestion[];
   pageCount?: number;
   originalFileName?: string;
+  itemsScanned?: number; // Added for Slack monitoring reports
   
   // Fields for simulation reports
   isSimulation?: boolean;

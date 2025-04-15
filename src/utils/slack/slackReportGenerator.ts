@@ -1,4 +1,3 @@
-
 import { jsPDF } from 'jspdf';
 import { SlackScanResults, SlackViolation } from './types';
 import { formatDistance } from 'date-fns';
@@ -420,20 +419,10 @@ export const addSlackScanToHistory = (results: SlackScanResults) => {
       violationsFound: results.violations.length,
       documentName,
       fileName: getSlackReportFileName(results),
+      documentId: results.scanId,
       industry: 'Technology',
       regulations: ['Data Privacy', 'Information Security'],
-      // Add other required fields
-      documentId: results.scanId,
       timestamp: formattedDate,
-      overallScore: Math.max(0, 100 - (results.violations.length * 5)), // Simple score calculation
-      risks: results.violations.map(v => ({
-        id: v.messageId,
-        title: v.rule,
-        description: v.text,
-        severity: v.severity,
-        category: 'Compliance'
-      })),
-      summary: `Slack compliance scan completed with ${results.violations.length} issues found.`,
     });
     
     console.log('Slack scan added to history:', documentName);

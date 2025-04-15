@@ -10,6 +10,7 @@ interface ScanHistoryItem {
   itemsScanned: number;
   violationsFound: number;
   documentName?: string;
+  documentId?: string;
   fileName?: string;
   report?: ComplianceReport;
   industry?: string;
@@ -95,7 +96,7 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
             } 
             else if (item.documentName) {
               const report: ComplianceReport = {
-                documentId: item.serviceId || `${userId}-${item.documentName}-${Date.now()}`,
+                documentId: item.documentId || item.serviceId || `${userId}-${item.documentName}-${Date.now()}`,
                 documentName: item.documentName,
                 scanDate: item.scanDate,
                 timestamp: new Date().toISOString(),
@@ -109,7 +110,8 @@ export const useServiceHistoryStore = create<ServiceHistoryState>()(
                 risks: [],
                 userId: userId,
                 complianceStatus: 'Compliant',
-                regulations: item.regulations || ['GDPR', 'HIPAA', 'SOC2']
+                regulations: item.regulations || ['GDPR', 'HIPAA', 'SOC2'],
+                itemsScanned: item.itemsScanned
               };
               
               addReportToHistory(report);
