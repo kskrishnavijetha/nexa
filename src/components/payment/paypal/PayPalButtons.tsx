@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { loadPayPalScript, createPayPalButtons } from '@/utils/payment/paypalService';
+import { loadPayPalScript, createPayPalButtons } from '@/utils/payment/paypal';
 
 interface PayPalButtonsProps {
   tier: string;
@@ -41,19 +41,19 @@ const PayPalButtons: React.FC<PayPalButtonsProps> = ({
           setIsPayPalReady(true);
           setLoading(false);
           
-          createPayPalButtons(
-            paypalContainerRef.current.id,
-            tier,
+          createPayPalButtons({
+            containerId: paypalContainerRef.current.id,
+            plan: tier,
             billingCycle,
-            (data) => {
+            onApprove: (data) => {
               console.log('PayPal subscription created:', data);
             },
-            (error) => {
+            onError: (error) => {
               console.error('PayPal error:', error);
               toast.error('There was an error processing your subscription. Please try again.');
               setLoading(false);
             }
-          );
+          });
         }
       } catch (error) {
         console.error('Failed to load PayPal script:', error);
