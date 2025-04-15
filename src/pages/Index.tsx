@@ -20,8 +20,12 @@ import LifetimeOfferBanner from '@/components/home/LifetimeOfferBanner';
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const needsUpgrade = user ? shouldUpgrade() : false;
-  const subscription = user ? getSubscription() : null;
+  const needsUpgrade = user ? shouldUpgrade(user.id) : false;
+  const subscription = user ? getSubscription(user.id) : null;
+  
+  // Calculate the actual remaining scans correctly
+  const scansRemaining = subscription ? 
+    Math.max(0, subscription.scansLimit - subscription.scansUsed) : 0;
   
   return (
     <Layout>
@@ -37,7 +41,7 @@ const Index = () => {
                   <p className="text-sm text-muted-foreground">
                     {subscription.scansLimit === 999 ? 
                       'Unlimited scans available' : 
-                      `${subscription.scansLimit - subscription.scansUsed} of ${subscription.scansLimit} scans remaining this month`
+                      `${scansRemaining} of ${subscription.scansLimit} scans remaining this month`
                     }
                   </p>
                 </div>
@@ -65,7 +69,7 @@ const Index = () => {
                       : `Your ${subscription?.plan} plan limit reached`}
                   </h3>
                   <p className="text-amber-700">
-                    {subscription?.scansUsed >= (subscription?.scansLimit || 0)
+                    {scansRemaining <= 0
                       ? `You've used all ${subscription?.scansLimit} scans in your ${subscription?.plan} plan.`
                       : 'Your subscription has expired.'}
                     {' '}Please upgrade to continue using Nexabloom.

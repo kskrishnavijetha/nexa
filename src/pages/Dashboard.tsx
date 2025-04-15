@@ -15,10 +15,14 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [hasData, setHasData] = useState<boolean>(false);
-  const subscription = user ? getSubscription() : null;
+  const subscription = user ? getSubscription(user.id) : null;
+  
+  // Calculate the actual remaining scans
+  const scansRemaining = subscription ? 
+    Math.max(0, subscription.scansLimit - subscription.scansUsed) : 0;
 
   useEffect(() => {
-    const needsUpgrade = shouldUpgrade();
+    const needsUpgrade = user ? shouldUpgrade(user.id) : false;
     if (needsUpgrade) {
       toast.info('Your free plan usage is complete. Please upgrade to continue.', {
         action: {
@@ -27,7 +31,7 @@ const Dashboard = () => {
         },
       });
     }
-  }, [navigate]);
+  }, [navigate, user]);
 
   useEffect(() => {
     const checkUserData = async () => {
@@ -63,7 +67,7 @@ const Dashboard = () => {
                 <p className="text-sm text-slate-600">
                   {subscription.scansLimit === 999 ? 
                     'Unlimited scans available' : 
-                    `${subscription.scansLimit - subscription.scansUsed} of ${subscription.scansLimit} scans remaining this month`
+                    `${scansRemaining} of ${subscription.scansLimit} scans remaining this month`
                   }
                 </p>
               </div>

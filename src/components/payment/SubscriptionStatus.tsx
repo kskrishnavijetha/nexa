@@ -20,7 +20,8 @@ const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscription, o
     return `${planName} ${subscription.billingCycle || 'Monthly'} Plan`;
   };
   
-  const scansRemaining = subscription.scansLimit - subscription.scansUsed;
+  // Calculate remaining scans correctly
+  const scansRemaining = Math.max(0, subscription.scansLimit - subscription.scansUsed);
   const isLimitReached = scansRemaining <= 0;
   
   return (
@@ -43,7 +44,7 @@ const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscription, o
           <div className="flex justify-between">
             <span className="text-muted-foreground">Scans:</span>
             <span className={isLimitReached ? 'text-amber-600' : ''}>
-              {subscription.scansUsed} / {subscription.scansLimit} used
+              {scansRemaining} / {subscription.scansLimit} remaining
             </span>
           </div>
           
