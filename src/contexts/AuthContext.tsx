@@ -18,16 +18,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const authState = useAuthState();
 
-  // Override the signOut method to clear user subscription data when signing out
+  // Override the signOut method to preserve user subscription data when signing out
   const enhancedAuthState = {
     ...authState,
     signOut: async () => {
-      // Clear user subscription data before signing out
-      if (authState.user?.id) {
-        // Note: We're not clearing the subscription on logout anymore
-        // This ensures the subscription persists across sessions
-        // clearUserSubscription(authState.user.id);
-      }
+      // We intentionally don't clear subscription data on logout
+      // This ensures the subscription persists across sessions
+      // if (authState.user?.id) {
+      //   clearUserSubscription(authState.user.id);
+      // }
       
       // Then proceed with normal sign out
       return authState.signOut();

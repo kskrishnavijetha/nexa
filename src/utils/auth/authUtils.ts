@@ -21,7 +21,7 @@ export const clearUserData = () => {
   const keys = Object.keys(localStorage);
   const userDataKeys = keys.filter(key => 
     key.startsWith('compliZen_') && 
-    !key.startsWith('subscription_') // Don't clear subscription data
+    !key.includes('subscription_') // Don't clear subscription data
   );
   
   userDataKeys.forEach(key => {

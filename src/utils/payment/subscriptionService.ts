@@ -1,4 +1,3 @@
-
 /**
  * Service for managing user subscriptions
  */
@@ -183,9 +182,9 @@ export const shouldUpgradeTier = (userId?: string): boolean => {
   return needsUpgradeTier;
 };
 
-// Clear user-specific subscription data when user logs out
+// DO NOT clear user-specific subscription data when user logs out
+// This is important to maintain subscription data across sessions
 export const clearUserSubscription = (userId: string): void => {
-  if (userId) {
-    localStorage.removeItem(`subscription_${userId}`);
-  }
+  // Do nothing - we want to keep subscription data across sessions
+  console.log('Subscription data preserved across sessions for user', userId);
 };

@@ -49,13 +49,17 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
   useEffect(() => {
     // Check if user needs to upgrade using their user ID
     const checkSubscriptionStatus = () => {
-      const upgradeNeeded = shouldUpgradeTier(user?.id);
-      const hasScans = hasScansRemaining(user?.id);
+      if (!user) return;
+      
+      const upgradeNeeded = shouldUpgradeTier(user.id);
+      const hasScans = hasScansRemaining(user.id);
       
       setNeedsUpgrade(upgradeNeeded || !hasScans);
       
       if (upgradeNeeded) {
         toast.error('You have reached the scan limit for your current plan');
+      } else if (!hasScans) {
+        toast.error('You have no scans remaining in your plan');
       }
     };
     
@@ -63,6 +67,12 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
   }, [user]);
 
   const handleStartScan = async () => {
+    if (!user) {
+      toast.error('Please sign in to continue');
+      navigate('/sign-in');
+      return;
+    }
+
     if (needsUpgrade) {
       toast.error('Please upgrade your plan to continue scanning');
       navigate('/pricing');
@@ -81,20 +91,21 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
     
     try {
       // Record scan usage when starting a scan with user ID
-      recordScanUsage(user?.id);
+      recordScanUsage(user.id);
       
       // Display remaining scans notification
-      const subscription = getSubscription(user?.id);
+      const subscription = getSubscription(user.id);
       if (subscription) {
-        const scansRemaining = subscription.scansLimit - subscription.scansUsed;
+        const scansRemaining = Math.max(0, subscription.scansLimit - subscription.scansUsed);
         toast.info(`Scan started. You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);
       }
       
       await onScan(connectedServices, industry, language, region);
       
       // Check again after scan completes if user now needs to upgrade
-      const nowNeedsUpgrade = shouldUpgradeTier(user?.id);
-      if (nowNeedsUpgrade) {
+      const nowNeedsUpgrade = shouldUpgradeTier(user.id);
+      const hasScans = hasScansRemaining(user.id);
+      if (nowNeedsUpgrade || !hasScans) {
         toast.warning('You have used all your available scans. Please upgrade your plan to continue scanning.');
         setNeedsUpgrade(true);
       }

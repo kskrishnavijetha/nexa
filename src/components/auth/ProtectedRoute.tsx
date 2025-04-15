@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
@@ -45,8 +45,10 @@ const ProtectedRoute: React.FC = () => {
   // If user is authenticated but doesn't have an active subscription
   // or needs to upgrade and they're not already on the pricing page, redirect to pricing
   if ((!hasSubscription || needsUpgrade || !hasScans) && location.pathname !== '/pricing') {
-    if (needsUpgrade || !hasScans) {
-      toast.info('Your plan has expired or reached its scan limit. Please select a new plan to continue.');
+    if (needsUpgrade) {
+      toast.info('Your plan has reached its scan limit. Please select a new plan to continue.');
+    } else if (!hasScans) {
+      toast.info('You have no remaining scans. Please select a plan to continue.');
     } else {
       toast.info('Please select a subscription plan to continue');
     }
