@@ -134,12 +134,10 @@ export function useServiceScanner() {
         const scansRemaining = Math.max(0, updatedSubscription.scansLimit - updatedSubscription.scansUsed);
         toast.info(`You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);
         
-        // Check if this used the last scan
+        // Remove the automatic redirect after last scan
+        // Only notify that they've used all scans
         if (scansRemaining === 0) {
-          toast.warning('You have used all your available scans. Please upgrade your plan to continue scanning.');
-          setTimeout(() => {
-            navigate('/pricing');
-          }, 3000);
+          toast.warning('You have used all your available scans. Please upgrade your plan for more scans.');
         }
       }
     } catch (error) {

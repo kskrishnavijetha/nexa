@@ -36,26 +36,37 @@ const ProtectedRoute: React.FC = () => {
     );
   }
 
-  // Check for both missing and expired/completed plans with user ID
-  // But only if they're not already on the pricing page
-  const hasSubscription = hasActiveSubscription(user.id);
-  const needsUpgrade = shouldUpgrade(user.id);
-  const hasScans = hasScansRemaining(user.id);
+  // For pages that explicitly require active subscriptions or remaining scans
+  // These paths will prompt subscription check and redirection if needed
+  const strictSubscriptionPaths = [
+    '/document-analysis/new', // Only redirect when trying to start a new scan
+    '/google-services/new-scan', // Only redirect when trying to start a new scan
+    '/slack-monitoring/new-scan', // Only redirect when trying to start a new scan
+  ];
   
-  // If user is authenticated but doesn't have an active subscription
-  // or needs to upgrade and they're not already on the pricing page, redirect to pricing
-  if ((!hasSubscription || needsUpgrade || !hasScans) && location.pathname !== '/pricing') {
-    if (needsUpgrade) {
-      toast.info('Your plan has reached its scan limit. Please select a new plan to continue.');
-    } else if (!hasScans) {
-      toast.info('You have no remaining scans. Please select a plan to continue.');
-    } else {
-      toast.info('Please select a subscription plan to continue');
+  // Check if the current path is one that strictly requires subscription
+  const isStrictPath = strictSubscriptionPaths.some(path => location.pathname.includes(path));
+  
+  // Only check subscription status for strict subscription paths
+  if (isStrictPath) {
+    const hasSubscription = hasActiveSubscription(user.id);
+    const needsUpgrade = shouldUpgrade(user.id);
+    const hasScans = hasScansRemaining(user.id);
+    
+    // If on a strict path and doesn't have required subscription, redirect to pricing
+    if ((!hasSubscription || needsUpgrade || !hasScans) && location.pathname !== '/pricing') {
+      if (needsUpgrade) {
+        toast.info('Your plan has reached its scan limit. Please select a new plan to continue.');
+      } else if (!hasScans) {
+        toast.info('You have no remaining scans. Please select a plan to continue.');
+      } else {
+        toast.info('Please select a subscription plan to continue');
+      }
+      return <Navigate to="/pricing" replace />;
     }
-    return <Navigate to="/pricing" replace />;
   }
 
-  // User is authenticated and has a valid subscription, render the protected layout and outlet
+  // User is authenticated, render the protected layout and outlet
   return (
     <Layout>
       <Outlet />

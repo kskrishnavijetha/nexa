@@ -42,12 +42,9 @@ const DocumentAnalysis = () => {
       const scansRemaining = Math.max(0, subscription.scansLimit - subscription.scansUsed);
       toast.info(`Scan complete. You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);
       
-      // Check if this scan used up the last available scan
+      // Only show warning without redirecting after the last scan
       if (scansRemaining === 0) {
-        toast.warning('You have used all your available scans. Please upgrade your plan to continue scanning.');
-        setTimeout(() => {
-          navigate('/pricing');
-        }, 3000);
+        toast.warning('You have used all your available scans. Please upgrade your plan for more scans.');
       }
     }
     

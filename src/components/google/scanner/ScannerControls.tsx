@@ -105,8 +105,9 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
       // Check again after scan completes if user now needs to upgrade
       const nowNeedsUpgrade = shouldUpgradeTier(user.id);
       const hasScans = hasScansRemaining(user.id);
+      
       if (nowNeedsUpgrade || !hasScans) {
-        toast.warning('You have used all your available scans. Please upgrade your plan to continue scanning.');
+        toast.warning('You have used all your available scans. Please upgrade your plan for more scans.');
         setNeedsUpgrade(true);
       }
     } catch (error) {
