@@ -53,7 +53,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     console.log("Handling subscription success:", paymentId, "for tier:", selectedTier);
     
     try {
-      // Save the subscription
+      // Save the subscription - we're importing saveSubscription directly at the top now
       const subscription = await saveSubscription(selectedTier, paymentId, 'monthly');
       console.log("Subscription saved:", subscription);
       

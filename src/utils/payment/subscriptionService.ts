@@ -47,7 +47,7 @@ export const saveSubscription = async (
     console.log('Subscription details:', { plan, scans_limit: selectedTier.scans, expiration: expirationDate.toISOString() });
 
     // Update the user's profile in Supabase
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('profiles')
       .update({
         subscription_plan: plan,
