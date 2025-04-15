@@ -1,8 +1,7 @@
-
 /**
  * Service for PayPal payment processing
  */
-import { saveSubscription } from './subscriptionService';
+import { saveSubscription } from './subscription/subscriptionManager';
 import type { PaymentResult } from './paymentProcessor';
 
 // PayPal client ID - Replace with your actual PayPal client ID
@@ -237,3 +236,7 @@ export const processLifetimePaymentCompletion = async (): Promise<{success: bool
   }
 };
 
+export {
+  loadPayPalScript,
+  createPayPalButtons
+};
