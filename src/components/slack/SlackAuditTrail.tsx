@@ -1,50 +1,91 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { SlackScanResults } from '@/utils/slack/types';
-import { Download, FileText } from 'lucide-react';
+import { Download, FileText, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatTimestamp } from '@/components/audit/auditUtils';
+import { 
+  generateSlackReportPDF, 
+  generateSlackAuditTrailPDF, 
+  getSlackReportFileName, 
+  getSlackAuditFileName,
+  addSlackScanToHistory
+} from '@/utils/slack/slackReportGenerator';
 
 interface SlackAuditTrailProps {
   scanResults: SlackScanResults | null;
 }
 
 const SlackAuditTrail: React.FC<SlackAuditTrailProps> = ({ scanResults }) => {
-  const handleDownloadAudit = () => {
-    if (!scanResults) return;
+  const [isDownloadingReport, setIsDownloadingReport] = useState(false);
+  const [isDownloadingAudit, setIsDownloadingAudit] = useState(false);
+
+  const handleDownloadReport = async () => {
+    if (!scanResults || isDownloadingReport) return;
     
-    // Generate a simple CSV report of violations
-    const headers = ['Message ID', 'Text', 'Severity', 'Rule', 'Channel', 'User', 'Timestamp'];
-    const rows = scanResults.violations.map(v => [
-      v.messageId,
-      `"${v.text.replace(/"/g, '""')}"`, // Escape quotes for CSV
-      v.severity,
-      v.rule,
-      v.channel,
-      v.user,
-      v.timestamp
-    ]);
+    setIsDownloadingReport(true);
+    const toastId = toast.loading('Generating PDF report...', { duration: 30000 });
     
-    const csvContent = [
-      headers.join(','),
-      ...rows.map(row => row.join(','))
-    ].join('\n');
+    try {
+      // Generate the PDF
+      const pdfBlob = await generateSlackReportPDF(scanResults);
+      
+      // Create and download the file
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = getSlackReportFileName(scanResults);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      // Add to history (this ensures the report shows up in history)
+      addSlackScanToHistory(scanResults);
+      
+      toast.dismiss(toastId);
+      toast.success('Slack report downloaded successfully');
+    } catch (error) {
+      console.error('Error downloading report:', error);
+      toast.dismiss(toastId);
+      toast.error('Failed to generate report. Please try again.');
+    } finally {
+      setIsDownloadingReport(false);
+    }
+  };
+
+  const handleDownloadAudit = async () => {
+    if (!scanResults || isDownloadingAudit) return;
     
-    // Create and download the file
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `slack-audit-${new Date().toISOString().split('T')[0]}.csv`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    setIsDownloadingAudit(true);
+    const toastId = toast.loading('Generating audit trail...', { duration: 30000 });
     
-    toast.success('Audit report downloaded successfully');
+    try {
+      // Generate the PDF
+      const pdfBlob = await generateSlackAuditTrailPDF(scanResults);
+      
+      // Create and download the file
+      const url = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = getSlackAuditFileName(scanResults);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      toast.dismiss(toastId);
+      toast.success('Audit trail downloaded successfully');
+    } catch (error) {
+      console.error('Error downloading audit trail:', error);
+      toast.dismiss(toastId);
+      toast.error('Failed to generate audit trail. Please try again.');
+    } finally {
+      setIsDownloadingAudit(false);
+    }
   };
 
   if (!scanResults) {
@@ -70,17 +111,27 @@ const SlackAuditTrail: React.FC<SlackAuditTrailProps> = ({ scanResults }) => {
             size="sm" 
             className="gap-1"
             onClick={handleDownloadAudit}
+            disabled={isDownloadingAudit}
           >
-            <FileText size={14} />
-            <span>Download Logs</span>
+            {isDownloadingAudit ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <FileText size={14} />
+            )}
+            <span>Download Audit PDF</span>
           </Button>
           <Button 
             variant="default" 
             size="sm" 
             className="gap-1"
-            onClick={handleDownloadAudit}
+            onClick={handleDownloadReport}
+            disabled={isDownloadingReport}
           >
-            <Download size={14} />
+            {isDownloadingReport ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <Download size={14} />
+            )}
             <span>Download Report</span>
           </Button>
         </div>

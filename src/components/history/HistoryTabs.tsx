@@ -108,7 +108,25 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({
             
             {selectedReport ? (
               <div className="grid grid-cols-1 gap-6">
-                <ComplianceDetails report={selectedReport} />
+                {/* Display specific report type based on document type */}
+                {isSlackScan ? (
+                  <div className="p-4 border rounded-lg bg-white shadow-sm">
+                    <h3 className="text-lg font-medium mb-3">Slack Monitoring Report</h3>
+                    <p className="text-muted-foreground mb-2">Document: {selectedReport.documentName}</p>
+                    <p className="text-muted-foreground mb-2">Scan Date: {new Date(selectedReport.timestamp).toLocaleString()}</p>
+                    <p className="mb-2">Items Scanned: {selectedReport.itemsScanned || '?'}</p>
+                    <p className="mb-2">Issues Found: {selectedReport.risks.length}</p>
+                    <p className="mb-4">{selectedReport.summary}</p>
+                    
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
+                      <p className="text-sm text-amber-800">
+                        View the Audit Logs tab to access the full Slack monitoring report and download options.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <ComplianceDetails report={selectedReport} />
+                )}
               </div>
             ) : (
               <div className="p-4 border rounded-md bg-slate-50 text-center">
@@ -145,8 +163,8 @@ const HistoryTabs: React.FC<HistoryTabsProps> = ({
                     user: selectedReport.organization || 'User',
                     timestamp: selectedReport.timestamp
                   })),
-                  scannedMessages: 100,
-                  scannedFiles: 10,
+                  scannedMessages: selectedReport.itemsScanned || 0,
+                  scannedFiles: 0,
                   status: 'completed'
                 }} />
               ) : (

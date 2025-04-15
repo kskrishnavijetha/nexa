@@ -9,6 +9,7 @@ import SlackScanControls from './monitoring/SlackScanControls';
 import SlackMonitorDisplay from './monitoring/SlackMonitorDisplay';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
 import { useAuth } from '@/contexts/AuthContext';
+import { addSlackScanToHistory } from '@/utils/slack/slackReportGenerator';
 
 const SlackMonitor: React.FC = () => {
   const [scanOptions, setScanOptions] = useState<SlackScanOptionsType>({
@@ -36,18 +37,8 @@ const SlackMonitor: React.FC = () => {
   const addToHistory = (results: SlackScanResults) => {
     if (!results) return;
     
-    addScanHistory({
-      serviceId: results.scanId,
-      serviceName: 'Slack Compliance Scan',
-      scanDate: new Date().toISOString(),
-      itemsScanned: results.scannedMessages,
-      violationsFound: results.violations.length,
-      documentName: `Slack Scan ${new Date().toLocaleString()}`,
-      fileName: `slack-scan-${Date.now()}.json`,
-      industry: 'Technology',
-      organization: user?.email?.split('@')[1] || 'Unknown',
-      regulations: ['Data Privacy', 'Information Security']
-    });
+    // Use the utility function to add to history
+    addSlackScanToHistory(results);
   };
   
   return (
