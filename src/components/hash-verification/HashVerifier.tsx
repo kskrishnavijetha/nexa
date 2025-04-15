@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { generateAuditHash } from '@/utils/audit/hashVerification';
 import { toast } from 'sonner';
 import { CheckCircle2, ShieldAlert, Info, FileText } from 'lucide-react';
+import { AuditEvent } from '@/components/audit/types';
 
 type VerificationMethod = 'paste' | 'select';
 type Document = { id: string; name: string; hash: string; timestamp: string };
@@ -67,14 +68,15 @@ const HashVerifier = () => {
       const bytes = new Uint8Array(arrayBuffer);
       
       // Use the existing generateAuditHash function but adapt it for file data
-      // Note: In a real implementation you would read the file contents properly
-      // and process it for hashing
-      const mockAuditEvents = [{ 
+      // Create a properly structured mock AuditEvent with all required properties
+      const mockAuditEvents: AuditEvent[] = [{ 
         id: '1',
         timestamp: new Date().toISOString(),
         action: 'FILE_VERIFICATION',
         user: user?.email || 'anonymous',
-        documentName: selectedFile.name
+        documentName: selectedFile.name,
+        status: 'completed', // Add the required status property
+        comments: [], // Add the required comments property
       }];
       
       const hash = await generateAuditHash(mockAuditEvents);

@@ -2,7 +2,7 @@
 import React, { useState, useRef, DragEvent } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Upload, File, FilePdf, FileJson, FileText } from 'lucide-react';
+import { Upload, File, FileText } from 'lucide-react';
 import { formatFileSize } from '@/utils/fileUtils';
 
 // Maximum file size: 20MB
@@ -72,9 +72,9 @@ const HashFileUploader: React.FC<HashFileUploaderProps> = ({ onFileSelect, file 
     
     switch(file.type) {
       case 'application/pdf':
-        return <FilePdf className="w-12 h-12 text-red-500" />;
+        return <FileText className="w-12 h-12 text-red-500" />;
       case 'application/json':
-        return <FileJson className="w-12 h-12 text-yellow-500" />;
+        return <File className="w-12 h-12 text-yellow-500" />;
       case 'text/plain':
         return <FileText className="w-12 h-12 text-blue-500" />;
       default:
