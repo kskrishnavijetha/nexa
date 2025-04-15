@@ -3,9 +3,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { shouldUpgrade } from '@/utils/paymentService';
+import { shouldUpgrade, saveSubscription } from '@/utils/paymentService';
 import { loadPayPalScript, createPayPalButtons } from '@/utils/payment/paypalService';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface PaymentButtonsProps {
   onSuccess?: (paymentId: string) => void;
@@ -31,6 +32,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   const [paypalError, setPaypalError] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
 
   // Check for pending subscriptions on component mount
   useEffect(() => {
@@ -110,7 +112,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   }, [tier, billingCycle, setLoading, onSuccess, retryCount]);
 
   // For free tier, use a regular button
-  const needsUpgrade = tier !== 'free' || shouldUpgrade();
+  const needsUpgrade = tier !== 'free' || (user && shouldUpgrade(user.id));
   const buttonText = tier === 'free' 
     ? (needsUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan')
     : `Subscribe to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`;
@@ -167,6 +169,10 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
           
           // Generate a simple subscription ID
           const subscriptionId = tier + '_' + Math.random().toString(36).substring(2, 15);
+          
+          // Save subscription with user ID
+          saveSubscription(tier, subscriptionId, 'monthly', user?.id);
+          
           toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
           onSuccess(subscriptionId);
         } catch (error) {

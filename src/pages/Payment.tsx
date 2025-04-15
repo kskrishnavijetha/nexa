@@ -16,11 +16,18 @@ const Payment = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const [subscription, setSubscription] = useState(getSubscription());
+  const [subscription, setSubscription] = useState(user ? getSubscription(user.id) : null);
   const [isRenewal, setIsRenewal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
   
+  useEffect(() => {
+    // Update subscription when user changes
+    if (user) {
+      setSubscription(getSubscription(user.id));
+    }
+  }, [user]);
+
   useEffect(() => {
     // Check if returning from PayPal subscription
     const token = searchParams.get('token');
@@ -49,7 +56,7 @@ const Payment = () => {
     }
     
     // Check if user has an active subscription and redirected from another page
-    if (hasActiveSubscription() && location.state?.fromProtectedRoute) {
+    if (user && hasActiveSubscription(user.id) && location.state?.fromProtectedRoute) {
       navigate('/dashboard');
     }
     
@@ -59,11 +66,13 @@ const Payment = () => {
     }
     
     // Check if user has a subscription but it's expired (renewal case)
-    const currentSubscription = getSubscription();
-    if (currentSubscription && !currentSubscription.active) {
-      setIsRenewal(true);
+    if (user) {
+      const currentSubscription = getSubscription(user.id);
+      if (currentSubscription && !currentSubscription.active) {
+        setIsRenewal(true);
+      }
+      setSubscription(currentSubscription);
     }
-    setSubscription(currentSubscription);
   }, [location.state, navigate, searchParams, user]);
 
   const handlePaymentSuccess = (paymentId: string) => {
@@ -71,7 +80,9 @@ const Payment = () => {
     setProcessingPayment(true);
     
     // Update subscription state
-    setSubscription(getSubscription());
+    if (user) {
+      setSubscription(getSubscription(user.id));
+    }
     
     toast.success('Subscription activated successfully!');
     
@@ -122,7 +133,7 @@ const Payment = () => {
       <div className="container mx-auto py-12">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-3xl font-bold text-center mb-10">
-            {isRenewal ? 'Renew Your Subscription' : (hasActiveSubscription() ? 'Manage Your Subscription' : 'Choose Your Subscription Plan')}
+            {isRenewal ? 'Renew Your Subscription' : (hasActiveSubscription(user.id) ? 'Manage Your Subscription' : 'Choose Your Subscription Plan')}
           </h1>
           
           {subscription && (
@@ -132,7 +143,7 @@ const Payment = () => {
             />
           )}
           
-          {(isRenewal || !hasActiveSubscription()) && (
+          {(isRenewal || !hasActiveSubscription(user.id)) && (
             <div className="flex flex-col md:flex-row gap-8">
               <div className="flex-1">
                 <PaymentForm 

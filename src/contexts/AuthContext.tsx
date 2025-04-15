@@ -9,7 +9,7 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
-  signOut: () => Promise<{ error: any | null }>; // Updated to match the implementation
+  signOut: () => Promise<{ error: any | null }>; 
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -26,4 +26,10 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+};
+
+// Helper function to get the current user ID safely
+export const useUserId = () => {
+  const { user } = useAuth();
+  return user?.id;
 };

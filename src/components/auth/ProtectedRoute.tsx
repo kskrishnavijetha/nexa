@@ -36,10 +36,10 @@ const ProtectedRoute: React.FC = () => {
     );
   }
 
-  // Check for both missing and expired/completed plans
+  // Check for both missing and expired/completed plans with user ID
   // But only if they're not already on the pricing page
-  const hasSubscription = hasActiveSubscription();
-  const needsUpgrade = shouldUpgrade();
+  const hasSubscription = hasActiveSubscription(user.id);
+  const needsUpgrade = shouldUpgrade(user.id);
   
   // If user is authenticated but doesn't have an active subscription
   // or needs to upgrade and they're not already on the pricing page, redirect to pricing

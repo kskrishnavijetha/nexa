@@ -30,9 +30,9 @@ const PricingPlans = () => {
     if (user && !loading) {
       setCheckingSubscription(false);
       
-      // Check if user needs to upgrade
-      const currentSubscription = getSubscription();
-      const upgradeNeeded = shouldUpgrade();
+      // Check if user needs to upgrade using their user ID
+      const currentSubscription = getSubscription(user.id);
+      const upgradeNeeded = shouldUpgrade(user.id);
       
       setSubscription(currentSubscription);
       setNeedsUpgrade(upgradeNeeded);
@@ -60,7 +60,7 @@ const PricingPlans = () => {
   const getButtonText = () => {
     if (!user) return 'Sign Up & Subscribe';
     
-    if (hasActiveSubscription()) {
+    if (hasActiveSubscription(user.id)) {
       return needsUpgrade ? 'Upgrade Plan' : 'Change Plan';
     }
     
@@ -89,7 +89,7 @@ const PricingPlans = () => {
         
         <BillingToggle />
         
-        {user && !hasActiveSubscription() && (
+        {user && !hasActiveSubscription(user.id) && (
           <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
             <p className="text-amber-700">
               Please select a subscription plan to access all features

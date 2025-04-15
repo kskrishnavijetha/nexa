@@ -111,12 +111,16 @@ export const createSubscription = async (
       billingCycle = 'annually';
     }
     
+    // Get current user ID for association with subscription
+    const { data: { user } } = await supabase.auth.getUser();
+    const userId = user?.id;
+    
     // Free tier doesn't need subscription processing
     if (planName === 'free') {
       const paymentId = 'free_sub_' + Math.random().toString(36).substring(2, 15);
       
-      // Save the free subscription
-      saveSubscription('free', paymentId);
+      // Save the free subscription with user ID
+      saveSubscription('free', paymentId, 'monthly', userId);
       
       return {
         success: true,
@@ -131,11 +135,8 @@ export const createSubscription = async (
     if (Math.random() > 0.1) {
       const paymentId = 'sub_' + Math.random().toString(36).substring(2, 15);
       
-      // Save the subscription with billing cycle
-      saveSubscription(planName, paymentId, billingCycle);
-      
-      // Get current user email for confirmation
-      const { data: { user } } = await supabase.auth.getUser();
+      // Save the subscription with billing cycle and user ID
+      saveSubscription(planName, paymentId, billingCycle, userId);
       
       if (user?.email) {
         // Send payment confirmation email

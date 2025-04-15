@@ -9,6 +9,7 @@ import { SupportedLanguage } from '@/utils/language';
 import { Region } from '@/utils/types';
 import { shouldUpgradeTier, recordScanUsage, getSubscription, hasActiveSubscription } from '@/utils/paymentService';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface ScannerControlsProps {
   connectedServices: GoogleService[];
@@ -43,24 +44,17 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
 }) => {
   const navigate = useNavigate();
   const [needsUpgrade, setNeedsUpgrade] = useState(false);
+  const { user } = useAuth();
   
   useEffect(() => {
-    // Check if user needs to upgrade
-    const subscription = getSubscription();
+    // Check if user needs to upgrade using their user ID
+    const upgradeNeeded = shouldUpgradeTier(user?.id);
+    setNeedsUpgrade(upgradeNeeded);
     
-    // Only check for upgrade if user actually has a subscription
-    // New users without a subscription should be able to scan
-    if (subscription) {
-      const upgradeNeeded = shouldUpgradeTier();
-      setNeedsUpgrade(upgradeNeeded);
-      
-      if (upgradeNeeded) {
-        toast.error('You have reached the scan limit for your current plan');
-      }
-    } else {
-      setNeedsUpgrade(false);
+    if (upgradeNeeded) {
+      toast.error('You have reached the scan limit for your current plan');
     }
-  }, []);
+  }, [user]);
 
   const handleStartScan = async () => {
     if (needsUpgrade) {
@@ -80,11 +74,11 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
     }
     
     try {
-      // Record scan usage when starting a scan
-      recordScanUsage();
+      // Record scan usage when starting a scan with user ID
+      recordScanUsage(user?.id);
       
       // Display remaining scans notification
-      const subscription = getSubscription();
+      const subscription = getSubscription(user?.id);
       if (subscription) {
         const scansRemaining = subscription.scansLimit - subscription.scansUsed;
         toast.info(`Scan started. You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);

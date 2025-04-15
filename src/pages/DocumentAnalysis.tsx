@@ -20,21 +20,22 @@ const DocumentAnalysis = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check if user needs to upgrade before allowing more scans
-    // But only if they actually have a subscription
-    const subscription = getSubscription();
-    if (subscription && shouldUpgradeTier()) {
-      toast.error('You have used all available scans for your current plan');
-      navigate('/pricing');
+    // Check if user needs to upgrade before allowing more scans using their user ID
+    if (user) {
+      const subscription = getSubscription(user.id);
+      if (subscription && shouldUpgradeTier(user.id)) {
+        toast.error('You have used all available scans for your current plan');
+        navigate('/pricing');
+      }
     }
-  }, [navigate]);
+  }, [navigate, user]);
 
   const handleReportGenerated = (reportData: ComplianceReport) => {
-    // Record scan usage when a report is generated
-    recordScanUsage();
+    // Record scan usage when a report is generated with user ID
+    recordScanUsage(user?.id);
     
     // Display remaining scans notification
-    const subscription = getSubscription();
+    const subscription = getSubscription(user?.id);
     if (subscription) {
       const scansRemaining = subscription.scansLimit - subscription.scansUsed;
       toast.info(`Scan complete. You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);

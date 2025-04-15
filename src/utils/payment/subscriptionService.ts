@@ -10,10 +10,11 @@ export interface SubscriptionInfo {
   scansLimit: number;
   expirationDate: Date;
   billingCycle?: 'monthly' | 'annually';
+  userId?: string; // Add userId to track which user the subscription belongs to
 }
 
-// Store the user's current subscription in localStorage
-export const saveSubscription = (plan: string, paymentId: string, billingCycle: 'monthly' | 'annually' = 'monthly') => {
+// Store the user's current subscription in localStorage with userId
+export const saveSubscription = (plan: string, paymentId: string, billingCycle: 'monthly' | 'annually' = 'monthly', userId?: string) => {
   const pricingTiers = {
     free: { scans: 5, days: 30 },
     basic: { scans: 15, days: 30 },
@@ -31,15 +32,36 @@ export const saveSubscription = (plan: string, paymentId: string, billingCycle: 
     scansUsed: 0,
     scansLimit: selectedTier.scans,
     expirationDate: expirationDate,
-    billingCycle: billingCycle
+    billingCycle: billingCycle,
+    userId: userId // Store the user ID with the subscription
   };
   
-  localStorage.setItem('subscription', JSON.stringify(subscription));
+  // Store subscription with user ID in the key if available
+  const storageKey = userId ? `subscription_${userId}` : 'subscription';
+  localStorage.setItem(storageKey, JSON.stringify(subscription));
+  
   return subscription;
 };
 
-// Get the current subscription from localStorage
-export const getSubscription = (): SubscriptionInfo | null => {
+// Get the current subscription from localStorage for the current user
+export const getSubscription = (userId?: string): SubscriptionInfo | null => {
+  // Try to get user-specific subscription first if userId provided
+  if (userId) {
+    const userSubscription = localStorage.getItem(`subscription_${userId}`);
+    if (userSubscription) {
+      const parsedSubscription = JSON.parse(userSubscription);
+      parsedSubscription.expirationDate = new Date(parsedSubscription.expirationDate);
+      
+      // Check if subscription is expired
+      if (parsedSubscription.expirationDate < new Date()) {
+        parsedSubscription.active = false;
+      }
+      
+      return parsedSubscription;
+    }
+  }
+  
+  // Fall back to the generic subscription if no user-specific one found
   const subscription = localStorage.getItem('subscription');
   if (!subscription) {
     return null;
@@ -53,25 +75,32 @@ export const getSubscription = (): SubscriptionInfo | null => {
     parsedSubscription.active = false;
   }
   
+  // If we have a userId but no user-specific subscription,
+  // migrate this subscription to be user-specific
+  if (userId && !parsedSubscription.userId) {
+    parsedSubscription.userId = userId;
+    localStorage.setItem(`subscription_${userId}`, JSON.stringify(parsedSubscription));
+  }
+  
   return parsedSubscription;
 };
 
 // Check if user has an active subscription
-export const hasActiveSubscription = (): boolean => {
-  const subscription = getSubscription();
+export const hasActiveSubscription = (userId?: string): boolean => {
+  const subscription = getSubscription(userId);
   return !!subscription && subscription.active;
 };
 
 // Check if user has scans remaining
-export const hasScansRemaining = (): boolean => {
-  const subscription = getSubscription();
+export const hasScansRemaining = (userId?: string): boolean => {
+  const subscription = getSubscription(userId);
   return !!subscription && subscription.active && 
     subscription.scansUsed < subscription.scansLimit;
 };
 
 // Record a scan usage
-export const recordScanUsage = (): void => {
-  const subscription = getSubscription();
+export const recordScanUsage = (userId?: string): void => {
+  const subscription = getSubscription(userId);
   if (subscription && subscription.active) {
     subscription.scansUsed += 1;
     
@@ -83,13 +112,18 @@ export const recordScanUsage = (): void => {
       }
     }
     
-    localStorage.setItem('subscription', JSON.stringify(subscription));
+    // Store with user ID if available
+    const storageKey = userId || subscription.userId 
+      ? `subscription_${userId || subscription.userId}` 
+      : 'subscription';
+    
+    localStorage.setItem(storageKey, JSON.stringify(subscription));
   }
 };
 
 // Check if user needs to upgrade (free plan with no scans left or expired)
-export const shouldUpgrade = (): boolean => {
-  const subscription = getSubscription();
+export const shouldUpgrade = (userId?: string): boolean => {
+  const subscription = getSubscription(userId);
   
   if (!subscription) {
     return false; // No subscription yet, they'll be directed to pricing anyway
@@ -103,9 +137,8 @@ export const shouldUpgrade = (): boolean => {
 };
 
 // Check if user needs to upgrade specifically to a higher tier than they currently have
-// Note: This function is fixed to properly handle new users and free tier users
-export const shouldUpgradeTier = (): boolean => {
-  const subscription = getSubscription();
+export const shouldUpgradeTier = (userId?: string): boolean => {
+  const subscription = getSubscription(userId);
   
   if (!subscription) {
     // If no subscription exists, user doesn't need to upgrade yet - they need to select a plan first
@@ -123,3 +156,11 @@ export const shouldUpgradeTier = (): boolean => {
     subscription.plan !== 'enterprise'
   );
 };
+
+// Clear user-specific subscription data when user logs out
+export const clearUserSubscription = (userId: string): void => {
+  if (userId) {
+    localStorage.removeItem(`subscription_${userId}`);
+  }
+};
+

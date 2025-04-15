@@ -1,4 +1,3 @@
-
 /**
  * Authentication utility functions
  */
@@ -10,8 +9,8 @@ export const clearUserData = () => {
   // Clear auth tokens
   localStorage.removeItem('sb-sbsnnlhjhlifoqrvoixb-auth-token');
   
-  // Clear subscription data
-  localStorage.removeItem('subscription');
+  // Don't clear subscription data as we want to keep it across sessions
+  // Just clear other user-specific non-subscription data
   
   // Clear redirect paths
   sessionStorage.removeItem('redirectAfterLogin');
@@ -24,3 +23,4 @@ export const clearUserData = () => {
     localStorage.removeItem(key);
   });
 };
+

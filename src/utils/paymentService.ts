@@ -11,7 +11,8 @@ export {
   hasScansRemaining,
   recordScanUsage,
   shouldUpgrade,
-  shouldUpgradeTier
+  shouldUpgradeTier,
+  clearUserSubscription
 } from './payment/subscriptionService';
 
 // Export type separately to avoid TypeScript isolatedModules error
