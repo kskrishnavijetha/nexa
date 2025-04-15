@@ -1,61 +1,16 @@
 
 /**
- * Service for payment processing
+ * Service for handling subscription payments
  */
-import { saveSubscription } from '../payment/subscription';
+
+import { PaymentResult } from './types';
+import { saveSubscription } from '../subscription';
 import { supabase } from '@/integrations/supabase/client';
-
-export interface PaymentResult {
-  success: boolean;
-  paymentId?: string;
-  error?: string;
-}
-
-/**
- * Process a one-time payment
- */
-export const processOneTimePayment = async (
-  paymentMethodId: string,
-  amount: number
-): Promise<PaymentResult> => {
-  // This is a mock implementation. In a real app, you would call your backend.
-  try {
-    // Free tier doesn't need payment processing
-    if (amount === 0) {
-      return {
-        success: true,
-        paymentId: 'free_' + Math.random().toString(36).substring(2, 15)
-      };
-    }
-    
-    // Simulate API latency
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    // Simulate successful payment ~90% of the time
-    if (Math.random() > 0.1) {
-      return {
-        success: true,
-        paymentId: 'pi_' + Math.random().toString(36).substring(2, 15)
-      };
-    } else {
-      return {
-        success: false,
-        error: 'Payment declined. Please try a different payment method.'
-      };
-    }
-  } catch (error) {
-    console.error('Payment processing error:', error);
-    return {
-      success: false,
-      error: 'An unexpected error occurred while processing your payment.'
-    };
-  }
-};
 
 /**
  * Send payment confirmation email
  */
-const sendPaymentConfirmationEmail = async (email: string, plan: string, billingCycle: 'monthly' | 'annually') => {
+export const sendPaymentConfirmationEmail = async (email: string, plan: string, billingCycle: 'monthly' | 'annually') => {
   try {
     const amount = calculatePlanAmount(plan, billingCycle);
     
@@ -82,7 +37,7 @@ const sendPaymentConfirmationEmail = async (email: string, plan: string, billing
 /**
  * Helper to calculate plan amount in cents
  */
-const calculatePlanAmount = (plan: string, billingCycle: 'monthly' | 'annually'): number => {
+export const calculatePlanAmount = (plan: string, billingCycle: 'monthly' | 'annually'): number => {
   const pricing = {
     free: 0,
     basic: billingCycle === 'monthly' ? 3500 : 37800,
@@ -159,15 +114,4 @@ export const createSubscription = async (
       error: 'An unexpected error occurred while creating your subscription.'
     };
   }
-};
-
-/**
- * Fetch customer payment methods (for returning customers)
- */
-export const fetchPaymentMethods = async (): Promise<any[]> => {
-  // Mock implementation - would fetch from your backend in a real app
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  
-  // Return empty array for new customers or mock data for testing
-  return [];
 };

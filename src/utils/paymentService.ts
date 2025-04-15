@@ -23,12 +23,12 @@ export {
   createPayPalButtons
 } from './payment/paypal';
 
-// Export from paymentProcessor
+// Export from payment processor
 export {
   processOneTimePayment,
   createSubscription,
   fetchPaymentMethods
-} from './payment/paymentProcessor';
+} from './payment/processor';
 
 // Export type separately to avoid TypeScript isolatedModules error
-export type { PaymentResult } from './payment/paymentProcessor';
+export type { PaymentResult } from './payment/processor/types';
