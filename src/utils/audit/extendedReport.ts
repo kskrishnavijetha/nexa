@@ -8,7 +8,6 @@ import { addComplianceMatrixPage } from './pdf/extendedReport/addComplianceMatri
 import { addAuditTimelinePage } from './pdf/extendedReport/addAuditTimelinePage';
 import { addRemediationPage } from './pdf/extendedReport/addRemediationPage';
 import { addIntegrityPage } from './pdf/extendedReport/addIntegrityPage';
-import { addSignaturePage } from './pdf/extendedReport/addSignaturePage';
 import { addAppendixPage } from './pdf/extendedReport/addAppendixPage';
 import { addChartsPage } from './pdf/extendedReport/addChartsPage';
 import { generateVerificationMetadata } from './hashVerification';
@@ -95,13 +94,6 @@ export const generateExtendedAuditReport = async (
         addIntegrityPage(pdf, {
           documentName,
           verificationMetadata
-        });
-        
-        // Add electronic signature page (new)
-        pdf.addPage();
-        addSignaturePage(pdf, {
-          documentName,
-          companyDetails
         });
         
         // Add appendix if needed

@@ -7,7 +7,6 @@ import { createFindingsTable } from './tables/createFindingsTable';
 import { generateComplianceFindings } from './findings/generateComplianceFindings';
 import { calculateComplianceScore } from './findings/calculateComplianceScore';
 import { addStatisticsSection } from './sections/addStatisticsSection';
-import { addSignaturePage } from './extendedReport/addSignaturePage';
 
 export {
   addInsightsSection,
@@ -17,6 +16,5 @@ export {
   createFindingsTable,
   generateComplianceFindings,
   calculateComplianceScore,
-  addStatisticsSection,
-  addSignaturePage
+  addStatisticsSection
 };
