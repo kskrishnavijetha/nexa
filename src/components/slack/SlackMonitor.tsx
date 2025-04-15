@@ -29,18 +29,6 @@ const SlackMonitor: React.FC = () => {
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [activeTab, setActiveTab] = useState<string>('violations');
   
-  // Get access to history store
-  const addScanHistory = useServiceHistoryStore(state => state.addScanHistory);
-  const { user } = useAuth();
-
-  // Add completed scan to history
-  const addToHistory = (results: SlackScanResults) => {
-    if (!results) return;
-    
-    // Use the utility function to add to history
-    addSlackScanToHistory(results);
-  };
-  
   return (
     <div className="space-y-6">
       <SlackMonitorHeader />
@@ -62,7 +50,7 @@ const SlackMonitor: React.FC = () => {
         setScanResults={(results) => {
           setScanResults(results);
           if (results && results.status === 'completed') {
-            addToHistory(results);
+            addSlackScanToHistory(results);
           }
         }}
         setHasScanned={setHasScanned}

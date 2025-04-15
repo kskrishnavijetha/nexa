@@ -1,8 +1,12 @@
 
 import React from 'react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui/card';
 import { SlackScanResults, SlackViolation } from '@/utils/slack/types';
-import SlackViolationsList from '../SlackViolationsList';
+import SlackViolationsTable from '../SlackViolationsTable';
+import SlackRealTimeMonitor from '../SlackRealTimeMonitor';
 import SlackAuditTrail from '../SlackAuditTrail';
+import SlackScanSummary from '../SlackScanSummary';
 
 interface SlackMonitorDisplayProps {
   isRealTimeMonitoring: boolean;
@@ -11,8 +15,8 @@ interface SlackMonitorDisplayProps {
   isScanning: boolean;
   hasScanned: boolean;
   scanResults: SlackScanResults | null;
-  activeTab?: string;
-  onTabChange?: (tab: string) => void;
+  activeTab: string;
+  onTabChange: (value: string) => void;
 }
 
 const SlackMonitorDisplay: React.FC<SlackMonitorDisplayProps> = ({
@@ -22,41 +26,72 @@ const SlackMonitorDisplay: React.FC<SlackMonitorDisplayProps> = ({
   isScanning,
   hasScanned,
   scanResults,
-  activeTab = 'violations',
+  activeTab,
   onTabChange
 }) => {
-  const tabs = [
-    { id: 'violations', label: 'Violations' },
-    { id: 'audit', label: 'Audit Trail' }
-  ];
+  if (isRealTimeMonitoring) {
+    return (
+      <SlackRealTimeMonitor 
+        violations={realTimeViolations} 
+        lastUpdated={lastUpdated} 
+      />
+    );
+  }
+
+  if (!hasScanned && !isScanning) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <p className="text-center text-gray-500 py-8">
+            Run a scan to view results or start real-time monitoring.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isScanning) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <p className="text-center text-gray-500 py-8">
+            Scanning Slack messages...
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <div className="mt-6">
-      <div className="flex border-b mb-4">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            className={`px-4 py-2 ${activeTab === tab.id 
-              ? 'border-b-2 border-primary text-primary font-medium' 
-              : 'text-muted-foreground'}`}
-            onClick={() => onTabChange && onTabChange(tab.id)}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {activeTab === 'violations' && (
-        <SlackViolationsList 
-          violations={isRealTimeMonitoring ? realTimeViolations : scanResults?.violations || []}
-          isLoading={isScanning}
-        />
-      )}
-
-      {activeTab === 'audit' && (
-        <SlackAuditTrail scanResults={scanResults} />
-      )}
-    </div>
+    <Card>
+      <CardContent className="pt-6">
+        <Tabs value={activeTab} onValueChange={onTabChange}>
+          <TabsList className="mb-4 grid grid-cols-3 w-full max-w-md">
+            <TabsTrigger value="violations">Violations</TabsTrigger>
+            <TabsTrigger value="summary">Summary</TabsTrigger>
+            <TabsTrigger value="audit">Audit Trail</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="violations">
+            {scanResults && (
+              <SlackViolationsTable violations={scanResults.violations} />
+            )}
+          </TabsContent>
+          
+          <TabsContent value="summary">
+            {scanResults && (
+              <SlackScanSummary results={scanResults} />
+            )}
+          </TabsContent>
+          
+          <TabsContent value="audit">
+            {scanResults && (
+              <SlackAuditTrail scanResults={scanResults} />
+            )}
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   );
 };
 

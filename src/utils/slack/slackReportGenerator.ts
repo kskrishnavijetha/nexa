@@ -1,3 +1,4 @@
+
 import { jsPDF } from 'jspdf';
 import { SlackScanResults, SlackViolation } from './types';
 import { formatDistance } from 'date-fns';
@@ -422,7 +423,7 @@ export const addSlackScanToHistory = (results: SlackScanResults) => {
       documentId: results.scanId,
       industry: 'Technology',
       regulations: ['Data Privacy', 'Information Security'],
-      timestamp: formattedDate,
+      timestamp: formattedDate, // This is now a valid field in the ScanHistoryItem interface
     });
     
     console.log('Slack scan added to history:', documentName);

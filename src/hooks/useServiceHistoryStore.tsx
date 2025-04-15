@@ -16,6 +16,7 @@ interface ScanHistoryItem {
   industry?: string;
   organization?: string;
   regulations?: string[];
+  timestamp?: string;
 }
 
 interface ServiceHistoryState {
