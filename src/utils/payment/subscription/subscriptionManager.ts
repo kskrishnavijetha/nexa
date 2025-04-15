@@ -179,12 +179,18 @@ export const shouldUpgradeTier = async (): Promise<boolean> => {
   const subscription = await getSubscription();
   
   if (!subscription) {
-    return false;
+    return false; // No subscription yet, so user should be able to select free plan
   }
   
-  // Check if scans limit reached and not on enterprise plan
+  // For free plan users, check if they have an active subscription and have used all their scans
+  if (subscription.plan === 'free') {
+    return subscription.active === false && subscription.scansUsed >= subscription.scansLimit;
+  }
+  
+  // For paid plans, check if scans limit reached and not on enterprise plan
   return (
     subscription.scansUsed >= subscription.scansLimit && 
     subscription.plan !== 'enterprise'
   );
 };
+

@@ -48,11 +48,14 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
     // Check if user needs to upgrade
     async function checkUpgrade() {
       try {
-        const upgradeNeeded = await shouldUpgradeTier();
-        setNeedsUpgrade(upgradeNeeded);
+        const subscription = await getSubscription();
         
-        if (upgradeNeeded) {
+        // Only mark as needing upgrade if user has an active subscription that's reached its limit
+        if (subscription && subscription.active && subscription.scansUsed >= subscription.scansLimit) {
+          setNeedsUpgrade(true);
           toast.error('You have reached the scan limit for your current plan');
+        } else {
+          setNeedsUpgrade(false);
         }
       } catch (error) {
         console.error('Error checking upgrade status:', error);
