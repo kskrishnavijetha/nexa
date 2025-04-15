@@ -7,7 +7,7 @@ import { GoogleService } from '../types';
 import { Industry } from '@/utils/types';
 import { SupportedLanguage } from '@/utils/language';
 import { Region } from '@/utils/types';
-import { shouldUpgradeTier, recordScanUsage, getSubscription, hasActiveSubscription } from '@/utils/paymentService';
+import { shouldUpgradeTier, recordScanUsage, getSubscription, hasScansRemaining } from '@/utils/paymentService';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -48,12 +48,18 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
   
   useEffect(() => {
     // Check if user needs to upgrade using their user ID
-    const upgradeNeeded = shouldUpgradeTier(user?.id);
-    setNeedsUpgrade(upgradeNeeded);
+    const checkSubscriptionStatus = () => {
+      const upgradeNeeded = shouldUpgradeTier(user?.id);
+      const hasScans = hasScansRemaining(user?.id);
+      
+      setNeedsUpgrade(upgradeNeeded || !hasScans);
+      
+      if (upgradeNeeded) {
+        toast.error('You have reached the scan limit for your current plan');
+      }
+    };
     
-    if (upgradeNeeded) {
-      toast.error('You have reached the scan limit for your current plan');
-    }
+    checkSubscriptionStatus();
   }, [user]);
 
   const handleStartScan = async () => {
@@ -85,6 +91,13 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
       }
       
       await onScan(connectedServices, industry, language, region);
+      
+      // Check again after scan completes if user now needs to upgrade
+      const nowNeedsUpgrade = shouldUpgradeTier(user?.id);
+      if (nowNeedsUpgrade) {
+        toast.warning('You have used all your available scans. Please upgrade your plan to continue scanning.');
+        setNeedsUpgrade(true);
+      }
     } catch (error) {
       console.error('Error starting scan:', error);
       toast.error('Failed to complete scan');

@@ -98,17 +98,22 @@ export const hasScansRemaining = (userId?: string): boolean => {
     subscription.scansUsed < subscription.scansLimit;
 };
 
-// Record a scan usage
+// Record a scan usage - MODIFIED to properly increment usage count
 export const recordScanUsage = (userId?: string): void => {
   const subscription = getSubscription(userId);
   if (subscription && subscription.active) {
+    // Increment usage count
     subscription.scansUsed += 1;
+    console.log(`Recording scan: now used ${subscription.scansUsed} of ${subscription.scansLimit} scans`);
     
     // Check if scans limit reached
     if (subscription.scansUsed >= subscription.scansLimit) {
-      // Mark as inactive if it's a free plan and limit reached
+      // Mark as inactive if scans are exhausted
       if (subscription.plan === 'free') {
         subscription.active = false;
+        console.log('Free plan scans exhausted, marking as inactive');
+      } else {
+        console.log('Paid plan scans exhausted, keeping active but should show upgrade message');
       }
     }
     
@@ -118,6 +123,8 @@ export const recordScanUsage = (userId?: string): void => {
       : 'subscription';
     
     localStorage.setItem(storageKey, JSON.stringify(subscription));
+  } else {
+    console.log('No active subscription found to record scan usage');
   }
 };
 
@@ -130,10 +137,16 @@ export const shouldUpgrade = (userId?: string): boolean => {
   }
   
   // If subscription has expired or no scans left
-  return (
-    !subscription.active || 
-    subscription.scansUsed >= subscription.scansLimit
-  );
+  const needsUpgrade = (!subscription.active || 
+    subscription.scansUsed >= subscription.scansLimit);
+  
+  if (needsUpgrade) {
+    console.log('User needs to upgrade: active=', subscription.active, 
+      'scans used=', subscription.scansUsed, 
+      'scans limit=', subscription.scansLimit);
+  }
+  
+  return needsUpgrade;
 };
 
 // Check if user needs to upgrade specifically to a higher tier than they currently have
@@ -148,13 +161,26 @@ export const shouldUpgradeTier = (userId?: string): boolean => {
   // Check if scans limit reached and not on enterprise plan
   // For free plan, only return true if active is false (meaning they've used all scans)
   if (subscription.plan === 'free') {
-    return !subscription.active;
+    const needsUpgrade = subscription.scansUsed >= subscription.scansLimit;
+    if (needsUpgrade) {
+      console.log('Free user needs to upgrade: scans used=', subscription.scansUsed, 
+        'scans limit=', subscription.scansLimit);
+    }
+    return needsUpgrade;
   }
   
-  return (
+  const needsUpgradeTier = (
     subscription.scansUsed >= subscription.scansLimit && 
     subscription.plan !== 'enterprise'
   );
+  
+  if (needsUpgradeTier) {
+    console.log('Paid user needs to upgrade tier: plan=', subscription.plan,
+      'scans used=', subscription.scansUsed, 
+      'scans limit=', subscription.scansLimit);
+  }
+  
+  return needsUpgradeTier;
 };
 
 // Clear user-specific subscription data when user logs out
@@ -163,4 +189,3 @@ export const clearUserSubscription = (userId: string): void => {
     localStorage.removeItem(`subscription_${userId}`);
   }
 };
-

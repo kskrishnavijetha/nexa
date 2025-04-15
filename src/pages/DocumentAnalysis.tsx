@@ -9,7 +9,7 @@ import AnalysisResults from '@/components/document-analysis/AnalysisResults';
 import { addReportToHistory } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
-import { shouldUpgradeTier, recordScanUsage, getSubscription } from '@/utils/paymentService';
+import { shouldUpgradeTier, recordScanUsage, getSubscription, hasScansRemaining } from '@/utils/paymentService';
 
 const DocumentAnalysis = () => {
   const [report, setReport] = useState<ComplianceReport | null>(null);
@@ -22,8 +22,10 @@ const DocumentAnalysis = () => {
   useEffect(() => {
     // Check if user needs to upgrade before allowing more scans using their user ID
     if (user) {
-      const subscription = getSubscription(user.id);
-      if (subscription && shouldUpgradeTier(user.id)) {
+      const needsUpgrade = shouldUpgradeTier(user.id);
+      const hasScans = hasScansRemaining(user.id);
+      
+      if (needsUpgrade || !hasScans) {
         toast.error('You have used all available scans for your current plan');
         navigate('/pricing');
       }
@@ -37,8 +39,16 @@ const DocumentAnalysis = () => {
     // Display remaining scans notification
     const subscription = getSubscription(user?.id);
     if (subscription) {
-      const scansRemaining = subscription.scansLimit - subscription.scansUsed;
+      const scansRemaining = Math.max(0, subscription.scansLimit - subscription.scansUsed);
       toast.info(`Scan complete. You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);
+      
+      // Check if this scan used up the last available scan
+      if (scansRemaining === 0) {
+        toast.warning('You have used all your available scans. Please upgrade your plan to continue scanning.');
+        setTimeout(() => {
+          navigate('/pricing');
+        }, 3000);
+      }
     }
     
     // Add user ID to the report if available

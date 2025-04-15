@@ -8,11 +8,13 @@ import { toast } from 'sonner';
 import { useScanState } from './google/useScanState';
 import { useRealTimeSimulation } from './google/useRealTimeSimulation';
 import { useFallbackResults } from './google/useFallbackResults';
-import { recordScanUsage, getSubscription, shouldUpgradeTier } from '@/utils/paymentService';
+import { recordScanUsage, getSubscription, shouldUpgradeTier, hasScansRemaining } from '@/utils/paymentService';
+import { useNavigate } from 'react-router-dom';
 
 export function useServiceScanner() {
   const scanState = useScanState();
   const { generateIndustrySpecificFallbackResults } = useFallbackResults();
+  const navigate = useNavigate();
   
   // Setup real-time simulation
   useRealTimeSimulation(
@@ -37,17 +39,23 @@ export function useServiceScanner() {
       return;
     }
     
-    // Check if the user has a subscription and has reached scan limit before continuing
+    // Check if the user has a subscription and has scans remaining before continuing
     const subscription = getSubscription();
-    if (subscription && shouldUpgradeTier()) {
-      toast.error('You have used all available scans for your current plan');
-      return;
+    if (subscription) {
+      const needsUpgrade = shouldUpgradeTier();
+      const hasScans = hasScansRemaining();
+      
+      if (needsUpgrade || !hasScans) {
+        toast.error('You have used all available scans for your current plan');
+        navigate('/pricing');
+        return;
+      }
     }
     
     console.log('Starting scan with:', { connectedServices, industry, language, region });
     
-    // Record scan usage - the actual counting is done in recordScanUsage
-    // No need to call this here as it's already called in ScannerControls
+    // Note: Record scan usage is actually called in ScannerControls.tsx 
+    // before this function, so no need to call it again here
     
     // Store the selected industry for later reference
     scanState.setSelectedIndustry(industry);
@@ -123,8 +131,16 @@ export function useServiceScanner() {
       // Show remaining scans after completion
       const updatedSubscription = getSubscription();
       if (updatedSubscription) {
-        const scansRemaining = updatedSubscription.scansLimit - updatedSubscription.scansUsed;
+        const scansRemaining = Math.max(0, updatedSubscription.scansLimit - updatedSubscription.scansUsed);
         toast.info(`You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);
+        
+        // Check if this used the last scan
+        if (scansRemaining === 0) {
+          toast.warning('You have used all your available scans. Please upgrade your plan to continue scanning.');
+          setTimeout(() => {
+            navigate('/pricing');
+          }, 3000);
+        }
       }
     } catch (error) {
       console.error('Error scanning:', error);

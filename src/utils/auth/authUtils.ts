@@ -1,3 +1,4 @@
+
 /**
  * Authentication utility functions
  */
@@ -18,9 +19,12 @@ export const clearUserData = () => {
   
   // Clear any other user-specific data with the compliZen_ prefix
   const keys = Object.keys(localStorage);
-  const userDataKeys = keys.filter(key => key.startsWith('compliZen_'));
+  const userDataKeys = keys.filter(key => 
+    key.startsWith('compliZen_') && 
+    !key.startsWith('subscription_') // Don't clear subscription data
+  );
+  
   userDataKeys.forEach(key => {
     localStorage.removeItem(key);
   });
 };
-
