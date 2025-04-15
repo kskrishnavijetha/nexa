@@ -1,3 +1,4 @@
+
 /**
  * Service for PayPal payment processing
  */
@@ -236,7 +237,4 @@ export const processLifetimePaymentCompletion = async (): Promise<{success: bool
   }
 };
 
-export {
-  loadPayPalScript,
-  createPayPalButtons
-};
+// No duplicate exports at the end of the file
