@@ -113,7 +113,8 @@ export const generateVerificationReport = async (
         pdf.text('This report provides cryptographic evidence of document integrity.', 20, yPos);
         
         // Add page number at the bottom
-        const pageCount = pdf.internal.getNumberOfPages();
+        // Fix: Use internal.pages.length instead of getNumberOfPages()
+        const pageCount = pdf.internal.pages.length - 1;
         for (let i = 1; i <= pageCount; i++) {
           pdf.setPage(i);
           pdf.setFontSize(10);
