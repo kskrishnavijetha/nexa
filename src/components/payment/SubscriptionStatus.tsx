@@ -1,60 +1,17 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Award, Calendar, CheckCircle, Loader2 } from 'lucide-react';
+import { Award, Calendar, CheckCircle } from 'lucide-react';
 import { formatDistance } from 'date-fns';
-import { SubscriptionInfo, getSubscription } from '@/utils/paymentService';
+import { SubscriptionInfo } from '@/utils/paymentService';
 
 interface SubscriptionStatusProps {
+  subscription: SubscriptionInfo;
   onRenew: () => void;
 }
 
-const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ onRenew }) => {
-  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
-  const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    async function fetchSubscription() {
-      try {
-        const sub = await getSubscription();
-        setSubscription(sub);
-      } catch (error) {
-        console.error('Error fetching subscription:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    
-    fetchSubscription();
-  }, []);
-  
-  if (loading) {
-    return (
-      <Card className="mb-8">
-        <CardContent className="py-6 flex justify-center items-center">
-          <Loader2 className="h-6 w-6 animate-spin mr-2" />
-          <span>Loading subscription info...</span>
-        </CardContent>
-      </Card>
-    );
-  }
-  
-  if (!subscription) {
-    return (
-      <Card className="mb-8 border-amber-200 bg-amber-50">
-        <CardContent className="py-6">
-          <p className="text-center text-amber-600">No subscription information available</p>
-        </CardContent>
-        <CardFooter className="pt-0">
-          <Button onClick={onRenew} variant="outline" className="w-full">
-            Select a Plan
-          </Button>
-        </CardFooter>
-      </Card>
-    );
-  }
-  
+const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscription, onRenew }) => {
   const isActive = subscription.active;
   const formattedExpiry = formatDistance(new Date(subscription.expirationDate), new Date(), { addSuffix: true });
   

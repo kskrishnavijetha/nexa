@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { hasActiveSubscription, getSubscription, shouldUpgrade, SubscriptionInfo } from '@/utils/paymentService';
+import { hasActiveSubscription, getSubscription, shouldUpgrade } from '@/utils/paymentService';
 import BillingToggle from '@/components/pricing/BillingToggle';
 import PricingCard from '@/components/pricing/PricingCard';
 import { toast } from 'sonner';
@@ -18,41 +18,28 @@ import { Loader2 } from 'lucide-react';
 
 const PricingPlans = () => {
   const navigate = useNavigate();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading } = useAuth();
   // Always use monthly billing now
   const billingCycle = 'monthly';
   const [checkingSubscription, setCheckingSubscription] = useState(true);
   const [needsUpgrade, setNeedsUpgrade] = useState(false);
-  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
-  const [hasActiveSubscriptionState, setHasActiveSubscriptionState] = useState(false);
+  const [subscription, setSubscription] = useState<any>(null);
 
   useEffect(() => {
     // Check subscription status when component mounts
-    async function checkSubscriptions() {
-      if (user && !authLoading) {
-        try {
-          // Fetch subscription data in parallel
-          const [active, upgradeNeeded, currentSubscription] = await Promise.all([
-            hasActiveSubscription(),
-            shouldUpgrade(),
-            getSubscription()
-          ]);
-          
-          setHasActiveSubscriptionState(active);
-          setNeedsUpgrade(upgradeNeeded);
-          setSubscription(currentSubscription);
-        } catch (error) {
-          console.error('Error checking subscription:', error);
-        } finally {
-          setCheckingSubscription(false);
-        }
-      } else if (!authLoading && !user) {
-        setCheckingSubscription(false);
-      }
+    if (user && !loading) {
+      setCheckingSubscription(false);
+      
+      // Check if user needs to upgrade
+      const currentSubscription = getSubscription();
+      const upgradeNeeded = shouldUpgrade();
+      
+      setSubscription(currentSubscription);
+      setNeedsUpgrade(upgradeNeeded);
+    } else if (!loading && !user) {
+      setCheckingSubscription(false);
     }
-    
-    checkSubscriptions();
-  }, [user, authLoading]);
+  }, [user, loading]);
 
   const handleSelectPlan = (plan: string) => {
     if (!user) {
@@ -73,7 +60,7 @@ const PricingPlans = () => {
   const getButtonText = () => {
     if (!user) return 'Sign Up & Subscribe';
     
-    if (hasActiveSubscriptionState) {
+    if (hasActiveSubscription()) {
       return needsUpgrade ? 'Upgrade Plan' : 'Change Plan';
     }
     
@@ -83,7 +70,7 @@ const PricingPlans = () => {
   // Check if the free plan should be displayed
   const shouldShowFreePlan = !needsUpgrade || !subscription;
 
-  if (authLoading || checkingSubscription) {
+  if (loading || checkingSubscription) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -102,7 +89,7 @@ const PricingPlans = () => {
         
         <BillingToggle />
         
-        {user && !hasActiveSubscriptionState && (
+        {user && !hasActiveSubscription() && (
           <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
             <p className="text-amber-700">
               Please select a subscription plan to access all features

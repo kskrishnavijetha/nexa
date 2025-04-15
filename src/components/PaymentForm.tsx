@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { getSubscription } from '@/utils/paymentService';
 import CheckoutForm from './payment/CheckoutForm';
 import PaymentPageHeader from './payment/PaymentPageHeader';
@@ -10,27 +10,9 @@ interface PaymentFormProps {
 }
 
 const PaymentForm: React.FC<PaymentFormProps> = (props) => {
-  const [subscription, setSubscription] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [isRenewal, setIsRenewal] = useState<boolean>(false);
-  const [isNewSignup, setIsNewSignup] = useState<boolean>(false);
-  
-  useEffect(() => {
-    async function fetchSubscription() {
-      try {
-        const sub = await getSubscription();
-        setSubscription(sub);
-        setIsRenewal(!!sub && !sub.active);
-        setIsNewSignup(!sub);
-      } catch (error) {
-        console.error('Error fetching subscription:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    
-    fetchSubscription();
-  }, []);
+  const subscription = getSubscription();
+  const isRenewal = subscription && !subscription.active;
+  const isNewSignup = !subscription;
   
   return (
     <div className="max-w-md w-full mx-auto">

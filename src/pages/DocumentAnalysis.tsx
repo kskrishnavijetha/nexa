@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -9,12 +10,10 @@ import { addReportToHistory } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
 import { shouldUpgradeTier, recordScanUsage, getSubscription } from '@/utils/paymentService';
-import { Loader2 } from 'lucide-react';
 
 const DocumentAnalysis = () => {
   const [report, setReport] = useState<ComplianceReport | null>(null);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const [checkingSubscription, setCheckingSubscription] = useState(true);
   const { user } = useAuth();
   const { addScanHistory } = useServiceHistoryStore();
   const chartsContainerRef = useRef<HTMLDivElement | null>(null);
@@ -22,69 +21,52 @@ const DocumentAnalysis = () => {
 
   useEffect(() => {
     // Check if user needs to upgrade before allowing more scans
-    async function checkSubscriptionStatus() {
-      try {
-        setCheckingSubscription(true);
-        const needsUpgrade = await shouldUpgradeTier();
-        if (needsUpgrade) {
-          toast.error('You have used all available scans for your current plan');
-          navigate('/pricing');
-        }
-      } catch (error) {
-        console.error('Error checking subscription status:', error);
-      } finally {
-        setCheckingSubscription(false);
-      }
+    if (shouldUpgradeTier()) {
+      toast.error('You have used all available scans for your current plan');
+      navigate('/pricing');
     }
-    
-    checkSubscriptionStatus();
   }, [navigate]);
 
-  const handleReportGenerated = async (reportData: ComplianceReport) => {
-    try {
-      // Record scan usage when a report is generated
-      await recordScanUsage();
-      
-      // Display remaining scans notification
-      const subscription = await getSubscription();
-      if (subscription) {
-        const scansRemaining = subscription.scansLimit - subscription.scansUsed;
-        toast.info(`Scan complete. You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);
-      }
-      
-      // Add user ID to the report if available
-      const reportWithUser = user?.id 
-        ? { ...reportData, userId: user.id }
-        : reportData;
-      
-      setReport(reportWithUser);
-      
-      // Save the report to history for viewing in the history page
-      addReportToHistory(reportWithUser);
-      console.log('Report saved to history in DocumentAnalysis:', reportWithUser.documentName);
-      
-      // Also add to the scan history store - ensure all the same data is available in both places
-      if (user) {
-        addScanHistory({
-          serviceId: reportWithUser.documentId,
-          serviceName: 'Document Analysis',
-          scanDate: new Date().toISOString(),
-          itemsScanned: reportWithUser.pageCount || 1,
-          violationsFound: (reportWithUser.risks || []).length,
-          documentName: reportWithUser.documentName,
-          fileName: reportWithUser.originalFileName || reportWithUser.documentName,
-          report: reportWithUser,
-          industry: reportWithUser.industry,
-          organization: reportWithUser.organization,
-          regulations: reportWithUser.regulations
-        });
-      }
-      
-      toast.success('Report added to history');
-    } catch (error) {
-      console.error('Error processing report:', error);
-      toast.error('Error processing scan results');
+  const handleReportGenerated = (reportData: ComplianceReport) => {
+    // Record scan usage when a report is generated
+    recordScanUsage();
+    
+    // Display remaining scans notification
+    const subscription = getSubscription();
+    if (subscription) {
+      const scansRemaining = subscription.scansLimit - subscription.scansUsed;
+      toast.info(`Scan complete. You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);
     }
+    
+    // Add user ID to the report if available
+    const reportWithUser = user?.id 
+      ? { ...reportData, userId: user.id }
+      : reportData;
+    
+    setReport(reportWithUser);
+    
+    // Save the report to history for viewing in the history page
+    addReportToHistory(reportWithUser);
+    console.log('Report saved to history in DocumentAnalysis:', reportWithUser.documentName);
+    
+    // Also add to the scan history store - ensure all the same data is available in both places
+    if (user) {
+      addScanHistory({
+        serviceId: reportWithUser.documentId,
+        serviceName: 'Document Analysis',
+        scanDate: new Date().toISOString(),
+        itemsScanned: reportWithUser.pageCount || 1,
+        violationsFound: (reportWithUser.risks || []).length,
+        documentName: reportWithUser.documentName,
+        fileName: reportWithUser.originalFileName || reportWithUser.documentName,
+        report: reportWithUser,
+        industry: reportWithUser.industry,
+        organization: reportWithUser.organization,
+        regulations: reportWithUser.regulations
+      });
+    }
+    
+    toast.success('Report added to history');
   };
 
   const captureChartAsImage = async (): Promise<string | undefined> => {
@@ -155,20 +137,6 @@ const DocumentAnalysis = () => {
       setIsGeneratingPDF(false);
     }
   };
-
-  if (checkingSubscription) {
-    return (
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto py-8">
-          <DocumentHeader />
-          <div className="flex justify-center items-center p-12">
-            <Loader2 className="animate-spin h-8 w-8 mr-3" />
-            <p>Checking subscription status...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">

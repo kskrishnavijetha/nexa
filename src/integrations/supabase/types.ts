@@ -24,51 +24,6 @@ export type Database = {
         }
         Relationships: []
       }
-      profiles: {
-        Row: {
-          billing_cycle: string | null
-          created_at: string | null
-          email: string | null
-          full_name: string | null
-          id: string
-          scans_limit: number | null
-          scans_used: number | null
-          subscription_end_date: string | null
-          subscription_plan: string | null
-          subscription_start_date: string | null
-          subscription_status: boolean | null
-          updated_at: string | null
-        }
-        Insert: {
-          billing_cycle?: string | null
-          created_at?: string | null
-          email?: string | null
-          full_name?: string | null
-          id: string
-          scans_limit?: number | null
-          scans_used?: number | null
-          subscription_end_date?: string | null
-          subscription_plan?: string | null
-          subscription_start_date?: string | null
-          subscription_status?: boolean | null
-          updated_at?: string | null
-        }
-        Update: {
-          billing_cycle?: string | null
-          created_at?: string | null
-          email?: string | null
-          full_name?: string | null
-          id?: string
-          scans_limit?: number | null
-          scans_used?: number | null
-          subscription_end_date?: string | null
-          subscription_plan?: string | null
-          subscription_start_date?: string | null
-          subscription_status?: boolean | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
     }
     Views: {
       [_ in never]: never

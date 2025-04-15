@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Features from '@/components/Features';
 import Hero from '@/components/home/Hero';
@@ -12,7 +12,7 @@ import TrustedBySection from '@/components/home/TrustedBySection';
 import UserGuide from '@/components/home/UserGuide';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
-import { shouldUpgrade, getSubscription, SubscriptionInfo } from '@/utils/paymentService';
+import { shouldUpgrade, getSubscription } from '@/utils/paymentService';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import LifetimeOfferBanner from '@/components/home/LifetimeOfferBanner';
@@ -20,33 +20,8 @@ import LifetimeOfferBanner from '@/components/home/LifetimeOfferBanner';
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [needsUpgrade, setNeedsUpgrade] = useState(false);
-  const [subscription, setSubscription] = useState<SubscriptionInfo | null>(null);
-  const [loading, setLoading] = useState(true);
-  
-  useEffect(() => {
-    async function loadSubscriptionInfo() {
-      if (user) {
-        try {
-          const [upgradeNeeded, userSubscription] = await Promise.all([
-            shouldUpgrade(),
-            getSubscription()
-          ]);
-          
-          setNeedsUpgrade(upgradeNeeded);
-          setSubscription(userSubscription);
-        } catch (error) {
-          console.error("Error loading subscription info:", error);
-        } finally {
-          setLoading(false);
-        }
-      } else {
-        setLoading(false);
-      }
-    }
-    
-    loadSubscriptionInfo();
-  }, [user]);
+  const needsUpgrade = user ? shouldUpgrade() : false;
+  const subscription = user ? getSubscription() : null;
   
   return (
     <Layout>
@@ -79,19 +54,19 @@ const Index = () => {
           </div>
         )}
         
-        {needsUpgrade && subscription && (
+        {needsUpgrade && (
           <div className="bg-amber-50 border-b border-amber-200">
             <div className="container mx-auto px-4 py-3">
               <div className="flex flex-col md:flex-row items-center justify-between">
                 <div className="mb-3 md:mb-0">
                   <h3 className="text-lg font-semibold text-amber-800">
-                    {subscription.plan === 'free' 
+                    {subscription?.plan === 'free' 
                       ? 'Your free plan is complete' 
-                      : `Your ${subscription.plan} plan limit reached`}
+                      : `Your ${subscription?.plan} plan limit reached`}
                   </h3>
                   <p className="text-amber-700">
-                    {subscription.scansUsed >= (subscription.scansLimit || 0)
-                      ? `You've used all ${subscription.scansLimit} scans in your ${subscription.plan} plan.`
+                    {subscription?.scansUsed >= (subscription?.scansLimit || 0)
+                      ? `You've used all ${subscription?.scansLimit} scans in your ${subscription?.plan} plan.`
                       : 'Your subscription has expired.'}
                     {' '}Please upgrade to continue using Nexabloom.
                   </p>

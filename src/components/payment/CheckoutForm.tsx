@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { getSubscription, saveSubscription } from '@/utils/paymentService';
+import { getSubscription } from '@/utils/paymentService';
 import PaymentTierSelector from './PaymentTierSelector';
 import PaymentButtons from './PaymentButtons';
 import PaymentSummary from './PaymentSummary';
@@ -22,55 +22,36 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   // Always use monthly billing now
   const billingCycle = 'monthly';
   const [loading, setLoading] = useState(false);
-  const [currentSubscription, setCurrentSubscription] = useState<any>(null);
+  const currentSubscription = getSubscription();
   
-  // Fetch user's current subscription from Supabase
+  // If initialPlan is provided or user has an existing subscription, preselect that tier
   useEffect(() => {
-    async function fetchSubscription() {
-      try {
-        const sub = await getSubscription();
-        setCurrentSubscription(sub);
-        
-        // If initialPlan is provided or user has an existing subscription, preselect that tier
-        if (initialPlan) {
-          setSelectedTier(initialPlan);
-        } else if (sub?.plan) {
-          setSelectedTier(sub.plan);
-          // If free plan has expired, suggest the basic plan as the next step
-          if (sub.plan === 'free' && !sub.active) {
-            setSelectedTier('basic');
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching subscription:', error);
+    if (initialPlan) {
+      setSelectedTier(initialPlan);
+    } else if (currentSubscription?.plan) {
+      setSelectedTier(currentSubscription.plan);
+      // If free plan has expired, suggest the basic plan as the next step
+      if (currentSubscription.plan === 'free' && !currentSubscription.active) {
+        setSelectedTier('basic');
       }
     }
-    
-    fetchSubscription();
-  }, [initialPlan]);
+  }, [initialPlan, currentSubscription]);
 
-  const handleSuccess = async (paymentId: string) => {
+  const handleSuccess = (paymentId: string) => {
     console.log("Handling subscription success:", paymentId, "for tier:", selectedTier);
     
-    try {
-      // Save the subscription - we're importing saveSubscription directly at the top now
-      const subscription = await saveSubscription(selectedTier, paymentId, 'monthly');
+    // Create local subscription record
+    import('@/utils/payment/subscriptionService').then(({ saveSubscription }) => {
+      const subscription = saveSubscription(selectedTier, paymentId, 'monthly');
       console.log("Subscription saved:", subscription);
       
-      if (subscription) {
-        toast.success(`Your ${selectedTier} plan is now active!`);
-        
-        // Call the onSuccess callback
-        if (onSuccess) {
-          onSuccess(paymentId);
-        }
-      } else {
-        toast.error('Failed to activate subscription. Please try again.');
+      toast.success(`Your ${selectedTier} plan is now active!`);
+      
+      // Call the onSuccess callback
+      if (onSuccess) {
+        onSuccess(paymentId);
       }
-    } catch (error) {
-      console.error('Error saving subscription:', error);
-      toast.error('Failed to save subscription. Please try again.');
-    }
+    });
   };
 
   return (

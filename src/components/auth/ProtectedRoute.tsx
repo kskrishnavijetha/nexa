@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
@@ -10,37 +10,9 @@ import { toast } from 'sonner';
 const ProtectedRoute: React.FC = () => {
   const { user, loading } = useAuth();
   const location = useLocation();
-  const [subscriptionChecked, setSubscriptionChecked] = useState(false);
-  const [hasSubscription, setHasSubscription] = useState(true);
-  const [needsUpgrade, setNeedsUpgrade] = useState(false);
   
-  // Check subscription status when user is authenticated
-  useEffect(() => {
-    async function checkSubscription() {
-      if (user) {
-        try {
-          const active = await hasActiveSubscription();
-          const upgrade = await shouldUpgrade();
-          
-          setHasSubscription(active);
-          setNeedsUpgrade(upgrade);
-        } catch (error) {
-          console.error('Error checking subscription:', error);
-        } finally {
-          setSubscriptionChecked(true);
-        }
-      }
-    }
-    
-    if (user && !loading) {
-      checkSubscription();
-    } else if (!loading) {
-      setSubscriptionChecked(true);
-    }
-  }, [user, loading]);
-  
-  // Show loading state when authenticating or checking subscription
-  if (loading || (user && !subscriptionChecked)) {
+  // Show loading state when authenticating
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="animate-spin h-8 w-8 text-primary" />
@@ -55,6 +27,10 @@ const ProtectedRoute: React.FC = () => {
     return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
+  // Check for both missing and expired/completed plans
+  const hasSubscription = hasActiveSubscription();
+  const needsUpgrade = shouldUpgrade();
+  
   // If user is authenticated but doesn't have an active subscription
   // or needs to upgrade and they're not already on the pricing page, redirect to pricing
   if ((!hasSubscription || needsUpgrade) && location.pathname !== '/pricing') {

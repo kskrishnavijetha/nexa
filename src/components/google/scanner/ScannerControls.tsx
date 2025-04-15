@@ -46,23 +46,12 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
   
   useEffect(() => {
     // Check if user needs to upgrade
-    async function checkUpgrade() {
-      try {
-        const subscription = await getSubscription();
-        
-        // Only mark as needing upgrade if user has an active subscription that's reached its limit
-        if (subscription && subscription.active && subscription.scansUsed >= subscription.scansLimit) {
-          setNeedsUpgrade(true);
-          toast.error('You have reached the scan limit for your current plan');
-        } else {
-          setNeedsUpgrade(false);
-        }
-      } catch (error) {
-        console.error('Error checking upgrade status:', error);
-      }
-    }
+    const upgradeNeeded = shouldUpgradeTier();
+    setNeedsUpgrade(upgradeNeeded);
     
-    checkUpgrade();
+    if (upgradeNeeded) {
+      toast.error('You have reached the scan limit for your current plan');
+    }
   }, []);
 
   const handleStartScan = async () => {
@@ -84,10 +73,10 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
     
     try {
       // Record scan usage when starting a scan
-      await recordScanUsage();
+      recordScanUsage();
       
       // Display remaining scans notification
-      const subscription = await getSubscription();
+      const subscription = getSubscription();
       if (subscription) {
         const scansRemaining = subscription.scansLimit - subscription.scansUsed;
         toast.info(`Scan started. You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);

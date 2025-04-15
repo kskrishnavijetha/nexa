@@ -38,10 +38,7 @@ export function useServiceScanner() {
     }
     
     // Check if the user has reached scan limit before continuing
-    const subscription = await getSubscription();
-    
-    // Only block if the user has an active subscription that's reached its limit
-    if (subscription && subscription.active && subscription.scansUsed >= subscription.scansLimit) {
+    if (shouldUpgradeTier()) {
       toast.error('You have used all available scans for your current plan');
       return;
     }
@@ -123,7 +120,7 @@ export function useServiceScanner() {
       }
       
       // Show remaining scans after completion
-      const subscription = await getSubscription();
+      const subscription = getSubscription();
       if (subscription) {
         const scansRemaining = subscription.scansLimit - subscription.scansUsed;
         toast.info(`You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);

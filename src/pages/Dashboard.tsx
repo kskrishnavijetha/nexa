@@ -10,49 +10,24 @@ import DashboardTabContent from '@/components/dashboard/DashboardTabContent';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserHistoricalReports } from '@/utils/historyService';
 import { SelectedReportProvider } from '@/components/dashboard/context/SelectedReportContext';
-import { Loader2 } from 'lucide-react';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [hasData, setHasData] = useState<boolean>(false);
-  const [subscription, setSubscription] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const subscription = user ? getSubscription() : null;
 
   useEffect(() => {
-    async function checkUpgradeNeeded() {
-      const needsUpgrade = await shouldUpgrade();
-      if (needsUpgrade) {
-        toast.info('Your free plan usage is complete. Please upgrade to continue.', {
-          action: {
-            label: 'Upgrade',
-            onClick: () => navigate('/pricing'),
-          },
-        });
-      }
+    const needsUpgrade = shouldUpgrade();
+    if (needsUpgrade) {
+      toast.info('Your free plan usage is complete. Please upgrade to continue.', {
+        action: {
+          label: 'Upgrade',
+          onClick: () => navigate('/pricing'),
+        },
+      });
     }
-    
-    if (user) {
-      checkUpgradeNeeded();
-    }
-  }, [navigate, user]);
-  
-  useEffect(() => {
-    async function fetchSubscription() {
-      if (user) {
-        try {
-          const sub = await getSubscription();
-          setSubscription(sub);
-        } catch (error) {
-          console.error('Error fetching subscription:', error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    }
-    
-    fetchSubscription();
-  }, [user]);
+  }, [navigate]);
 
   useEffect(() => {
     const checkUserData = async () => {
@@ -80,12 +55,7 @@ const Dashboard = () => {
       <div className="container mx-auto px-4 py-8">
         <DashboardHeader />
         
-        {loading ? (
-          <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-lg flex justify-center items-center">
-            <Loader2 className="animate-spin h-5 w-5 mr-2" />
-            <span>Loading subscription data...</span>
-          </div>
-        ) : subscription ? (
+        {subscription && (
           <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
             <div className="flex flex-wrap items-center justify-between">
               <div>
@@ -108,7 +78,7 @@ const Dashboard = () => {
               )}
             </div>
           </div>
-        ) : null}
+        )}
 
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList>
