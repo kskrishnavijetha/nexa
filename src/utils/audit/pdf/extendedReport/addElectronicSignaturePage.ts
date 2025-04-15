@@ -40,7 +40,11 @@ export const addElectronicSignaturePage = (
   
   // Add signature details
   const companyName = props.companyDetails?.companyName || 'Compliance Officer';
-  const authorizedName = props.companyDetails?.authorizedName || 'Authorized Signatory';
+  // Use the contactName or designation property which exists in the CompanyDetails interface
+  // instead of authorizedName which doesn't exist
+  const authorizedName = props.companyDetails?.contactName || 
+                         props.companyDetails?.designation || 
+                         'Authorized Signatory';
   
   pdf.setFontSize(12);
   pdf.text(`${companyName}`, 105, yPos, { align: 'center' });
