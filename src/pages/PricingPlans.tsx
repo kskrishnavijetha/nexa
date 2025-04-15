@@ -8,7 +8,7 @@ import PricingCard from '@/components/pricing/PricingCard';
 import { toast } from 'sonner';
 import { 
   freeFeatures, 
-  basicFeatures, 
+  starterFeatures, 
   proFeatures, 
   enterpriseFeatures,
   pricing,
@@ -126,14 +126,14 @@ const PricingPlans = () => {
           />
         )}
 
-        {/* Basic Plan */}
+        {/* Starter Plan */}
         <PricingCard
-          title="Basic"
+          title="Starter"
           description="Essential compliance tools for small businesses"
-          price={formatPrice(pricing.basic[billingCycle], billingCycle)}
-          features={basicFeatures}
+          price={formatPrice(pricing.starter[billingCycle], billingCycle)}
+          features={starterFeatures}
           buttonText={getButtonText()}
-          onSelectPlan={() => handleSelectPlan('basic')}
+          onSelectPlan={() => handleSelectPlan('starter')}
         />
 
         {/* Pro Plan - Highlighted as recommended */}

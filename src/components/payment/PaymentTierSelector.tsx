@@ -18,10 +18,10 @@ const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
   initialTier
 }) => {
   const tiers = [
-    { id: 'free', name: 'Free', description: 'Basic compliance analysis and 5 scans per month' },
-    { id: 'basic', name: 'Basic', description: '15 scans per month with PDF reports' },
-    { id: 'pro', name: 'Pro', description: '50 scans per month with advanced analysis' },
-    { id: 'enterprise', name: 'Enterprise', description: 'Unlimited scans with custom templates' }
+    { id: 'free', name: 'Free', description: '1 document scan per week with basic compliance analysis' },
+    { id: 'starter', name: 'Starter', description: '20 document scans per month with PDF reports' },
+    { id: 'pro', name: 'Pro', description: 'Unlimited scans with advanced analysis' },
+    { id: 'enterprise', name: 'Enterprise', description: 'Unlimited scans with multi-user support and custom branding' }
   ];
 
   return (
@@ -38,8 +38,8 @@ const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
         
         const price = formatPrice(
           tier.id === 'free' ? 0 : { 
-            free: 0, basic: 35, pro: 110, enterprise: 399 
-          }[tier.id as 'free' | 'basic' | 'pro' | 'enterprise'], 
+            free: 0, starter: 59, pro: 149, enterprise: 599 
+          }[tier.id as 'free' | 'starter' | 'pro' | 'enterprise'], 
           billingCycle
         );
             

@@ -1,3 +1,4 @@
+
 /**
  * Service for managing user subscriptions
  */
@@ -15,13 +16,13 @@ export interface SubscriptionInfo {
 // Store the user's current subscription in localStorage with userId
 export const saveSubscription = (plan: string, paymentId: string, billingCycle: 'monthly' | 'annually' = 'monthly', userId?: string) => {
   const pricingTiers = {
-    free: { scans: 5, days: 30 },
-    basic: { scans: 15, days: 30 },
-    pro: { scans: 50, days: 30 },
+    free: { scans: 4, days: 30 }, // 1 scan per week (4 per month)
+    starter: { scans: 20, days: 30 },
+    pro: { scans: 999, days: 30 }, // Using 999 to represent unlimited
     enterprise: { scans: 999, days: 30 }, // Using 999 to represent unlimited
   };
   
-  const selectedTier = pricingTiers[plan as keyof typeof pricingTiers] || pricingTiers.basic;
+  const selectedTier = pricingTiers[plan as keyof typeof pricingTiers] || pricingTiers.starter;
   const expirationDate = new Date();
   expirationDate.setDate(expirationDate.getDate() + selectedTier.days);
   

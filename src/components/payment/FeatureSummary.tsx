@@ -4,7 +4,7 @@ import { Check } from 'lucide-react';
 import FeatureList from '@/components/pricing/FeatureList';
 import { 
   freeFeatures, 
-  basicFeatures, 
+  starterFeatures, 
   proFeatures, 
   enterpriseFeatures,
   pricing,
@@ -23,17 +23,17 @@ const FeatureSummary: React.FC = () => {
         </div>
         
         <div>
-          <h4 className="font-medium text-primary mb-2">Basic Plan - $35/month</h4>
-          <FeatureList features={basicFeatures} />
+          <h4 className="font-medium text-primary mb-2">Starter Plan - $59/month</h4>
+          <FeatureList features={starterFeatures} />
         </div>
         
         <div>
-          <h4 className="font-medium text-primary mb-2">Pro Plan - $110/month</h4>
+          <h4 className="font-medium text-primary mb-2">Pro Plan - $149/month</h4>
           <FeatureList features={proFeatures} />
         </div>
         
         <div>
-          <h4 className="font-medium text-primary mb-2">Enterprise Plan - $399/month</h4>
+          <h4 className="font-medium text-primary mb-2">Enterprise Plan - $599/month</h4>
           <FeatureList features={enterpriseFeatures} />
         </div>
       </div>

@@ -3,22 +3,22 @@
 export const pricingTiers = {
   free: {
     name: 'Free',
-    scans: 5,
+    scans: 4, // 1 per week
     days: 30
   },
-  basic: {
-    name: 'Basic',
-    scans: 15,
+  starter: {
+    name: 'Starter',
+    scans: 20,
     days: 30
   },
   pro: {
     name: 'Pro',
-    scans: 50,
+    scans: 999, // Using 999 to represent unlimited
     days: 30
   },
   enterprise: {
     name: 'Enterprise',
-    scans: 'Unlimited'
+    scans: 999, // Using 999 to represent unlimited
   }
 };
 
@@ -26,17 +26,17 @@ export const pricingTiers = {
 export const getPrice = (tier: string, billingCycle: 'monthly' | 'annually'): number => {
   const prices = {
     free: 0,
-    basic: {
-      monthly: 35,
-      annually: Math.round(35 * 12 * 0.9), // 10% discount
+    starter: {
+      monthly: 59,
+      annually: Math.round(59 * 12 * 0.9), // 10% discount
     },
     pro: {
-      monthly: 110,
-      annually: Math.round(110 * 12 * 0.9), // 10% discount
+      monthly: 149,
+      annually: Math.round(149 * 12 * 0.9), // 10% discount
     },
     enterprise: {
-      monthly: 399,
-      annually: Math.round(399 * 12 * 0.9), // 10% discount
+      monthly: 599,
+      annually: Math.round(599 * 12 * 0.9), // 10% discount
     }
   };
   
