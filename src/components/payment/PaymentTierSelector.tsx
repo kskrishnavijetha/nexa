@@ -2,7 +2,7 @@
 import React from 'react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { formatPrice } from '@/components/pricing/PricingData';
+import { getPrice } from '@/utils/pricingData';
 
 interface PaymentTierSelectorProps {
   selectedTier: string;
@@ -20,7 +20,7 @@ const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
   const tiers = [
     { id: 'free', name: 'Free', description: '1 document scan per week with basic compliance analysis' },
     { id: 'starter', name: 'Starter', description: '20 document scans per month with PDF reports' },
-    { id: 'pro', name: 'Pro', description: 'Unlimited scans with advanced analysis' },
+    { id: 'pro', name: 'Pro', description: 'Unlimited scans with advanced analysis and features' },
     { id: 'enterprise', name: 'Enterprise', description: 'Unlimited scans with multi-user support and custom branding' }
   ];
 
@@ -36,12 +36,7 @@ const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
           return null;
         }
         
-        const price = formatPrice(
-          tier.id === 'free' ? 0 : { 
-            free: 0, starter: 59, pro: 149, enterprise: 599 
-          }[tier.id as 'free' | 'starter' | 'pro' | 'enterprise'], 
-          billingCycle
-        );
+        const price = tier.id === 'free' ? 'Free' : `$${getPrice(tier.id, billingCycle)}/month`;
             
         return (
           <div key={tier.id} className="flex items-start space-x-2">

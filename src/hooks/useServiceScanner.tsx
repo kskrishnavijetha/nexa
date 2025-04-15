@@ -10,11 +10,14 @@ import { useRealTimeSimulation } from './google/useRealTimeSimulation';
 import { useFallbackResults } from './google/useFallbackResults';
 import { recordScanUsage, getSubscription, shouldUpgradeTier, hasScansRemaining } from '@/utils/paymentService';
 import { useNavigate } from 'react-router-dom';
+import { isFeatureAvailable } from '@/utils/pricingData';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function useServiceScanner() {
   const scanState = useScanState();
   const { generateIndustrySpecificFallbackResults } = useFallbackResults();
   const navigate = useNavigate();
+  const { user } = useAuth();
   
   // Setup real-time simulation
   useRealTimeSimulation(
@@ -40,7 +43,7 @@ export function useServiceScanner() {
     }
     
     // Check if the user has a subscription and has scans remaining before continuing
-    const subscription = getSubscription();
+    const subscription = getSubscription(user?.id);
     if (subscription) {
       const needsUpgrade = shouldUpgradeTier();
       const hasScans = hasScansRemaining();
@@ -124,17 +127,23 @@ export function useServiceScanner() {
       
       if (violations.length > 0) {
         toast.success(`Scan completed with ${violations.length} issues detected`);
+        
+        // Only send Slack alerts if the user's plan includes this feature
+        if (subscription && isFeatureAvailable('slackAlerts', subscription.plan)) {
+          console.log('Sending Slack alerts for detected violations');
+          // The actual Slack alert functionality would be implemented here
+          // This is just a placeholder for the feature check
+        }
       } else {
         toast.success('Scan completed successfully. No issues detected.');
       }
       
       // Show remaining scans after completion
-      const updatedSubscription = getSubscription();
+      const updatedSubscription = getSubscription(user?.id);
       if (updatedSubscription) {
         const scansRemaining = Math.max(0, updatedSubscription.scansLimit - updatedSubscription.scansUsed);
         toast.info(`You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);
         
-        // Remove the automatic redirect after last scan
         // Only notify that they've used all scans
         if (scansRemaining === 0) {
           toast.warning('You have used all your available scans. Please upgrade your plan for more scans.');

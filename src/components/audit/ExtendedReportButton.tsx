@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { ClipboardList, Loader2 } from "lucide-react";
+import { ClipboardList, Loader2, Lock } from "lucide-react";
 import { generateExtendedAuditReport } from '@/utils/audit/extendedReport';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,6 +9,8 @@ import { CompanyDetailsModal } from './extended-report/CompanyDetailsModal';
 import { CompanyDetails } from './types';
 import { Industry } from '@/utils/types';
 import { Region } from '@/utils/types/common';
+import { getSubscription } from '@/utils/paymentService';
+import { isFeatureAvailable } from '@/utils/pricingData';
 
 interface ExtendedReportButtonProps {
   documentName: string;
@@ -22,6 +24,11 @@ const ExtendedReportButton: React.FC<ExtendedReportButtonProps> = ({
   const [isGenerating, setIsGenerating] = useState(false);
   const [showCompanyModal, setShowCompanyModal] = useState(false);
   const { user } = useAuth();
+  
+  // Check if the user's subscription plan allows extended reports
+  const subscription = getSubscription(user?.id);
+  const canUseExtendedReports = subscription && 
+    isFeatureAvailable('extendedAuditReports', subscription.plan);
   
   const addChartComponent = async () => {
     // Create a temporary div to render chart for capturing
@@ -64,6 +71,12 @@ const ExtendedReportButton: React.FC<ExtendedReportButtonProps> = ({
   const handleGenerateReport = async (companyDetails?: CompanyDetails) => {
     if (isGenerating) return;
     
+    // Check if user can use extended reports
+    if (!canUseExtendedReports) {
+      toast.error('Extended audit reports are not available in your current plan. Please upgrade to Pro or Enterprise.');
+      return;
+    }
+    
     setIsGenerating(true);
     const toastId = toast.loading('Generating extended audit report...', { duration: 30000 });
     
@@ -88,6 +101,10 @@ const ExtendedReportButton: React.FC<ExtendedReportButtonProps> = ({
   };
 
   const handleClick = () => {
+    if (!canUseExtendedReports) {
+      toast.error('Extended audit reports are only available in Pro and Enterprise plans. Please upgrade your plan.');
+      return;
+    }
     setShowCompanyModal(true);
   };
 
@@ -97,22 +114,27 @@ const ExtendedReportButton: React.FC<ExtendedReportButtonProps> = ({
         variant="outline"
         size="sm"
         onClick={handleClick}
-        disabled={isGenerating}
+        disabled={isGenerating || !canUseExtendedReports}
         className="flex gap-1.5 items-center"
       >
         {isGenerating ? (
           <Loader2 className="h-4 w-4 mr-1.5 animate-spin" />
+        ) : !canUseExtendedReports ? (
+          <Lock className="h-4 w-4 mr-1.5" />
         ) : (
           <ClipboardList className="h-4 w-4 mr-1.5" />
         )}
         Extended Audit-Ready Report
+        {!canUseExtendedReports && <span className="ml-1 text-xs">(Pro+)</span>}
       </Button>
       
-      <CompanyDetailsModal 
-        isOpen={showCompanyModal} 
-        onClose={() => setShowCompanyModal(false)}
-        onSubmit={handleGenerateReport}
-      />
+      {canUseExtendedReports && (
+        <CompanyDetailsModal 
+          isOpen={showCompanyModal} 
+          onClose={() => setShowCompanyModal(false)}
+          onSubmit={handleGenerateReport}
+        />
+      )}
     </>
   );
 };
