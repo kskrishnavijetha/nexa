@@ -1,4 +1,3 @@
-
 /**
  * Service for managing user subscriptions using Supabase profiles table
  */
@@ -44,6 +43,9 @@ export const saveSubscription = async (
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + selectedTier.days);
     
+    console.log('Updating subscription in Supabase for user:', userId);
+    console.log('Subscription details:', { plan, scans_limit: selectedTier.scans, expiration: expirationDate.toISOString() });
+
     // Update the user's profile in Supabase
     const { data, error } = await supabase
       .from('profiles')
@@ -57,9 +59,7 @@ export const saveSubscription = async (
         subscription_end_date: expirationDate.toISOString(),
         updated_at: new Date().toISOString()
       })
-      .eq('id', userId)
-      .select()
-      .single();
+      .eq('id', userId);
     
     if (error) {
       console.error('Error saving subscription to Supabase:', error);
@@ -78,7 +78,7 @@ export const saveSubscription = async (
     
     localStorage.setItem('subscription', JSON.stringify(subscriptionInfo));
     
-    console.log('Subscription saved successfully:', data);
+    console.log('Subscription saved successfully');
     return subscriptionInfo;
   } catch (error) {
     console.error('Error in saveSubscription:', error);

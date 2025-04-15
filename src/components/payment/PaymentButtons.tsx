@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { shouldUpgrade } from '@/utils/paymentService';
+import { shouldUpgrade, saveSubscription } from '@/utils/paymentService';
 import { loadPayPalScript, createPayPalButtons } from '@/utils/payment/paypalService';
 import { useLocation, useNavigate } from 'react-router-dom';
 
@@ -181,8 +181,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
           // Generate a simple subscription ID
           const subscriptionId = tier + '_' + Math.random().toString(36).substring(2, 15);
           
-          // Save to Supabase (now using async function)
-          const { saveSubscription } = await import('@/utils/payment/subscriptionService');
+          // Save subscription directly
           const result = await saveSubscription(tier, subscriptionId);
           
           if (result) {

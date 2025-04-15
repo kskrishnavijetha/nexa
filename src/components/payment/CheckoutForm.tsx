@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { getSubscription } from '@/utils/paymentService';
+import { getSubscription, saveSubscription } from '@/utils/paymentService';
 import PaymentTierSelector from './PaymentTierSelector';
 import PaymentButtons from './PaymentButtons';
 import PaymentSummary from './PaymentSummary';
@@ -53,8 +53,7 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     console.log("Handling subscription success:", paymentId, "for tier:", selectedTier);
     
     try {
-      // Import and use the saveSubscription function
-      const { saveSubscription } = await import('@/utils/payment/subscriptionService');
+      // Save the subscription
       const subscription = await saveSubscription(selectedTier, paymentId, 'monthly');
       console.log("Subscription saved:", subscription);
       
