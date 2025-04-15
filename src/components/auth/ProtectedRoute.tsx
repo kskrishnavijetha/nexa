@@ -27,7 +27,17 @@ const ProtectedRoute: React.FC = () => {
     return <Navigate to="/sign-in" state={{ from: location }} replace />;
   }
 
+  // For pricing page, always allow access regardless of subscription status
+  if (location.pathname === '/pricing') {
+    return (
+      <Layout>
+        <Outlet />
+      </Layout>
+    );
+  }
+
   // Check for both missing and expired/completed plans
+  // But only if they're not already on the pricing page
   const hasSubscription = hasActiveSubscription();
   const needsUpgrade = shouldUpgrade();
   

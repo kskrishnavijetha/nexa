@@ -21,7 +21,9 @@ const DocumentAnalysis = () => {
 
   useEffect(() => {
     // Check if user needs to upgrade before allowing more scans
-    if (shouldUpgradeTier()) {
+    // But only if they actually have a subscription
+    const subscription = getSubscription();
+    if (subscription && shouldUpgradeTier()) {
       toast.error('You have used all available scans for your current plan');
       navigate('/pricing');
     }

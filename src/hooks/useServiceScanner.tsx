@@ -37,8 +37,9 @@ export function useServiceScanner() {
       return;
     }
     
-    // Check if the user has reached scan limit before continuing
-    if (shouldUpgradeTier()) {
+    // Check if the user has a subscription and has reached scan limit before continuing
+    const subscription = getSubscription();
+    if (subscription && shouldUpgradeTier()) {
       toast.error('You have used all available scans for your current plan');
       return;
     }
@@ -120,9 +121,9 @@ export function useServiceScanner() {
       }
       
       // Show remaining scans after completion
-      const subscription = getSubscription();
-      if (subscription) {
-        const scansRemaining = subscription.scansLimit - subscription.scansUsed;
+      const updatedSubscription = getSubscription();
+      if (updatedSubscription) {
+        const scansRemaining = updatedSubscription.scansLimit - updatedSubscription.scansUsed;
         toast.info(`You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);
       }
     } catch (error) {

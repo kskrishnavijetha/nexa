@@ -7,7 +7,7 @@ import { GoogleService } from '../types';
 import { Industry } from '@/utils/types';
 import { SupportedLanguage } from '@/utils/language';
 import { Region } from '@/utils/types';
-import { shouldUpgradeTier, recordScanUsage, getSubscription } from '@/utils/paymentService';
+import { shouldUpgradeTier, recordScanUsage, getSubscription, hasActiveSubscription } from '@/utils/paymentService';
 import { useNavigate } from 'react-router-dom';
 
 interface ScannerControlsProps {
@@ -46,11 +46,19 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
   
   useEffect(() => {
     // Check if user needs to upgrade
-    const upgradeNeeded = shouldUpgradeTier();
-    setNeedsUpgrade(upgradeNeeded);
+    const subscription = getSubscription();
     
-    if (upgradeNeeded) {
-      toast.error('You have reached the scan limit for your current plan');
+    // Only check for upgrade if user actually has a subscription
+    // New users without a subscription should be able to scan
+    if (subscription) {
+      const upgradeNeeded = shouldUpgradeTier();
+      setNeedsUpgrade(upgradeNeeded);
+      
+      if (upgradeNeeded) {
+        toast.error('You have reached the scan limit for your current plan');
+      }
+    } else {
+      setNeedsUpgrade(false);
     }
   }, []);
 
@@ -98,7 +106,7 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
       {isScanning ? (
         <>
           <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          Scanning...
+          <span>Scanning...</span>
         </>
       ) : needsUpgrade ? (
         'Upgrade Plan to Scan'

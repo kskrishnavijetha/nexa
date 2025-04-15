@@ -103,14 +103,21 @@ export const shouldUpgrade = (): boolean => {
 };
 
 // Check if user needs to upgrade specifically to a higher tier than they currently have
+// Note: This function is fixed to properly handle new users and free tier users
 export const shouldUpgradeTier = (): boolean => {
   const subscription = getSubscription();
   
   if (!subscription) {
+    // If no subscription exists, user doesn't need to upgrade yet - they need to select a plan first
     return false;
   }
   
   // Check if scans limit reached and not on enterprise plan
+  // For free plan, only return true if active is false (meaning they've used all scans)
+  if (subscription.plan === 'free') {
+    return !subscription.active;
+  }
+  
   return (
     subscription.scansUsed >= subscription.scansLimit && 
     subscription.plan !== 'enterprise'
