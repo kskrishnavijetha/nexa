@@ -29,8 +29,22 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   const [isPayPalReady, setIsPayPalReady] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [paypalError, setPaypalError] = useState<string | null>(null);
+  const [needsUpgrade, setNeedsUpgrade] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Check if user needs to upgrade
+  useEffect(() => {
+    async function checkUpgradeStatus() {
+      try {
+        const upgrade = await shouldUpgrade();
+        setNeedsUpgrade(upgrade || tier !== 'free');
+      } catch (error) {
+        console.error('Error checking upgrade status:', error);
+      }
+    }
+    checkUpgradeStatus();
+  }, [tier]);
 
   // Check for pending subscriptions on component mount
   useEffect(() => {
@@ -110,7 +124,6 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   }, [tier, billingCycle, setLoading, onSuccess, retryCount]);
 
   // For free tier, use a regular button
-  const needsUpgrade = tier !== 'free' || shouldUpgrade();
   const buttonText = tier === 'free' 
     ? (needsUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan')
     : `Subscribe to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`;
@@ -167,9 +180,19 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
           
           // Generate a simple subscription ID
           const subscriptionId = tier + '_' + Math.random().toString(36).substring(2, 15);
-          toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
-          onSuccess(subscriptionId);
+          
+          // Save to Supabase (now using async function)
+          const { saveSubscription } = await import('@/utils/payment/subscriptionService');
+          const result = await saveSubscription(tier, subscriptionId);
+          
+          if (result) {
+            toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
+            onSuccess(subscriptionId);
+          } else {
+            toast.error('Failed to activate plan. Please try again.');
+          }
         } catch (error) {
+          console.error('Error activating plan:', error);
           toast.error(`Failed to activate ${tier} plan. Please try again.`);
         } finally {
           setLoading(false);

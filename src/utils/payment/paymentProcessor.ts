@@ -115,8 +115,8 @@ export const createSubscription = async (
     if (planName === 'free') {
       const paymentId = 'free_sub_' + Math.random().toString(36).substring(2, 15);
       
-      // Save the free subscription
-      saveSubscription('free', paymentId);
+      // Save the free subscription (now in Supabase)
+      await saveSubscription('free', paymentId);
       
       return {
         success: true,
@@ -131,8 +131,8 @@ export const createSubscription = async (
     if (Math.random() > 0.1) {
       const paymentId = 'sub_' + Math.random().toString(36).substring(2, 15);
       
-      // Save the subscription with billing cycle
-      saveSubscription(planName, paymentId, billingCycle);
+      // Save the subscription with billing cycle (now in Supabase)
+      await saveSubscription(planName, paymentId, billingCycle);
       
       // Get current user email for confirmation
       const { data: { user } } = await supabase.auth.getUser();

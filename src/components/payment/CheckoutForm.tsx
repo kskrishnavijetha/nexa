@@ -22,36 +22,56 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   // Always use monthly billing now
   const billingCycle = 'monthly';
   const [loading, setLoading] = useState(false);
-  const currentSubscription = getSubscription();
+  const [currentSubscription, setCurrentSubscription] = useState<any>(null);
   
-  // If initialPlan is provided or user has an existing subscription, preselect that tier
+  // Fetch user's current subscription from Supabase
   useEffect(() => {
-    if (initialPlan) {
-      setSelectedTier(initialPlan);
-    } else if (currentSubscription?.plan) {
-      setSelectedTier(currentSubscription.plan);
-      // If free plan has expired, suggest the basic plan as the next step
-      if (currentSubscription.plan === 'free' && !currentSubscription.active) {
-        setSelectedTier('basic');
+    async function fetchSubscription() {
+      try {
+        const sub = await getSubscription();
+        setCurrentSubscription(sub);
+        
+        // If initialPlan is provided or user has an existing subscription, preselect that tier
+        if (initialPlan) {
+          setSelectedTier(initialPlan);
+        } else if (sub?.plan) {
+          setSelectedTier(sub.plan);
+          // If free plan has expired, suggest the basic plan as the next step
+          if (sub.plan === 'free' && !sub.active) {
+            setSelectedTier('basic');
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching subscription:', error);
       }
     }
-  }, [initialPlan, currentSubscription]);
+    
+    fetchSubscription();
+  }, [initialPlan]);
 
-  const handleSuccess = (paymentId: string) => {
+  const handleSuccess = async (paymentId: string) => {
     console.log("Handling subscription success:", paymentId, "for tier:", selectedTier);
     
-    // Create local subscription record
-    import('@/utils/payment/subscriptionService').then(({ saveSubscription }) => {
-      const subscription = saveSubscription(selectedTier, paymentId, 'monthly');
+    try {
+      // Import and use the saveSubscription function
+      const { saveSubscription } = await import('@/utils/payment/subscriptionService');
+      const subscription = await saveSubscription(selectedTier, paymentId, 'monthly');
       console.log("Subscription saved:", subscription);
       
-      toast.success(`Your ${selectedTier} plan is now active!`);
-      
-      // Call the onSuccess callback
-      if (onSuccess) {
-        onSuccess(paymentId);
+      if (subscription) {
+        toast.success(`Your ${selectedTier} plan is now active!`);
+        
+        // Call the onSuccess callback
+        if (onSuccess) {
+          onSuccess(paymentId);
+        }
+      } else {
+        toast.error('Failed to activate subscription. Please try again.');
       }
-    });
+    } catch (error) {
+      console.error('Error saving subscription:', error);
+      toast.error('Failed to save subscription. Please try again.');
+    }
   };
 
   return (
