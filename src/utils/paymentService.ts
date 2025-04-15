@@ -3,7 +3,7 @@
  * Main payment service module that re-exports from sub-modules
  */
 
-// Export from subscriptionService
+// Export from subscription service
 export {
   saveSubscription,
   getSubscription,
@@ -12,10 +12,10 @@ export {
   recordScanUsage,
   shouldUpgrade,
   shouldUpgradeTier
-} from './payment/subscriptionService';
+} from './payment/subscription';
 
 // Export type separately to avoid TypeScript isolatedModules error
-export type { SubscriptionInfo } from './payment/subscriptionService';
+export type { SubscriptionInfo } from './payment/subscription';
 
 // Export from paypalService
 export {

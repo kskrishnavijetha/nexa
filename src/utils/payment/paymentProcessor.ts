@@ -2,7 +2,7 @@
 /**
  * Service for payment processing
  */
-import { saveSubscription } from './subscriptionService';
+import { saveSubscription } from '../payment/subscription';
 import { supabase } from '@/integrations/supabase/client';
 
 export interface PaymentResult {

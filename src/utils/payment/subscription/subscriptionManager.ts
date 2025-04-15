@@ -1,17 +1,21 @@
-/**
- * Service for managing user subscriptions using Supabase profiles table
- */
-import { supabase } from '@/integrations/supabase/client';
-import { User } from '@supabase/supabase-js';
 
-export interface SubscriptionInfo {
-  active: boolean;
-  plan: string;
-  scansUsed: number;
-  scansLimit: number;
-  expirationDate: Date;
-  billingCycle?: 'monthly' | 'annually';
-}
+/**
+ * Core subscription management service
+ */
+import { SubscriptionInfo } from './types';
+import { PRICING_TIERS, DEFAULT_SCAN_LIMIT } from './constants';
+import { 
+  getCurrentUserId, 
+  getSubscriptionData, 
+  updateSubscriptionStatus,
+  updateScanUsage,
+  saveSubscriptionData
+} from './subscriptionData';
+import { 
+  storeSubscriptionLocal, 
+  getSubscriptionLocal,
+  updateLocalSubscriptionUsage 
+} from './subscriptionStorage';
 
 // Save or update a user's subscription in Supabase
 export const saveSubscription = async (
@@ -21,8 +25,7 @@ export const saveSubscription = async (
 ): Promise<SubscriptionInfo | null> => {
   try {
     // Get current session to ensure user is authenticated
-    const { data: { session } } = await supabase.auth.getSession();
-    const userId = session?.user?.id;
+    const userId = await getCurrentUserId();
     
     if (!userId) {
       console.error('Cannot save subscription: No authenticated user');
@@ -30,14 +33,7 @@ export const saveSubscription = async (
     }
     
     // Calculate plan duration and scan limits
-    const pricingTiers = {
-      free: { scans: 5, days: 30 },
-      basic: { scans: 15, days: 30 },
-      pro: { scans: 50, days: 30 },
-      enterprise: { scans: 999, days: 30 }, // Using 999 to represent unlimited
-    };
-    
-    const selectedTier = pricingTiers[plan as keyof typeof pricingTiers] || pricingTiers.basic;
+    const selectedTier = PRICING_TIERS[plan as keyof typeof PRICING_TIERS] || PRICING_TIERS.basic;
     
     // Calculate new expiration date
     const expirationDate = new Date();
@@ -47,22 +43,9 @@ export const saveSubscription = async (
     console.log('Subscription details:', { plan, scans_limit: selectedTier.scans, expiration: expirationDate.toISOString() });
 
     // Update the user's profile in Supabase
-    const { error } = await supabase
-      .from('profiles')
-      .update({
-        subscription_plan: plan,
-        subscription_status: true,
-        scans_used: 0, // Reset scan count on new subscription
-        scans_limit: selectedTier.scans,
-        billing_cycle: billingCycle,
-        subscription_start_date: new Date().toISOString(),
-        subscription_end_date: expirationDate.toISOString(),
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', userId);
+    const success = await saveSubscriptionData(userId, plan, expirationDate, billingCycle);
     
-    if (error) {
-      console.error('Error saving subscription to Supabase:', error);
+    if (!success) {
       return null;
     }
     
@@ -76,7 +59,7 @@ export const saveSubscription = async (
       billingCycle: billingCycle
     };
     
-    localStorage.setItem('subscription', JSON.stringify(subscriptionInfo));
+    storeSubscriptionLocal(subscriptionInfo);
     
     console.log('Subscription saved successfully');
     return subscriptionInfo;
@@ -90,35 +73,18 @@ export const saveSubscription = async (
 export const getSubscription = async (): Promise<SubscriptionInfo | null> => {
   try {
     // First try to get from Supabase (source of truth)
-    const { data: { session } } = await supabase.auth.getSession();
-    const userId = session?.user?.id;
+    const userId = await getCurrentUserId();
     
     if (!userId) {
       // Not authenticated, return null or local fallback
-      const localSub = localStorage.getItem('subscription');
-      if (localSub) {
-        const parsed = JSON.parse(localSub);
-        parsed.expirationDate = new Date(parsed.expirationDate);
-        
-        // Check if subscription is expired
-        if (parsed.expirationDate < new Date()) {
-          parsed.active = false;
-        }
-        return parsed;
-      }
-      return null;
+      return getSubscriptionLocal();
     }
     
     // Get profile data from Supabase
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('subscription_plan, subscription_status, scans_used, scans_limit, subscription_end_date, billing_cycle')
-      .eq('id', userId)
-      .single();
+    const data = await getSubscriptionData(userId);
     
-    if (error || !data) {
-      console.error('Error fetching subscription from Supabase:', error);
-      return null;
+    if (!data) {
+      return getSubscriptionLocal();
     }
     
     // Check if subscription is expired
@@ -128,10 +94,7 @@ export const getSubscription = async (): Promise<SubscriptionInfo | null> => {
     
     // If subscription is expired, update the status in database
     if (data.subscription_status && isExpired) {
-      await supabase
-        .from('profiles')
-        .update({ subscription_status: false })
-        .eq('id', userId);
+      await updateSubscriptionStatus(userId, false);
     }
     
     // Convert to SubscriptionInfo format for consistency
@@ -139,7 +102,7 @@ export const getSubscription = async (): Promise<SubscriptionInfo | null> => {
       active: data.subscription_status && !isExpired,
       plan: data.subscription_plan || 'free',
       scansUsed: data.scans_used || 0,
-      scansLimit: data.scans_limit || 5,
+      scansLimit: data.scans_limit || DEFAULT_SCAN_LIMIT,
       expirationDate: data.subscription_end_date ? new Date(data.subscription_end_date) : new Date(),
       billingCycle: (data.billing_cycle as 'monthly' | 'annually') || 'monthly'
     };
@@ -147,20 +110,7 @@ export const getSubscription = async (): Promise<SubscriptionInfo | null> => {
     console.error('Error in getSubscription:', error);
     
     // Fallback to localStorage if Supabase fails
-    const subscription = localStorage.getItem('subscription');
-    if (!subscription) {
-      return null;
-    }
-    
-    const parsedSubscription = JSON.parse(subscription);
-    parsedSubscription.expirationDate = new Date(parsedSubscription.expirationDate);
-    
-    // Check if subscription is expired
-    if (parsedSubscription.expirationDate < new Date()) {
-      parsedSubscription.active = false;
-    }
-    
-    return parsedSubscription;
+    return getSubscriptionLocal();
   }
 };
 
@@ -181,8 +131,7 @@ export const hasScansRemaining = async (): Promise<boolean> => {
 // Record a scan usage
 export const recordScanUsage = async (): Promise<void> => {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
-    const userId = session?.user?.id;
+    const userId = await getCurrentUserId();
     
     if (!userId) {
       console.error('Cannot record scan usage: No authenticated user');
@@ -190,47 +139,21 @@ export const recordScanUsage = async (): Promise<void> => {
     }
     
     // Get current profile data
-    const { data: profile, error: fetchError } = await supabase
-      .from('profiles')
-      .select('scans_used, scans_limit, subscription_plan, subscription_status')
-      .eq('id', userId)
-      .single();
+    const profile = await getSubscriptionData(userId);
     
-    if (fetchError || !profile) {
-      console.error('Error fetching profile for scan usage:', fetchError);
+    if (!profile) {
       return;
     }
     
     const newScansUsed = (profile.scans_used || 0) + 1;
     const shouldDeactivateFree = profile.subscription_plan === 'free' && 
-      newScansUsed >= (profile.scans_limit || 5);
+      newScansUsed >= (profile.scans_limit || DEFAULT_SCAN_LIMIT);
     
     // Update the profile with new scan count
-    const { error: updateError } = await supabase
-      .from('profiles')
-      .update({
-        scans_used: newScansUsed,
-        subscription_status: shouldDeactivateFree ? false : profile.subscription_status
-      })
-      .eq('id', userId);
-    
-    if (updateError) {
-      console.error('Error updating scan usage:', updateError);
-    }
+    await updateScanUsage(userId, newScansUsed, shouldDeactivateFree);
     
     // For backward compatibility, also update localStorage
-    const localSubscription = localStorage.getItem('subscription');
-    if (localSubscription) {
-      const subscription = JSON.parse(localSubscription);
-      subscription.scansUsed = newScansUsed;
-      
-      // Check if scans limit reached for free plan
-      if (subscription.plan === 'free' && subscription.scansUsed >= subscription.scansLimit) {
-        subscription.active = false;
-      }
-      
-      localStorage.setItem('subscription', JSON.stringify(subscription));
-    }
+    updateLocalSubscriptionUsage(newScansUsed, profile.subscription_plan, profile.scans_limit || DEFAULT_SCAN_LIMIT);
   } catch (error) {
     console.error('Error in recordScanUsage:', error);
   }
