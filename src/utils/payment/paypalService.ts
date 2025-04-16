@@ -10,8 +10,8 @@ const PAYPAL_CLIENT_ID = 'AXKd2EHw7ySZihlaN06rqnABzzQdhD8ueu738V8iCtC93o8PwlZdjO
 
 // PayPal plan IDs - Updated with actual plan IDs for monthly only
 const PAYPAL_PLAN_IDS = {
-  basic: {
-    monthly: 'P-0G576384KT1375804M7UPCYY'
+  starter: {
+    monthly: 'P-7JU242559V237791XM77STDA'  // Updated starter plan ID
   },
   pro: {
     monthly: 'P-0F289070AR785993EM7UO47Y'
@@ -135,7 +135,7 @@ export const createPayPalButtons = (
         layout: 'vertical',
         color: 'gold',
         shape: 'rect',
-        label: plan === 'basic' ? 'paypal' : 'subscribe'
+        label: plan === 'starter' ? 'subscribe' : 'subscribe'
       },
       createSubscription: function(data: any, actions: any) {
         console.log('Creating subscription with plan ID:', planId);
