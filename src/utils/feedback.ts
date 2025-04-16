@@ -9,11 +9,13 @@ interface FeedbackData {
 
 export const sendFeedbackEmail = async (data: FeedbackData): Promise<boolean> => {
   try {
+    console.log("Sending feedback email with data:", data);
+    
     const { error } = await supabase.functions.invoke("send-email", {
       body: {
         type: "feedback",
-        email: "contact@nexabloom.xyz",
-        name: data.name || "Anonymous User",
+        email: "contact@nexabloom.xyz", // This is the recipient email
+        name: "NexaBloom Feedback System",
         feedbackDetails: {
           userName: data.name || "Anonymous User",
           userEmail: data.email || "Not provided",
@@ -27,6 +29,7 @@ export const sendFeedbackEmail = async (data: FeedbackData): Promise<boolean> =>
       return false;
     }
     
+    console.log("Feedback email sent successfully");
     return true;
   } catch (err) {
     console.error("Exception sending feedback email:", err);
