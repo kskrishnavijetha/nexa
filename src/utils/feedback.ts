@@ -40,12 +40,14 @@ export const sendFeedbackEmail = async (data: FeedbackData): Promise<boolean> =>
       return false;
     }
     
-    // Check if response has an error property (from Resend)
+    // Check response for indicators of success
     if (responseData && responseData.error) {
       console.error("Resend API error:", responseData.error);
       return false;
     }
     
+    // If there's no obvious error, we'll consider it a success for now
+    // and let the UI show a fallback message if needed
     console.log("Feedback email sent successfully with response:", responseData);
     return true;
   } catch (err) {

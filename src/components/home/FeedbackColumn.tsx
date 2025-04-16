@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { sendFeedbackEmail } from '@/utils/feedback';
-import { MessageSquare, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { MessageSquare, Loader2, AlertCircle, CheckCircle2, Mail } from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const FeedbackColumn: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -64,6 +65,13 @@ const FeedbackColumn: React.FC = () => {
     }
   };
 
+  const handleDirectContact = () => {
+    // Create mailto link with pre-filled subject
+    const subject = encodeURIComponent("Feedback for NexaBloom");
+    const body = encodeURIComponent(`Name: ${name || "Not provided"}\nFeedback: ${message}`);
+    window.open(`mailto:contact@nexabloom.xyz?subject=${subject}&body=${body}`, '_blank');
+  };
+
   return (
     <section className="py-12 bg-gray-50">
       <div className="container mx-auto px-4">
@@ -97,12 +105,23 @@ const FeedbackColumn: React.FC = () => {
           ) : (
             <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-sm border">
               {submitStatus === 'error' && (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-start">
-                  <AlertCircle className="h-5 w-5 text-red-500 mr-2 flex-shrink-0 mt-0.5" />
-                  <p className="text-red-700 text-sm">
-                    There was a problem sending your feedback. Please try again or contact us directly at contact@nexabloom.xyz
-                  </p>
-                </div>
+                <Alert variant="destructive" className="mb-4 bg-red-50 border-red-200 text-red-800">
+                  <AlertCircle className="h-5 w-5 text-red-600" />
+                  <AlertDescription className="ml-2">
+                    <p className="font-medium">There was a problem sending your feedback.</p>
+                    <p className="mt-1">Please try again or contact us directly:</p>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleDirectContact}
+                      className="mt-2 text-red-600 border-red-300 hover:bg-red-50 flex items-center"
+                    >
+                      <Mail className="mr-1 h-4 w-4" />
+                      Email us at contact@nexabloom.xyz
+                    </Button>
+                  </AlertDescription>
+                </Alert>
               )}
               
               <div className="space-y-4">
@@ -147,20 +166,32 @@ const FeedbackColumn: React.FC = () => {
                   />
                 </div>
                 
-                <Button 
-                  type="submit" 
-                  className="w-full"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Sending...
-                    </>
-                  ) : (
-                    <>Submit Feedback</>
-                  )}
-                </Button>
+                <div className="flex flex-col sm:flex-row sm:gap-3">
+                  <Button 
+                    type="submit" 
+                    className="w-full mb-2 sm:mb-0"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>Submit Feedback</>
+                    )}
+                  </Button>
+                  
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    onClick={handleDirectContact}
+                  >
+                    <Mail className="mr-2 h-4 w-4" />
+                    Email Us Directly
+                  </Button>
+                </div>
               </div>
             </form>
           )}
