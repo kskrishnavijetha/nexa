@@ -2,9 +2,9 @@
 /**
  * Types for email requests and templates
  */
-import { PlanDetails } from './email-templates/payment-confirmation';
-import { ReportDetails } from './email-templates/compliance-report';
-import { ScanDetails } from './email-templates/scan-notification';
+import { PlanDetails } from './email-templates/payment-confirmation.ts';
+import { ReportDetails } from './email-templates/compliance-report.ts';
+import { ScanDetails } from './email-templates/scan-notification.ts';
 
 export interface FeedbackDetails {
   userName: string;
