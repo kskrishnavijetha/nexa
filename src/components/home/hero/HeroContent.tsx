@@ -33,6 +33,10 @@ const HeroContent: React.FC = () => {
       <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
         Stay ahead of regulations like GDPR, HIPAA, SOC 2, and PCI-DSS with automation 
         that reduces costs, minimizes risks, and ensures full regulatory alignment.
+        <br className="mt-2" />
+        <span className="font-semibold text-primary">
+          AI-powered audit reports, risk alerts, and hash-verified compliance — in seconds, not weeks.
+        </span>
       </p>
       
       <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
