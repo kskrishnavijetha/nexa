@@ -17,6 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import LifetimeOfferBanner from '@/components/home/LifetimeOfferBanner';
 import FeedbackColumn from '@/components/home/FeedbackColumn';
+import ComparisonTable from '@/components/home/ComparisonTable';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -93,6 +94,7 @@ const Index = () => {
         <ComplianceFeaturesSection />
         <Separator className="max-w-5xl mx-auto" />
         <WhyChooseSection />
+        <ComparisonTable />
         <ResultsSection />
         <IndustriesSection />
         <FaqSection />
