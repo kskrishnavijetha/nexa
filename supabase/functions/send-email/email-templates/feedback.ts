@@ -8,7 +8,7 @@ export const createFeedbackEmail = (
 ) => {
   return {
     from: "NexaBloom <onboarding@resend.dev>",
-    to: email,
+    to: email, // This should be "contact@nexabloom.xyz" from the invoking function
     subject: "New Feedback from NexaBloom User",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e1e4e8; border-radius: 5px;">

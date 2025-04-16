@@ -8,7 +8,13 @@ import { createComplianceReportEmail } from "./email-templates/compliance-report
 import { createScanNotificationEmail } from "./email-templates/scan-notification.ts";
 import { createFeedbackEmail } from "./email-templates/feedback.ts";
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+// Initialize Resend with the API key
+const apiKey = Deno.env.get("RESEND_API_KEY");
+if (!apiKey) {
+  console.error("RESEND_API_KEY is not set in environment variables");
+}
+
+const resend = new Resend(apiKey);
 
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -21,6 +27,7 @@ const handler = async (req: Request): Promise<Response> => {
     let emailResponse;
 
     console.log(`Processing ${type} email for ${email}`);
+    console.log("Using API key:", apiKey ? "API key is set" : "API key is NOT set");
 
     // Create and send appropriate email based on type
     switch (type) {
@@ -60,10 +67,16 @@ const handler = async (req: Request): Promise<Response> => {
           throw new Error("Missing feedback details for feedback email");
         }
         console.log("Sending feedback email to:", email, "with details:", feedbackDetails);
-        emailResponse = await resend.emails.send(
-          createFeedbackEmail(email, name, feedbackDetails)
-        );
-        console.log("Feedback email response:", emailResponse);
+        
+        try {
+          emailResponse = await resend.emails.send(
+            createFeedbackEmail(email, name, feedbackDetails)
+          );
+          console.log("Feedback email response:", emailResponse);
+        } catch (emailError) {
+          console.error("Error in sending email with Resend:", emailError);
+          throw emailError;
+        }
         break;
         
       default:
