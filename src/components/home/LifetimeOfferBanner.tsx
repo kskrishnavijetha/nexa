@@ -115,6 +115,16 @@ const LifetimeOfferBanner: React.FC = () => {
                   <span className="font-bold">🎁 Includes all future Pro features — forever.</span>
                 </div>
               </div>
+
+              {/* New section for limited offer warning */}
+              <div className="mt-4 bg-red-500/20 rounded-lg px-4 py-3 border border-red-400/30">
+                <p className="text-sm font-semibold">
+                  Once they're gone, this offer is closed forever. 
+                </p>
+                <p className="text-xs text-white/80 mt-1">
+                  📦 Secure your copy today — and stay compliant for life.
+                </p>
+              </div>
             </div>
             
             <div className="flex-shrink-0 w-full lg:w-auto lg:min-w-[240px] flex flex-col items-center">
