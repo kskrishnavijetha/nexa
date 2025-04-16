@@ -9,17 +9,19 @@ export interface SubscriptionInfo {
   scansUsed: number;
   scansLimit: number;
   expirationDate: Date;
-  billingCycle?: 'monthly' | 'annually';
+  billingCycle?: 'monthly' | 'annually' | 'lifetime';
   userId?: string; // Add userId to track which user the subscription belongs to
+  isLifetime?: boolean; // Flag to identify lifetime subscriptions
 }
 
 // Store the user's current subscription in localStorage with userId
-export const saveSubscription = (plan: string, paymentId: string, billingCycle: 'monthly' | 'annually' = 'monthly', userId?: string) => {
+export const saveSubscription = (plan: string, paymentId: string, billingCycle: 'monthly' | 'annually' | 'lifetime' = 'monthly', userId?: string) => {
   const pricingTiers = {
     free: { scans: 5, days: 30 }, // 5 scans per month
     starter: { scans: 20, days: 30 },
     pro: { scans: 999, days: 30 }, // Using 999 to represent unlimited
     enterprise: { scans: 999, days: 30 }, // Using 999 to represent unlimited
+    lifetime: { scans: 9999, days: 3650 } // 10 years (effectively lifetime)
   };
   
   const selectedTier = pricingTiers[plan as keyof typeof pricingTiers] || pricingTiers.starter;
@@ -33,7 +35,8 @@ export const saveSubscription = (plan: string, paymentId: string, billingCycle: 
     scansLimit: selectedTier.scans,
     expirationDate: expirationDate,
     billingCycle: billingCycle,
-    userId: userId // Store the user ID with the subscription
+    userId: userId, // Store the user ID with the subscription
+    isLifetime: billingCycle === 'lifetime'
   };
   
   // Store subscription with user ID in the key if available
@@ -52,8 +55,8 @@ export const getSubscription = (userId?: string): SubscriptionInfo | null => {
       const parsedSubscription = JSON.parse(userSubscription);
       parsedSubscription.expirationDate = new Date(parsedSubscription.expirationDate);
       
-      // Check if subscription is expired
-      if (parsedSubscription.expirationDate < new Date()) {
+      // Check if subscription is expired (but not for lifetime subscriptions)
+      if (!parsedSubscription.isLifetime && parsedSubscription.expirationDate < new Date()) {
         parsedSubscription.active = false;
       }
       
@@ -70,8 +73,8 @@ export const getSubscription = (userId?: string): SubscriptionInfo | null => {
   const parsedSubscription = JSON.parse(subscription);
   parsedSubscription.expirationDate = new Date(parsedSubscription.expirationDate);
   
-  // Check if subscription is expired
-  if (parsedSubscription.expirationDate < new Date()) {
+  // Check if subscription is expired (but not for lifetime subscriptions)
+  if (!parsedSubscription.isLifetime && parsedSubscription.expirationDate < new Date()) {
     parsedSubscription.active = false;
   }
   
@@ -95,13 +98,19 @@ export const hasActiveSubscription = (userId?: string): boolean => {
 export const hasScansRemaining = (userId?: string): boolean => {
   const subscription = getSubscription(userId);
   return !!subscription && subscription.active && 
-    subscription.scansUsed < subscription.scansLimit;
+    (subscription.isLifetime || subscription.scansUsed < subscription.scansLimit);
 };
 
 // Record a scan usage - MODIFIED to properly increment usage count
 export const recordScanUsage = (userId?: string): void => {
   const subscription = getSubscription(userId);
   if (subscription && subscription.active) {
+    // Don't count usage for lifetime subscriptions
+    if (subscription.isLifetime) {
+      console.log('Lifetime plan: scan usage not counted');
+      return;
+    }
+    
     // Increment usage count
     subscription.scansUsed += 1;
     console.log(`Recording scan: now used ${subscription.scansUsed} of ${subscription.scansLimit} scans`);
@@ -136,6 +145,11 @@ export const shouldUpgrade = (userId?: string): boolean => {
     return false; // No subscription yet, they'll be directed to pricing anyway
   }
   
+  // Lifetime subscriptions never need to upgrade
+  if (subscription.isLifetime) {
+    return false;
+  }
+  
   // If subscription has expired or no scans left
   const needsUpgrade = (!subscription.active || 
     subscription.scansUsed >= subscription.scansLimit);
@@ -155,6 +169,11 @@ export const shouldUpgradeTier = (userId?: string): boolean => {
   
   if (!subscription) {
     // If no subscription exists, user doesn't need to upgrade yet - they need to select a plan first
+    return false;
+  }
+  
+  // Lifetime subscriptions never need to upgrade tier
+  if (subscription.isLifetime) {
     return false;
   }
   

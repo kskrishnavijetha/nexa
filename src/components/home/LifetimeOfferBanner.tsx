@@ -1,12 +1,41 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { processLifetimePaymentCompletion } from '@/utils/payment/paypal/lifetimeVerification';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 const LifetimeOfferBanner: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [processingPayment, setProcessingPayment] = useState(false);
+  
+  // Check if returning from PayPal payment
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const txnId = urlParams.get('txnId') || urlParams.get('txn_id');
+    
+    if (txnId) {
+      // If we have a transaction ID, we're returning from PayPal
+      setProcessingPayment(true);
+      
+      // Process the payment
+      processLifetimePaymentCompletion(user?.id).then((result) => {
+        if (result.success) {
+          toast.success(result.message);
+          // Redirect to dashboard after successful payment
+          setTimeout(() => {
+            navigate('/dashboard', { replace: true });
+          }, 1500);
+        } else {
+          toast.error(result.message);
+        }
+        setProcessingPayment(false);
+      });
+    }
+  }, [navigate, user]);
 
   const handlePaymentClick = () => {
     if (user) {
@@ -17,6 +46,19 @@ const LifetimeOfferBanner: React.FC = () => {
       navigate('/sign-in', { state: { redirectAfterLogin: 'lifetime-payment' } });
     }
   };
+
+  // Show processing state while handling payment
+  if (processingPayment) {
+    return (
+      <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white py-8">
+        <div className="container mx-auto px-4 text-center">
+          <Loader2 className="animate-spin h-16 w-16 text-white mx-auto mb-4" />
+          <h3 className="text-2xl font-bold">Processing Your Lifetime Purchase</h3>
+          <p className="mt-2">Please wait while we verify your payment...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white py-8">

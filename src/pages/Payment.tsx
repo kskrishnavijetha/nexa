@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import Layout from '@/components/layout/Layout';
 import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { processLifetimePaymentCompletion } from '@/utils/payment/paypal/lifetimeVerification';
 
 const Payment = () => {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ const Payment = () => {
     const token = searchParams.get('token');
     const subscriptionId = searchParams.get('subscription_id');
     const paypalPaymentId = searchParams.get('paymentId');
+    const txnId = searchParams.get('txnId') || searchParams.get('txn_id');
     
     if (token || subscriptionId || paypalPaymentId) {
       console.log('Detected return from PayPal payment', { token, subscriptionId, paypalPaymentId });
@@ -53,6 +55,21 @@ const Payment = () => {
           console.error('Error processing pending subscription:', err);
         }
       }
+    } else if (txnId) {
+      // Process lifetime payment completion
+      setProcessingPayment(true);
+      processLifetimePaymentCompletion(user?.id).then((result) => {
+        if (result.success) {
+          toast.success(result.message);
+          // Update subscription state
+          if (user) {
+            setSubscription(getSubscription(user.id));
+          }
+        } else {
+          toast.error(result.message);
+        }
+        setProcessingPayment(false);
+      });
     }
     
     // Check if user has an active subscription and redirected from another page
@@ -128,6 +145,9 @@ const Payment = () => {
     );
   }
 
+  // Check if user already has a lifetime subscription
+  const hasLifetimePlan = subscription?.isLifetime || subscription?.billingCycle === 'lifetime';
+
   return (
     <Layout>
       <div className="container mx-auto py-12">
@@ -143,18 +163,34 @@ const Payment = () => {
             />
           )}
           
-          {(isRenewal || !hasActiveSubscription(user.id)) && (
-            <div className="flex flex-col md:flex-row gap-8">
-              <div className="flex-1">
-                <PaymentForm 
-                  onSuccess={handlePaymentSuccess} 
-                  initialPlan={selectedPlan} 
-                />
-              </div>
-              <div className="flex-1">
-                <FeatureSummary />
-              </div>
+          {/* Don't show payment form if user has a lifetime plan */}
+          {hasLifetimePlan ? (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-md p-6 text-center">
+              <h2 className="text-2xl font-semibold text-emerald-700 mb-2">You Have Lifetime Access!</h2>
+              <p className="text-emerald-600 mb-4">
+                You've already purchased our lifetime plan, giving you unlimited access to all features forever.
+              </p>
+              <Button 
+                variant="default"
+                onClick={() => navigate('/dashboard')}
+              >
+                Go to Dashboard
+              </Button>
             </div>
+          ) : (
+            (isRenewal || !hasActiveSubscription(user.id)) && (
+              <div className="flex flex-col md:flex-row gap-8">
+                <div className="flex-1">
+                  <PaymentForm 
+                    onSuccess={handlePaymentSuccess} 
+                    initialPlan={selectedPlan} 
+                  />
+                </div>
+                <div className="flex-1">
+                  <FeatureSummary />
+                </div>
+              </div>
+            )
           )}
         </div>
       </div>
