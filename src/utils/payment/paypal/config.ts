@@ -1,4 +1,3 @@
-
 /**
  * PayPal configuration and plan IDs
  */
@@ -15,7 +14,7 @@ export const PAYPAL_PLAN_IDS = {
     monthly: 'P-45M40490U9458232TM77SULI'  // Updated Pro plan ID
   },
   enterprise: {
-    monthly: 'P-76C19200WU898035NM7UO5YQ'  // Enterprise plan ID
+    monthly: 'P-1TN86124MG006482VM77SVJA'  // Updated Enterprise plan ID
   }
 };
 
@@ -25,4 +24,3 @@ declare global {
     paypal?: any;
   }
 }
-
