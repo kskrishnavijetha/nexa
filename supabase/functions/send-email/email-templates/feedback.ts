@@ -1,5 +1,5 @@
 
-import { FeedbackDetails } from "../types";
+import { FeedbackDetails } from "../types.ts";
 
 export const createFeedbackEmail = (
   email: string,
