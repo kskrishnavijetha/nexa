@@ -16,6 +16,7 @@ import { shouldUpgrade, getSubscription } from '@/utils/paymentService';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import LifetimeOfferBanner from '@/components/home/LifetimeOfferBanner';
+import FeedbackColumn from '@/components/home/FeedbackColumn';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -95,6 +96,7 @@ const Index = () => {
         <ResultsSection />
         <IndustriesSection />
         <FaqSection />
+        <FeedbackColumn />
         <UserGuide />
       </div>
     </Layout>

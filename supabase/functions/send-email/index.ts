@@ -6,6 +6,7 @@ import { createWelcomeEmail } from "./email-templates/welcome-email.ts";
 import { createPaymentConfirmationEmail } from "./email-templates/payment-confirmation.ts";
 import { createComplianceReportEmail } from "./email-templates/compliance-report.ts";
 import { createScanNotificationEmail } from "./email-templates/scan-notification.ts";
+import { createFeedbackEmail } from "./email-templates/feedback.ts";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
@@ -16,7 +17,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { type, email, name, planDetails, reportDetails, scanDetails }: EmailRequest = await req.json();
+    const { type, email, name, planDetails, reportDetails, scanDetails, feedbackDetails }: EmailRequest = await req.json();
     let emailResponse;
 
     console.log(`Processing ${type} email for ${email}`);
@@ -51,6 +52,15 @@ const handler = async (req: Request): Promise<Response> => {
         }
         emailResponse = await resend.emails.send(
           createScanNotificationEmail(email, name, scanDetails)
+        );
+        break;
+        
+      case "feedback":
+        if (!feedbackDetails) {
+          throw new Error("Missing feedback details for feedback email");
+        }
+        emailResponse = await resend.emails.send(
+          createFeedbackEmail(email, name, feedbackDetails)
         );
         break;
         
