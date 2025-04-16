@@ -34,7 +34,7 @@ const HeroContent: React.FC = () => {
         Stay ahead of regulations like GDPR, HIPAA, SOC 2, and PCI-DSS with automation 
         that reduces costs, minimizes risks, and ensures full regulatory alignment.
         <br className="mt-2" />
-        <span className="font-semibold text-primary">
+        <span className="font-bold text-white bg-primary px-3 py-1 rounded-lg shadow-md inline-block mt-2 text-base">
           AI-powered audit reports, risk alerts, and hash-verified compliance — in seconds, not weeks.
         </span>
       </p>
