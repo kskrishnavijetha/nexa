@@ -22,20 +22,25 @@ const FeedbackColumn: React.FC = () => {
     }
     
     setIsSubmitting(true);
+    toast.info('Sending your feedback...');
     
     try {
-      await sendFeedbackEmail({
+      const result = await sendFeedbackEmail({
         email,
         name,
         message
       });
       
-      toast.success('Thank you for your feedback!');
-      
-      // Reset form
-      setEmail('');
-      setName('');
-      setMessage('');
+      if (result) {
+        toast.success('Thank you for your feedback! We will review it soon.');
+        
+        // Reset form
+        setEmail('');
+        setName('');
+        setMessage('');
+      } else {
+        toast.error('There was a problem sending your feedback. Please try again.');
+      }
     } catch (error) {
       console.error('Failed to send feedback:', error);
       toast.error('Failed to send feedback. Please try again later.');

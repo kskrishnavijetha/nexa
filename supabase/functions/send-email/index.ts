@@ -59,9 +59,11 @@ const handler = async (req: Request): Promise<Response> => {
         if (!feedbackDetails) {
           throw new Error("Missing feedback details for feedback email");
         }
+        console.log("Sending feedback email to:", email, "with details:", feedbackDetails);
         emailResponse = await resend.emails.send(
           createFeedbackEmail(email, name, feedbackDetails)
         );
+        console.log("Feedback email response:", emailResponse);
         break;
         
       default:

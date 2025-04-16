@@ -11,7 +11,7 @@ export const sendFeedbackEmail = async (data: FeedbackData): Promise<boolean> =>
   try {
     console.log("Sending feedback email with data:", data);
     
-    const { error } = await supabase.functions.invoke("send-email", {
+    const { error, data: responseData } = await supabase.functions.invoke("send-email", {
       body: {
         type: "feedback",
         email: "contact@nexabloom.xyz", // This is the recipient email
@@ -29,7 +29,7 @@ export const sendFeedbackEmail = async (data: FeedbackData): Promise<boolean> =>
       return false;
     }
     
-    console.log("Feedback email sent successfully");
+    console.log("Feedback email sent successfully with response:", responseData);
     return true;
   } catch (err) {
     console.error("Exception sending feedback email:", err);
