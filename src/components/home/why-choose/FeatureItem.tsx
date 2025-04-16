@@ -1,16 +1,24 @@
 
 import React from 'react';
-import { CheckCircle } from 'lucide-react';
 
 interface FeatureItemProps {
   text: string;
 }
 
 const FeatureItem: React.FC<FeatureItemProps> = ({ text }) => {
+  // Split the text into title and description
+  const parts = text.split(' - ');
+  const title = parts[0];
+  const description = parts.length > 1 ? parts[1] : '';
+
   return (
     <div className="flex items-start">
-      <CheckCircle className="h-6 w-6 text-green-500 mr-4 shrink-0 mt-0.5" />
-      <p className="text-gray-700 text-lg">{text}</p>
+      <div className="flex-1">
+        <p className="text-gray-900 text-lg font-semibold mb-1">{title}</p>
+        {description && (
+          <p className="text-gray-700">{description}</p>
+        )}
+      </div>
     </div>
   );
 };
