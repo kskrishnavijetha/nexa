@@ -1,4 +1,3 @@
-
 import { jsPDF } from 'jspdf';
 import { CompanyDetails } from '@/components/audit/types';
 import { getAuditEventsForDocument } from '@/components/audit/hooks/mockAuditData';
@@ -10,6 +9,7 @@ import { addRemediationPage } from './pdf/extendedReport/addRemediationPage';
 import { addIntegrityPage } from './pdf/extendedReport/addIntegrityPage';
 import { addAppendixPage } from './pdf/extendedReport/addAppendixPage';
 import { addChartsPage } from './pdf/extendedReport/addChartsPage';
+import { addElectronicSignaturePage } from './pdf/extendedReport/addElectronicSignaturePage';
 import { generateVerificationMetadata } from './hashVerification';
 import { Industry } from '@/utils/types';
 
@@ -94,6 +94,13 @@ export const generateExtendedAuditReport = async (
         addIntegrityPage(pdf, {
           documentName,
           verificationMetadata
+        });
+        
+        // Add electronic signature page
+        pdf.addPage();
+        addElectronicSignaturePage(pdf, {
+          documentName,
+          companyDetails
         });
         
         // Add appendix if needed
