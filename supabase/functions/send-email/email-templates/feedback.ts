@@ -6,6 +6,8 @@ export const createFeedbackEmail = (
   name: string,
   feedbackDetails: FeedbackDetails
 ) => {
+  console.log(`Creating feedback email template to: ${email} with name: ${name}`);
+  
   return {
     from: "NexaBloom <onboarding@resend.dev>",
     to: email, // This should be "contact@nexabloom.xyz" from the invoking function

@@ -17,21 +17,26 @@ export const sendFeedbackEmail = async (data: FeedbackData): Promise<boolean> =>
       return false;
     }
     
-    const { error, data: responseData } = await supabase.functions.invoke("send-email", {
-      body: {
-        type: "feedback",
-        email: "contact@nexabloom.xyz", // This is the recipient email
-        name: "NexaBloom Feedback System",
-        feedbackDetails: {
-          userName: data.name || "Anonymous User",
-          userEmail: data.email || "Not provided",
-          message: data.message
-        }
+    // Prepare the request body with all required fields
+    const requestBody = {
+      type: "feedback",
+      email: "contact@nexabloom.xyz", // This is the recipient email
+      name: "NexaBloom Feedback System",
+      feedbackDetails: {
+        userName: data.name || "Anonymous User",
+        userEmail: data.email || "Not provided",
+        message: data.message.trim()
       }
+    };
+    
+    console.log("Invoking send-email function with body:", requestBody);
+    
+    const { error, data: responseData } = await supabase.functions.invoke("send-email", {
+      body: requestBody
     });
     
     if (error) {
-      console.error("Error sending feedback email:", error);
+      console.error("Error invoking send-email function:", error);
       return false;
     }
     
@@ -45,6 +50,6 @@ export const sendFeedbackEmail = async (data: FeedbackData): Promise<boolean> =>
     return true;
   } catch (err) {
     console.error("Exception sending feedback email:", err);
-    return false; // Changed from throw to return false for consistent error handling
+    return false;
   }
 };

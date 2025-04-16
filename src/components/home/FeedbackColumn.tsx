@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { sendFeedbackEmail } from '@/utils/feedback';
-import { MessageSquare, Loader2, AlertCircle } from 'lucide-react';
+import { MessageSquare, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 const FeedbackColumn: React.FC = () => {
@@ -24,9 +24,12 @@ const FeedbackColumn: React.FC = () => {
     
     setIsSubmitting(true);
     setSubmitStatus('idle');
-    toast.info('Sending your feedback...');
+    toast.info('Sending your feedback...', {
+      id: 'sending-feedback',
+    });
     
     try {
+      console.log("Submitting feedback with data:", { name, email, message });
       const result = await sendFeedbackEmail({
         email,
         name,
@@ -35,7 +38,10 @@ const FeedbackColumn: React.FC = () => {
       
       if (result) {
         setSubmitStatus('success');
-        toast.success('Thank you for your feedback! We will review it soon.');
+        toast.success('Thank you for your feedback! We will review it soon.', {
+          id: 'sending-feedback',
+          icon: <CheckCircle2 className="h-4 w-4" />
+        });
         
         // Reset form
         setEmail('');
@@ -43,12 +49,16 @@ const FeedbackColumn: React.FC = () => {
         setMessage('');
       } else {
         setSubmitStatus('error');
-        toast.error('There was a problem sending your feedback. Please try again.');
+        toast.error('There was a problem sending your feedback. Please try again.', {
+          id: 'sending-feedback',
+        });
       }
     } catch (error) {
       console.error('Failed to send feedback:', error);
       setSubmitStatus('error');
-      toast.error('Failed to send feedback. Please try again later.');
+      toast.error('Failed to send feedback. Please try again later.', {
+        id: 'sending-feedback',
+      });
     } finally {
       setIsSubmitting(false);
     }
