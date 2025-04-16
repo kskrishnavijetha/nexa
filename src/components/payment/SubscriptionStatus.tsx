@@ -33,7 +33,9 @@ const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscription, o
   const scansRemaining = isLifetime 
     ? 'Unlimited' 
     : Math.max(0, subscription.scansLimit - subscription.scansUsed);
-  const isLimitReached = !isLifetime && scansRemaining <= 0;
+  
+  // Fixed: Only check isLimitReached when scansRemaining is a number, not when it's "Unlimited"
+  const isLimitReached = !isLifetime && typeof scansRemaining === 'number' && scansRemaining <= 0;
   
   return (
     <Card className={`mb-8 ${!isActive ? 'border-amber-200 bg-amber-50' : (isLifetime ? 'border-emerald-200 bg-emerald-50' : '')}`}>
