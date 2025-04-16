@@ -23,8 +23,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    // Log the API key status (without revealing the key)
-    console.log("API key status:", apiKey ? "API key is set" : "API key is NOT set");
+    console.log("API key status:", apiKey ? "API key is set and valid" : "API key is NOT set");
     
     const body = await req.json();
     console.log("Request body received:", JSON.stringify(body));
@@ -86,7 +85,7 @@ const handler = async (req: Request): Promise<Response> => {
           console.log("Email template prepared:", JSON.stringify(emailTemplate));
           
           emailResponse = await resend.emails.send(emailTemplate);
-          console.log("Feedback email response:", JSON.stringify(emailResponse));
+          console.log("Feedback email sent successfully:", JSON.stringify(emailResponse));
         } catch (emailError) {
           console.error("Error in sending email with Resend:", emailError);
           throw emailError;
@@ -97,7 +96,7 @@ const handler = async (req: Request): Promise<Response> => {
         throw new Error(`Invalid email type: ${type}`);
     }
 
-    console.log("Email sent successfully:", JSON.stringify(emailResponse));
+    console.log("Email processing completed successfully");
 
     return new Response(JSON.stringify(emailResponse), {
       status: 200,
@@ -108,10 +107,11 @@ const handler = async (req: Request): Promise<Response> => {
     });
   } catch (error: any) {
     console.error("Error in send-email function:", error);
-    console.error("Error details:", error.message);
-    if (error.response) {
-      console.error("Error response:", JSON.stringify(error.response));
-    }
+    console.error("Detailed error:", {
+      message: error.message,
+      name: error.name,
+      details: error.response || "No additional details"
+    });
     
     return new Response(
       JSON.stringify({ 
