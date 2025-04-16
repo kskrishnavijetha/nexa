@@ -9,7 +9,7 @@ import { createScanNotificationEmail } from "./email-templates/scan-notification
 import { createFeedbackEmail } from "./email-templates/feedback.ts";
 
 // Initialize Resend with the API key
-const apiKey = Deno.env.get("RESEND_API_KEY");
+const apiKey = "re_Q7bexMpX_JTDLFpJUuyx6CCdUi9KocDnK";
 if (!apiKey) {
   console.error("RESEND_API_KEY is not set in environment variables");
 }
@@ -23,7 +23,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    console.log("API key status:", apiKey ? "API key is set and valid" : "API key is NOT set");
+    console.log("API key status: API key is set and valid");
     
     const body = await req.json();
     console.log("Request body received:", JSON.stringify(body));
