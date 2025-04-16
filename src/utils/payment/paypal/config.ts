@@ -12,7 +12,7 @@ export const PAYPAL_PLAN_IDS = {
     monthly: 'P-7JU242559V237791XM77STDA'  // Starter plan ID
   },
   pro: {
-    monthly: 'P-0F289070AR785993EM7UO47Y'  // Pro plan ID
+    monthly: 'P-45M40490U9458232TM77SULI'  // Updated Pro plan ID
   },
   enterprise: {
     monthly: 'P-76C19200WU898035NM7UO5YQ'  // Enterprise plan ID
@@ -25,3 +25,4 @@ declare global {
     paypal?: any;
   }
 }
+
