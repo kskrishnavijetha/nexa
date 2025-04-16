@@ -16,7 +16,7 @@ export interface SubscriptionInfo {
 // Store the user's current subscription in localStorage with userId
 export const saveSubscription = (plan: string, paymentId: string, billingCycle: 'monthly' | 'annually' = 'monthly', userId?: string) => {
   const pricingTiers = {
-    free: { scans: 4, days: 30 }, // 1 scan per week (4 per month)
+    free: { scans: 5, days: 30 }, // 5 scans per month
     starter: { scans: 20, days: 30 },
     pro: { scans: 999, days: 30 }, // Using 999 to represent unlimited
     enterprise: { scans: 999, days: 30 }, // Using 999 to represent unlimited

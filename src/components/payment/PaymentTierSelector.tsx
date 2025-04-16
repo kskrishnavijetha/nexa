@@ -18,7 +18,7 @@ const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
   initialTier
 }) => {
   const tiers = [
-    { id: 'free', name: 'Free', description: '1 document scan per week with basic compliance analysis' },
+    { id: 'free', name: 'Free', description: '5 document scans per month with basic compliance analysis' },
     { id: 'starter', name: 'Starter', description: '20 document scans per month with PDF reports' },
     { id: 'pro', name: 'Pro', description: 'Unlimited scans with advanced analysis and features' },
     { id: 'enterprise', name: 'Enterprise', description: 'Unlimited scans with multi-user support and custom branding' }

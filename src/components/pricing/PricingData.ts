@@ -1,6 +1,6 @@
 
 export const freeFeatures = [
-  "1 document scan per week",
+  "5 document scans per month",
   "AI Risk Analysis",
   "GDPR compliance only"
 ];

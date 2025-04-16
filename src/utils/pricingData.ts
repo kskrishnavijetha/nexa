@@ -3,7 +3,7 @@
 export const pricingTiers = {
   free: {
     name: 'Free',
-    scans: 4, // 1 per week
+    scans: 5, // 5 scans per month
     days: 30,
     features: {
       aiRiskAnalysis: true,
