@@ -53,7 +53,7 @@ const ComparisonTable: React.FC = () => {
   ];
 
   return (
-    <div className="py-16 bg-white">
+    <div className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold">
@@ -64,19 +64,19 @@ const ComparisonTable: React.FC = () => {
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto rounded-lg overflow-hidden shadow-lg border border-gray-100">
+        <div className="max-w-4xl mx-auto rounded-xl overflow-hidden shadow-xl border border-gray-200 bg-white">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader className="bg-gray-50">
                 <TableRow>
                   <TableHead className="w-10"></TableHead>
-                  <TableHead className="font-bold text-primary">NexaBloom</TableHead>
-                  <TableHead className="font-bold text-gray-500">Traditional Tools</TableHead>
+                  <TableHead className="font-bold text-primary text-lg">NexaBloom</TableHead>
+                  <TableHead className="font-bold text-gray-500 text-lg">Traditional Tools</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {comparisonData.map((row, index) => (
-                  <TableRow key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                  <TableRow key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
                     <TableCell className="text-center">{row.icon}</TableCell>
                     <TableCell className="font-medium">{row.nexabloom}</TableCell>
                     <TableCell className="text-gray-600">{row.traditional}</TableCell>

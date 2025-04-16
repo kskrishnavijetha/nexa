@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import FeatureItem from './why-choose/FeatureItem';
 import { keyFeatures } from './why-choose/keyFeaturesData';
-import { SearchIcon, Briefcase } from 'lucide-react';
+import { Briefcase } from 'lucide-react';
 
 const WhyChooseSection: React.FC = () => {
   return (
