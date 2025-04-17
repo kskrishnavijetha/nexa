@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Globe, Shield, FileText, X } from 'lucide-react';
@@ -108,7 +107,7 @@ const Footer: React.FC = () => {
             <span className="text-sm text-muted-foreground">© {currentYear} Nexabloom. All rights reserved.</span>
           </div>
           
-          <div className="flex flex-wrap space-x-4 md:space-x-6 justify-center">
+          <div className="flex flex-wrap space-x-4 md:space-x-6 justify-center items-center">
             <a 
               href="#" 
               onClick={handlePrivacyPolicyClick} 
@@ -130,6 +129,21 @@ const Footer: React.FC = () => {
               className="text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
               Cookie Policy
+            </a>
+            
+            <a 
+              href="https://www.producthunt.com/posts/nexabloom?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-nexabloom" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="ml-4"
+            >
+              <img 
+                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=954587&theme=light&t=1744881191911" 
+                alt="Nexabloom - AI powered compliance.Audit-ready reports in seconds | Product Hunt" 
+                style={{ width: '250px', height: '54px' }} 
+                width="250" 
+                height="54" 
+              />
             </a>
           </div>
         </div>
