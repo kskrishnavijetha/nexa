@@ -32,7 +32,7 @@ const LifetimeOfferBanner: React.FC = () => {
                 <div className="flex items-center gap-2 mb-2">
                   <span className="text-amber-300 font-medium text-sm rounded-full bg-amber-300/10 px-3 py-1 flex items-center gap-1">
                     <AlarmClock className="h-3.5 w-3.5" />
-                    <span>LIMITED OFFER</span>
+                    <span>OFFER CLOSES SOON</span>
                   </span>
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-2">
