@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const SignUp: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -42,7 +43,31 @@ const SignUp: React.FC = () => {
       if (error) {
         toast.error(error.message);
       } else {
-        toast.success('Signup successful! Please check your email to verify your account.');
+        // Show welcome toast message
+        toast.success(
+          <div className="flex flex-col gap-1">
+            <p className="font-semibold">Welcome to NexaBloom — your AI compliance copilot!</p>
+            <p className="text-sm">Ready to help you analyze, simulate, and generate audit-ready compliance reports.</p>
+          </div>,
+          {
+            duration: 6000,
+          }
+        );
+        
+        // Send welcome email
+        try {
+          await supabase.functions.invoke("send-email", {
+            body: {
+              type: "welcome",
+              email: email,
+              name: email.split('@')[0], // Simple name extraction from email
+            }
+          });
+        } catch (emailError) {
+          console.error("Error sending welcome email:", emailError);
+          // Don't show error to user, just log it
+        }
+
         // Redirect to pricing page after successful signup
         navigate('/pricing');
       }

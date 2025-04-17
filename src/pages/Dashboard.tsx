@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import DashboardOverview from '@/components/dashboard/DashboardOverview';
 import DashboardTabContent from '@/components/dashboard/DashboardTabContent';
+import WelcomeMessage from '@/components/dashboard/WelcomeMessage';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUserHistoricalReports } from '@/utils/historyService';
 import { SelectedReportProvider } from '@/components/dashboard/context/SelectedReportContext';
@@ -58,6 +59,8 @@ const Dashboard = () => {
     <SelectedReportProvider>
       <div className="container mx-auto px-4 py-8">
         <DashboardHeader />
+        
+        <WelcomeMessage />
         
         {subscription && (
           <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">

@@ -36,7 +36,9 @@ const handler = async (req: Request): Promise<Response> => {
     // Create and send appropriate email based on type
     switch (type) {
       case "welcome":
-        emailResponse = await resend.emails.send(createWelcomeEmail(email, name));
+        const isPro = planDetails?.plan && planDetails.plan !== 'free';
+        const isLifetime = planDetails?.isLifetime || false;
+        emailResponse = await resend.emails.send(createWelcomeEmail(email, name, isPro, isLifetime));
         break;
         
       case "payment-confirmation":

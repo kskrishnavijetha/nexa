@@ -16,7 +16,9 @@ export interface EmailRequest {
   type: "welcome" | "payment-confirmation" | "compliance-report" | "scan-notification" | "feedback";
   email: string;
   name?: string;
-  planDetails?: PlanDetails;
+  planDetails?: PlanDetails & {
+    isLifetime?: boolean;
+  };
   reportDetails?: ReportDetails;
   scanDetails?: ScanDetails;
   feedbackDetails?: FeedbackDetails;

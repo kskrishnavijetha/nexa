@@ -2,18 +2,44 @@
 /**
  * Welcome email template
  */
-export const createWelcomeEmail = (email: string, name?: string) => {
+export const createWelcomeEmail = (email: string, name?: string, isPro?: boolean, isLifetime?: boolean) => {
+  const userType = isPro ? (isLifetime ? 'Lifetime' : 'Pro') : 'Free';
+  
+  let featuresList = '';
+  if (isPro) {
+    featuresList = `
+      <ul style="padding-left: 20px;">
+        <li>✅ Extended audit-ready reports</li>
+        <li>✅ Risk simulations</li>
+        <li>✅ Smart alerts & audit trails</li>
+        ${isLifetime ? '<li>✅ Lifetime access</li>' : ''}
+      </ul>
+    `;
+  }
+
   return {
     from: "Nexabloom <onboarding@resend.dev>",
     to: [email],
-    subject: "Welcome to Nexabloom!",
+    subject: "Welcome to NexaBloom — Let's Make Compliance Effortless",
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h1 style="color: #4F46E5;">Welcome to Nexabloom!</h1>
+        <h1 style="color: #4F46E5;">Welcome to NexaBloom!</h1>
         <p>Hello${name ? ` ${name}` : ""},</p>
-        <p>Thank you for signing up with Nexabloom! We're excited to have you on board.</p>
-        <p>To get started with our compliance automation platform, please select a subscription plan that suits your needs.</p>
-        <p>If you have any questions, feel free to reach out to our support team.</p>
+        <p>Thanks for joining NexaBloom!</p>
+        <p>You're now set to automate your compliance journey with instant document analysis, predictive audit simulations, and tamper-proof reports.</p>
+        ${isPro ? `
+        <div style="background-color: #f8f9fa; border-left: 4px solid #4F46E5; padding: 15px; margin: 20px 0;">
+          <h3 style="margin-top: 0;">Thanks for joining NexaBloom ${userType}!</h3>
+          <p>You now have access to:</p>
+          ${featuresList}
+          <p>You're audit-ready — let's get to work.</p>
+        </div>
+        ` : ''}
+        <p style="margin: 25px 0;">
+          <a href="https://nexabloom.xyz/document-analysis" style="background-color: #4F46E5; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold;">Start Your First Scan</a>
+        </p>
+        <p>NexaBloom is ready to help you analyze, simulate, and generate audit-ready compliance reports — all backed by AI and hash-verified for trust.</p>
+        <p>Questions? We're always listening: <a href="mailto:contact@nexabloom.xyz">contact@nexabloom.xyz</a></p>
         <p>Best regards,<br>The Nexabloom Team</p>
       </div>
     `,
