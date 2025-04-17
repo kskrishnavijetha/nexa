@@ -1,6 +1,14 @@
 
 import { jsPDF } from 'jspdf';
-import { VerificationMetadata } from '../hashVerification';
+
+// Define the VerificationMetadata type directly in this file since it's not exported from hashVerification
+export interface VerificationMetadata {
+  hash?: string;
+  shortHash?: string;
+  timestamp?: string;
+  verificationMethod?: string;
+  eventCount?: number;
+}
 
 /**
  * Add footer with page numbers and verification information to all pages
@@ -9,8 +17,8 @@ export const addFooter = async (
   pdf: jsPDF, 
   verificationMetadata?: VerificationMetadata
 ): Promise<void> => {
-  // Get total page count
-  const totalPages = pdf.internal.getNumberOfPages();
+  // Get total page count - fixed to use internal.pages.length
+  const totalPages = pdf.internal.pages.length - 1; // Subtract 1 as jsPDF page array is 1-indexed
   
   // Add footer to each page
   for (let i = 1; i <= totalPages; i++) {

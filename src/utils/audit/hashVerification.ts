@@ -2,6 +2,17 @@
 import { AuditEvent } from '@/components/audit/types';
 
 /**
+ * Type definition for verification metadata
+ */
+export interface VerificationMetadata {
+  hash: string;
+  shortHash: string;
+  timestamp: string;
+  verificationMethod: string;
+  eventCount: number;
+}
+
+/**
  * Generate a hash from audit events to verify integrity
  * Uses SHA-256 algorithm via the Web Crypto API
  */
@@ -84,7 +95,7 @@ export const getShortHash = (hash: string): string => {
 /**
  * Generate verification metadata for the audit trail
  */
-export const generateVerificationMetadata = async (auditEvents: AuditEvent[]) => {
+export const generateVerificationMetadata = async (auditEvents: AuditEvent[]): Promise<VerificationMetadata> => {
   const hash = await generateAuditHash(auditEvents);
   const timestamp = new Date().toISOString();
   
