@@ -11,12 +11,16 @@ interface CheckoutFormProps {
   onSuccess?: (paymentId: string) => void;
   initialPlan?: string | null;
   initialBillingCycle?: 'monthly' | 'annually';
+  changePlan?: boolean;
+  currentPlan?: string;
 }
 
 const CheckoutForm: React.FC<CheckoutFormProps> = ({ 
   onSuccess = () => {},
   initialPlan, 
-  initialBillingCycle 
+  initialBillingCycle,
+  changePlan = false,
+  currentPlan
 }) => {
   const [selectedTier, setSelectedTier] = useState<string>(initialPlan || 'free');
   // Always use monthly billing now
@@ -29,13 +33,15 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
     if (initialPlan) {
       setSelectedTier(initialPlan);
     } else if (currentSubscription?.plan) {
-      setSelectedTier(currentSubscription.plan);
-      // If free plan has expired, suggest the starter plan as the next step
-      if (currentSubscription.plan === 'free' && !currentSubscription.active) {
+      // If changing plan, preselect current plan
+      if (changePlan) {
+        setSelectedTier(currentSubscription.plan);
+      } else if (currentSubscription.plan === 'free' && !currentSubscription.active) {
+        // If free plan has expired, suggest the starter plan as the next step
         setSelectedTier('starter');
       }
     }
-  }, [initialPlan, currentSubscription]);
+  }, [initialPlan, currentSubscription, changePlan]);
 
   const handleSuccess = (paymentId: string) => {
     console.log("Handling subscription success:", paymentId, "for tier:", selectedTier);
@@ -64,29 +70,39 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
           billingCycle={billingCycle}
           onSelectTier={setSelectedTier}
           initialTier={initialPlan}
+          changePlan={changePlan}
+          currentPlan={currentPlan}
         />
       </div>
 
-      <div className="rounded-md border p-4 bg-slate-50">
-        <p className="text-sm text-muted-foreground mb-4">
-          {selectedTier === 'free' 
-            ? 'Activate your free plan to start analyzing documents'
-            : 'Subscribe to continue with premium features'
-          }
-        </p>
-        <PaymentButtons 
-          onSuccess={handleSuccess}
-          tier={selectedTier}
-          loading={loading}
-          setLoading={setLoading}
-          billingCycle={billingCycle}
-        />
-      </div>
+      {selectedTier !== currentPlan && (
+        <div className="rounded-md border p-4 bg-slate-50">
+          <p className="text-sm text-muted-foreground mb-4">
+            {selectedTier === 'free' 
+              ? 'Activate your free plan to start analyzing documents'
+              : changePlan 
+                ? 'Subscribe to change your plan to ' + selectedTier
+                : 'Subscribe to continue with premium features'
+            }
+          </p>
+          <PaymentButtons 
+            onSuccess={handleSuccess}
+            tier={selectedTier}
+            loading={loading}
+            setLoading={setLoading}
+            billingCycle={billingCycle}
+            changePlan={changePlan}
+            currentPlan={currentPlan}
+          />
+        </div>
+      )}
 
       <PaymentSummary 
         selectedTier={selectedTier}
         billingCycle={billingCycle}
         getPrice={getPrice}
+        changePlan={changePlan}
+        currentPlan={currentPlan}
       />
     </div>
   );

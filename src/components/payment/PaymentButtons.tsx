@@ -12,6 +12,8 @@ interface PaymentButtonsProps {
   loading: boolean;
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   billingCycle: 'monthly' | 'annually';
+  changePlan?: boolean;
+  currentPlan?: string;
 }
 
 const PaymentButtons: React.FC<PaymentButtonsProps> = ({
@@ -19,14 +21,20 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   tier,
   loading,
   setLoading,
-  billingCycle
+  billingCycle,
+  changePlan = false,
+  currentPlan
 }) => {
   const { user } = useAuth();
 
   const needsUpgrade = tier !== 'free' || (user && shouldUpgrade(user.id));
-  const buttonText = tier === 'free' 
-    ? (needsUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan')
-    : `Subscribe to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`;
+  const isChangingPlan = changePlan && tier !== currentPlan;
+  
+  const buttonText = isChangingPlan
+    ? `Change to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`
+    : tier === 'free' 
+      ? (needsUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan')
+      : `Subscribe to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`;
 
   const handleFreePlanActivation = async () => {
     if (loading) return;
@@ -60,6 +68,8 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
         setLoading={setLoading}
         billingCycle={billingCycle}
         onSuccess={onSuccess}
+        changePlan={changePlan}
+        currentPlan={currentPlan}
       />
     );
   }

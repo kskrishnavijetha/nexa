@@ -9,11 +9,17 @@ import { SubscriptionInfo } from '@/utils/paymentService';
 interface SubscriptionStatusProps {
   subscription: SubscriptionInfo;
   onRenew: () => void;
+  onChangePlan: () => void;
 }
 
-const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscription, onRenew }) => {
+const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ 
+  subscription, 
+  onRenew,
+  onChangePlan 
+}) => {
   const isActive = subscription.active;
   const isLifetime = subscription.isLifetime || subscription.billingCycle === 'lifetime';
+  const isPaidPlan = subscription.plan !== 'free';
   
   // Handle expiry display differently for lifetime subscriptions
   const formattedExpiry = isLifetime 
@@ -75,13 +81,19 @@ const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({ subscription, o
           </div>
         </div>
       </CardContent>
-      {!isActive && !isLifetime && (
-        <CardFooter className="pt-0">
+      <CardFooter className="pt-0 flex gap-2">
+        {!isActive && !isLifetime && (
           <Button onClick={onRenew} variant="outline" className="w-full">
             Renew Subscription
           </Button>
-        </CardFooter>
-      )}
+        )}
+        
+        {isActive && isPaidPlan && !isLifetime && (
+          <Button onClick={onChangePlan} variant="outline" className="w-full">
+            Change Plan
+          </Button>
+        )}
+      </CardFooter>
     </Card>
   );
 };

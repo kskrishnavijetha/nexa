@@ -19,6 +19,7 @@ const Payment = () => {
   const { user } = useAuth();
   const [subscription, setSubscription] = useState(user ? getSubscription(user.id) : null);
   const [isRenewal, setIsRenewal] = useState(false);
+  const [isChangingPlan, setIsChangingPlan] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [processingPayment, setProcessingPayment] = useState(false);
   
@@ -73,13 +74,18 @@ const Payment = () => {
     }
     
     // Check if user has an active subscription and redirected from another page
-    if (user && hasActiveSubscription(user.id) && location.state?.fromProtectedRoute) {
+    if (user && hasActiveSubscription(user.id) && location.state?.fromProtectedRoute && !location.state?.changePlan) {
       navigate('/dashboard');
     }
     
     // Check if a plan was selected from the pricing page
     if (location.state?.selectedPlan) {
       setSelectedPlan(location.state.selectedPlan);
+    }
+    
+    // Check if user wants to change the plan
+    if (location.state?.changePlan) {
+      setIsChangingPlan(true);
     }
     
     // Check if user has a subscription but it's expired (renewal case)
@@ -112,6 +118,12 @@ const Payment = () => {
 
   const handleRenewClick = () => {
     setIsRenewal(true);
+    setIsChangingPlan(false);
+  };
+
+  const handleChangePlanClick = () => {
+    setIsChangingPlan(true);
+    setIsRenewal(false);
   };
 
   // If processing a payment, show loading state
@@ -153,13 +165,16 @@ const Payment = () => {
       <div className="container mx-auto py-12">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-3xl font-bold text-center mb-10">
-            {isRenewal ? 'Renew Your Subscription' : (hasActiveSubscription(user.id) ? 'Manage Your Subscription' : 'Choose Your Subscription Plan')}
+            {isChangingPlan ? 'Change Your Subscription Plan' : 
+              (isRenewal ? 'Renew Your Subscription' : 
+                (hasActiveSubscription(user.id) ? 'Manage Your Subscription' : 'Choose Your Subscription Plan'))}
           </h1>
           
           {subscription && (
             <SubscriptionStatus 
               subscription={subscription} 
               onRenew={handleRenewClick} 
+              onChangePlan={handleChangePlanClick}
             />
           )}
           
@@ -178,12 +193,13 @@ const Payment = () => {
               </Button>
             </div>
           ) : (
-            (isRenewal || !hasActiveSubscription(user.id)) && (
+            (isRenewal || isChangingPlan || !hasActiveSubscription(user.id)) && (
               <div className="flex flex-col md:flex-row gap-8">
                 <div className="flex-1">
                   <PaymentForm 
                     onSuccess={handlePaymentSuccess} 
-                    initialPlan={selectedPlan} 
+                    initialPlan={selectedPlan}
+                    changePlan={isChangingPlan}
                   />
                 </div>
                 <div className="flex-1">
