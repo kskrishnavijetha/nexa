@@ -13,7 +13,7 @@ import { addFooterAndDisclaimer } from './pdf/addFooterAndDisclaimer';
 
 /**
  * Generate a PDF report for a simulation analysis
- * Optimized version with non-blocking implementation
+ * Optimized version with non-blocking implementation and improved pagination
  */
 export const exportSimulationPDF = async (
   analysis: PredictiveAnalysis,
@@ -31,14 +31,40 @@ export const exportSimulationPDF = async (
         // Add header and scenario information
         let yPos = addSimulationHeader(pdf, analysis);
         
+        // Check if chart should go on a new page
+        if (yPos > 180 && chartImageBase64) {
+          pdf.addPage();
+          yPos = 20;
+        }
+        
         // Add chart visualization if provided
-        yPos = addChartVisualization(pdf, chartImageBase64, yPos);
+        if (chartImageBase64) {
+          yPos = addChartVisualization(pdf, chartImageBase64, yPos);
+        }
+        
+        // Check if score comparison table should go on a new page
+        if (yPos > 200) {
+          pdf.addPage();
+          yPos = 20;
+        }
         
         // Add score comparison table
         yPos = addScoreComparisonTable(pdf, analysis, yPos);
         
+        // Check if risk trends should go on a new page
+        if (yPos > 200) {
+          pdf.addPage();
+          yPos = 20;
+        }
+        
         // Add risk trends section
         yPos = addRiskTrendsSection(pdf, analysis.riskTrends, yPos);
+        
+        // Check if recommendations should go on a new page
+        if (yPos > 200) {
+          pdf.addPage();
+          yPos = 20;
+        }
         
         // Add recommendations section
         yPos = addRecommendationsSection(pdf, analysis.recommendations, yPos);

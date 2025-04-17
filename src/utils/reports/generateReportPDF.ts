@@ -10,7 +10,7 @@ import { addComplianceCharts } from './sections/complianceCharts';
 
 /**
  * Generate a downloadable compliance report PDF
- * Optimized for better performance
+ * Optimized for better performance and pagination
  */
 export const generateReportPDF = async (
   report: ComplianceReport,
@@ -71,13 +71,21 @@ export const generateReportPDF = async (
           
           // List applicable regulations if available
           if (report.regulations && report.regulations.length > 0) {
-            doc.text(`${translate('applicable_regulations', language)}: ${report.regulations.join(', ')}`, 20, yPos);
-            yPos += 7;
+            // Check if text will fit, otherwise wrap it
+            const regulationsText = `${translate('applicable_regulations', language)}: ${report.regulations.join(', ')}`;
+            const regulationsLines = doc.splitTextToSize(regulationsText, 170);
+            doc.text(regulationsLines, 20, yPos);
+            yPos += (regulationsLines.length * 7);
           }
         }
         
+        // Check if we need to add a page break before summary
+        if (yPos > 230) {
+          doc.addPage();
+          yPos = 20;
+        }
+        
         // Summary Section
-        yPos += 5;
         doc.setFontSize(16);
         doc.setTextColor(0, 51, 102);
         doc.text(translate('summary', language), 20, yPos);
@@ -94,6 +102,12 @@ export const generateReportPDF = async (
         // Calculate Y position after summary
         yPos += (summaryLines.length * 7) + 10;
         
+        // Check if we need to add a page break before compliance scores
+        if (yPos > 220) {
+          doc.addPage();
+          yPos = 20;
+        }
+        
         // Compliance Scores Section
         doc.setFontSize(16);
         doc.setTextColor(0, 51, 102);
@@ -106,7 +120,7 @@ export const generateReportPDF = async (
         // Add compliance charts if image is provided
         if (chartImageBase64) {
           // Check if we need a new page
-          if (yPos > 220) {
+          if (yPos > 180) {
             doc.addPage();
             yPos = 20;
           }
@@ -114,8 +128,8 @@ export const generateReportPDF = async (
           yPos = addComplianceCharts(doc, report, chartImageBase64, yPos);
         }
         
-        // Check if we need a new page
-        if (yPos > 220) {
+        // Check if we need a new page before compliance issues
+        if (yPos > 200) {
           doc.addPage();
           yPos = 20;
         }

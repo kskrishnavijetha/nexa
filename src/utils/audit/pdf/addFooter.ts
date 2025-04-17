@@ -1,39 +1,53 @@
 
-import { jsPDF } from "jspdf";
-import { getOrganizationBranding, applyBrandingToFooter } from '@/utils/branding/organizationBranding';
+import { jsPDF } from 'jspdf';
+import { VerificationMetadata } from '../hashVerification';
 
 /**
- * Add footer with page numbers and organization branding to the PDF document
- * Now supports customizable branding and includes integrity verification metadata
+ * Add footer with page numbers and verification information to all pages
  */
-export const addFooter = (doc: jsPDF, verificationMetadata?: any): void => {
-  // Get organization branding (will use defaults if none set)
-  const branding = getOrganizationBranding();
+export const addFooter = async (
+  pdf: jsPDF, 
+  verificationMetadata?: VerificationMetadata
+): Promise<void> => {
+  // Get total page count
+  const totalPages = pdf.internal.getNumberOfPages();
   
-  // Add audit verification information if provided
-  if (verificationMetadata) {
-    // Get total pages - use internal.pages.length instead of getNumberOfPages
-    const pageCount = doc.internal.pages.length - 1;
+  // Add footer to each page
+  for (let i = 1; i <= totalPages; i++) {
+    pdf.setPage(i);
     
-    for (let i = 1; i <= pageCount; i++) {
-      doc.setPage(i);
-      
-      // Add verification hash info in small gray text
-      doc.setFontSize(7);
-      doc.setTextColor(100, 100, 100);
-      const verificationText = `Verification Hash: ${verificationMetadata.shortHash} | Generated: ${new Date(verificationMetadata.timestamp).toLocaleString()} | Method: ${verificationMetadata.verificationMethod}`;
-      doc.text(verificationText, doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() - 7, {
-        align: 'center'
-      });
-      
-      // Add tamper-evident notice text
-      const tamperText = "This report uses cryptographic verification to detect tampering and ensure data integrity.";
-      doc.text(tamperText, doc.internal.pageSize.getWidth() / 2, doc.internal.pageSize.getHeight() - 4, {
-        align: 'center'
-      });
+    // Add page numbers at the bottom
+    pdf.setFontSize(9);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text(
+      `Page ${i} of ${totalPages}`, 
+      pdf.internal.pageSize.width / 2, 
+      pdf.internal.pageSize.height - 10, 
+      { align: 'center' }
+    );
+    
+    // Add verification information if available
+    if (verificationMetadata) {
+      pdf.setFontSize(8);
+      pdf.setTextColor(120, 120, 120);
+      const verificationText = `Verification Hash: ${verificationMetadata.shortHash || ''}`;
+      pdf.text(
+        verificationText,
+        pdf.internal.pageSize.width - 15, 
+        pdf.internal.pageSize.height - 7, 
+        { align: 'right' }
+      );
     }
+    
+    // Add timestamp
+    pdf.setFontSize(8);
+    pdf.setTextColor(120, 120, 120);
+    const timestamp = `Generated: ${new Date().toISOString().split('T')[0]}`;
+    pdf.text(
+      timestamp,
+      15, 
+      pdf.internal.pageSize.height - 7, 
+      { align: 'left' }
+    );
   }
-  
-  // Apply the branding to the footer
-  applyBrandingToFooter(doc, branding, verificationMetadata);
 };

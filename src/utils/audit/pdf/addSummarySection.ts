@@ -7,7 +7,7 @@ import { addStatisticsSection } from './sections/addStatisticsSection';
 import { Industry } from '@/utils/types';
 
 /**
- * Add summary statistics section to the PDF document
+ * Add summary statistics section to the PDF document with improved pagination
  */
 export const addSummarySection = (
   doc: jsPDF, 
@@ -17,6 +17,12 @@ export const addSummarySection = (
   industry?: Industry
 ): number => {
   let yPos = startY;
+  
+  // Check if we need a new page
+  if (yPos > 220) {
+    doc.addPage();
+    yPos = 20;
+  }
   
   // Add horizontal line after insights
   doc.setDrawColor(200, 200, 200);
@@ -35,8 +41,20 @@ export const addSummarySection = (
   // Create compliance findings - pass both document name and industry
   const findings = generateComplianceFindings(stats, documentName, undefined, industry);
   
+  // Ensure findings table starts on a new page if not enough space
+  if (yPos > 180) {
+    doc.addPage();
+    yPos = 20;
+  }
+  
   // Create findings table
   yPos = createFindingsTable(doc, findings, yPos);
+  
+  // Check if we need a new page for statistics
+  if (yPos > 220) {
+    doc.addPage();
+    yPos = 20;
+  }
   
   // Add statistics section
   yPos = addStatisticsSection(doc, stats, findings, yPos);
