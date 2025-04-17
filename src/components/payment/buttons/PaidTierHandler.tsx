@@ -9,6 +9,8 @@ interface PaidTierHandlerProps {
   setLoading: React.Dispatch<React.SetStateAction<boolean>>;
   billingCycle: 'monthly' | 'annually';
   onSuccess: (paymentId: string) => void;
+  changePlan?: boolean;
+  currentPlan?: string;
 }
 
 const PaidTierHandler: React.FC<PaidTierHandlerProps> = ({
@@ -16,7 +18,9 @@ const PaidTierHandler: React.FC<PaidTierHandlerProps> = ({
   loading,
   setLoading,
   billingCycle,
-  onSuccess
+  onSuccess,
+  changePlan,
+  currentPlan
 }) => {
   const handleError = (error: any) => {
     toast.error('There was an error processing your subscription. Please try again.');

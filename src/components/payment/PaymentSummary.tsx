@@ -7,9 +7,17 @@ interface PaymentSummaryProps {
   selectedTier: string;
   billingCycle: 'monthly' | 'annually';
   getPrice: (tier: string, cycle: 'monthly' | 'annually') => number;
+  changePlan?: boolean;
+  currentPlan?: string;
 }
 
-const PaymentSummary: React.FC<PaymentSummaryProps> = ({ selectedTier, billingCycle, getPrice }) => {
+const PaymentSummary: React.FC<PaymentSummaryProps> = ({ 
+  selectedTier, 
+  billingCycle, 
+  getPrice,
+  changePlan,
+  currentPlan
+}) => {
   // Regular subscription tiers
   const price = getPrice(selectedTier, billingCycle);
   const discount = selectedTier !== 'free' && billingCycle === 'annually' ? 10 : 0;
