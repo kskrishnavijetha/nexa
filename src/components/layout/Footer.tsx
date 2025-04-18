@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Globe, Shield, FileText, X } from 'lucide-react';
@@ -78,8 +79,8 @@ const Footer: React.FC = () => {
               </li>
               <li className="flex items-center space-x-3 text-sm text-muted-foreground">
                 <Globe className="h-4 w-4 flex-shrink-0" />
-                <a href="https://www.nexabloom.xyz" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
-                  www.nexabloom.xyz
+                <a href="https://nexabloom.xyz" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
+                  nexabloom.xyz
                 </a>
               </li>
               <li className="flex items-center space-x-3 text-sm text-muted-foreground">
