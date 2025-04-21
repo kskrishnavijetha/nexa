@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -26,6 +25,8 @@ const JiraIntegration: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {isConnected && <JiraAnalysis />}
+      
       <Card className="w-full">
         <CardHeader className="border-b">
           <div className="flex items-center gap-2">
@@ -72,8 +73,6 @@ const JiraIntegration: React.FC = () => {
           </form>
         </Form>
       </Card>
-
-      {isConnected && <JiraAnalysis />}
     </div>
   );
 };
