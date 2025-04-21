@@ -7,7 +7,8 @@ import {
   createJiraIssueForAuditEvent, 
   createJiraIssuesForReport,
   isJiraIntegrationEnabled,
-  isJiraSettingEnabled
+  isJiraSettingEnabled,
+  getJiraSettings
 } from '@/utils/jira/jiraService';
 
 export const useJiraIntegration = () => {
@@ -24,7 +25,10 @@ export const useJiraIntegration = () => {
       return false;
     }
     
-    return await createJiraIssueForRisk(risk, documentName);
+    const settings = getJiraSettings();
+    if (!settings) return false;
+    
+    return await createJiraIssueForRisk(risk, documentName, settings);
   }, []);
   
   /**
@@ -39,7 +43,10 @@ export const useJiraIntegration = () => {
       return false;
     }
     
-    return await createJiraIssueForAuditEvent(event);
+    const settings = getJiraSettings();
+    if (!settings) return false;
+    
+    return await createJiraIssueForAuditEvent(event, settings);
   }, []);
   
   /**
@@ -54,7 +61,10 @@ export const useJiraIntegration = () => {
       return 0;
     }
     
-    return await createJiraIssuesForReport(report);
+    const settings = getJiraSettings();
+    if (!settings) return 0;
+    
+    return await createJiraIssuesForReport(report, settings);
   }, []);
   
   /**
