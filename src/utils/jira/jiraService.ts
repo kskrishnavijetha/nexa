@@ -87,7 +87,7 @@ export const createJiraIssueForAuditEvent = async (
     }
     
     // Only create issues for critical audit events
-    // Use string comparison for the status check
+    // The status field can be any string value, including 'critical'
     if (event.status !== 'critical') {
       return false;
     }

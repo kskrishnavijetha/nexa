@@ -59,7 +59,7 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
       const latestEvent = auditEvents[0];
       
       // Check if this is a critical event that needs a Jira issue
-      // Use string comparison rather than enum type comparison
+      // We need to check the status property which might be any string
       if (latestEvent.status === 'critical') {
         createIssueForAuditEvent(latestEvent);
       }

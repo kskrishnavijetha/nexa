@@ -2,7 +2,6 @@
 import React from 'react';
 import { ComplianceReport } from '@/utils/types';
 import SimulationWrapper from './SimulationWrapper';
-import RiskAnalysis from '@/components/RiskAnalysis';
 
 interface SimulationProps {
   report: ComplianceReport;

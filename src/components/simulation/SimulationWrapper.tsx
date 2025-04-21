@@ -89,9 +89,16 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
           />
           
           {/* Display risk analysis for simulation results */}
-          {analysisResult && analysisResult.risks && (
+          {analysisResult && analysisResult.riskTrends && (
             <RiskAnalysis 
-              risks={analysisResult.risks} 
+              risks={analysisResult.riskTrends.map(trend => ({
+                id: trend.riskId || `risk-${Math.random().toString(36).slice(2, 9)}`,
+                title: trend.description,
+                description: trend.description,
+                severity: trend.currentSeverity,
+                regulation: trend.regulation,
+                mitigation: `Monitor this risk as it shows a ${trend.trend} trend`
+              }))} 
               documentName={report.documentName} 
               isSimulation={true} 
             />
