@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
@@ -80,8 +81,8 @@ const LifetimeOfferBanner: React.FC = () => {
                     <AlarmClock className="h-3.5 w-3.5" />
                     <span>OFFER CLOSES SOON</span>
                     {typeof timeLeft === "number" && (
-                      <span className="flex items-center ml-3 text-xs text-[#D6BCFA] font-semibold bg-[#6E59A5]/80 backdrop-blur-md rounded px-3 py-0.5 shadow-lg ring-1 ring-[#9b87f5]">
-                        <Timer className="h-3 w-3 mr-1 text-[#D6BCFA]" />
+                      <span className="flex items-center ml-3 text-lg font-bold text-[#D6BCFA] bg-[#6E59A5]/90 backdrop-blur-md rounded px-4 py-1.5 shadow-lg ring-2 ring-[#9b87f5]">
+                        <Timer className="h-5 w-5 mr-2 text-[#D6BCFA]" />
                         {formatTime(timeLeft)}
                       </span>
                     )}
@@ -105,9 +106,9 @@ const LifetimeOfferBanner: React.FC = () => {
                 </div>
               </div>
             </div>
-            
+
             <div className="flex-shrink-0">
-              <Button 
+              <Button
                 onClick={handleGetLifetimeDeal}
                 size="lg"
                 className="bg-[#9b87f5] hover:bg-[#7E69AB] text-white px-5 py-6 h-auto text-base font-medium"
@@ -128,3 +129,4 @@ const LifetimeOfferBanner: React.FC = () => {
 };
 
 export default LifetimeOfferBanner;
+
