@@ -1,0 +1,21 @@
+
+{
+  "key": "your-app-key",
+  "name": "Your App Name",
+  "baseUrl": "https://your-awesome-app.vercel.app",
+  "authentication": {
+    "type": "none"
+  },
+  "modules": {
+    "generalPages": [
+      {
+        "url": "/",
+        "key": "main-page",
+        "location": "system.top.navigation.bar",
+        "name": {
+          "value": "My Custom App"
+        }
+      }
+    ]
+  }
+}
