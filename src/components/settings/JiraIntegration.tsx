@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -211,69 +210,67 @@ const JiraIntegration: React.FC = () => {
               ) : (
                 <div className="space-y-4">
                   <div className="grid grid-cols-1 gap-4">
-                    <Form>
-                      <FormField
-                        control={form.control}
-                        name="domain"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Jira Domain</FormLabel>
-                            <FormControl>
-                              <Input 
-                                placeholder="your-company.atlassian.net" 
-                                {...field} 
-                                disabled={isConnected}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Enter your Jira domain without https://
-                            </FormDescription>
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem className="mt-4">
-                            <FormLabel>Email Address</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="email" 
-                                placeholder="your-email@example.com" 
-                                {...field} 
-                                disabled={isConnected}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              The email address associated with your Jira account
-                            </FormDescription>
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="apiToken"
-                        render={({ field }) => (
-                          <FormItem className="mt-4">
-                            <FormLabel>API Token</FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="password" 
-                                placeholder="••••••••••••••••" 
-                                {...field} 
-                                disabled={isConnected}
-                              />
-                            </FormControl>
-                            <FormDescription>
-                              Generate an API token from your Atlassian account settings
-                            </FormDescription>
-                          </FormItem>
-                        )}
-                      />
-                    </Form>
+                    <FormField
+                      control={form.control}
+                      name="domain"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Jira Domain</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="your-company.atlassian.net" 
+                              {...field} 
+                              disabled={isConnected}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Enter your Jira domain without https://
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem className="mt-4">
+                          <FormLabel>Email Address</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="email" 
+                              placeholder="your-email@example.com" 
+                              {...field} 
+                              disabled={isConnected}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            The email address associated with your Jira account
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={form.control}
+                      name="apiToken"
+                      render={({ field }) => (
+                        <FormItem className="mt-4">
+                          <FormLabel>API Token</FormLabel>
+                          <FormControl>
+                            <Input 
+                              type="password" 
+                              placeholder="••••••••••••••••" 
+                              {...field} 
+                              disabled={isConnected}
+                            />
+                          </FormControl>
+                          <FormDescription>
+                            Generate an API token from your Atlassian account settings
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
 
                     <Button 
                       onClick={testConnection} 
@@ -295,69 +292,67 @@ const JiraIntegration: React.FC = () => {
                   <h3 className="text-lg font-medium">Project Settings</h3>
                   
                   <div className="space-y-4">
-                    <Form>
-                      <FormField
-                        control={form.control}
-                        name="projectKey"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Jira Project</FormLabel>
-                            <Select 
-                              onValueChange={field.onChange} 
-                              value={field.value} 
-                              disabled={isLoading}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a project" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {projects.map(project => (
-                                  <SelectItem key={project.id} value={project.key}>
-                                    {project.name} ({project.key})
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormDescription>
-                              Select the Jira project where issues will be created
-                            </FormDescription>
-                          </FormItem>
-                        )}
-                      />
+                    <FormField
+                      control={form.control}
+                      name="projectKey"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Jira Project</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            value={field.value} 
+                            disabled={isLoading}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a project" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {projects.map(project => (
+                                <SelectItem key={project.id} value={project.key}>
+                                  {project.name} ({project.key})
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            Select the Jira project where issues will be created
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
 
-                      <FormField
-                        control={form.control}
-                        name="issueType"
-                        render={({ field }) => (
-                          <FormItem className="mt-4">
-                            <FormLabel>Issue Type</FormLabel>
-                            <Select 
-                              onValueChange={field.onChange} 
-                              value={field.value} 
-                              disabled={isLoading || !formValues.projectKey}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select an issue type" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {issueTypes.map(type => (
-                                  <SelectItem key={type.id} value={type.id}>
-                                    {type.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormDescription>
-                              Select the type of issue to create
-                            </FormDescription>
-                          </FormItem>
-                        )}
-                      />
-                    </Form>
+                    <FormField
+                      control={form.control}
+                      name="issueType"
+                      render={({ field }) => (
+                        <FormItem className="mt-4">
+                          <FormLabel>Issue Type</FormLabel>
+                          <Select 
+                            onValueChange={field.onChange} 
+                            value={field.value} 
+                            disabled={isLoading || !formValues.projectKey}
+                          >
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select an issue type" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {issueTypes.map(type => (
+                                <SelectItem key={type.id} value={type.id}>
+                                  {type.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormDescription>
+                            Select the type of issue to create
+                          </FormDescription>
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
                 
@@ -367,91 +362,89 @@ const JiraIntegration: React.FC = () => {
                   <h3 className="text-lg font-medium">Issue Creation Rules</h3>
                   
                   <div className="space-y-3">
-                    <Form>
-                      <FormField
-                        control={form.control}
-                        name="createIssuesForHighRiskOnly"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                            <div className="space-y-0.5">
-                              <FormLabel className="text-base">High-Risk Issues Only</FormLabel>
-                              <FormDescription>
-                                Only create Jira issues for high severity compliance violations
-                              </FormDescription>
-                            </div>
-                            <FormControl>
-                              <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
+                    <FormField
+                      control={form.control}
+                      name="createIssuesForHighRiskOnly"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">High-Risk Issues Only</FormLabel>
+                            <FormDescription>
+                              Only create Jira issues for high severity compliance violations
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
 
-                      <FormField
-                        control={form.control}
-                        name="createIssuesForViolations"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mt-3">
-                            <div className="space-y-0.5">
-                              <FormLabel className="text-base">Document Violations</FormLabel>
-                              <FormDescription>
-                                Create issues for compliance violations in document analysis
-                              </FormDescription>
-                            </div>
-                            <FormControl>
-                              <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
+                    <FormField
+                      control={form.control}
+                      name="createIssuesForViolations"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mt-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Document Violations</FormLabel>
+                            <FormDescription>
+                              Create issues for compliance violations in document analysis
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
 
-                      <FormField
-                        control={form.control}
-                        name="createIssuesForRisks"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mt-3">
-                            <div className="space-y-0.5">
-                              <FormLabel className="text-base">Simulation Risks</FormLabel>
-                              <FormDescription>
-                                Create issues for risks identified in scenario simulations
-                              </FormDescription>
-                            </div>
-                            <FormControl>
-                              <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
+                    <FormField
+                      control={form.control}
+                      name="createIssuesForRisks"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mt-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Simulation Risks</FormLabel>
+                            <FormDescription>
+                              Create issues for risks identified in scenario simulations
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
 
-                      <FormField
-                        control={form.control}
-                        name="createIssuesForAuditEntries"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mt-3">
-                            <div className="space-y-0.5">
-                              <FormLabel className="text-base">Critical Audit Entries</FormLabel>
-                              <FormDescription>
-                                Create issues for audit trail entries marked as critical
-                              </FormDescription>
-                            </div>
-                            <FormControl>
-                              <Switch
-                                checked={field.value}
-                                onCheckedChange={field.onChange}
-                              />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
-                    </Form>
+                    <FormField
+                      control={form.control}
+                      name="createIssuesForAuditEntries"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 mt-3">
+                          <div className="space-y-0.5">
+                            <FormLabel className="text-base">Critical Audit Entries</FormLabel>
+                            <FormDescription>
+                              Create issues for audit trail entries marked as critical
+                            </FormDescription>
+                          </div>
+                          <FormControl>
+                            <Switch
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
                   </div>
                 </div>
                 

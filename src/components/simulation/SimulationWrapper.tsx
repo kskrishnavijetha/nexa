@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import DeleteConfirmDialog from './DeleteConfirmDialog';
 import ErrorDisplay from './ErrorDisplay';
 import { useSimulationState } from '@/hooks/useSimulationState';
+import RiskAnalysis from '@/components/RiskAnalysis';
 
 interface SimulationWrapperProps {
   report: ComplianceReport;
@@ -86,6 +87,15 @@ const SimulationWrapper: React.FC<SimulationWrapperProps> = ({ report }) => {
             analysisData={analysisResult}
             onReset={resetSimulation}
           />
+          
+          {/* Display risk analysis for simulation results */}
+          {analysisResult && analysisResult.risks && (
+            <RiskAnalysis 
+              risks={analysisResult.risks} 
+              documentName={report.documentName} 
+              isSimulation={true} 
+            />
+          )}
         </>
       )}
       

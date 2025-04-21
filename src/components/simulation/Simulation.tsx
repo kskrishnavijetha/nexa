@@ -10,15 +10,9 @@ interface SimulationProps {
 
 const Simulation: React.FC<SimulationProps> = ({ report }) => {
   return (
-    <SimulationWrapper report={report}>
-      {(simulationReport) => (
-        <RiskAnalysis 
-          risks={simulationReport.risks} 
-          documentName={report.documentName} 
-          isSimulation={true} 
-        />
-      )}
-    </SimulationWrapper>
+    <div>
+      <SimulationWrapper report={report} />
+    </div>
   );
 };
 
