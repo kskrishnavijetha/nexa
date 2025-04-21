@@ -1,8 +1,13 @@
 
 import { JiraSettings, JiraProject, JiraIssueType } from '../types';
 import { jiraRequest, getJiraApiUrl } from '../api/jiraApiClient';
+import { isDemoMode, testDemoConnection, getDemoProjects, getDemoIssueTypes } from '../demo/demoJiraService';
 
 export const testJiraConnection = async (settings: JiraSettings): Promise<boolean> => {
+  if (isDemoMode(settings)) {
+    return await testDemoConnection();
+  }
+
   try {
     const url = `${getJiraApiUrl(settings.domain)}/myself`;
     await jiraRequest(url, settings);
@@ -14,6 +19,10 @@ export const testJiraConnection = async (settings: JiraSettings): Promise<boolea
 };
 
 export const fetchJiraProjects = async (settings: JiraSettings): Promise<JiraProject[]> => {
+  if (isDemoMode(settings)) {
+    return await getDemoProjects();
+  }
+
   try {
     const url = `${getJiraApiUrl(settings.domain)}/project`;
     const projects = await jiraRequest(url, settings);
@@ -29,6 +38,10 @@ export const fetchJiraProjects = async (settings: JiraSettings): Promise<JiraPro
 };
 
 export const fetchJiraIssueTypes = async (settings: JiraSettings): Promise<JiraIssueType[]> => {
+  if (isDemoMode(settings)) {
+    return await getDemoIssueTypes();
+  }
+
   try {
     const url = `${getJiraApiUrl(settings.domain)}/project/${settings.projectKey}/issuetypes`;
     const issueTypes = await jiraRequest(url, settings);
