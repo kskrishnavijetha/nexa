@@ -1,11 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Package, AlarmClock, Clock, Shield, ChevronRight, Timer } from 'lucide-react';
 
-// Duration for offer in milliseconds (48 hours)
 const OFFER_DURATION = 48 * 60 * 60 * 1000; // 48 hours
 
 const LifetimeOfferBanner: React.FC = () => {
@@ -15,12 +13,10 @@ const LifetimeOfferBanner: React.FC = () => {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [offerActive, setOfferActive] = useState(true);
 
-  // Returns the timestamp the Lifetime Offer started for this user/browser
   function getOfferStartTime() {
     const key = 'nexabloom_lifetime_offer_start';
     let offerStart = localStorage.getItem(key);
     if (!offerStart) {
-      // Set offer start now
       const now = Date.now();
       localStorage.setItem(key, now.toString());
       offerStart = now.toString();
@@ -28,7 +24,6 @@ const LifetimeOfferBanner: React.FC = () => {
     return Number(offerStart);
   }
 
-  // Helper to format milliseconds to HH:MM:SS
   function formatTime(ms: number) {
     if (ms <= 0) return '00:00:00';
     const totalSeconds = Math.floor(ms / 1000);
@@ -85,8 +80,8 @@ const LifetimeOfferBanner: React.FC = () => {
                     <AlarmClock className="h-3.5 w-3.5" />
                     <span>OFFER CLOSES SOON</span>
                     {typeof timeLeft === "number" && (
-                      <span className="flex items-center ml-3 text-xs text-[#1A8DE0] font-semibold bg-white/20 rounded px-2 py-0.5">
-                        <Timer className="h-3 w-3 mr-1" />
+                      <span className="flex items-center ml-3 text-xs text-[#D6BCFA] font-semibold bg-[#6E59A5]/80 backdrop-blur-md rounded px-3 py-0.5 shadow-lg ring-1 ring-[#9b87f5]">
+                        <Timer className="h-3 w-3 mr-1 text-[#D6BCFA]" />
                         {formatTime(timeLeft)}
                       </span>
                     )}
