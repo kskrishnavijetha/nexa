@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
@@ -95,12 +94,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroup>
-              
-              <SidebarGroup>
-                <SidebarGroupLabel>Integrations</SidebarGroupLabel>
-                <SidebarMenu>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={location.pathname === '/jira-integration'}>
                       <Link to="/jira-integration" draggable="false">
