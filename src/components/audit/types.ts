@@ -1,4 +1,7 @@
 
+// Import Region type for region property
+import { Region } from '@/utils/types/common';
+
 export interface Comment {
   id: string;
   user: string;
@@ -17,6 +20,7 @@ export interface AuditEvent {
   icon?: React.ReactNode | string;
 }
 
+// Update CompanyDetails with proper Region type for region instead of string
 export interface CompanyDetails {
   companyName: string;
   complianceType: string;
@@ -26,7 +30,7 @@ export interface CompanyDetails {
   email?: string;
   phone?: string;
   industry?: string;
-  region?: string;
+  region?: Region;  // Changed from string to Region
 }
 
 export interface AuditTrailContextType {
