@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { ComplianceReport } from '@/utils/types';
 import DocumentInfoHeader from './DocumentInfoHeader';
@@ -13,6 +13,7 @@ import DocumentSummary from './DocumentSummary';
 import ImprovementSuggestions from './ImprovementSuggestions';
 import AuditTrail from '@/components/AuditTrail';
 import DocumentPreview from './DocumentPreview';
+import { useJiraIntegration } from '@/hooks/useJiraIntegration';
 
 interface AnalysisResultsProps {
   report: ComplianceReport;
@@ -28,6 +29,15 @@ const AnalysisResults: React.FC<AnalysisResultsProps> = ({
   onResetAnalysis
 }) => {
   const [previewOpen, setPreviewOpen] = useState(false);
+  const { createIssuesForReport, isEnabled: isJiraEnabled } = useJiraIntegration();
+  
+  // Create Jira issues when analysis is complete
+  useEffect(() => {
+    if (isJiraEnabled() && report && report.risks.length > 0) {
+      // Only try to create issues if Jira integration is enabled
+      createIssuesForReport(report);
+    }
+  }, [createIssuesForReport, isJiraEnabled, report]);
 
   return (
     <div className="space-y-6">
