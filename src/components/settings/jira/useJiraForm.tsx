@@ -128,6 +128,26 @@ export const useJiraForm = () => {
     toast.info("Jira integration disconnected");
   };
 
+  const addProject = (newProject: JiraProject) => {
+    setProjects(prev => [...prev, newProject]);
+    toast.success(`Project ${newProject.name} added successfully`);
+    
+    // If this is the first project, automatically select it
+    if (!formValues.projectKey && newProject.key) {
+      setValue('projectKey', newProject.key);
+    }
+  };
+  
+  const addIssueType = (newIssueType: JiraIssueType) => {
+    setIssueTypes(prev => [...prev, newIssueType]);
+    toast.success(`Issue type ${newIssueType.name} added successfully`);
+    
+    // If this is the first issue type, automatically select it
+    if (!formValues.issueType && newIssueType.id) {
+      setValue('issueType', newIssueType.id);
+    }
+  };
+
   const onSubmit = async (data: JiraSettings) => {
     setIsLoading(true);
     try {
@@ -150,6 +170,8 @@ export const useJiraForm = () => {
     issueTypes,
     testConnection,
     disconnectJira,
+    addProject,
+    addIssueType,
     onSubmit
   };
 };

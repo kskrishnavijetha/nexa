@@ -1,14 +1,21 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, Plus } from 'lucide-react';
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from '@/components/ui/table';
 import { useJiraForm } from './useJiraForm';
 import { jsPDF } from 'jspdf';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const JiraAnalysis = () => {
-  const { projects, issueTypes } = useJiraForm();
+  const { projects, issueTypes, addProject, addIssueType } = useJiraForm();
+  const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
+  const [isAddIssueTypeOpen, setIsAddIssueTypeOpen] = useState(false);
+  const [newProject, setNewProject] = useState({ name: '', key: '', id: '' });
+  const [newIssueType, setNewIssueType] = useState({ name: '', description: '', id: '' });
 
   const handleDownload = () => {
     const pdf = new jsPDF();
@@ -38,14 +45,38 @@ const JiraAnalysis = () => {
     pdf.save('jira-analysis.pdf');
   };
 
-  const handleAddProject = () => {
-    // This would typically open a modal or form to add a new project
-    console.log('Add project clicked');
+  const handleAddProjectClick = () => {
+    setIsAddProjectOpen(true);
   };
 
-  const handleAddIssueType = () => {
-    // This would typically open a modal or form to add a new issue type
-    console.log('Add issue type clicked');
+  const handleAddIssueTypeClick = () => {
+    setIsAddIssueTypeOpen(true);
+  };
+
+  const handleProjectSubmit = () => {
+    if (newProject.name && newProject.key) {
+      // Generate an ID if not provided
+      const projectToAdd = {
+        ...newProject,
+        id: newProject.id || `proj-${Date.now()}`
+      };
+      addProject(projectToAdd);
+      setNewProject({ name: '', key: '', id: '' });
+      setIsAddProjectOpen(false);
+    }
+  };
+
+  const handleIssueTypeSubmit = () => {
+    if (newIssueType.name) {
+      // Generate an ID if not provided
+      const issueTypeToAdd = {
+        ...newIssueType,
+        id: newIssueType.id || `type-${Date.now()}`
+      };
+      addIssueType(issueTypeToAdd);
+      setNewIssueType({ name: '', description: '', id: '' });
+      setIsAddIssueTypeOpen(false);
+    }
   };
 
   return (
@@ -53,7 +84,7 @@ const JiraAnalysis = () => {
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle>Projects</CardTitle>
         <div className="flex gap-2">
-          <Button onClick={handleAddProject} size="sm">
+          <Button onClick={handleAddProjectClick} size="sm">
             <Plus className="mr-2 h-4 w-4" />
             Add Project
           </Button>
@@ -87,7 +118,7 @@ const JiraAnalysis = () => {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-medium">Issue Types</h3>
-              <Button onClick={handleAddIssueType} size="sm">
+              <Button onClick={handleAddIssueTypeClick} size="sm">
                 <Plus className="mr-2 h-4 w-4" />
                 Add Issue Type
               </Button>
@@ -113,6 +144,90 @@ const JiraAnalysis = () => {
           </div>
         </div>
       </CardContent>
+
+      {/* Add Project Dialog */}
+      <Dialog open={isAddProjectOpen} onOpenChange={setIsAddProjectOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Project</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="projectName">Project Name</Label>
+              <Input
+                id="projectName"
+                value={newProject.name}
+                onChange={(e) => setNewProject({...newProject, name: e.target.value})}
+                placeholder="Enter project name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="projectKey">Project Key</Label>
+              <Input
+                id="projectKey"
+                value={newProject.key}
+                onChange={(e) => setNewProject({...newProject, key: e.target.value})}
+                placeholder="Enter project key (e.g., PROJ)"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="projectId">Project ID (Optional)</Label>
+              <Input
+                id="projectId"
+                value={newProject.id}
+                onChange={(e) => setNewProject({...newProject, id: e.target.value})}
+                placeholder="Enter project ID (optional)"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddProjectOpen(false)}>Cancel</Button>
+            <Button onClick={handleProjectSubmit}>Add Project</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Issue Type Dialog */}
+      <Dialog open={isAddIssueTypeOpen} onOpenChange={setIsAddIssueTypeOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Issue Type</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="typeName">Issue Type Name</Label>
+              <Input
+                id="typeName"
+                value={newIssueType.name}
+                onChange={(e) => setNewIssueType({...newIssueType, name: e.target.value})}
+                placeholder="Enter issue type name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="typeDescription">Description</Label>
+              <Input
+                id="typeDescription"
+                value={newIssueType.description}
+                onChange={(e) => setNewIssueType({...newIssueType, description: e.target.value})}
+                placeholder="Enter description"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="typeId">Issue Type ID (Optional)</Label>
+              <Input
+                id="typeId"
+                value={newIssueType.id}
+                onChange={(e) => setNewIssueType({...newIssueType, id: e.target.value})}
+                placeholder="Enter issue type ID (optional)"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddIssueTypeOpen(false)}>Cancel</Button>
+            <Button onClick={handleIssueTypeSubmit}>Add Issue Type</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
