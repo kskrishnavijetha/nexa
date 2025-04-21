@@ -14,7 +14,19 @@ export interface AuditEvent {
   documentName: string;
   status: 'pending' | 'in-progress' | 'completed' | 'critical';
   comments: Comment[];
-  icon?: string;
+  icon?: React.ReactNode | string;
+}
+
+export interface CompanyDetails {
+  companyName: string;
+  complianceType: string;
+  logo?: string | null;
+  contactName?: string;
+  designation?: string;
+  email?: string;
+  phone?: string;
+  industry?: string;
+  region?: string;
 }
 
 export interface AuditTrailContextType {
