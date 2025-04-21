@@ -3,6 +3,11 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { JiraSettings, JiraProject, JiraIssueType } from './types';
+import { 
+  testJiraConnection, 
+  fetchJiraProjects, 
+  fetchJiraIssueTypes 
+} from '@/utils/jira/jiraService';
 
 export const useJiraForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -17,7 +22,7 @@ export const useJiraForm = () => {
     email: '',
     apiToken: '',
     projectKey: '',
-    issueType: '10001',
+    issueType: '',
     createIssuesForHighRiskOnly: true,
     createIssuesForViolations: true,
     createIssuesForRisks: true,
@@ -41,18 +46,16 @@ export const useJiraForm = () => {
           setValue(key as any, value);
         });
         setIsConnected(settings.connected || false);
+        
+        // If connected, fetch projects
+        if (settings.connected) {
+          fetchProjects(settings);
+        }
       } catch (err) {
         console.error('Error loading Jira settings', err);
       }
     }
   }, [setValue]);
-
-  // When connection status changes, fetch projects
-  useEffect(() => {
-    if (isConnected && formValues.domain && formValues.apiToken) {
-      fetchProjects();
-    }
-  }, [isConnected, formValues.domain, formValues.apiToken]);
 
   // When project changes, fetch issue types
   useEffect(() => {
@@ -61,46 +64,58 @@ export const useJiraForm = () => {
     }
   }, [formValues.projectKey, isConnected]);
 
-  const fetchProjects = async () => {
+  const fetchProjects = async (settings: JiraSettings) => {
     setIsLoading(true);
-    // Simulated API call
-    setTimeout(() => {
-      setProjects([
-        { id: "10000", key: "NB", name: "NexaBloom" },
-        { id: "10001", key: "COMP", name: "Compliance" },
-        { id: "10002", key: "AUDIT", name: "Audits" }
-      ]);
+    try {
+      const projectList = await fetchJiraProjects(settings);
+      setProjects(projectList);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      toast.error('Failed to fetch Jira projects');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const fetchIssueTypes = async () => {
     setIsLoading(true);
-    // Simulated API call
-    setTimeout(() => {
-      setIssueTypes([
-        { id: "10001", name: "Task", description: "A task that needs to be done." },
-        { id: "10002", name: "Bug", description: "A problem which impairs or prevents functionality." },
-        { id: "10003", name: "Compliance Issue", description: "A compliance related issue requiring action." }
-      ]);
+    try {
+      const types = await fetchJiraIssueTypes(formValues);
+      setIssueTypes(types);
+    } catch (error) {
+      console.error('Error fetching issue types:', error);
+      toast.error('Failed to fetch issue types');
+    } finally {
       setIsLoading(false);
-    }, 800);
+    }
   };
 
   const testConnection = async () => {
     setTestingConnection(true);
-    if (!formValues.domain || !formValues.email || !formValues.apiToken) {
-      toast.error("Please fill in all required fields");
-      setTestingConnection(false);
-      return;
-    }
+    try {
+      if (!formValues.domain || !formValues.email || !formValues.apiToken) {
+        toast.error("Please fill in all required fields");
+        return;
+      }
 
-    setTimeout(() => {
-      setIsConnected(true);
-      setValue('connected', true);
-      toast.success("Successfully connected to Jira!");
+      const success = await testJiraConnection(formValues);
+      
+      if (success) {
+        setIsConnected(true);
+        setValue('connected', true);
+        toast.success("Successfully connected to Jira!");
+        
+        // Fetch projects after successful connection
+        await fetchProjects(formValues);
+      } else {
+        toast.error("Failed to connect to Jira. Please check your credentials.");
+      }
+    } catch (error) {
+      console.error('Error testing connection:', error);
+      toast.error("Failed to connect to Jira");
+    } finally {
       setTestingConnection(false);
-    }, 1500);
+    }
   };
 
   const disconnectJira = () => {
@@ -108,16 +123,22 @@ export const useJiraForm = () => {
     setValue('connected', false);
     setValue('projectKey', '');
     setValue('issueType', '');
+    setProjects([]);
+    setIssueTypes([]);
     toast.info("Jira integration disconnected");
   };
 
-  const onSubmit = (data: JiraSettings) => {
+  const onSubmit = async (data: JiraSettings) => {
     setIsLoading(true);
-    localStorage.setItem('nexabloom_jira_settings', JSON.stringify(data));
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      localStorage.setItem('nexabloom_jira_settings', JSON.stringify(data));
       toast.success("Jira integration settings saved successfully");
-    }, 1000);
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast.error("Failed to save settings");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return {
