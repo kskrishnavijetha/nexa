@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { BarChart, FileText, History, Settings, ClipboardList, MessageSquare, Palette, ShieldCheck } from 'lucide-react';
+import { BarChart, FileText, History, Settings, ClipboardList, MessageSquare, Palette, ShieldCheck, Trello } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface LayoutProps {
@@ -91,6 +92,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       <Link to="/hash-verification" draggable="false">
                         <ShieldCheck className="h-4 w-4 mr-2" />
                         Hash Verification
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </SidebarMenu>
+              </SidebarGroup>
+              
+              <SidebarGroup>
+                <SidebarGroupLabel>Integrations</SidebarGroupLabel>
+                <SidebarMenu>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === '/jira-integration'}>
+                      <Link to="/jira-integration" draggable="false">
+                        <Trello className="h-4 w-4 mr-2" />
+                        Jira Integration
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
