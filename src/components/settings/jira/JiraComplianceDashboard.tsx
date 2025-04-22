@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -8,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Download, AlertTriangle } from 'lucide-react';
 import { jiraIssueService } from '@/utils/jira/jiraIssueService';
-import { complianceFrameworkService } from '@/utils/jira/complianceFrameworkService';
+import { complianceIssueService } from '@/utils/jira/jiraIssueService';
 import { ComplianceFrameworkStats, ComplianceIssue, RiskDistribution } from '@/utils/jira/types';
 import { jiraDashboardService } from '@/utils/jira/jiraDashboardService';
 import JiraPieChart from './components/JiraPieChart';
@@ -33,7 +32,7 @@ const JiraComplianceDashboard = () => {
       setIsLoading(true);
       try {
         // Get high risk issues
-        const issues = await jiraIssueService.getComplianceIssues({ 
+        const issues = await complianceIssueService.getComplianceIssues({ 
           onlyComplianceIssues: true 
         });
         const highRisk = issues.filter(issue => issue.riskScore >= 70);
