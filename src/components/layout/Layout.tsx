@@ -4,7 +4,7 @@ import Header from './Header';
 import Footer from './Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { BarChart, FileText, History, Settings, ClipboardList, MessageSquare, Palette, ShieldCheck } from 'lucide-react';
+import { BarChart, FileText, History, Settings, ClipboardList, MessageSquare, Palette, ShieldCheck, Bug } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface LayoutProps {
@@ -21,7 +21,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <SidebarProvider>
         <div className="flex min-h-screen w-full">
           <Sidebar>
-            <SidebarHeader className="border-b">
+            <SidebarHeader>
               <div className="px-2 py-4">
                 <div className="flex items-center space-x-2">
                   <img 
@@ -67,6 +67,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       <Link to="/audit-reports" draggable="false">
                         <ClipboardList className="h-4 w-4 mr-2" />
                         Audit Reports
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === '/jira'}>
+                      <Link to="/jira" draggable="false">
+                        <Bug className="h-4 w-4 mr-2" />
+                        Jira Integration
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
