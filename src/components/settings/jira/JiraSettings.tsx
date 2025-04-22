@@ -166,7 +166,7 @@ const JiraSettings = () => {
                       checked={autoSyncSettings.syncIssueStatus}
                       onCheckedChange={(checked) => 
                         setAutoSyncSettings(prev => ({...prev, syncIssueStatus: checked}))}
-                      size="sm"
+                      className="scale-90" // Using className instead of size
                     />
                   </div>
                   
@@ -179,7 +179,7 @@ const JiraSettings = () => {
                       checked={autoSyncSettings.syncComments}
                       onCheckedChange={(checked) => 
                         setAutoSyncSettings(prev => ({...prev, syncComments: checked}))}
-                      size="sm"
+                      className="scale-90" // Using className instead of size
                     />
                   </div>
                   
@@ -192,7 +192,7 @@ const JiraSettings = () => {
                       checked={autoSyncSettings.syncAttachments}
                       onCheckedChange={(checked) => 
                         setAutoSyncSettings(prev => ({...prev, syncAttachments: checked}))}
-                      size="sm"
+                      className="scale-90" // Using className instead of size
                     />
                   </div>
                 </div>

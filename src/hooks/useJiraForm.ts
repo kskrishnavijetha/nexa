@@ -1,11 +1,6 @@
 
 import { useState } from 'react';
-
-interface JiraProject {
-  id: string;
-  key: string;
-  name: string;
-}
+import { JiraProject } from '@/utils/jira/types';
 
 interface JiraIssueType {
   id: string;
@@ -15,8 +10,8 @@ interface JiraIssueType {
 
 export const useJiraForm = () => {
   const [projects, setProjects] = useState<JiraProject[]>([
-    { id: 'proj-1', key: 'COMP', name: 'Compliance Project' },
-    { id: 'proj-2', key: 'SEC', name: 'Security Implementation' }
+    { id: 'proj-1', key: 'COMP', name: 'Compliance Project', projectType: 'business', url: 'https://example.atlassian.net/projects/COMP' },
+    { id: 'proj-2', key: 'SEC', name: 'Security Implementation', projectType: 'software', url: 'https://example.atlassian.net/projects/SEC' }
   ]);
   
   const [issueTypes, setIssueTypes] = useState<JiraIssueType[]>([
@@ -25,11 +20,14 @@ export const useJiraForm = () => {
     { id: 'type-3', name: 'Compliance Issue', description: 'An issue related to regulatory compliance' }
   ]);
 
-  const addProject = async (project: Omit<JiraProject, 'id'>) => {
-    const newProject = {
+  const addProject = async (project: Omit<JiraProject, 'id' | 'projectType' | 'url'>) => {
+    // Create a full JiraProject object with all required properties
+    const newProject: JiraProject = {
       id: `proj-${Date.now()}`,
       key: project.key,
-      name: project.name
+      name: project.name,
+      projectType: 'business', // Default project type
+      url: `https://example.atlassian.net/projects/${project.key}`
     };
     
     setProjects(prev => [...prev, newProject]);

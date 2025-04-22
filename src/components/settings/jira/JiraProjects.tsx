@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -94,7 +93,14 @@ const JiraProjects = () => {
       const createdProject = await addProject(newProject);
       
       // Update the projects list with the new project
-      setProjects(prevProjects => [...prevProjects, createdProject]);
+      setProjects(prevProjects => [
+        ...prevProjects, 
+        {
+          ...createdProject,
+          projectType: 'business',
+          url: `https://example.atlassian.net/projects/${createdProject.key}`
+        }
+      ]);
       
       // Auto-select the new project
       setSelectedProjects(prev => [...prev, createdProject.id]);

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,11 +28,16 @@ const JiraReports = () => {
       // Fetch compliance issues to include in the report
       const issues = await jiraIssueService.getComplianceIssues();
       
-      // Create a mock report structure for demonstration
-      const mockReport = {
+      // Create a report structure that matches the ComplianceReport type
+      const report = {
+        documentId: `jira-report-${Date.now()}`, // Required by ComplianceReport
         documentName: `Jira Compliance Report - ${new Date().toLocaleDateString()}`,
         summary: "This report summarizes compliance-related issues from Jira.",
         overallScore: 75,
+        gdprScore: 70, // Required by ComplianceReport
+        hipaaScore: 75, // Required by ComplianceReport
+        soc2Score: 80, // Required by ComplianceReport
+        pciDssScore: 65, // Optional in ComplianceReport
         industry: "Technology",
         region: "Global",
         regulations: ["SOC 2", "GDPR", "HIPAA"],
@@ -61,7 +65,7 @@ const JiraReports = () => {
       };
 
       // Generate and download the report
-      await exportReport(mockReport, exportFormat);
+      await exportReport(report, exportFormat);
       
       toast({
         title: "Report generated",
