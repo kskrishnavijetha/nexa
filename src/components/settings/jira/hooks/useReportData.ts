@@ -26,16 +26,9 @@ export const useReportData = () => {
         regulation: issue.complianceFrameworks?.join(", ") || "Unknown",
         status: issue.isHighRisk ? "critical" : "warning"
       })),
-      scores: {
-        overall: 75,
-        byCategory: {
-          "Access Control": 80,
-          "Data Protection": 70,
-          "Incident Response": 85,
-          "Risk Assessment": 65
-        }
-      },
-      improvements: [
+      // Remove the scores property that doesn't exist in the ComplianceReport type
+      // and replace with proper types that are defined in ComplianceReport
+      recommendations: [
         "Improve password policies",
         "Enhance data encryption standards",
         "Update security awareness training"
