@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { jiraProjectService } from '@/utils/jira/jiraProjectService';
-import { jiraIssueService } from '@/utils/jira/jiraIssueService';
+import { complianceIssueService } from '@/utils/jira/services/complianceIssueService';
+import { issueService } from '@/utils/jira/services/issueService';
 import { complianceFrameworkService } from '@/utils/jira/complianceFrameworkService';
 
 const JiraStatCards: React.FC = () => {
@@ -19,10 +19,10 @@ const JiraStatCards: React.FC = () => {
         const projects = await jiraProjectService.getProjects();
         setTotalProjects(projects.length);
         
-        const issues = await jiraIssueService.getComplianceIssues({ onlyComplianceIssues: false });
+        const issues = await issueService.getAllIssues();
         setTotalIssues(issues.length);
         
-        const complianceOnly = await jiraIssueService.getComplianceIssues({ onlyComplianceIssues: true });
+        const complianceOnly = await complianceIssueService.getComplianceIssues({ onlyComplianceIssues: true });
         setComplianceIssues(complianceOnly.length);
         
         // Filter high risk issues (risk score >= 70)

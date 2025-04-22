@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -6,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Download, AlertTriangle } from 'lucide-react';
-import { jiraIssueService } from '@/utils/jira/jiraIssueService';
-import { complianceIssueService } from '@/utils/jira/jiraIssueService';
+import { issueService } from '@/utils/jira/services/issueService';
+import { complianceIssueService } from '@/utils/jira/services/complianceIssueService';
+import { complianceFrameworkService } from '@/utils/jira/complianceFrameworkService';
 import { ComplianceFrameworkStats, ComplianceIssue, RiskDistribution } from '@/utils/jira/types';
 import { jiraDashboardService } from '@/utils/jira/jiraDashboardService';
 import JiraPieChart from './components/JiraPieChart';
