@@ -12,21 +12,14 @@ const JiraConnect: React.FC = () => {
   const [cloudId, setCloudId] = useState('');
   const [apiToken, setApiToken] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login, error } = useJiraAuth();
+  const { login } = useJiraAuth();
 
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!cloudId.trim() || !apiToken.trim()) {
-      return;
-    }
-    
     setIsSubmitting(true);
     
     try {
       await login(cloudId, apiToken);
-    } catch (err) {
-      console.error('Failed to connect to Jira:', err);
     } finally {
       setIsSubmitting(false);
     }
@@ -54,13 +47,6 @@ const JiraConnect: React.FC = () => {
                 </ol>
               </AlertDescription>
             </Alert>
-            
-            {error && (
-              <Alert variant="destructive">
-                <AlertTitle>Connection Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
             
             <div className="space-y-4">
               <div className="grid gap-2">

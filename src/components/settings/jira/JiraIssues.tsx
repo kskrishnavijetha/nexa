@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -6,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Search, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { complianceIssueService } from '@/utils/jira/jiraIssueService';
+import { jiraIssueService } from '@/utils/jira/jiraIssueService';
 import { ComplianceIssue, JiraFilter } from '@/utils/jira/types';
 import { useToast } from '@/components/ui/use-toast';
 
@@ -24,7 +25,7 @@ const JiraIssues = () => {
     const fetchIssues = async () => {
       setIsLoading(true);
       try {
-        const data = await complianceIssueService.getComplianceIssues(filter);
+        const data = await jiraIssueService.getComplianceIssues(filter);
         setIssues(data);
         setFilteredIssues(data);
       } catch (error) {

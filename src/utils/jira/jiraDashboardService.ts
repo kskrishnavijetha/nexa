@@ -5,6 +5,7 @@ import { RiskDistribution } from './types';
  * Get risk distribution for all compliance issues
  */
 const getRiskDistribution = (): RiskDistribution => {
+  // In a real implementation, this would calculate based on actual issues
   return {
     high: 12,
     medium: 25,
@@ -18,15 +19,11 @@ const getRiskDistribution = (): RiskDistribution => {
  */
 const generateComplianceReport = async (): Promise<string> => {
   try {
+    // In a real implementation, this would generate a PDF report
     console.log('Generating compliance report...');
-    const reportUrl = await fetch('/api/compliance/report', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    }).then(res => res.json());
+    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate report generation
     
-    return reportUrl;
+    return 'compliance-report.pdf';
   } catch (error) {
     console.error('Error generating compliance report:', error);
     throw new Error('Failed to generate compliance report');
@@ -38,15 +35,11 @@ const generateComplianceReport = async (): Promise<string> => {
  */
 const configureRiskAlerts = async (enabled: boolean): Promise<boolean> => {
   try {
-    const response = await fetch('/api/compliance/alerts', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ enabled })
-    });
+    // In a real implementation, this would configure alert settings
+    console.log(`${enabled ? 'Enabling' : 'Disabling'} risk alerts...`);
+    await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API call
     
-    return response.ok;
+    return true;
   } catch (error) {
     console.error('Error configuring risk alerts:', error);
     return false;
@@ -58,4 +51,3 @@ export const jiraDashboardService = {
   generateComplianceReport,
   configureRiskAlerts,
 };
-

@@ -1,9 +1,12 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useJiraAuth } from '@/hooks/useJiraAuth';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/use-toast';
 
 const JiraSettings = () => {
@@ -14,39 +17,23 @@ const JiraSettings = () => {
   const [complianceKeywords, setComplianceKeywords] = useState<string>('SOC 2, HIPAA, PCI DSS, GDPR, encryption, access control');
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  const handleSaveSettings = async () => {
+  const handleSaveSettings = () => {
     setIsSaving(true);
     
-    try {
-      const response = await fetch('/api/jira/settings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          scanFrequency,
-          autoSync,
-          complianceKeywords,
-        }),
-      });
-
-      if (response.ok) {
-        toast({
-          title: 'Settings saved',
-          description: 'Your Jira integration settings have been updated.',
-        });
-      } else {
-        throw new Error('Failed to save settings');
-      }
-    } catch (error) {
-      toast({
-        title: 'Error',
-        description: 'Failed to save settings. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
+    // Simulate API call
+    setTimeout(() => {
       setIsSaving(false);
-    }
+      
+      // Save settings to localStorage for persistence
+      localStorage.setItem('jira_scan_frequency', scanFrequency);
+      localStorage.setItem('jira_auto_sync', autoSync.toString());
+      localStorage.setItem('jira_compliance_keywords', complianceKeywords);
+      
+      toast({
+        title: 'Settings saved',
+        description: 'Your Jira integration settings have been updated.',
+      });
+    }, 1000);
   };
 
   const handleDisconnect = () => {
