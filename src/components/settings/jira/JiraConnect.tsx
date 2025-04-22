@@ -86,6 +86,8 @@ const JiraConnect: React.FC = () => {
             onClick={handleConnect} 
             disabled={isSubmitting || !cloudId || !apiToken} 
             className="w-full"
+            type="submit"
+            variant="default"
           >
             {isSubmitting ? (
               <>

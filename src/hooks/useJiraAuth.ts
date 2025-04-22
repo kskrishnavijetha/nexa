@@ -13,7 +13,7 @@ interface JiraAuthState {
 export const useJiraAuth = () => {
   const [state, setState] = useState<JiraAuthState>({
     isAuthenticated: false,
-    isLoading: true,
+    isLoading: false,
     token: null,
     error: null,
   });
@@ -22,6 +22,8 @@ export const useJiraAuth = () => {
   // Check if the user is authenticated with Jira
   useEffect(() => {
     const checkAuthStatus = async () => {
+      setState(prev => ({ ...prev, isLoading: true }));
+      
       try {
         const token = localStorage.getItem('jira_token');
         
