@@ -8,7 +8,9 @@ export const mapIssueToRisk = (issue: ComplianceIssue): ComplianceRisk => ({
            issue.priority === "Medium" ? "medium" : "low"),
   description: issue.description || "",
   regulation: issue.complianceFrameworks?.join(", ") || "Unknown",
-  status: issue.isHighRisk ? "critical" : "warning"
+  mitigation: issue.isHighRisk 
+    ? "Immediate attention required" 
+    : "Review and address according to priority"
 });
 
 export const getDefaultRecommendations = (): string[] => [
