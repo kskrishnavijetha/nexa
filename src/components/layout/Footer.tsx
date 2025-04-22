@@ -82,17 +82,6 @@ const Footer: React.FC = () => {
                   nexabloom.xyz
                 </a>
               </li>
-              <li className="flex items-center space-x-3 text-sm text-muted-foreground">
-                <X className="h-4 w-4 flex-shrink-0" />
-                <a 
-                  href="https://x.com/nexabloom35511" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="hover:text-primary transition-colors"
-                >
-                  Twitter (X)
-                </a>
-              </li>
             </ul>
           </div>
 
