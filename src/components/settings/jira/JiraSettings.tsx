@@ -1,9 +1,10 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import { useJiraAuth } from '@/hooks/useJiraAuth';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -27,6 +28,17 @@ const JiraSettings = () => {
   const [complianceKeywords, setComplianceKeywords] = useState<string>('SOC 2, HIPAA, PCI DSS, GDPR, encryption, access control');
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [showDisconnectDialog, setShowDisconnectDialog] = useState(false);
+  
+  // Load settings from localStorage on component mount
+  useEffect(() => {
+    const storedFrequency = localStorage.getItem('jira_scan_frequency');
+    const storedAutoSync = localStorage.getItem('jira_auto_sync');
+    const storedKeywords = localStorage.getItem('jira_compliance_keywords');
+    
+    if (storedFrequency) setScanFrequency(storedFrequency);
+    if (storedAutoSync) setAutoSync(storedAutoSync === 'true');
+    if (storedKeywords) setComplianceKeywords(storedKeywords);
+  }, []);
 
   const handleSaveSettings = () => {
     setIsSaving(true);
@@ -133,15 +145,30 @@ const JiraSettings = () => {
           <CardDescription>Manage your Jira connection</CardDescription>
         </CardHeader>
         <CardContent>
-          <p className="text-sm">
-            Connected to Jira Cloud. 
-            <span className="ml-1 px-2 py-0.5 bg-green-100 text-green-800 rounded-full text-xs">
-              Active
-            </span>
-          </p>
-          <p className="text-sm text-muted-foreground mt-1">
-            Instance: {cloudId || 'Unknown'}
-          </p>
+          <div className="flex flex-col space-y-3">
+            <div className="flex items-center">
+              <span className="font-medium mr-2">Status:</span>
+              <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
+                Active
+              </Badge>
+            </div>
+            
+            <div className="flex items-center">
+              <span className="font-medium mr-2">Workspace:</span>
+              {cloudId ? (
+                <span className="text-sm">{cloudId}</span>
+              ) : (
+                <span className="text-sm text-muted-foreground">Not connected</span>
+              )}
+            </div>
+            
+            <div className="flex items-center">
+              <span className="font-medium mr-2">Connected since:</span>
+              <span className="text-sm">
+                {localStorage.getItem('jira_connected_date') || new Date().toLocaleDateString()}
+              </span>
+            </div>
+          </div>
         </CardContent>
         <CardFooter>
           <Button variant="destructive" onClick={handleDisconnect}>

@@ -2,6 +2,7 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from '@/components/ui/use-toast';
+import { Badge } from '@/components/ui/badge';
 import JiraConnect from './JiraConnect';
 import JiraProjects from './JiraProjects';
 import JiraIssues from './JiraIssues';
@@ -11,7 +12,7 @@ import { useJiraAuth } from '@/hooks/useJiraAuth';
 
 const JiraIntegration = () => {
   const { toast } = useToast();
-  const { isAuthenticated, isLoading } = useJiraAuth();
+  const { isAuthenticated, isLoading, cloudId } = useJiraAuth();
 
   // Show authentication screen if not connected
   if (!isAuthenticated && !isLoading) {
@@ -35,9 +36,14 @@ const JiraIntegration = () => {
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-bold tracking-tight">Jira Integration</h2>
-        <p className="text-muted-foreground">
-          Connect your Jira workspace to NexaBloom for compliance monitoring and risk assessment.
-        </p>
+        <div className="flex items-center space-x-2 mt-1">
+          <p className="text-muted-foreground">
+            Connected to workspace:
+          </p>
+          <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800">
+            {cloudId || 'Unknown'}
+          </Badge>
+        </div>
       </div>
 
       <Tabs defaultValue="dashboard">

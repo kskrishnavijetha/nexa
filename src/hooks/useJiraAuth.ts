@@ -54,6 +54,7 @@ export const useJiraAuth = () => {
           // Token is invalid, clear it
           localStorage.removeItem('jira_token');
           localStorage.removeItem('jira_cloud_id');
+          localStorage.removeItem('jira_connected_date');
           setState({
             isAuthenticated: false,
             isLoading: false,
@@ -86,6 +87,7 @@ export const useJiraAuth = () => {
       if (token) {
         localStorage.setItem('jira_token', token);
         localStorage.setItem('jira_cloud_id', cloudId);
+        localStorage.setItem('jira_connected_date', new Date().toLocaleDateString());
         
         setState({
           isAuthenticated: true,
@@ -97,7 +99,7 @@ export const useJiraAuth = () => {
         
         toast({
           title: 'Connected to Jira',
-          description: 'Successfully connected to your Jira workspace',
+          description: `Successfully connected to Jira workspace: ${cloudId}`,
         });
         
         return true;
@@ -143,6 +145,7 @@ export const useJiraAuth = () => {
   const logout = useCallback(() => {
     localStorage.removeItem('jira_token');
     localStorage.removeItem('jira_cloud_id');
+    localStorage.removeItem('jira_connected_date');
     
     setState({
       isAuthenticated: false,
