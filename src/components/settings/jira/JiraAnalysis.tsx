@@ -97,6 +97,7 @@ const JiraAnalysis: React.FC = () => {
       body: projects.map(project => [project.key, project.name]),
     });
     
+    // @ts-ignore - jspdf-autotable types
     const finalY = (doc as any).lastAutoTable.finalY || 120;
     doc.setFontSize(14);
     doc.text('Issue Types', 14, finalY + 10);
