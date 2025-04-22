@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,7 +9,7 @@ import { Download, FileText } from 'lucide-react';
 import { exportReport, ExportFormat } from '@/utils/reports';
 import { JiraIssue } from '@/utils/jira/types';
 import { jiraIssueService } from '@/utils/jira/jiraIssueService';
-import { Industry, RiskSeverity } from '@/utils/types';
+import { Industry, Region, RiskSeverity } from '@/utils/types';
 
 const JiraReports = () => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -27,22 +26,19 @@ const JiraReports = () => {
         description: "Please wait while we prepare your report...",
       });
 
-      // Fetch compliance issues to include in the report
       const issues = await jiraIssueService.getComplianceIssues();
       
-      // Create a report structure that matches the ComplianceReport type
-      // Ensure industry is properly typed as Industry from the imported type
       const report = {
-        documentId: `jira-report-${Date.now()}`, // Required by ComplianceReport
+        documentId: `jira-report-${Date.now()}`, 
         documentName: `Jira Compliance Report - ${new Date().toLocaleDateString()}`,
         summary: "This report summarizes compliance-related issues from Jira.",
         overallScore: 75,
-        gdprScore: 70, // Required by ComplianceReport
-        hipaaScore: 75, // Required by ComplianceReport
-        soc2Score: 80, // Required by ComplianceReport
-        pciDssScore: 65, // Optional in ComplianceReport
-        industry: "Technology" as Industry, // Cast to Industry type
-        region: "Global",
+        gdprScore: 70,
+        hipaaScore: 75, 
+        soc2Score: 80,
+        pciDssScore: 65,
+        industry: "Technology" as Industry, 
+        region: "Global" as Region,
         regulations: ["SOC 2", "GDPR", "HIPAA"],
         risks: issues.map(issue => ({
           title: issue.summary,
@@ -68,7 +64,6 @@ const JiraReports = () => {
         ]
       };
 
-      // Generate and download the report
       await exportReport(report, exportFormat);
       
       toast({
