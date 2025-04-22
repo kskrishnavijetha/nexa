@@ -74,7 +74,7 @@ export const useJiraAuth = () => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     
     try {
-      const token = await jiraAuthService.authenticate(cloudId, apiToken);
+      const { token, error } = await jiraAuthService.authenticate(cloudId, apiToken);
       
       if (token) {
         localStorage.setItem('jira_token', token);
@@ -98,12 +98,12 @@ export const useJiraAuth = () => {
           isAuthenticated: false,
           isLoading: false,
           token: null,
-          error: 'Authentication failed. Please check your credentials.',
+          error: error || 'Authentication failed. Please check your credentials.',
         });
         
         toast({
           title: 'Connection failed',
-          description: 'Failed to connect to Jira. Please check your credentials.',
+          description: error || 'Failed to connect to Jira. Please check your credentials.',
           variant: 'destructive',
         });
         

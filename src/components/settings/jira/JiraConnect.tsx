@@ -34,7 +34,7 @@ const JiraConnect: React.FC = () => {
         </CardHeader>
         
         <CardContent>
-          <form onSubmit={handleConnect} className="space-y-6">
+          <form id="jira-connect-form" onSubmit={handleConnect} className="space-y-6">
             <Alert className="bg-muted">
               <AlertTitle>Getting your Jira Cloud ID and API Token</AlertTitle>
               <AlertDescription className="text-sm">
@@ -88,11 +88,10 @@ const JiraConnect: React.FC = () => {
         
         <CardFooter>
           <Button 
-            onClick={handleConnect} 
+            form="jira-connect-form"
             disabled={isLoading || !cloudId || !apiToken} 
             className="w-full"
             type="submit"
-            variant="default"
           >
             {isLoading ? (
               <>

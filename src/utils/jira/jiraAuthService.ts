@@ -6,7 +6,11 @@ interface JiraAuthResponse {
   expiresIn: number;
 }
 
-const authenticate = async (cloudId: string, apiToken: string): Promise<string | null> => {
+const authenticate = async (cloudId: string, apiToken: string): Promise<{ token: string | null; error: string | null }> => {
+  if (!cloudId || !apiToken) {
+    return { token: null, error: 'Missing credentials. Please provide both Cloud ID and API Token.' };
+  }
+  
   try {
     // In a real implementation, this would communicate with your backend
     // which would then handle the OAuth flow with Jira
@@ -22,14 +26,19 @@ const authenticate = async (cloudId: string, apiToken: string): Promise<string |
       expiresIn: 3600
     };
     
-    return mockResponse.token;
+    return { token: mockResponse.token, error: null };
   } catch (error) {
     console.error('Jira authentication error:', error);
-    return null;
+    const errorMessage = error instanceof Error ? error.message : 'Failed to connect to Jira';
+    return { token: null, error: errorMessage };
   }
 };
 
 const validateToken = async (token: string): Promise<boolean> => {
+  if (!token) {
+    return false;
+  }
+  
   try {
     // In a real implementation, this would verify the token with Jira API
     console.log('Validating Jira token', { token: token.substring(0, 5) + '***' });
@@ -39,7 +48,7 @@ const validateToken = async (token: string): Promise<boolean> => {
     
     // For demo purposes, we'll consider any token valid
     // In a real app, this should actually validate with Jira
-    return Boolean(token);
+    return true;
   } catch (error) {
     console.error('Jira token validation error:', error);
     return false;
