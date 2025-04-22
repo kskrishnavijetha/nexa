@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -40,6 +39,7 @@ export default function App() {
             <Route path="/hash-verification" element={<HashVerification />} />
             <Route path="/verify" element={<HashVerification />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/settings/jira" element={<Settings />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

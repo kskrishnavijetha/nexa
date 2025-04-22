@@ -15,7 +15,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user } = useAuth();
   const location = useLocation();
   
-  // Only render the Sidebar for authenticated users
   if (user) {
     return (
       <SidebarProvider>
@@ -94,6 +93,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
+                  <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={location.pathname === '/settings/jira'}>
+                      <Link to="/settings/jira" draggable="false">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Jira Integration
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
                 </SidebarMenu>
               </SidebarGroup>
               
@@ -124,7 +131,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     );
   }
   
-  // For unauthenticated users, keep the original layout
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
