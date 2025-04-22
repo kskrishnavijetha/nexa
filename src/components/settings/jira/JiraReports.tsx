@@ -10,7 +10,7 @@ import { Download, FileText } from 'lucide-react';
 import { exportReport, ExportFormat } from '@/utils/reports';
 import { JiraIssue } from '@/utils/jira/types';
 import { jiraIssueService } from '@/utils/jira/jiraIssueService';
-import { Industry } from '@/utils/types';
+import { Industry, RiskSeverity } from '@/utils/types';
 
 const JiraReports = () => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -46,7 +46,8 @@ const JiraReports = () => {
         regulations: ["SOC 2", "GDPR", "HIPAA"],
         risks: issues.map(issue => ({
           title: issue.summary,
-          severity: issue.priority === "High" ? "high" : (issue.priority === "Medium" ? "medium" : "low"),
+          severity: (issue.priority === "High" ? "high" : 
+                   (issue.priority === "Medium" ? "medium" : "low")) as RiskSeverity,
           description: issue.description || "",
           regulation: issue.complianceFrameworks?.join(", ") || "Unknown",
           status: issue.isHighRisk ? "critical" : "warning"
