@@ -52,16 +52,7 @@ export const useJiraAuth = () => {
           });
         } else {
           // Token is invalid, clear it
-          localStorage.removeItem('jira_token');
-          localStorage.removeItem('jira_cloud_id');
-          localStorage.removeItem('jira_connected_date');
-          setState({
-            isAuthenticated: false,
-            isLoading: false,
-            token: null,
-            cloudId: null,
-            error: 'Invalid or expired token',
-          });
+          logout();
         }
       } catch (error) {
         setState({
@@ -156,9 +147,12 @@ export const useJiraAuth = () => {
     });
     
     toast({
-      title: 'Disconnected',
+      title: 'Disconnected from Jira',
       description: 'Successfully disconnected from Jira',
     });
+    
+    // Force a page reload to ensure all Jira components are properly reset
+    window.location.href = '/settings';
   }, [toast]);
 
   return {

@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const JiraSettings = () => {
-  const { logout, cloudId } = useJiraAuth();
+  const { logout, cloudId, isAuthenticated } = useJiraAuth();
   const { toast } = useToast();
   const [scanFrequency, setScanFrequency] = useState<string>('daily');
   const [autoSync, setAutoSync] = useState<boolean>(true);
@@ -72,6 +72,11 @@ const JiraSettings = () => {
       description: 'You have been successfully disconnected from Jira.',
     });
   };
+
+  // If not authenticated, don't render settings
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="space-y-6">
