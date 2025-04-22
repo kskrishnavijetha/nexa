@@ -112,16 +112,54 @@ const MOCK_ISSUES: ComplianceIssue[] = [
   },
 ];
 
+// NEW: Enhanced demo mode generation function
+const generateDemoComplianceIssues = (count: number = 10): ComplianceIssue[] => {
+  const demoFrameworks = ['SOC 2', 'HIPAA', 'PCI DSS', 'GDPR', 'ISO 27001'];
+  const demoStatuses = ['To Do', 'In Progress', 'Done', 'Blocked'];
+  const demoPriorities = ['Low', 'Medium', 'High', 'Critical'];
+
+  return Array.from({ length: count }, (_, index) => ({
+    id: `demo-issue-${index + 1}`,
+    key: `DEMO-${100 + index}`,
+    summary: [
+      'Implement secure password policy',
+      'Update data encryption standards',
+      'Enhance access control mechanisms',
+      'Review and update privacy policy',
+      'Conduct security awareness training'
+    ][index % 5],
+    description: `Detailed compliance task for ${demoFrameworks[index % demoFrameworks.length]} framework`,
+    status: demoStatuses[index % demoStatuses.length],
+    priority: demoPriorities[index % demoPriorities.length],
+    created: new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toISOString(),
+    updated: new Date().toISOString(),
+    projectId: `demo-proj-${index % 3 + 1}`,
+    projectKey: 'DEMO',
+    projectName: 'Compliance Demo Project',
+    issueType: { name: 'Task' },
+    complianceFrameworks: [demoFrameworks[index % demoFrameworks.length]],
+    complianceControls: [`Control-${index + 1}`],
+    riskScore: Math.floor(Math.random() * 90 + 10), // Random risk score between 10-100
+    keywordMatches: ['security', 'compliance', 'risk management'],
+    isHighRisk: Math.random() > 0.6,
+    dueDate: new Date(Date.now() + Math.random() * 60 * 24 * 60 * 60 * 1000).toISOString(),
+  }));
+};
+
 /**
  * Get compliance issues from Jira based on filter criteria
  */
 const getComplianceIssues = async (filter?: JiraFilter): Promise<ComplianceIssue[]> => {
   try {
-    // In a real implementation, this would fetch from the Jira API and analyze issues
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API delay
+    // Check if demo mode is enabled in localStorage
+    const isDemoMode = localStorage.getItem('jira_demo_mode') === 'true';
     
-    let filteredIssues = [...MOCK_ISSUES];
+    // Use generated demo issues if demo mode is on, otherwise use existing mock issues
+    let filteredIssues = isDemoMode 
+      ? generateDemoComplianceIssues(20) 
+      : [...MOCK_ISSUES];
     
+    // Apply existing filtering logic
     if (filter) {
       if (filter.projectKeys && filter.projectKeys.length > 0) {
         filteredIssues = filteredIssues.filter(issue => 
@@ -181,3 +219,4 @@ export const jiraIssueService = {
   getComplianceIssues,
   updateIssueWithComplianceData,
 };
+

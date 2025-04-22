@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -16,6 +15,11 @@ const JiraSettings = () => {
   const [autoSync, setAutoSync] = useState<boolean>(true);
   const [complianceKeywords, setComplianceKeywords] = useState<string>('SOC 2, HIPAA, PCI DSS, GDPR, encryption, access control');
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [demoMode, setDemoMode] = useState(localStorage.getItem('jira_demo_mode') === 'true');
+
+  useEffect(() => {
+    localStorage.setItem('jira_demo_mode', demoMode.toString());
+  }, [demoMode]);
 
   const handleSaveSettings = () => {
     setIsSaving(true);
@@ -129,6 +133,35 @@ const JiraSettings = () => {
             Disconnect from Jira
           </Button>
         </CardFooter>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Demo Mode</CardTitle>
+          <CardDescription>
+            Enable demo mode to generate simulated Jira compliance data for testing and demonstration
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-between">
+            <div>
+              <Label htmlFor="demoMode">Demo Mode</Label>
+              <p className="text-sm text-muted-foreground">
+                Generate simulated Jira compliance issues and projects
+              </p>
+            </div>
+            <Switch
+              id="demoMode"
+              checked={demoMode}
+              onCheckedChange={setDemoMode}
+            />
+          </div>
+          {demoMode && (
+            <div className="mt-4 text-sm text-muted-foreground bg-blue-50 border border-blue-200 p-3 rounded-md">
+              Demo mode is active. You will see simulated Jira compliance data across all views.
+            </div>
+          )}
+        </CardContent>
       </Card>
     </div>
   );

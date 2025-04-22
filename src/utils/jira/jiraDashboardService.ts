@@ -2,10 +2,23 @@
 import { RiskDistribution } from './types';
 
 /**
- * Get risk distribution for all compliance issues
+ * Get risk distribution for all compliance issues in demo mode
  */
 const getRiskDistribution = (): RiskDistribution => {
-  // In a real implementation, this would calculate based on actual issues
+  // Check if demo mode is enabled in localStorage
+  const isDemoMode = localStorage.getItem('jira_demo_mode') === 'true';
+  
+  if (isDemoMode) {
+    // Generate more dynamic demo risk distribution
+    return {
+      high: Math.floor(Math.random() * 20 + 10),   // 10-30
+      medium: Math.floor(Math.random() * 30 + 20), // 20-50
+      low: Math.floor(Math.random() * 20 + 15),    // 15-35
+      total: 0
+    };
+  }
+  
+  // In non-demo mode, return existing logic
   return {
     high: 12,
     medium: 25,
@@ -51,3 +64,4 @@ export const jiraDashboardService = {
   generateComplianceReport,
   configureRiskAlerts,
 };
+
