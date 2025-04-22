@@ -59,7 +59,7 @@ const JiraIssues = () => {
 
   const getRiskBadgeVariant = (score: number) => {
     if (score >= 70) return 'destructive';
-    if (score >= 40) return 'warning';
+    if (score >= 40) return 'secondary';
     return 'outline';
   };
 

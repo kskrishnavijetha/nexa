@@ -115,7 +115,7 @@ const JiraComplianceDashboard = () => {
               <div className="flex flex-col space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-2xl font-bold">{stat.percentageComplete}%</span>
-                  <Badge variant={stat.percentageComplete > 80 ? "success" : stat.percentageComplete > 60 ? "warning" : "destructive"}>
+                  <Badge variant={stat.percentageComplete > 80 ? "secondary" : stat.percentageComplete > 60 ? "outline" : "destructive"}>
                     {stat.percentageComplete > 80 ? "Compliant" : stat.percentageComplete > 60 ? "Partial" : "At Risk"}
                   </Badge>
                 </div>
