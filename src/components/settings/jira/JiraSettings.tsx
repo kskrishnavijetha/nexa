@@ -8,6 +8,16 @@ import { useJiraAuth } from '@/hooks/useJiraAuth';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/use-toast';
+import { 
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 
 const JiraSettings = () => {
   const { logout } = useJiraAuth();
@@ -16,6 +26,7 @@ const JiraSettings = () => {
   const [autoSync, setAutoSync] = useState<boolean>(true);
   const [complianceKeywords, setComplianceKeywords] = useState<string>('SOC 2, HIPAA, PCI DSS, GDPR, encryption, access control');
   const [isSaving, setIsSaving] = useState<boolean>(false);
+  const [showDisconnectDialog, setShowDisconnectDialog] = useState(false);
 
   const handleSaveSettings = () => {
     setIsSaving(true);
@@ -37,9 +48,17 @@ const JiraSettings = () => {
   };
 
   const handleDisconnect = () => {
-    if (confirm('Are you sure you want to disconnect from Jira? All integration settings will be lost.')) {
-      logout();
-    }
+    setShowDisconnectDialog(true);
+  };
+
+  const confirmDisconnect = () => {
+    logout();
+    setShowDisconnectDialog(false);
+    
+    toast({
+      title: 'Disconnected from Jira',
+      description: 'You have been successfully disconnected from Jira.',
+    });
   };
 
   return (
@@ -130,6 +149,21 @@ const JiraSettings = () => {
           </Button>
         </CardFooter>
       </Card>
+      
+      <AlertDialog open={showDisconnectDialog} onOpenChange={setShowDisconnectDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure you want to disconnect from Jira?</AlertDialogTitle>
+            <AlertDialogDescription>
+              All integration settings will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDisconnect}>OK</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
