@@ -2,23 +2,9 @@
 import { RiskDistribution } from './types';
 
 /**
- * Get risk distribution for all compliance issues in demo mode
+ * Get risk distribution for all compliance issues
  */
 const getRiskDistribution = (): RiskDistribution => {
-  // Check if demo mode is enabled in localStorage
-  const isDemoMode = localStorage.getItem('jira_demo_mode') === 'true';
-  
-  if (isDemoMode) {
-    // Generate more dynamic demo risk distribution
-    return {
-      high: Math.floor(Math.random() * 20 + 10),   // 10-30
-      medium: Math.floor(Math.random() * 30 + 20), // 20-50
-      low: Math.floor(Math.random() * 20 + 15),    // 15-35
-      total: 0
-    };
-  }
-  
-  // In non-demo mode, return existing logic
   return {
     high: 12,
     medium: 25,
@@ -32,11 +18,15 @@ const getRiskDistribution = (): RiskDistribution => {
  */
 const generateComplianceReport = async (): Promise<string> => {
   try {
-    // In a real implementation, this would generate a PDF report
     console.log('Generating compliance report...');
-    await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate report generation
+    const reportUrl = await fetch('/api/compliance/report', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(res => res.json());
     
-    return 'compliance-report.pdf';
+    return reportUrl;
   } catch (error) {
     console.error('Error generating compliance report:', error);
     throw new Error('Failed to generate compliance report');
@@ -48,11 +38,15 @@ const generateComplianceReport = async (): Promise<string> => {
  */
 const configureRiskAlerts = async (enabled: boolean): Promise<boolean> => {
   try {
-    // In a real implementation, this would configure alert settings
-    console.log(`${enabled ? 'Enabling' : 'Disabling'} risk alerts...`);
-    await new Promise(resolve => setTimeout(resolve, 800)); // Simulate API call
+    const response = await fetch('/api/compliance/alerts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ enabled })
+    });
     
-    return true;
+    return response.ok;
   } catch (error) {
     console.error('Error configuring risk alerts:', error);
     return false;
