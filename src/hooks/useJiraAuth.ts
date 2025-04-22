@@ -48,11 +48,12 @@ export const useJiraAuth = () => {
         } else {
           // Token is invalid, clear it
           localStorage.removeItem('jira_token');
+          localStorage.removeItem('jira_cloud_id');
           setState({
             isAuthenticated: false,
             isLoading: false,
             token: null,
-            error: 'Invalid or expired token',
+            error: 'Your Jira session has expired. Please reconnect.',
           });
         }
       } catch (error) {
@@ -70,7 +71,7 @@ export const useJiraAuth = () => {
 
   // Login to Jira
   const login = useCallback(async (cloudId: string, apiToken: string) => {
-    setState(prev => ({ ...prev, isLoading: true }));
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
     
     try {
       const token = await jiraAuthService.authenticate(cloudId, apiToken);
@@ -97,7 +98,7 @@ export const useJiraAuth = () => {
           isAuthenticated: false,
           isLoading: false,
           token: null,
-          error: 'Authentication failed',
+          error: 'Authentication failed. Please check your Jira Cloud ID and API token.',
         });
         
         toast({
@@ -109,11 +110,13 @@ export const useJiraAuth = () => {
         return false;
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Authentication error';
+      
       setState({
         isAuthenticated: false,
         isLoading: false,
         token: null,
-        error: 'Authentication error',
+        error: errorMessage,
       });
       
       toast({
