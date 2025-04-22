@@ -1,51 +1,21 @@
 
 {
-  "key": "nexabloom-jira-integration",
-  "name": "NexaBloom Jira Integration",
-  "description": "Connect NexaBloom with Jira for seamless two-way communication",
-  "vendor": {
-    "name": "NexaBloom",
-    "url": "https://nexabloom.xyz"
-  },
-  "baseUrl": "https://nexabloom.xyz",
+  "key": "your-app-key",
+  "name": "Your App Name",
+  "baseUrl": "https://your-awesome-app.vercel.app",
   "authentication": {
-    "type": "jwt"
+    "type": "none"
   },
-  "lifecycle": {
-    "installed": "/jira/installed",
-    "uninstalled": "/jira/uninstalled"
-  },
-  "scopes": [
-    "read",
-    "write"
-  ],
   "modules": {
     "generalPages": [
       {
-        "url": "/jira/dashboard",
-        "key": "nexabloom-dashboard",
+        "url": "/",
+        "key": "main-page",
         "location": "system.top.navigation.bar",
         "name": {
-          "value": "NexaBloom Dashboard"
+          "value": "My Custom App"
         }
       }
-    ],
-    "webhooks": [
-      {
-        "event": "jira:issue_created",
-        "url": "/jira/webhook/issue-created"
-      },
-      {
-        "event": "jira:issue_updated",
-        "url": "/jira/webhook/issue-updated"
-      },
-      {
-        "event": "jira:issue_deleted",
-        "url": "/jira/webhook/issue-deleted"
-      }
     ]
-  },
-  "apiMigrations": {
-    "gdpr": true
   }
 }
