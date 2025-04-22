@@ -36,6 +36,11 @@ export function useJiraForm(): UseJiraFormReturn {
   
   const addProject = useCallback(async (project: JiraProject) => {
     try {
+      // Validate that required fields are present
+      if (!project.key || !project.name) {
+        throw new Error('Project key and name are required');
+      }
+      
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 800));
       
@@ -59,6 +64,11 @@ export function useJiraForm(): UseJiraFormReturn {
   
   const addIssueType = useCallback(async (issueType: JiraIssueType) => {
     try {
+      // Validate that required fields are present
+      if (!issueType.name) {
+        throw new Error('Issue type name is required');
+      }
+      
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 800));
       

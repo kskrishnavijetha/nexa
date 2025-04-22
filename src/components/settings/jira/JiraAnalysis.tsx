@@ -51,7 +51,12 @@ const JiraAnalysis: React.FC = () => {
 
   const onAddProject = async (data: z.infer<typeof projectSchema>) => {
     try {
-      await addProject(data);
+      // Ensure we're passing a valid JiraProject object with required fields
+      await addProject({
+        key: data.key, // This is now guaranteed to be non-empty due to schema validation
+        name: data.name, // This is now guaranteed to be non-empty due to schema validation
+      });
+      
       toast({
         title: 'Project Added',
         description: 'The project has been successfully added.',
@@ -69,7 +74,12 @@ const JiraAnalysis: React.FC = () => {
 
   const onAddIssueType = async (data: z.infer<typeof issueTypeSchema>) => {
     try {
-      await addIssueType(data);
+      // Ensure we're passing a valid JiraIssueType object with required fields
+      await addIssueType({
+        name: data.name, // This is now guaranteed to be non-empty due to schema validation
+        description: data.description || '', // Default to empty string if undefined
+      });
+      
       toast({
         title: 'Issue Type Added',
         description: 'The issue type has been successfully added.',
