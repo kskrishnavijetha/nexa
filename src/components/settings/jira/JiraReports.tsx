@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import { Download, FileText } from 'lucide-react';
 import { exportReport, ExportFormat } from '@/utils/reports';
 import { JiraIssue } from '@/utils/jira/types';
 import { jiraIssueService } from '@/utils/jira/jiraIssueService';
+import { Industry } from '@/utils/types';
 
 const JiraReports = () => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -29,6 +31,7 @@ const JiraReports = () => {
       const issues = await jiraIssueService.getComplianceIssues();
       
       // Create a report structure that matches the ComplianceReport type
+      // Ensure industry is properly typed as Industry from the imported type
       const report = {
         documentId: `jira-report-${Date.now()}`, // Required by ComplianceReport
         documentName: `Jira Compliance Report - ${new Date().toLocaleDateString()}`,
@@ -38,7 +41,7 @@ const JiraReports = () => {
         hipaaScore: 75, // Required by ComplianceReport
         soc2Score: 80, // Required by ComplianceReport
         pciDssScore: 65, // Optional in ComplianceReport
-        industry: "Technology",
+        industry: "Technology" as Industry, // Cast to Industry type
         region: "Global",
         regulations: ["SOC 2", "GDPR", "HIPAA"],
         risks: issues.map(issue => ({
