@@ -5,18 +5,24 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search } from 'lucide-react';
+import { Plus, Search } from 'lucide-react';
 import { jiraProjectService } from '@/utils/jira/jiraProjectService';
 import { JiraProject } from '@/utils/jira/types';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from '@/components/ui/label';
+import { useJiraForm } from '@/hooks/useJiraForm';
 
 const JiraProjects = () => {
   const [projects, setProjects] = useState<JiraProject[]>([]);
   const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [newProject, setNewProject] = useState({ key: '', name: '' });
   const { toast } = useToast();
+  const { addProject } = useJiraForm();
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -62,6 +68,53 @@ const JiraProjects = () => {
       description: `${selectedProjects.length} projects selected for compliance monitoring`,
     });
   };
+  
+  const handleAddProject = async () => {
+    if (!newProject.key || !newProject.name) {
+      toast({
+        title: 'Validation error',
+        description: 'Project key and name are required',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    // Check for duplicate key
+    if (projects.some(p => p.key === newProject.key)) {
+      toast({
+        title: 'Validation error',
+        description: `Project key "${newProject.key}" already exists`,
+        variant: 'destructive',
+      });
+      return;
+    }
+    
+    try {
+      // Add the new project using the useJiraForm hook
+      const createdProject = await addProject(newProject);
+      
+      // Update the projects list with the new project
+      setProjects(prevProjects => [...prevProjects, createdProject]);
+      
+      // Auto-select the new project
+      setSelectedProjects(prev => [...prev, createdProject.id]);
+      
+      // Close the dialog and reset the form
+      setShowAddDialog(false);
+      setNewProject({ key: '', name: '' });
+      
+      toast({
+        title: 'Project added',
+        description: `Project "${newProject.name}" has been added successfully`,
+      });
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to add the project',
+        variant: 'destructive',
+      });
+    }
+  };
 
   const filteredProjects = projects.filter(project => 
     project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -71,10 +124,21 @@ const JiraProjects = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Jira Projects</CardTitle>
-        <CardDescription>
-          Select which projects to monitor for compliance issues
-        </CardDescription>
+        <div className="flex justify-between items-start">
+          <div>
+            <CardTitle>Jira Projects</CardTitle>
+            <CardDescription>
+              Select which projects to monitor for compliance issues
+            </CardDescription>
+          </div>
+          <Button 
+            size="sm" 
+            className="flex items-center gap-1"
+            onClick={() => setShowAddDialog(true)}
+          >
+            <Plus size={16} /> Add Project
+          </Button>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="mb-4 flex items-center space-x-2">
@@ -152,6 +216,45 @@ const JiraProjects = () => {
           Save Selection
         </Button>
       </CardFooter>
+
+      {/* Add Project Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Project</DialogTitle>
+            <DialogDescription>
+              Create a new project to monitor for compliance issues
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="project-key">Project Key</Label>
+              <Input 
+                id="project-key"
+                placeholder="e.g., COMP, SEC, GDPR"
+                value={newProject.key}
+                onChange={(e) => setNewProject(prev => ({ ...prev, key: e.target.value.toUpperCase() }))}
+              />
+              <p className="text-xs text-muted-foreground">
+                Project keys are used as prefixes for issue numbers
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="project-name">Project Name</Label>
+              <Input 
+                id="project-name"
+                placeholder="e.g., Compliance Project"
+                value={newProject.name}
+                onChange={(e) => setNewProject(prev => ({ ...prev, name: e.target.value }))}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddDialog(false)}>Cancel</Button>
+            <Button onClick={handleAddProject}>Add Project</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };

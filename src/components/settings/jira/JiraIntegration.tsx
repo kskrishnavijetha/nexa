@@ -8,6 +8,7 @@ import JiraProjects from './JiraProjects';
 import JiraIssues from './JiraIssues';
 import JiraComplianceDashboard from './JiraComplianceDashboard';
 import JiraSettings from './JiraSettings';
+import JiraReports from './JiraReports';
 import { useJiraAuth } from '@/hooks/useJiraAuth';
 
 const JiraIntegration = () => {
@@ -34,15 +35,17 @@ const JiraIntegration = () => {
   // If we get here, we should be authenticated
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">Jira Integration</h2>
-        <div className="flex items-center space-x-2 mt-1">
-          <p className="text-muted-foreground">
-            Connected to workspace:
-          </p>
-          <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800">
-            {cloudId || 'Unknown'}
-          </Badge>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">Jira Integration</h2>
+          <div className="flex items-center space-x-2 mt-1">
+            <p className="text-muted-foreground">
+              Connected to workspace:
+            </p>
+            <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800">
+              {cloudId || 'Unknown'}
+            </Badge>
+          </div>
         </div>
       </div>
 
@@ -68,16 +71,7 @@ const JiraIntegration = () => {
         </TabsContent>
         
         <TabsContent value="reports" className="space-y-4 mt-4">
-          <div className="rounded-md border p-6">
-            <h3 className="text-lg font-medium mb-2">Compliance Reports</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Generate reports showing Jira issues mapped to compliance frameworks.
-            </p>
-            {/* Report generation will be implemented later */}
-            <div className="text-sm text-muted-foreground">
-              Report generation coming soon.
-            </div>
-          </div>
+          <JiraReports />
         </TabsContent>
         
         <TabsContent value="settings" className="space-y-4 mt-4">

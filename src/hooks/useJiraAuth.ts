@@ -76,9 +76,12 @@ export const useJiraAuth = () => {
       const { token, error } = await jiraAuthService.authenticate(cloudId, apiToken);
       
       if (token) {
+        // Store connection date in ISO format for better compatibility
+        const connectionDate = new Date().toISOString();
+        
         localStorage.setItem('jira_token', token);
         localStorage.setItem('jira_cloud_id', cloudId);
-        localStorage.setItem('jira_connected_date', new Date().toLocaleDateString());
+        localStorage.setItem('jira_connected_date', connectionDate);
         
         setState({
           isAuthenticated: true,
@@ -137,6 +140,11 @@ export const useJiraAuth = () => {
     localStorage.removeItem('jira_token');
     localStorage.removeItem('jira_cloud_id');
     localStorage.removeItem('jira_connected_date');
+    localStorage.removeItem('jira_auto_sync');
+    localStorage.removeItem('jira_scan_frequency');
+    localStorage.removeItem('jira_compliance_keywords');
+    localStorage.removeItem('jira_auto_sync_settings');
+    localStorage.removeItem('jira_selected_projects');
     
     setState({
       isAuthenticated: false,
@@ -155,9 +163,27 @@ export const useJiraAuth = () => {
     window.location.href = '/settings';
   }, [toast]);
 
+  // Get connection date in a more readable format
+  const getConnectionDate = useCallback(() => {
+    const dateStr = localStorage.getItem('jira_connected_date');
+    if (!dateStr) return null;
+    
+    try {
+      // Handle both ISO date string and localized date string
+      const date = dateStr.includes('T') 
+        ? new Date(dateStr)
+        : new Date(dateStr);
+      
+      return date.toLocaleDateString();
+    } catch (e) {
+      return dateStr; // Fallback to the raw string
+    }
+  }, []);
+
   return {
     ...state,
     login,
     logout,
+    getConnectionDate,
   };
 };

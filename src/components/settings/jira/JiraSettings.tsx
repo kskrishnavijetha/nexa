@@ -28,6 +28,11 @@ const JiraSettings = () => {
   const [complianceKeywords, setComplianceKeywords] = useState<string>('SOC 2, HIPAA, PCI DSS, GDPR, encryption, access control');
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [showDisconnectDialog, setShowDisconnectDialog] = useState(false);
+  const [autoSyncSettings, setAutoSyncSettings] = useState({
+    syncIssueStatus: true,
+    syncComments: true,
+    syncAttachments: false
+  });
   
   // Load settings from localStorage on component mount
   useEffect(() => {
@@ -38,6 +43,16 @@ const JiraSettings = () => {
     if (storedFrequency) setScanFrequency(storedFrequency);
     if (storedAutoSync) setAutoSync(storedAutoSync === 'true');
     if (storedKeywords) setComplianceKeywords(storedKeywords);
+    
+    // Load auto sync detailed settings
+    const storedAutoSyncSettings = localStorage.getItem('jira_auto_sync_settings');
+    if (storedAutoSyncSettings) {
+      try {
+        setAutoSyncSettings(JSON.parse(storedAutoSyncSettings));
+      } catch (e) {
+        console.error('Failed to parse auto sync settings:', e);
+      }
+    }
   }, []);
 
   const handleSaveSettings = () => {
@@ -51,6 +66,7 @@ const JiraSettings = () => {
       localStorage.setItem('jira_scan_frequency', scanFrequency);
       localStorage.setItem('jira_auto_sync', autoSync.toString());
       localStorage.setItem('jira_compliance_keywords', complianceKeywords);
+      localStorage.setItem('jira_auto_sync_settings', JSON.stringify(autoSyncSettings));
       
       toast({
         title: 'Settings saved',
@@ -71,6 +87,25 @@ const JiraSettings = () => {
       title: 'Disconnected from Jira',
       description: 'You have been successfully disconnected from Jira.',
     });
+  };
+
+  const handleAutoSyncChange = (value: boolean) => {
+    setAutoSync(value);
+    // If auto sync is turned off, disable all detailed settings
+    if (!value) {
+      setAutoSyncSettings({
+        syncIssueStatus: false,
+        syncComments: false,
+        syncAttachments: false
+      });
+    } else {
+      // If turning on, enable default settings
+      setAutoSyncSettings({
+        syncIssueStatus: true,
+        syncComments: true,
+        syncAttachments: false
+      });
+    }
   };
 
   // If not authenticated, don't render settings
@@ -105,18 +140,63 @@ const JiraSettings = () => {
               </p>
             </div>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="autoSync" className="block">Automatic Synchronization</Label>
-                <p className="text-sm text-muted-foreground">
-                  Automatically sync issue status changes between systems
-                </p>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="autoSync" className="block">Automatic Synchronization</Label>
+                  <p className="text-sm text-muted-foreground">
+                    Automatically sync issue status changes between systems
+                  </p>
+                </div>
+                <Switch
+                  id="autoSync"
+                  checked={autoSync}
+                  onCheckedChange={handleAutoSyncChange}
+                />
               </div>
-              <Switch
-                id="autoSync"
-                checked={autoSync}
-                onCheckedChange={setAutoSync}
-              />
+              
+              {autoSync && (
+                <div className="ml-6 space-y-3 border-l-2 border-muted pl-4 mt-2">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="syncIssueStatus" className="text-sm">Sync issue status</Label>
+                    </div>
+                    <Switch
+                      id="syncIssueStatus"
+                      checked={autoSyncSettings.syncIssueStatus}
+                      onCheckedChange={(checked) => 
+                        setAutoSyncSettings(prev => ({...prev, syncIssueStatus: checked}))}
+                      size="sm"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="syncComments" className="text-sm">Sync comments</Label>
+                    </div>
+                    <Switch
+                      id="syncComments"
+                      checked={autoSyncSettings.syncComments}
+                      onCheckedChange={(checked) => 
+                        setAutoSyncSettings(prev => ({...prev, syncComments: checked}))}
+                      size="sm"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label htmlFor="syncAttachments" className="text-sm">Sync attachments</Label>
+                    </div>
+                    <Switch
+                      id="syncAttachments"
+                      checked={autoSyncSettings.syncAttachments}
+                      onCheckedChange={(checked) => 
+                        setAutoSyncSettings(prev => ({...prev, syncAttachments: checked}))}
+                      size="sm"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
