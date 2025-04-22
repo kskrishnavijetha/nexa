@@ -13,6 +13,9 @@ const authenticate = async (cloudId: string, apiToken: string): Promise<string |
     console.log('Authenticating with Jira', { cloudId, apiToken: '***' });
     
     // For demo purposes, we'll simulate a successful authentication
+    // Simulate a short delay for the API call
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
     // In a real app, this should come from your backend service
     const mockResponse: JiraAuthResponse = {
       token: `mock_token_${Date.now()}`,
@@ -29,7 +32,10 @@ const authenticate = async (cloudId: string, apiToken: string): Promise<string |
 const validateToken = async (token: string): Promise<boolean> => {
   try {
     // In a real implementation, this would verify the token with Jira API
-    console.log('Validating Jira token', { token: '***' });
+    console.log('Validating Jira token', { token: token.substring(0, 5) + '***' });
+    
+    // Simulate a short delay for the API call
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     // For demo purposes, we'll consider any token valid
     // In a real app, this should actually validate with Jira

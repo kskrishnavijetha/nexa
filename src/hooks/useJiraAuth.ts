@@ -13,7 +13,7 @@ interface JiraAuthState {
 export const useJiraAuth = () => {
   const [state, setState] = useState<JiraAuthState>({
     isAuthenticated: false,
-    isLoading: false,
+    isLoading: true, // Start with loading to prevent flashing of connect form
     token: null,
     error: null,
   });
@@ -22,8 +22,6 @@ export const useJiraAuth = () => {
   // Check if the user is authenticated with Jira
   useEffect(() => {
     const checkAuthStatus = async () => {
-      setState(prev => ({ ...prev, isLoading: true }));
-      
       try {
         const token = localStorage.getItem('jira_token');
         
@@ -50,6 +48,7 @@ export const useJiraAuth = () => {
         } else {
           // Token is invalid, clear it
           localStorage.removeItem('jira_token');
+          localStorage.removeItem('jira_cloud_id');
           setState({
             isAuthenticated: false,
             isLoading: false,
@@ -72,7 +71,7 @@ export const useJiraAuth = () => {
 
   // Login to Jira
   const login = useCallback(async (cloudId: string, apiToken: string) => {
-    setState(prev => ({ ...prev, isLoading: true }));
+    setState(prev => ({ ...prev, isLoading: true, error: null }));
     
     try {
       const token = await jiraAuthService.authenticate(cloudId, apiToken);
@@ -99,7 +98,7 @@ export const useJiraAuth = () => {
           isAuthenticated: false,
           isLoading: false,
           token: null,
-          error: 'Authentication failed',
+          error: 'Authentication failed. Please check your credentials.',
         });
         
         toast({
@@ -111,16 +110,18 @@ export const useJiraAuth = () => {
         return false;
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An error occurred while connecting to Jira';
+      
       setState({
         isAuthenticated: false,
         isLoading: false,
         token: null,
-        error: 'Authentication error',
+        error: errorMessage,
       });
       
       toast({
         title: 'Connection error',
-        description: 'An error occurred while connecting to Jira.',
+        description: errorMessage,
         variant: 'destructive',
       });
       

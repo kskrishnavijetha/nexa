@@ -11,18 +11,16 @@ import { Loader } from 'lucide-react';
 const JiraConnect: React.FC = () => {
   const [cloudId, setCloudId] = useState('');
   const [apiToken, setApiToken] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { login } = useJiraAuth();
+  const { login, isLoading, error } = useJiraAuth();
 
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     
-    try {
-      await login(cloudId, apiToken);
-    } finally {
-      setIsSubmitting(false);
+    if (!cloudId || !apiToken) {
+      return;
     }
+    
+    await login(cloudId, apiToken);
   };
 
   return (
@@ -78,18 +76,25 @@ const JiraConnect: React.FC = () => {
                 </p>
               </div>
             </div>
+            
+            {error && (
+              <Alert variant="destructive">
+                <AlertTitle>Connection Error</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
           </form>
         </CardContent>
         
         <CardFooter>
           <Button 
             onClick={handleConnect} 
-            disabled={isSubmitting || !cloudId || !apiToken} 
+            disabled={isLoading || !cloudId || !apiToken} 
             className="w-full"
             type="submit"
             variant="default"
           >
-            {isSubmitting ? (
+            {isLoading ? (
               <>
                 <Loader className="h-4 w-4 mr-2 animate-spin" />
                 Connecting...
