@@ -1,26 +1,19 @@
 
-// Import Region type for region property
+import { ReactNode } from 'react';
+import { Industry } from '@/utils/types';
 import { Region } from '@/utils/types/common';
-
-export interface Comment {
-  id: string;
-  user: string;
-  text: string;
-  timestamp: string;
-}
 
 export interface AuditEvent {
   id: string;
-  user: string;
-  action: string;
   timestamp: string;
+  action: string;
   documentName: string;
-  status: 'pending' | 'in-progress' | 'completed' | 'critical';
-  comments: Comment[];
-  icon?: React.ReactNode | string;
+  user: string;
+  status: 'pending' | 'in-progress' | 'completed';
+  comments: string[];
+  icon?: ReactNode;
 }
 
-// Update CompanyDetails with proper Region type for region instead of string
 export interface CompanyDetails {
   companyName: string;
   complianceType: string;
@@ -29,22 +22,14 @@ export interface CompanyDetails {
   designation?: string;
   email?: string;
   phone?: string;
-  industry?: string;
-  region?: Region;  // Changed from string to Region
+  industry?: Industry;
+  region?: Region;
 }
 
-export interface AuditTrailContextType {
-  auditEvents: AuditEvent[];
-  isLoading: boolean;
-  isGeneratingReport: boolean;
-  isGeneratingLogs: boolean;
-  downloadAuditReport: () => Promise<void>;
-  downloadAuditLogs: () => Promise<void>;
-  addAuditEvent: (event: Omit<AuditEvent, 'id' | 'timestamp'>) => void;
-  updateTaskStatus: (eventId: string, status: 'pending' | 'in-progress' | 'completed') => void;
-  updateAuditEvents: (events: AuditEvent[]) => void;
-  setLastActivity: (date: Date) => void;
-  industry?: string;
-  verifyAuditIntegrity?: () => Promise<boolean>;
-  currentAuditHash?: string;
+// Add Comment type for useComments hook
+export interface Comment {
+  id: string;
+  user: string;
+  text: string;
+  timestamp: string;
 }

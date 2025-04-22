@@ -1,49 +1,19 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { ComplianceRisk } from '@/utils/types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle, Info, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { useJiraIntegration } from '@/hooks/useJiraIntegration';
 
 interface RiskAnalysisProps {
   risks: ComplianceRisk[];
-  documentName?: string;
-  isSimulation?: boolean;
 }
 
-const RiskAnalysis: React.FC<RiskAnalysisProps> = ({ 
-  risks, 
-  documentName = "Document",
-  isSimulation = false
-}) => {
+const RiskAnalysis: React.FC<RiskAnalysisProps> = ({ risks }) => {
   // Group risks by severity
   const highRisks = risks.filter(risk => risk.severity === 'high');
   const mediumRisks = risks.filter(risk => risk.severity === 'medium');
   const lowRisks = risks.filter(risk => risk.severity === 'low');
-  
-  const { createIssueForRisk, isEnabled: isJiraEnabled } = useJiraIntegration();
-
-  // Create Jira issues for high risks from simulations
-  useEffect(() => {
-    if (isSimulation && isJiraEnabled() && highRisks.length > 0) {
-      // Only process high risks from simulations
-      const processHighRisks = async () => {
-        let createdCount = 0;
-        
-        for (const risk of highRisks) {
-          const success = await createIssueForRisk(risk, `${documentName} (Simulation)`);
-          if (success) createdCount++;
-        }
-        
-        if (createdCount > 0) {
-          toast.success(`Created ${createdCount} Jira issues for simulation risks`);
-        }
-      };
-      
-      processHighRisks();
-    }
-  }, [isSimulation, isJiraEnabled, highRisks, createIssueForRisk, documentName]);
 
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
@@ -92,7 +62,7 @@ const RiskAnalysis: React.FC<RiskAnalysisProps> = ({
   return (
     <Card className="mb-6">
       <CardHeader>
-        <CardTitle>Risk Analysis{isSimulation ? ' (Simulation)' : ''}</CardTitle>
+        <CardTitle>Risk Analysis</CardTitle>
       </CardHeader>
       <CardContent>
         {renderRiskGroup(highRisks, 'High Severity')}

@@ -6,7 +6,6 @@ import { useAuditReport } from './hooks/useAuditReport';
 import { AuditEvent } from './types';
 import { Industry } from '@/utils/types';
 import { generateAuditHash, verifyAuditIntegrity } from '@/utils/audit/hashVerification';
-import { useJiraIntegration } from '@/hooks/useJiraIntegration';
 
 interface AuditTrailProviderProps {
   documentName: string;
@@ -22,7 +21,6 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
   industry,
 }) => {
   const [currentAuditHash, setCurrentAuditHash] = useState<string>('');
-  const { createIssueForAuditEvent } = useJiraIntegration();
   
   const {
     auditEvents,
@@ -51,20 +49,6 @@ export const AuditTrailProvider: React.FC<AuditTrailProviderProps> = ({
       updateHash();
     }
   }, [auditEvents]);
-  
-  // Check for critical audit events and create Jira issues if needed
-  useEffect(() => {
-    // Process only the most recent event (index 0)
-    if (auditEvents.length > 0) {
-      const latestEvent = auditEvents[0];
-      
-      // Check if this is a critical event that needs a Jira issue
-      // We need to check the status property which might be any string
-      if (latestEvent.status === 'critical') {
-        createIssueForAuditEvent(latestEvent);
-      }
-    }
-  }, [auditEvents, createIssueForAuditEvent]);
   
   // Function to verify the integrity of the audit trail
   const verifyIntegrity = async () => {

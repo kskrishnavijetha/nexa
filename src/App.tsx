@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -17,7 +18,6 @@ import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toaster } from 'sonner';
 import Settings from './pages/Settings';
-import JiraIntegration from './pages/JiraIntegration';
 
 export default function App() {
   return (
@@ -40,7 +40,6 @@ export default function App() {
             <Route path="/hash-verification" element={<HashVerification />} />
             <Route path="/verify" element={<HashVerification />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/jira-integration" element={<JiraIntegration />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

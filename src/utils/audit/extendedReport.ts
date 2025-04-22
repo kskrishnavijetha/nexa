@@ -1,6 +1,5 @@
 import { jsPDF } from 'jspdf';
 import { CompanyDetails } from '@/components/audit/types';
-import { Industry, Region } from '@/utils/types';
 import { getAuditEventsForDocument } from '@/components/audit/hooks/mockAuditData';
 import { addCoverPage } from './pdf/extendedReport/addCoverPage';
 import { addExecutiveSummaryPage } from './pdf/extendedReport/addExecutiveSummaryPage';
@@ -12,6 +11,7 @@ import { addAppendixPage } from './pdf/extendedReport/addAppendixPage';
 import { addChartsPage } from './pdf/extendedReport/addChartsPage';
 import { addElectronicSignaturePage } from './pdf/extendedReport/addElectronicSignaturePage';
 import { generateVerificationMetadata } from './hashVerification';
+import { Industry } from '@/utils/types';
 
 /**
  * Generate an extended audit-ready report as a PDF
@@ -27,11 +27,16 @@ export const generateExtendedAuditReport = async (
       try {
         console.log(`[extendedReport] Generating extended report for ${documentName}`);
         
-        // Get audit events
+        // Get audit events for this document - ensure we await the result
         const auditEvents = await getAuditEventsForDocument(documentName);
+        
+        // Generate verification metadata for integrity
         const verificationMetadata = await generateVerificationMetadata(auditEvents);
+        
+        // Capture chart images if any charts exist in the document
         const chartImage = await captureChartImage();
-
+        
+        // Create PDF with optimized settings
         const pdf = new jsPDF({
           orientation: 'portrait',
           unit: 'mm',
@@ -39,19 +44,17 @@ export const generateExtendedAuditReport = async (
           compress: true,
           putOnlyUsedFonts: true
         });
-
-        // Cast or narrow region to Region | undefined explicitly
-        const reportRegion: Region | undefined = 
-          (companyDetails?.region as Region | undefined) || undefined;
-
+        
+        // Add cover page
         addCoverPage(pdf, {
           documentName,
           companyDetails,
+          // Use industry from companyDetails first, then fall back to the parameter
           industry: companyDetails?.industry || industry,
           verificationMetadata,
-          region: reportRegion
+          region: companyDetails?.region
         });
-
+        
         // Add executive summary
         pdf.addPage();
         addExecutiveSummaryPage(pdf, {
@@ -60,7 +63,7 @@ export const generateExtendedAuditReport = async (
           industry: companyDetails?.industry || industry,
           companyDetails
         });
-
+        
         // Add charts page with visualizations (new)
         pdf.addPage();
         addChartsPage(pdf, {
@@ -69,7 +72,7 @@ export const generateExtendedAuditReport = async (
           industry: companyDetails?.industry || industry,
           chartImage
         });
-
+        
         // Add compliance matrix
         pdf.addPage();
         addComplianceMatrixPage(pdf, {
@@ -77,40 +80,41 @@ export const generateExtendedAuditReport = async (
           auditEvents,
           companyDetails
         });
-
+        
         // Add audit timeline
         pdf.addPage();
         addAuditTimelinePage(pdf, auditEvents, documentName);
-
+        
         // Add remediation suggestions
         pdf.addPage();
         addRemediationPage(pdf, auditEvents, documentName);
-
+        
         // Add integrity verification
         pdf.addPage();
         addIntegrityPage(pdf, {
           documentName,
           verificationMetadata
         });
-
+        
         // Add electronic signature page
         pdf.addPage();
         addElectronicSignaturePage(pdf, {
           documentName,
           companyDetails
         });
-
+        
         // Add appendix if needed
         pdf.addPage();
         addAppendixPage(pdf, {
           documentName,
           industry: companyDetails?.industry || industry,
-          region: reportRegion,
+          region: companyDetails?.region,
           companyDetails
         });
-
+        
+        // Generate the PDF as a blob and download
         const pdfBlob = pdf.output('blob');
-
+        
         // Create download link
         const url = window.URL.createObjectURL(pdfBlob);
         const link = document.createElement('a');
