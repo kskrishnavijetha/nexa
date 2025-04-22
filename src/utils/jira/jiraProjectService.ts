@@ -1,6 +1,38 @@
 import { JiraProject } from './types';
 
-// Existing mock projects, now with additional demo mode logic
+// Define the missing MOCK_PROJECTS constant
+const MOCK_PROJECTS: JiraProject[] = [
+  {
+    id: 'proj-1',
+    key: 'COMP',
+    name: 'Compliance Project',
+    projectType: 'business',
+    url: 'https://example.atlassian.net/projects/COMP'
+  },
+  {
+    id: 'proj-2',
+    key: 'SEC',
+    name: 'Security Implementation',
+    projectType: 'software',
+    url: 'https://example.atlassian.net/projects/SEC'
+  },
+  {
+    id: 'proj-3',
+    key: 'GDPR',
+    name: 'GDPR Implementation',
+    projectType: 'service',
+    url: 'https://example.atlassian.net/projects/GDPR'
+  },
+  {
+    id: 'proj-4',
+    key: 'HIPAA',
+    name: 'HIPAA Compliance',
+    projectType: 'business',
+    url: 'https://example.atlassian.net/projects/HIPAA'
+  }
+];
+
+// Existing demo projects, now with additional demo mode logic
 const generateDemoProjects = (count: number = 5): JiraProject[] => {
   const projectTypes = ['business', 'software', 'service'];
   const complianceAreas = ['SOC 2', 'HIPAA', 'PCI DSS', 'GDPR', 'ISO 27001'];
