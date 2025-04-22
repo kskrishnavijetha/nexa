@@ -9,11 +9,11 @@ import { generateVerificationReport, getVerificationReportFileName, formatFileSi
 
 interface HashComparisonResultProps {
   result: 'match' | 'mismatch';
-  onDownloadReport: () => void;
   showAuditTrail: boolean;
   file?: File | null;
   computedHash: string;
   comparisonHash: string;
+  onDownloadReport?: () => void;  // Making this optional since we handle it internally
 }
 
 const HashComparisonResult: React.FC<HashComparisonResultProps> = ({ 
@@ -21,7 +21,8 @@ const HashComparisonResult: React.FC<HashComparisonResultProps> = ({
   showAuditTrail,
   file,
   computedHash,
-  comparisonHash
+  comparisonHash,
+  onDownloadReport
 }) => {
   const navigate = useNavigate();
   

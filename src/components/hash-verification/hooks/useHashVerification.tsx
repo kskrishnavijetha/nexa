@@ -2,8 +2,7 @@
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useAuth } from '@/contexts/AuthContext';
-import { AuditEvent } from '@/components/audit/types';
-import { generateAuditHash } from '@/utils/audit/hashVerification';
+import { generateFileHash, verifyHashesMatch, logVerificationEvent } from '@/utils/audit/hashVerification';
 import { getSubscription } from '@/utils/paymentService';
 import { isFeatureAvailable } from '@/utils/pricingData';
 
@@ -65,23 +64,11 @@ export const useHashVerification = () => {
     setVerificationResult(null);
     
     try {
-      // Convert file to text/binary for hashing
+      // Convert file to ArrayBuffer for hashing
       const arrayBuffer = await selectedFile.arrayBuffer();
-      const bytes = new Uint8Array(arrayBuffer);
       
-      // Use the existing generateAuditHash function but adapt it for file data
-      // Create a properly structured mock AuditEvent with all required properties
-      const mockAuditEvents: AuditEvent[] = [{ 
-        id: '1',
-        timestamp: new Date().toISOString(),
-        action: 'FILE_VERIFICATION',
-        user: user?.email || 'anonymous',
-        documentName: selectedFile.name,
-        status: 'completed',
-        comments: [],
-      }];
-      
-      const hash = await generateAuditHash(mockAuditEvents);
+      // Use the proper file hash generation function
+      const hash = await generateFileHash(arrayBuffer);
       setComputedHash(hash);
     } catch (error) {
       console.error('Error computing hash:', error);
@@ -105,9 +92,7 @@ export const useHashVerification = () => {
     setVerificationResult('pending');
     
     try {
-      // Simulate verification delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      // Get comparison hash from paste or selected document
       let comparisonHash = '';
       if (compareMethod === 'paste') {
         comparisonHash = pastedHash.trim();
@@ -119,15 +104,20 @@ export const useHashVerification = () => {
       if (!comparisonHash) {
         toast.error('No comparison hash provided');
         setVerificationResult(null);
+        setIsVerifying(false);
         return;
       }
       
-      // Compare hashes
-      const result = computedHash === comparisonHash ? 'match' : 'mismatch';
+      // Compare hashes using the utility function
+      const isMatch = verifyHashesMatch(computedHash, comparisonHash);
+      const result = isMatch ? 'match' : 'mismatch';
+      
+      // Short delay for UX
+      await new Promise(resolve => setTimeout(resolve, 800));
       setVerificationResult(result);
       
       // Log the verification attempt
-      logVerificationAttempt(result === 'match');
+      logVerificationAttempt(isMatch);
       
     } catch (error) {
       console.error('Error during verification:', error);
@@ -142,23 +132,12 @@ export const useHashVerification = () => {
     if (!file || !user) return;
     
     try {
-      // In a real implementation, this would save to Supabase
-      // For demonstration, we'll just log to console
-      console.log('Verification attempt logged:', {
-        userId: user.id,
-        fileName: file.name,
-        result: isMatch ? 'pass' : 'fail',
-        timestamp: new Date().toISOString()
-      });
-      
-      // This would be the actual Supabase insert
-      // await supabase.from('verification_logs').insert({
-      //   user_id: user.id,
-      //   file_name: file.name,
-      //   result: isMatch ? 'pass' : 'fail',
-      //   timestamp: new Date()
-      // });
-      
+      // Use the utility function to log verification event
+      await logVerificationEvent(
+        user.id,
+        file.name,
+        isMatch
+      );
     } catch (error) {
       console.error('Error logging verification:', error);
     }

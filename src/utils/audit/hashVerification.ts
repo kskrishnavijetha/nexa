@@ -52,7 +52,7 @@ export const generateAuditHash = async (auditEvents: AuditEvent[]): Promise<stri
  */
 export const generateFileHash = async (fileData: ArrayBuffer): Promise<string> => {
   try {
-    // Use Web Crypto API to generate a SHA-256 hash
+    // Use Web Crypto API to generate a SHA-256 hash directly from file data
     const hashBuffer = await crypto.subtle.digest('SHA-256', fileData);
     
     // Convert the hash to a hex string
@@ -62,7 +62,7 @@ export const generateFileHash = async (fileData: ArrayBuffer): Promise<string> =
     return hashHex;
   } catch (error) {
     console.error('Error generating file hash:', error);
-    return 'error-generating-hash';
+    throw new Error('Failed to generate file hash');
   }
 };
 
@@ -113,7 +113,12 @@ export const generateVerificationMetadata = async (auditEvents: AuditEvent[]): P
  */
 export const verifyHashesMatch = (hash1: string, hash2: string): boolean => {
   if (!hash1 || !hash2) return false;
-  return hash1 === hash2;
+  
+  // Normalize the hashes before comparison (trim whitespace and convert to lowercase)
+  const normalizedHash1 = hash1.trim().toLowerCase();
+  const normalizedHash2 = hash2.trim().toLowerCase();
+  
+  return normalizedHash1 === normalizedHash2;
 };
 
 /**

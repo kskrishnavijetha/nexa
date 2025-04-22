@@ -37,6 +37,8 @@ const HashVerifier = () => {
 
   return (
     <div className="space-y-8">
+      <h1 className="text-2xl font-bold mb-6">Hash Verification</h1>
+      
       <HashUploadSection 
         file={file}
         computedHash={computedHash}
@@ -62,7 +64,6 @@ const HashVerifier = () => {
           {verificationResult && verificationResult !== 'pending' && (
             <HashComparisonResult 
               result={verificationResult} 
-              onDownloadReport={() => {}} // This is now handled internally in the component
               showAuditTrail={verificationResult === 'match'}
               file={file}
               computedHash={computedHash}
