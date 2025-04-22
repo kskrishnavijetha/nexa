@@ -30,6 +30,7 @@ const JiraIntegration = () => {
     );
   }
 
+  // If we get here, we should be authenticated
   return (
     <div className="space-y-6">
       <div>

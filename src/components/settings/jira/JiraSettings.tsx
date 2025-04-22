@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const JiraSettings = () => {
-  const { logout } = useJiraAuth();
+  const { logout, cloudId } = useJiraAuth();
   const { toast } = useToast();
   const [scanFrequency, setScanFrequency] = useState<string>('daily');
   const [autoSync, setAutoSync] = useState<boolean>(true);
@@ -140,7 +140,7 @@ const JiraSettings = () => {
             </span>
           </p>
           <p className="text-sm text-muted-foreground mt-1">
-            Instance: {localStorage.getItem('jira_cloud_id') || 'Unknown'}
+            Instance: {cloudId || 'Unknown'}
           </p>
         </CardContent>
         <CardFooter>

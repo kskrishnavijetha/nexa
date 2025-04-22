@@ -16,7 +16,7 @@ import SlackMonitoring from './pages/SlackMonitoring';
 import HashVerification from './pages/HashVerification';
 import NotFound from './pages/NotFound';
 import ProtectedRoute from './components/auth/ProtectedRoute';
-import { Toaster } from 'sonner';
+import { Toaster } from '@/components/ui/toaster';
 import Settings from './pages/Settings';
 
 export default function App() {

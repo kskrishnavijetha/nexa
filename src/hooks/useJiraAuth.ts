@@ -7,6 +7,7 @@ interface JiraAuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   token: string | null;
+  cloudId: string | null;
   error: string | null;
 }
 
@@ -15,6 +16,7 @@ export const useJiraAuth = () => {
     isAuthenticated: false,
     isLoading: true, // Start with loading to prevent flashing of connect form
     token: null,
+    cloudId: null,
     error: null,
   });
   const { toast } = useToast();
@@ -24,12 +26,14 @@ export const useJiraAuth = () => {
     const checkAuthStatus = async () => {
       try {
         const token = localStorage.getItem('jira_token');
+        const cloudId = localStorage.getItem('jira_cloud_id');
         
-        if (!token) {
+        if (!token || !cloudId) {
           setState({
             isAuthenticated: false,
             isLoading: false,
             token: null,
+            cloudId: null,
             error: null,
           });
           return;
@@ -43,6 +47,7 @@ export const useJiraAuth = () => {
             isAuthenticated: true,
             isLoading: false,
             token,
+            cloudId,
             error: null,
           });
         } else {
@@ -53,6 +58,7 @@ export const useJiraAuth = () => {
             isAuthenticated: false,
             isLoading: false,
             token: null,
+            cloudId: null,
             error: 'Invalid or expired token',
           });
         }
@@ -61,6 +67,7 @@ export const useJiraAuth = () => {
           isAuthenticated: false,
           isLoading: false,
           token: null,
+          cloudId: null,
           error: 'Failed to validate authentication',
         });
       }
@@ -84,6 +91,7 @@ export const useJiraAuth = () => {
           isAuthenticated: true,
           isLoading: false,
           token,
+          cloudId,
           error: null,
         });
         
@@ -98,6 +106,7 @@ export const useJiraAuth = () => {
           isAuthenticated: false,
           isLoading: false,
           token: null,
+          cloudId: null,
           error: error || 'Authentication failed. Please check your credentials.',
         });
         
@@ -116,6 +125,7 @@ export const useJiraAuth = () => {
         isAuthenticated: false,
         isLoading: false,
         token: null,
+        cloudId: null,
         error: errorMessage,
       });
       
@@ -138,6 +148,7 @@ export const useJiraAuth = () => {
       isAuthenticated: false,
       isLoading: false,
       token: null,
+      cloudId: null,
       error: null,
     });
     
