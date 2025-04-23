@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -11,7 +12,6 @@ import * as z from "zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Layout from '@/components/layout/Layout';
-import { Github } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
@@ -67,12 +67,23 @@ export default function SignIn() {
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     try {
+      // Get the current URL for proper redirect handling
+      const currentOrigin = window.location.origin;
+      const redirectTo = `${currentOrigin}/sign-in`;
+      
+      console.log("Initiating Google sign-in with redirect to:", redirectTo);
+      
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/sign-in`
+          redirectTo: redirectTo,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent'
+          }
         }
       });
+      
       if (error) {
         console.error("Google sign-in error:", error);
         toast.error("Google sign-in failed. Please try again.");
