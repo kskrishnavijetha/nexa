@@ -8,10 +8,9 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Mail, GitBranch, Baseline, FileJson } from "lucide-react";
 import { toast } from "sonner";
 import Layout from '@/components/layout/Layout';
-import { Google, Slack, Microsoft, Jira } from "lucide-react";
 import { useOAuthLogin } from "@/hooks/useOAuthLogin";
 
 const formSchema = z.object({
@@ -84,7 +83,7 @@ export default function SignIn() {
                 className="w-full flex items-center justify-center gap-2"
                 onClick={() => signInWithProvider('google')}
               >
-                <Google className="h-4 w-4" />
+                <Mail className="h-4 w-4" />
                 Sign in with Google
               </Button>
               <Button 
@@ -92,7 +91,7 @@ export default function SignIn() {
                 className="w-full flex items-center justify-center gap-2"
                 onClick={() => signInWithProvider('slack')}
               >
-                <Slack className="h-4 w-4" />
+                <GitBranch className="h-4 w-4" />
                 Sign in with Slack
               </Button>
               <Button
@@ -100,7 +99,7 @@ export default function SignIn() {
                 className="w-full flex items-center justify-center gap-2"
                 onClick={() => signInWithProvider('microsoft')}
               >
-                <Microsoft className="h-4 w-4" />
+                <Baseline className="h-4 w-4" />
                 Sign in with Microsoft
               </Button>
               <Button
@@ -108,7 +107,7 @@ export default function SignIn() {
                 className="w-full flex items-center justify-center gap-2"
                 onClick={() => signInWithProvider('jira')}
               >
-                <Jira className="h-4 w-4" />
+                <FileJson className="h-4 w-4" />
                 Sign in with Jira
               </Button>
             </div>
