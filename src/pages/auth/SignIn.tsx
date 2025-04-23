@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -11,6 +12,8 @@ import * as z from "zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Layout from '@/components/layout/Layout';
+import { Google } from "lucide-react";
+import { supabase } from '@/integrations/supabase/client';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -20,6 +23,7 @@ const formSchema = z.object({
 export default function SignIn() {
   const { signIn, user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -49,10 +53,8 @@ export default function SignIn() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
-    
     try {
       const { error } = await signIn(values.email, values.password);
-      
       if (error) {
         console.error("Error signing in:", error);
         toast.error("Failed to sign in. Please check your credentials.");
@@ -65,6 +67,29 @@ export default function SignIn() {
       toast.error("An unexpected error occurred. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Google sign-in handler
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/sign-in`
+        }
+      });
+      if (error) {
+        console.error("Google sign-in error:", error);
+        toast.error("Google sign-in failed. Please try again.");
+      }
+      // The user will be redirected, so no need to handle the rest
+    } catch (err) {
+      console.error("Exception during Google sign-in:", err);
+      toast.error("Google sign-in failed. Please try again.");
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
@@ -88,7 +113,7 @@ export default function SignIn() {
                     <FormItem>
                       <FormLabel>Email</FormLabel>
                       <FormControl>
-                        <Input placeholder="your.email@example.com" {...field} type="email" disabled={loading} />
+                        <Input placeholder="your.email@example.com" {...field} type="email" disabled={loading || googleLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -101,13 +126,13 @@ export default function SignIn() {
                     <FormItem>
                       <FormLabel>Password</FormLabel>
                       <FormControl>
-                        <Input {...field} type="password" disabled={loading} />
+                        <Input {...field} type="password" disabled={loading || googleLoading} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button type="submit" className="w-full" disabled={loading || googleLoading}>
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -116,6 +141,28 @@ export default function SignIn() {
                   ) : (
                     "Sign In"
                   )}
+                </Button>
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-muted-foreground" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">or</span>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  onClick={handleGoogleSignIn}
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2"
+                  disabled={googleLoading || loading}
+                >
+                  {googleLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Google className="h-4 w-4" />
+                  )}
+                  Continue with Google
                 </Button>
               </form>
             </Form>
@@ -133,3 +180,4 @@ export default function SignIn() {
     </Layout>
   );
 }
+
