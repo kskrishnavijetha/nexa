@@ -11,6 +11,8 @@ import * as z from "zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Layout from '@/components/layout/Layout';
+import { Google, Slack, Microsoft, Jira } from "lucide-react";
+import { useOAuthLogin } from "@/hooks/useOAuthLogin";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -23,17 +25,13 @@ export default function SignIn() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Always redirect to pricing page after login
   const redirectAfterLogin = location.state?.redirectAfterLogin;
   
-  // Redirect authenticated users
   useEffect(() => {
     if (user) {
-      // Special handling for lifetime payment redirect
       if (redirectAfterLogin === 'lifetime-payment') {
         window.location.href = 'https://www.paypal.com/ncp/payment/YF2GNLBJ2YCEE';
       } else {
-        // Redirect to pricing page instead of dashboard
         navigate('/pricing', { replace: true });
       }
     }
@@ -58,7 +56,6 @@ export default function SignIn() {
         toast.error("Failed to sign in. Please check your credentials.");
       } else {
         toast.success("Signed in successfully!");
-        // Redirect will happen in useEffect
       }
     } catch (err) {
       console.error("Exception during sign in:", err);
@@ -67,6 +64,8 @@ export default function SignIn() {
       setLoading(false);
     }
   };
+
+  const { signInWithProvider } = useOAuthLogin();
 
   return (
     <Layout>
@@ -79,6 +78,45 @@ export default function SignIn() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            <div className="flex flex-col space-y-3 mb-5">
+              <Button 
+                variant="outline" 
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => signInWithProvider('google')}
+              >
+                <Google className="h-4 w-4" />
+                Sign in with Google
+              </Button>
+              <Button 
+                variant="outline" 
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => signInWithProvider('slack')}
+              >
+                <Slack className="h-4 w-4" />
+                Sign in with Slack
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => signInWithProvider('microsoft')}
+              >
+                <Microsoft className="h-4 w-4" />
+                Sign in with Microsoft
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full flex items-center justify-center gap-2"
+                onClick={() => signInWithProvider('jira')}
+              >
+                <Jira className="h-4 w-4" />
+                Sign in with Jira
+              </Button>
+            </div>
+
+            <div className="relative flex items-center justify-center mb-4">
+              <span className="px-2 bg-white text-muted-foreground text-xs">or sign in with email</span>
+            </div>
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
