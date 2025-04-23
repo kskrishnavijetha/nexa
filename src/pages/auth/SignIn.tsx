@@ -67,11 +67,16 @@ export default function SignIn() {
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
     try {
-      // Get the current URL for proper redirect handling
+      // Important: For OAuth redirects, we need to use the full URL including protocol
+      const currentUrl = window.location.href;
       const currentOrigin = window.location.origin;
+      
+      // Using the current origin to build redirect URL
+      // Make sure this matches EXACTLY what's configured in Google Cloud Console
       const redirectTo = `${currentOrigin}/sign-in`;
       
       console.log("Initiating Google sign-in with redirect to:", redirectTo);
+      console.log("Current URL:", currentUrl);
       
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -79,7 +84,7 @@ export default function SignIn() {
           redirectTo: redirectTo,
           queryParams: {
             access_type: 'offline',
-            prompt: 'consent'
+            prompt: 'consent',
           }
         }
       });
