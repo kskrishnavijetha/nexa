@@ -42,25 +42,30 @@ export const useWebhookActions = (
     };
 
     try {
+      // Show loading toast
+      const toastId = toast.loading(formData.isEditing ? 'Updating webhook...' : 'Creating webhook...');
+      
       let response;
       
       if (formData.isEditing) {
         response = await updateWebhook(formData.editId, webhookData);
         if (response.success) {
-          toast.success('Webhook updated successfully');
+          toast.success('Webhook updated successfully', { id: toastId });
+        } else {
+          toast.error(response.error || 'Failed to update webhook', { id: toastId });
         }
       } else {
         response = await createWebhook(webhookData);
         if (response.success) {
-          toast.success('Webhook created successfully');
+          toast.success('Webhook created successfully', { id: toastId });
+        } else {
+          toast.error(response.error || 'Failed to create webhook', { id: toastId });
         }
       }
 
       if (response.success) {
         resetForm();
         setIsSheetOpen(false);
-      } else {
-        toast.error(response.error || 'Failed to save webhook');
       }
     } catch (error) {
       console.error('Error saving webhook:', error);
@@ -69,25 +74,26 @@ export const useWebhookActions = (
   };
 
   const handleTestWebhook = async (webhook: Webhook) => {
-    // Fix the type issue - use proper React.SetStateAction syntax
+    // Use a more efficient way to set the testing state
     setIsTestingWebhook((prev) => {
       const newState = { ...prev };
       newState[webhook.id] = true;
       return newState;
     });
     
+    const toastId = toast.loading('Testing webhook...');
+    
     try {
       const response = await testWebhook(webhook.url);
       if (response.success) {
-        toast.success('Webhook test successful');
+        toast.success('Webhook test successful', { id: toastId });
       } else {
-        toast.error('Webhook test failed');
+        toast.error('Webhook test failed', { id: toastId });
       }
     } catch (error) {
       console.error('Error testing webhook:', error);
-      toast.error('Failed to test webhook');
+      toast.error('Failed to test webhook', { id: toastId });
     } finally {
-      // Fix the type issue - use proper React.SetStateAction syntax
       setIsTestingWebhook((prev) => {
         const newState = { ...prev };
         newState[webhook.id] = false;
@@ -99,16 +105,18 @@ export const useWebhookActions = (
   const handleDeleteWebhook = async () => {
     if (!webhookToDelete) return;
 
+    const toastId = toast.loading('Deleting webhook...');
+
     try {
       const response = await deleteWebhook(webhookToDelete.id);
       if (response.success) {
-        toast.success('Webhook deleted successfully');
+        toast.success('Webhook deleted successfully', { id: toastId });
       } else {
-        toast.error(response.error || 'Failed to delete webhook');
+        toast.error(response.error || 'Failed to delete webhook', { id: toastId });
       }
     } catch (error) {
       console.error('Error deleting webhook:', error);
-      toast.error('An unexpected error occurred');
+      toast.error('An unexpected error occurred', { id: toastId });
     } finally {
       setDeleteDialogOpen(false);
       setWebhookToDelete(null);
