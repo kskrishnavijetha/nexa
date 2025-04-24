@@ -41,7 +41,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { PlusIcon, RotateCwIcon, Trash2Icon, Loader2, CheckCircleIcon, XCircleIcon } from 'lucide-react';
+import { PlusIcon, RotateCwIcon, Trash2Icon, Loader2, CheckCircleIcon, XCircleIcon, ZapIcon } from 'lucide-react';
 import { toast } from "sonner";
 
 const WebhookIntegrations = () => {
