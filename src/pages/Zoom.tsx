@@ -14,7 +14,7 @@ import {
   ZoomMeeting,
   ZoomScanResult
 } from '@/utils/zoom/zoomServices';
-import { Loader2, VideoCameraIcon, Power, ShieldAlert } from 'lucide-react';
+import { Loader2, Camera, Power, ShieldAlert } from 'lucide-react';
 import { format } from 'date-fns';
 
 const Zoom = () => {
@@ -184,7 +184,7 @@ const Zoom = () => {
             <CardContent>
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <VideoCameraIcon className={`h-6 w-6 mr-2 ${connection?.connected ? 'text-green-500' : 'text-gray-400'}`} />
+                  <Camera className={`h-6 w-6 mr-2 ${connection?.connected ? 'text-green-500' : 'text-gray-400'}`} />
                   <span>
                     {connection?.connected
                       ? `${connection.meetingsCount} meetings available`
@@ -326,9 +326,9 @@ const Zoom = () => {
                         <div className="space-y-2">
                           {scanResult.reports.map((report, index) => (
                             <div key={index} className="border-l-4 border-red-500 bg-red-50 p-3">
-                              <h4 className="font-medium">{report.title}</h4>
+                              <h4 className="font-medium">{report.summary?.substring(0, 120)}</h4>
                               <p className="text-sm text-gray-600">
-                                {report.summary?.substring(0, 120)}...
+                                {report.description?.substring(0, 120)}...
                               </p>
                               <div className="flex mt-2">
                                 <Button size="sm" variant="outline">View Details</Button>
