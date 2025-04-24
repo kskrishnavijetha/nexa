@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -328,7 +327,9 @@ const Zoom = () => {
                             <div key={index} className="border-l-4 border-red-500 bg-red-50 p-3">
                               <h4 className="font-medium">{report.summary?.substring(0, 120)}</h4>
                               <p className="text-sm text-gray-600">
-                                {report.description?.substring(0, 120)}...
+                                {report.risks && report.risks.length > 0 
+                                  ? report.risks[0].description?.substring(0, 120)
+                                  : 'No detailed description available'}...
                               </p>
                               <div className="flex mt-2">
                                 <Button size="sm" variant="outline">View Details</Button>
