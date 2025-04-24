@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   getWebhooks, 
@@ -9,30 +8,14 @@ import {
   Webhook,
   WebhookTrigger
 } from '@/utils/webhook/webhookServices';
-import { Button } from "@/components/ui/button";
-import { 
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { PlusIcon, Loader2 } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Loader2 } from 'lucide-react';
 import { toast } from "sonner";
 import WebhookForm from './webhook-form/WebhookForm';
 import WebhookCard from './webhook-card/WebhookCard';
 import WebhookEmptyState from './webhook-empty-state/WebhookEmptyState';
+import WebhookHeader from './webhook-header/WebhookHeader';
+import DeleteWebhookDialog from './webhook-dialog/DeleteWebhookDialog';
 
 const WebhookIntegrations = () => {
   const [webhooks, setWebhooks] = useState<Webhook[]>([]);
@@ -42,7 +25,6 @@ const WebhookIntegrations = () => {
   const [webhookToDelete, setWebhookToDelete] = useState<Webhook | null>(null);
   const [isTestingWebhook, setIsTestingWebhook] = useState<{ [key: string]: boolean }>({});
 
-  // Form state
   const [formData, setFormData] = useState({
     name: '',
     url: '',
@@ -52,7 +34,6 @@ const WebhookIntegrations = () => {
     editId: ''
   });
 
-  // Available webhook triggers
   const availableTriggers: { value: WebhookTrigger; label: string }[] = [
     { value: 'compliance_violation', label: 'Compliance Violation Detected' },
     { value: 'high_risk_detected', label: 'High Risk Content Detected' },
@@ -206,36 +187,24 @@ const WebhookIntegrations = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-semibold">Webhook Integrations</h2>
-          <p className="text-muted-foreground">
-            Send notifications to other systems when compliance events occur
-          </p>
-        </div>
-        <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
-          <SheetTrigger asChild>
-            <Button>
-              <PlusIcon className="h-4 w-4 mr-2" />
-              Add Webhook
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="sm:max-w-md">
-            <SheetHeader>
-              <SheetTitle>{formData.isEditing ? 'Edit Webhook' : 'Add New Webhook'}</SheetTitle>
-              <SheetDescription>
-                Configure a webhook to notify external systems when events occur in NexaBloom.
-              </SheetDescription>
-            </SheetHeader>
-            <WebhookForm 
-              formData={formData}
-              onSubmit={handleCreateOrUpdateWebhook}
-              onChange={(updates) => setFormData(prev => ({ ...prev, ...updates }))}
-              availableTriggers={availableTriggers}
-            />
-          </SheetContent>
-        </Sheet>
-      </div>
+      <WebhookHeader onOpenAddWebhook={() => setIsSheetOpen(true)} />
+
+      <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
+        <SheetContent className="sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle>{formData.isEditing ? 'Edit Webhook' : 'Add New Webhook'}</SheetTitle>
+            <SheetDescription>
+              Configure a webhook to notify external systems when events occur in NexaBloom.
+            </SheetDescription>
+          </SheetHeader>
+          <WebhookForm 
+            formData={formData}
+            onSubmit={handleCreateOrUpdateWebhook}
+            onChange={(updates) => setFormData(prev => ({ ...prev, ...updates }))}
+            availableTriggers={availableTriggers}
+          />
+        </SheetContent>
+      </Sheet>
 
       {isLoading ? (
         <div className="flex justify-center py-8">
@@ -259,24 +228,12 @@ const WebhookIntegrations = () => {
         </div>
       )}
 
-      {/* Delete confirmation dialog */}
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will permanently delete the webhook "{webhookToDelete?.name}". 
-              Any systems relying on this webhook will no longer receive notifications.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteWebhook} className="bg-destructive text-destructive-foreground">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteWebhookDialog
+        webhook={webhookToDelete}
+        isOpen={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        onConfirmDelete={handleDeleteWebhook}
+      />
     </div>
   );
 };
