@@ -38,6 +38,19 @@ export default function SignIn() {
     }
   }, [user, navigate, redirectAfterLogin]);
 
+  // Check for authentication errors in URL parameters
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const errorDescription = url.searchParams.get('error_description');
+    
+    if (errorDescription) {
+      toast.error(`Authentication error: ${errorDescription}`);
+      // Clean up the URL
+      const cleanURL = window.location.pathname;
+      window.history.replaceState({}, document.title, cleanURL);
+    }
+  }, []);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -71,8 +84,8 @@ export default function SignIn() {
       const currentUrl = window.location.href;
       const currentOrigin = window.location.origin;
       
-      // Using the current origin to build redirect URL
-      // Make sure this matches EXACTLY what's configured in Google Cloud Console
+      // Use the deployed URL for production environment or current origin for development
+      // This URL must exactly match what's configured in Google Cloud Console and Supabase
       const redirectTo = `${currentOrigin}/sign-in`;
       
       console.log("Initiating Google sign-in with redirect to:", redirectTo);
