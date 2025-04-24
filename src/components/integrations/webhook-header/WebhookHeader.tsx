@@ -9,11 +9,12 @@ interface WebhookHeaderProps {
 
 const WebhookHeader = ({ onOpenAddWebhook }: WebhookHeaderProps) => {
   return (
-    <div className="flex justify-between items-center">
-      <div>
+    <div className="flex justify-between items-start">
+      <div className="space-y-1">
         <h2 className="text-xl font-semibold">Webhook Integrations</h2>
-        <p className="text-muted-foreground">
-          Send notifications to other systems when compliance events occur
+        <p className="text-muted-foreground max-w-2xl">
+          Configure webhooks to automatically notify external systems about compliance violations, 
+          risk detections, and system events. Perfect for integration with Slack, MS Teams, or custom endpoints.
         </p>
       </div>
       <Button onClick={onOpenAddWebhook}>

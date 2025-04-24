@@ -32,23 +32,26 @@ const WebhookForm = ({ formData, onSubmit, onChange, availableTriggers }: Webhoo
   return (
     <form onSubmit={onSubmit} className="space-y-4 pt-4">
       <div className="space-y-2">
-        <Label htmlFor="name">Name</Label>
+        <Label htmlFor="name">Webhook Name</Label>
         <Input 
           id="name"
           value={formData.name}
           onChange={(e) => onChange({ name: e.target.value })}
-          placeholder="Enter a name for this webhook"
+          placeholder="e.g., Slack Notifications"
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="url">Webhook URL</Label>
+        <Label htmlFor="url">Endpoint URL</Label>
         <Input 
           id="url"
           type="url"
           value={formData.url}
           onChange={(e) => onChange({ url: e.target.value })}
-          placeholder="https://example.com/webhooks/compliance"
+          placeholder="https://hooks.slack.com/services/..."
         />
+        <p className="text-xs text-muted-foreground">
+          The URL where compliance notifications will be sent
+        </p>
       </div>
       <div className="space-y-2">
         <div className="flex items-center space-x-2">
@@ -67,21 +70,23 @@ const WebhookForm = ({ formData, onSubmit, onChange, availableTriggers }: Webhoo
         </div>
       </div>
       <div className="space-y-4">
-        <Label>Trigger Events</Label>
-        <div className="grid grid-cols-1 gap-2">
+        <Label>Notification Events</Label>
+        <div className="grid grid-cols-1 gap-3">
           {availableTriggers.map((trigger) => (
-            <div key={trigger.value} className="flex items-center space-x-2">
+            <div key={trigger.value} className="flex items-start space-x-2">
               <Checkbox 
                 id={`trigger-${trigger.value}`} 
                 checked={formData.triggerEvents.includes(trigger.value)}
                 onCheckedChange={() => toggleTrigger(trigger.value)}
               />
-              <label
-                htmlFor={`trigger-${trigger.value}`}
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                {trigger.label}
-              </label>
+              <div className="space-y-1 leading-none">
+                <label
+                  htmlFor={`trigger-${trigger.value}`}
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {trigger.label}
+                </label>
+              </div>
             </div>
           ))}
         </div>
