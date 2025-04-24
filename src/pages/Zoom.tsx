@@ -1,441 +1,362 @@
 
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { connectZoom, disconnectZoom, getZoomConnection, isZoomConnected, scanZoomMeetings, ZoomScanResult } from "@/utils/zoom/zoomServices";
-import { SupportedLanguage } from '@/utils/language';
-import { Industry, Region } from '@/utils/types';
-import { toast } from "sonner";
-import { Loader2, FileTextIcon, VideoIcon, FileAudioIcon, AlertCircleIcon, CheckCircleIcon, ExternalLink } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+import { 
+  connectZoom, 
+  disconnectZoom, 
+  getZoomConnection, 
+  getZoomMeetings,
+  scanZoomMeetings,
+  ZoomConnection,
+  ZoomMeeting,
+  ZoomScanResult
+} from '@/utils/zoom/zoomServices';
+import { Loader2, VideoCameraIcon, Power, ShieldAlert } from 'lucide-react';
 import { format } from 'date-fns';
 
 const Zoom = () => {
+  const [isLoading, setIsLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
-  const [connected, setConnected] = useState(false);
-  const [lastScanned, setLastScanned] = useState<string | undefined>();
-  const [scanResults, setScanResults] = useState<ZoomScanResult | null>(null);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [industry] = useState<Industry>('Finance & Banking'); // Default industry
-  
+  const [connection, setConnection] = useState<ZoomConnection | null>(null);
+  const [meetings, setMeetings] = useState<ZoomMeeting[]>([]);
+  const [scanResult, setScanResult] = useState<ZoomScanResult | null>(null);
+
   useEffect(() => {
-    checkConnection();
-  }, []);
-  
-  const checkConnection = async () => {
+    loadZoomConnection();
+
+    // Set up real-time updates for demo purposes
+    const interval = setInterval(() => {
+      if (connection?.connected) {
+        simulateNewMeeting();
+      }
+    }, 30000); // Every 30 seconds
+
+    return () => clearInterval(interval);
+  }, [connection]);
+
+  const loadZoomConnection = async () => {
+    setIsLoading(true);
     try {
-      const isConnected = isZoomConnected();
-      setConnected(isConnected);
-      
-      if (isConnected) {
-        const response = await getZoomConnection();
-        if (response.success && response.data) {
-          setLastScanned(response.data.lastScanned);
+      const response = await getZoomConnection();
+      if (response.success && response.data) {
+        setConnection(response.data);
+        
+        if (response.data.connected) {
+          // If connected, load meetings
+          const meetingsResponse = await getZoomMeetings();
+          if (meetingsResponse.success && meetingsResponse.data) {
+            setMeetings(meetingsResponse.data);
+          }
         }
       }
     } catch (error) {
-      console.error("Failed to check Zoom connection:", error);
+      console.error('Error loading Zoom connection:', error);
+      toast.error('Failed to load Zoom connection status');
+    } finally {
+      setIsLoading(false);
     }
   };
-  
-  const handleConnect = async () => {
+
+  // Demo function to simulate real-time updates with new meetings
+  const simulateNewMeeting = () => {
+    const now = new Date();
+    const newMeeting: ZoomMeeting = {
+      id: `meeting-${Math.random().toString(36).substring(2, 9)}`,
+      topic: `New ${['Weekly', 'Project', 'Team', 'Client'][Math.floor(Math.random() * 4)]} Meeting`,
+      startTime: now.toISOString(),
+      duration: Math.floor(Math.random() * 60) + 15,
+      participantsCount: Math.floor(Math.random() * 10) + 1,
+      hasRecording: Math.random() > 0.5,
+      hasTranscript: Math.random() > 0.7
+    };
+
+    // Add the new meeting to the list and show a toast notification
+    setMeetings(prev => [newMeeting, ...prev]);
+    toast.info(`New Zoom meeting detected: ${newMeeting.topic}`);
+  };
+
+  const handleConnectZoom = async () => {
     setIsConnecting(true);
     try {
       const response = await connectZoom();
-      if (response.success) {
-        setConnected(true);
-        setLastScanned(response.data?.lastScanned);
-        toast.success("Connected to Zoom successfully!");
+      if (response.success && response.data) {
+        setConnection(response.data);
+        toast.success('Successfully connected to Zoom');
+        
+        // Load meetings after connecting
+        const meetingsResponse = await getZoomMeetings();
+        if (meetingsResponse.success && meetingsResponse.data) {
+          setMeetings(meetingsResponse.data);
+        }
       } else {
-        toast.error("Failed to connect to Zoom");
+        toast.error(response.error || 'Failed to connect to Zoom');
       }
     } catch (error) {
-      console.error("Error connecting to Zoom:", error);
-      toast.error("An error occurred while connecting to Zoom");
+      console.error('Error connecting to Zoom:', error);
+      toast.error('An error occurred while connecting to Zoom');
     } finally {
       setIsConnecting(false);
     }
   };
   
-  const handleDisconnect = async () => {
+  const handleDisconnectZoom = async () => {
     setIsDisconnecting(true);
     try {
       const response = await disconnectZoom();
       if (response.success) {
-        setConnected(false);
-        setLastScanned(undefined);
-        setScanResults(null);
-        toast.success("Disconnected from Zoom");
+        setConnection(response.data || null);
+        setMeetings([]);
+        setScanResult(null);
+        toast.success('Successfully disconnected from Zoom');
       } else {
-        toast.error("Failed to disconnect from Zoom");
+        toast.error(response.error || 'Failed to disconnect from Zoom');
       }
     } catch (error) {
-      console.error("Error disconnecting from Zoom:", error);
-      toast.error("An error occurred while disconnecting from Zoom");
+      console.error('Error disconnecting from Zoom:', error);
+      toast.error('An error occurred while disconnecting from Zoom');
     } finally {
       setIsDisconnecting(false);
     }
   };
   
-  const handleScan = async () => {
-    if (!connected) {
-      toast.error("Please connect to Zoom first");
-      return;
-    }
-    
+  const handleScanZoomMeetings = async () => {
     setIsScanning(true);
-    setActiveTab('results');
-    
     try {
-      const response = await scanZoomMeetings(industry);
+      const response = await scanZoomMeetings();
       if (response.success && response.data) {
-        setScanResults(response.data);
-        setLastScanned(response.data.scanDate);
-        toast.success(`Scan completed: ${response.data.violationsFound} compliance issues found`);
+        setScanResult(response.data);
+        toast.success('Scan completed successfully');
+        
+        // If violations were found, show a more noticeable toast
+        if (response.data.violationsFound > 0) {
+          toast.error(`${response.data.violationsFound} compliance violations found!`);
+        }
       } else {
-        toast.error("Failed to scan Zoom meetings");
+        toast.error(response.error || 'Failed to scan Zoom meetings');
       }
     } catch (error) {
-      console.error("Error scanning Zoom meetings:", error);
-      toast.error("An error occurred while scanning Zoom meetings");
+      console.error('Error scanning Zoom meetings:', error);
+      toast.error('An error occurred while scanning Zoom meetings');
     } finally {
       setIsScanning(false);
     }
   };
 
-  return (
-    <Layout>
-      <div className="container mx-auto py-8 space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Zoom Integration</h1>
-            <p className="text-muted-foreground mt-1">
-              Scan Zoom meetings, recordings, and transcripts for compliance issues
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {connected ? (
-              <>
-                <Badge className="bg-green-100 text-green-800 hover:bg-green-200">Connected</Badge>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleDisconnect}
-                  disabled={isDisconnecting}
-                >
-                  {isDisconnecting ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Disconnecting...
-                    </>
-                  ) : (
-                    "Disconnect"
-                  )}
-                </Button>
-              </>
-            ) : (
-              <Button onClick={handleConnect} disabled={isConnecting}>
-                {isConnecting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Connecting...
-                  </>
-                ) : (
-                  "Connect to Zoom"
-                )}
-              </Button>
-            )}
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="container mx-auto py-8">
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
         </div>
+      </Layout>
+    );
+  }
 
-        {connected ? (
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList>
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="results">Scan Results</TabsTrigger>
-              <TabsTrigger value="settings">Settings</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="overview" className="space-y-4 mt-6">
+  return (
+    <Layout>
+      <div className="container mx-auto py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold tracking-tight">Zoom Integration</h1>
+          <p className="text-muted-foreground mt-2">
+            Scan Zoom meetings and recordings for compliance issues
+          </p>
+        </div>
+        
+        <div className="grid grid-cols-1 gap-6">
+          {/* Connection Status Card */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle>Connection Status</CardTitle>
+              <CardDescription>
+                {connection?.connected
+                  ? `Connected since ${connection.lastScanned ? format(new Date(connection.lastScanned), 'PPP pp') : 'recently'}`
+                  : 'Connect to your Zoom account to start monitoring'
+                }
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <VideoCameraIcon className={`h-6 w-6 mr-2 ${connection?.connected ? 'text-green-500' : 'text-gray-400'}`} />
+                  <span>
+                    {connection?.connected
+                      ? `${connection.meetingsCount} meetings available`
+                      : 'Not connected'
+                    }
+                  </span>
+                </div>
+                <div>
+                  {connection?.connected ? (
+                    <Button 
+                      variant="outline" 
+                      onClick={handleDisconnectZoom} 
+                      disabled={isDisconnecting}
+                    >
+                      {isDisconnecting ? (
+                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Disconnecting</>
+                      ) : (
+                        <><Power className="h-4 w-4 mr-2" /> Disconnect</>
+                      )}
+                    </Button>
+                  ) : (
+                    <Button 
+                      onClick={handleConnectZoom} 
+                      disabled={isConnecting}
+                    >
+                      {isConnecting ? (
+                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Connecting</>
+                      ) : (
+                        <><Power className="h-4 w-4 mr-2" /> Connect</>
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          
+          {/* Meetings List */}
+          {connection?.connected && (
+            <>
               <Card>
-                <CardHeader>
-                  <CardTitle>Zoom Compliance Scanner</CardTitle>
-                  <CardDescription>
-                    Scan your Zoom meetings, recordings and transcripts for potential compliance issues
-                  </CardDescription>
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <CardTitle>Recent Meetings</CardTitle>
+                      <CardDescription>
+                        Showing {meetings.length} recent Zoom meetings
+                      </CardDescription>
+                    </div>
+                    <Button 
+                      onClick={handleScanZoomMeetings} 
+                      disabled={isScanning}
+                      className="shrink-0"
+                    >
+                      {isScanning ? (
+                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Scanning</>
+                      ) : (
+                        <><ShieldAlert className="h-4 w-4 mr-2" /> Scan for Issues</>
+                      )}
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
-                      <div>
-                        <h3 className="font-medium">Last scanned</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {lastScanned ? format(new Date(lastScanned), "PPpp") : "Never scanned"}
-                        </p>
-                      </div>
-                      
-                      <Button onClick={handleScan} disabled={isScanning}>
-                        {isScanning ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Scanning...
-                          </>
-                        ) : (
-                          "Scan Now"
-                        )}
-                      </Button>
-                    </div>
-                    
-                    {scanResults && (
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t">
-                        <div className="bg-muted/50 p-4 rounded-lg">
-                          <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-medium">Meetings Scanned</h4>
-                            <VideoIcon className="h-4 w-4 text-muted-foreground" />
-                          </div>
-                          <p className="text-2xl font-bold mt-2">{scanResults.meetingsScanned}</p>
-                        </div>
-                        
-                        <div className="bg-muted/50 p-4 rounded-lg">
-                          <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-medium">Recordings Analyzed</h4>
-                            <FileAudioIcon className="h-4 w-4 text-muted-foreground" />
-                          </div>
-                          <p className="text-2xl font-bold mt-2">{scanResults.recordingsScanned}</p>
-                        </div>
-                        
-                        <div className="bg-muted/50 p-4 rounded-lg">
-                          <div className="flex items-center justify-between">
-                            <h4 className="text-sm font-medium">Transcripts Scanned</h4>
-                            <FileTextIcon className="h-4 w-4 text-muted-foreground" />
-                          </div>
-                          <p className="text-2xl font-bold mt-2">{scanResults.transcriptsScanned}</p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-              
-              {scanResults && (
-                <Card className={scanResults.violationsFound > 0 ? "border-destructive/50" : "border-green-500/50"}>
-                  <CardHeader className={scanResults.violationsFound > 0 ? "bg-destructive/10" : "bg-green-500/10"}>
-                    <div className="flex items-center space-x-2">
-                      {scanResults.violationsFound > 0 ? (
-                        <AlertCircleIcon className="h-5 w-5 text-destructive" />
-                      ) : (
-                        <CheckCircleIcon className="h-5 w-5 text-green-500" />
-                      )}
-                      <CardTitle>{scanResults.violationsFound > 0 ? "Issues Found" : "No Issues Found"}</CardTitle>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="pt-6">
-                    {scanResults.violationsFound > 0 ? (
-                      <div className="space-y-4">
-                        <p>
-                          We found {scanResults.violationsFound} potential compliance {scanResults.violationsFound === 1 ? 'issue' : 'issues'} in your Zoom content.
-                        </p>
-                        <Button variant="outline" onClick={() => setActiveTab('results')}>
-                          View Details
-                        </Button>
-                      </div>
-                    ) : (
-                      <p>
-                        Great job! No compliance issues were found in your Zoom content during this scan.
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="results" className="space-y-4 mt-6">
-              {isScanning ? (
-                <Card>
-                  <CardContent className="flex flex-col items-center justify-center py-12">
-                    <Loader2 className="h-10 w-10 animate-spin text-primary mb-4" />
-                    <h3 className="text-xl font-medium">Scanning Zoom content</h3>
-                    <p className="text-muted-foreground mt-2 text-center max-w-md">
-                      We're analyzing your Zoom meetings, recordings and transcripts for potential compliance issues. This may take a few moments...
-                    </p>
-                  </CardContent>
-                </Card>
-              ) : !scanResults ? (
-                <Card>
-                  <CardContent className="flex flex-col items-center justify-center py-12">
-                    <FileTextIcon className="h-10 w-10 text-muted-foreground mb-4" />
-                    <h3 className="text-xl font-medium">No scan results yet</h3>
-                    <p className="text-muted-foreground mt-2 text-center max-w-md">
-                      Run a scan to analyze your Zoom content for potential compliance issues.
-                    </p>
-                    <Button onClick={handleScan} className="mt-4">
-                      Scan Now
-                    </Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                <div className="space-y-6">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-lg">Scan Results</CardTitle>
-                      <CardDescription>
-                        Scan completed on {format(new Date(scanResults.scanDate), "PPpp")}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-                        <div className="bg-muted/50 p-4 rounded-lg">
-                          <div className="text-sm font-medium text-muted-foreground">Meetings Scanned</div>
-                          <div className="text-2xl font-bold mt-1">{scanResults.meetingsScanned}</div>
-                        </div>
-                        <div className="bg-muted/50 p-4 rounded-lg">
-                          <div className="text-sm font-medium text-muted-foreground">Recordings Analyzed</div>
-                          <div className="text-2xl font-bold mt-1">{scanResults.recordingsScanned}</div>
-                        </div>
-                        <div className="bg-muted/50 p-4 rounded-lg">
-                          <div className="text-sm font-medium text-muted-foreground">Transcripts Scanned</div>
-                          <div className="text-2xl font-bold mt-1">{scanResults.transcriptsScanned}</div>
-                        </div>
-                        <div className={`p-4 rounded-lg ${scanResults.violationsFound > 0 ? "bg-destructive/10" : "bg-green-500/10"}`}>
-                          <div className={`text-sm font-medium ${scanResults.violationsFound > 0 ? "text-destructive" : "text-green-600"}`}>
-                            Compliance Issues
-                          </div>
-                          <div className={`text-2xl font-bold mt-1 ${scanResults.violationsFound > 0 ? "text-destructive" : "text-green-600"}`}>
-                            {scanResults.violationsFound}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
-                  {scanResults.violationsFound > 0 ? (
+                  {meetings.length > 0 ? (
                     <div className="space-y-4">
-                      <h3 className="text-lg font-medium">Compliance Issues</h3>
-                      {scanResults.reports.map((report, index) => (
-                        <Card key={index} className="border-destructive/40">
-                          <CardHeader className="pb-2">
-                            <div className="flex items-start justify-between">
-                              <div>
-                                <CardTitle className="text-base">{report.documentName}</CardTitle>
-                                <CardDescription>
-                                  {report.industry || industry} compliance
-                                </CardDescription>
+                      {meetings.map(meeting => (
+                        <div key={meeting.id} className="border rounded-lg p-4">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium">{meeting.topic}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                {format(new Date(meeting.startTime), 'PPP pp')} · {meeting.duration} minutes
+                              </p>
+                              <div className="mt-2">
+                                <span className="text-xs bg-gray-100 rounded px-2 py-1 mr-2">
+                                  {meeting.participantsCount} {meeting.participantsCount === 1 ? 'participant' : 'participants'}
+                                </span>
+                                {meeting.hasRecording && (
+                                  <span className="text-xs bg-blue-100 text-blue-800 rounded px-2 py-1 mr-2">
+                                    Recording available
+                                  </span>
+                                )}
+                                {meeting.hasTranscript && (
+                                  <span className="text-xs bg-green-100 text-green-800 rounded px-2 py-1">
+                                    Transcript available
+                                  </span>
+                                )}
                               </div>
-                              <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/30">
-                                {report.risks.length} {report.risks.length === 1 ? 'issue' : 'issues'}
-                              </Badge>
                             </div>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="space-y-3">
-                              {report.risks.map((risk, riskIndex) => (
-                                <div key={riskIndex} className="border-l-2 border-destructive pl-3 py-1">
-                                  <p className="font-medium">{risk.title || risk.description.split(':')[0] || 'Compliance Risk'}</p>
-                                  <p className="text-sm text-muted-foreground">{risk.description}</p>
-                                  <div className="mt-1 flex items-center gap-2">
-                                    <Badge variant="outline" className="text-xs">
-                                      {risk.regulation || 'Regulation'}
-                                    </Badge>
-                                    <Badge 
-                                      variant="outline" 
-                                      className={`text-xs ${
-                                        risk.severity === 'high' ? 'bg-destructive/10 text-destructive' :
-                                        risk.severity === 'medium' ? 'bg-amber-100 text-amber-800' :
-                                        'bg-blue-100 text-blue-800'
-                                      }`}
-                                    >
-                                      {risk.severity} severity
-                                    </Badge>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </CardContent>
-                        </Card>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   ) : (
-                    <Card className="border-green-500/40">
-                      <CardHeader className="bg-green-500/10">
-                        <div className="flex items-center space-x-2">
-                          <CheckCircleIcon className="h-5 w-5 text-green-500" />
-                          <CardTitle>No Compliance Issues Found</CardTitle>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="pt-6">
-                        <p>
-                          Great job! We didn't detect any compliance issues in your Zoom content during this scan.
-                        </p>
-                      </CardContent>
-                    </Card>
+                    <div className="text-center py-8 text-muted-foreground">
+                      No meetings found in your Zoom account.
+                    </div>
                   )}
-                </div>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="settings" className="space-y-4 mt-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Zoom Integration Settings</CardTitle>
-                  <CardDescription>
-                    Configure your Zoom integration settings
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex flex-col space-y-1">
-                    <h3 className="font-medium">Zoom OAuth Status</h3>
-                    <p className="text-sm text-muted-foreground">Connected</p>
-                  </div>
-                  
-                  <div className="flex flex-col space-y-1">
-                    <h3 className="font-medium">Automatic scanning</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Configure scheduled scans in the <a href="/settings" className="text-primary underline underline-offset-2">Settings</a> page
-                    </p>
-                  </div>
-                  
-                  <div className="pt-4 border-t">
-                    <Button variant="outline" size="sm" className="flex items-center" asChild>
-                      <a href="https://marketplace.zoom.us/" target="_blank" rel="noopener noreferrer">
-                        Zoom App Marketplace
-                        <ExternalLink className="ml-1 h-3 w-3" />
-                      </a>
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
-        ) : (
-          <Card>
-            <CardContent className="flex flex-col items-center py-12">
-              <div className="rounded-full bg-muted p-4 mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="text-muted-foreground">
-                  <path d="M24 12c0 6.627-5.373 12-12 12S0 18.627 0 12 5.373 0 12 0s12 5.373 12 12zm-6.921-5.092L10.5 12l6.579 5.092v-10.184z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-medium">Connect your Zoom account</h3>
-              <p className="text-muted-foreground text-center max-w-md mt-2 mb-6">
-                Connect your Zoom account to scan meetings, recordings, and transcripts for compliance issues
-              </p>
-              <Button onClick={handleConnect} disabled={isConnecting}>
-                {isConnecting ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Connecting...
-                  </>
-                ) : (
-                  "Connect to Zoom"
-                )}
-              </Button>
-            </CardContent>
-          </Card>
-        )}
+              
+              {/* Scan Results */}
+              {scanResult && (
+                <Card className={scanResult.violationsFound > 0 ? 'border-red-500' : 'border-green-500'}>
+                  <CardHeader className={scanResult.violationsFound > 0 ? 'bg-red-50' : 'bg-green-50'}>
+                    <CardTitle className="flex items-center">
+                      <ShieldAlert className={`h-5 w-5 mr-2 ${scanResult.violationsFound > 0 ? 'text-red-500' : 'text-green-500'}`} />
+                      Scan Results
+                    </CardTitle>
+                    <CardDescription>
+                      Scan completed on {format(new Date(scanResult.scanDate), 'PPP pp')}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div className="bg-gray-50 p-4 rounded">
+                        <div className="text-sm text-muted-foreground">Meetings Scanned</div>
+                        <div className="text-2xl font-bold">{scanResult.meetingsScanned}</div>
+                      </div>
+                      <div className="bg-gray-50 p-4 rounded">
+                        <div className="text-sm text-muted-foreground">Recordings</div>
+                        <div className="text-2xl font-bold">{scanResult.recordingsScanned}</div>
+                      </div>
+                      <div className="bg-gray-50 p-4 rounded">
+                        <div className="text-sm text-muted-foreground">Transcripts</div>
+                        <div className="text-2xl font-bold">{scanResult.transcriptsScanned}</div>
+                      </div>
+                      <div className={`${scanResult.violationsFound > 0 ? 'bg-red-50' : 'bg-green-50'} p-4 rounded`}>
+                        <div className="text-sm text-muted-foreground">Violations</div>
+                        <div className={`text-2xl font-bold ${scanResult.violationsFound > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                          {scanResult.violationsFound}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {scanResult.violationsFound > 0 && (
+                      <div className="mt-4 space-y-4">
+                        <h3 className="font-medium">Compliance Issues Found</h3>
+                        <div className="space-y-2">
+                          {scanResult.reports.map((report, index) => (
+                            <div key={index} className="border-l-4 border-red-500 bg-red-50 p-3">
+                              <h4 className="font-medium">{report.title}</h4>
+                              <p className="text-sm text-gray-600">
+                                {report.summary?.substring(0, 120)}...
+                              </p>
+                              <div className="flex mt-2">
+                                <Button size="sm" variant="outline">View Details</Button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    
+                    {scanResult.violationsFound === 0 && (
+                      <div className="text-center py-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-green-500 mb-2">
+                          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <h3 className="text-lg font-medium text-green-700">No Compliance Issues Found</h3>
+                        <p className="text-sm text-muted-foreground mt-1">
+                          Your Zoom meetings and recordings are compliant with your configured policies.
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </>
+          )}
+        </div>
       </div>
     </Layout>
   );

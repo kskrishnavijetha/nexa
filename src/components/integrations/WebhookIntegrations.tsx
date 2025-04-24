@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   getWebhooks, 
@@ -16,6 +17,7 @@ import WebhookCard from './webhook-card/WebhookCard';
 import WebhookEmptyState from './webhook-empty-state/WebhookEmptyState';
 import WebhookHeader from './webhook-header/WebhookHeader';
 import DeleteWebhookDialog from './webhook-dialog/DeleteWebhookDialog';
+import { subscribeToWebhookChanges, unsubscribeFromWebhookChanges } from '@/utils/webhook/webhookRealtime';
 
 const WebhookIntegrations = () => {
   const [webhooks, setWebhooks] = useState<Webhook[]>([]);
@@ -45,6 +47,18 @@ const WebhookIntegrations = () => {
 
   useEffect(() => {
     loadWebhooks();
+
+    // Subscribe to real-time webhook changes
+    const unsubscribe = subscribeToWebhookChanges((updatedWebhooks) => {
+      console.log("Real-time webhook update received:", updatedWebhooks);
+      setWebhooks(updatedWebhooks);
+      toast.info("Webhook configurations updated in real-time");
+    });
+
+    return () => {
+      // Clean up subscription when component unmounts
+      unsubscribeFromWebhookChanges(unsubscribe);
+    };
   }, []);
 
   const loadWebhooks = async () => {
@@ -101,7 +115,7 @@ const WebhookIntegrations = () => {
 
       if (response.success) {
         resetForm();
-        loadWebhooks();
+        // No need to call loadWebhooks manually - real-time updates will handle this
         setIsSheetOpen(false);
       } else {
         toast.error(response.error || 'Failed to save webhook');
@@ -119,7 +133,7 @@ const WebhookIntegrations = () => {
       const response = await deleteWebhook(webhookToDelete.id);
       if (response.success) {
         toast.success('Webhook deleted successfully');
-        loadWebhooks();
+        // No need to call loadWebhooks - real-time updates will handle this
       } else {
         toast.error(response.error || 'Failed to delete webhook');
       }
