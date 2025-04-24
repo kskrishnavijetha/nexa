@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { SheetTrigger } from "@/components/ui/sheet";
 import { PlusIcon } from 'lucide-react';
 
 interface WebhookHeaderProps {
@@ -17,12 +16,10 @@ const WebhookHeader = ({ onOpenAddWebhook }: WebhookHeaderProps) => {
           Send notifications to other systems when compliance events occur
         </p>
       </div>
-      <SheetTrigger asChild onClick={onOpenAddWebhook}>
-        <Button>
-          <PlusIcon className="h-4 w-4 mr-2" />
-          Add Webhook
-        </Button>
-      </SheetTrigger>
+      <Button onClick={onOpenAddWebhook}>
+        <PlusIcon className="h-4 w-4 mr-2" />
+        Add Webhook
+      </Button>
     </div>
   );
 };

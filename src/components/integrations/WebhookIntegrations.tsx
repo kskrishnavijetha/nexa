@@ -9,7 +9,7 @@ import {
   Webhook,
   WebhookTrigger
 } from '@/utils/webhook/webhookServices';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet";
 import { Loader2 } from 'lucide-react';
 import { toast } from "sonner";
 import WebhookForm from './webhook-form/WebhookForm';
@@ -46,6 +46,7 @@ const WebhookIntegrations = () => {
   ];
 
   useEffect(() => {
+    console.log('WebhookIntegrations component mounted');
     loadWebhooks();
 
     // Subscribe to real-time webhook changes
@@ -56,17 +57,23 @@ const WebhookIntegrations = () => {
     });
 
     return () => {
+      console.log('WebhookIntegrations component unmounted');
       // Clean up subscription when component unmounts
       unsubscribeFromWebhookChanges(unsubscribe);
     };
   }, []);
 
   const loadWebhooks = async () => {
+    console.log('Loading webhooks...');
     setIsLoading(true);
     try {
       const response = await getWebhooks();
+      console.log('Webhooks response:', response);
       if (response.success && response.data) {
         setWebhooks(response.data);
+      } else {
+        console.error('Failed to load webhooks:', response.error);
+        toast.error('Failed to load webhook integrations');
       }
     } catch (error) {
       console.error('Error loading webhooks:', error);
@@ -193,15 +200,21 @@ const WebhookIntegrations = () => {
   };
 
   const handleSheetOpenChange = (open: boolean) => {
+    console.log('Sheet open changed to:', open);
     setIsSheetOpen(open);
     if (!open) {
       resetForm();
     }
   };
 
+  const handleOpenAddWebhook = () => {
+    console.log('Opening add webhook sheet');
+    setIsSheetOpen(true);
+  };
+
   return (
     <div className="space-y-6">
-      <WebhookHeader onOpenAddWebhook={() => setIsSheetOpen(true)} />
+      <WebhookHeader onOpenAddWebhook={handleOpenAddWebhook} />
 
       <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
         <SheetContent className="sm:max-w-md">

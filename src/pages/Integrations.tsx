@@ -1,5 +1,5 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,12 @@ import WebhookIntegrations from '@/components/integrations/WebhookIntegrations';
 
 const Integrations = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState('available');
+
+  const handleTabChange = (value: string) => {
+    console.log('Tab changed to:', value);
+    setActiveTab(value);
+  };
 
   return (
     <Layout>
@@ -21,7 +27,12 @@ const Integrations = () => {
           </p>
         </div>
 
-        <Tabs defaultValue="available" className="space-y-6">
+        <Tabs 
+          defaultValue="available" 
+          value={activeTab}
+          onValueChange={handleTabChange}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full md:w-auto grid-cols-3 gap-2">
             <TabsTrigger value="available">Available</TabsTrigger>
             <TabsTrigger value="connected">Connected</TabsTrigger>
