@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -8,9 +9,10 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import Layout from '@/components/layout/Layout';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -18,8 +20,9 @@ const formSchema = z.object({
 });
 
 export default function SignIn() {
-  const { signIn, user } = useAuth();
+  const { signIn, user, authError } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -39,6 +42,13 @@ export default function SignIn() {
     }
   }, [user, navigate, redirectAfterLogin]);
 
+  // Show auth error from context
+  useEffect(() => {
+    if (authError) {
+      setErrorMessage(authError);
+    }
+  }, [authError]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -49,21 +59,24 @@ export default function SignIn() {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
+    setErrorMessage(null);
     
     try {
+      console.log(`Attempting to sign in with email: ${values.email}`);
       const { error } = await signIn(values.email, values.password);
       
       if (error) {
         console.error("Error signing in:", error);
-        toast.error("Failed to sign in. Please check your credentials.");
+        setErrorMessage(error.message || "Failed to sign in. Please check your credentials.");
+        setLoading(false);
       } else {
         toast.success("Signed in successfully!");
         // Redirect will happen in useEffect
       }
     } catch (err) {
+      const errMsg = err instanceof Error ? err.message : "An unexpected error occurred";
       console.error("Exception during sign in:", err);
-      toast.error("An unexpected error occurred. Please try again.");
-    } finally {
+      setErrorMessage(errMsg);
       setLoading(false);
     }
   };
@@ -79,6 +92,12 @@ export default function SignIn() {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {errorMessage && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{errorMessage}</AlertDescription>
+              </Alert>
+            )}
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 <FormField
