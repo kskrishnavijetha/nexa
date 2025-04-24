@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -21,6 +20,7 @@ import Settings from './pages/Settings';
 import Jira from './pages/Jira';
 import Integrations from './pages/Integrations';
 import Zoom from './pages/Zoom';
+import RealTimeCompliancePage from './pages/RealTimeCompliancePage';
 
 export default function App() {
   return (
@@ -46,6 +46,7 @@ export default function App() {
             <Route path="/jira" element={<Jira />} />
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/zoom" element={<Zoom />} />
+            <Route path="/real-time-compliance" element={<RealTimeCompliancePage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
@@ -53,4 +54,3 @@ export default function App() {
     </BrowserRouter>
   );
 }
-
