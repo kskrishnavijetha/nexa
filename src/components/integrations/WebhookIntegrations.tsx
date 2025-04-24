@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Loader2 } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
@@ -25,6 +26,7 @@ const WebhookIntegrations = () => {
     formData,
     setFormData,
     webhookToDelete,
+    setWebhookToDelete,  // This was missing and causing the error
     deleteDialogOpen,
     setDeleteDialogOpen,
     handleCreateOrUpdateWebhook,

@@ -6,7 +6,7 @@ import { toast } from "sonner";
 
 export const useWebhookActions = (
   setIsSheetOpen: (open: boolean) => void,
-  setIsTestingWebhook: (value: { [key: string]: boolean }) => void
+  setIsTestingWebhook: React.Dispatch<React.SetStateAction<{ [key: string]: boolean }>>
 ) => {
   const [webhookToDelete, setWebhookToDelete] = useState<Webhook | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -69,7 +69,12 @@ export const useWebhookActions = (
   };
 
   const handleTestWebhook = async (webhook: Webhook) => {
-    setIsTestingWebhook(prev => ({ ...prev, [webhook.id]: true }));
+    // Fix the type issue - use proper React.SetStateAction syntax
+    setIsTestingWebhook((prev) => {
+      const newState = { ...prev };
+      newState[webhook.id] = true;
+      return newState;
+    });
     
     try {
       const response = await testWebhook(webhook.url);
@@ -82,7 +87,12 @@ export const useWebhookActions = (
       console.error('Error testing webhook:', error);
       toast.error('Failed to test webhook');
     } finally {
-      setIsTestingWebhook(prev => ({ ...prev, [webhook.id]: false }));
+      // Fix the type issue - use proper React.SetStateAction syntax
+      setIsTestingWebhook((prev) => {
+        const newState = { ...prev };
+        newState[webhook.id] = false;
+        return newState;
+      });
     }
   };
 
