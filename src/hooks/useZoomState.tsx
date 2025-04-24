@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'sonner';
 import { 
   connectZoom, 
@@ -20,6 +20,7 @@ export function useZoomState() {
   const [connection, setConnection] = useState<ZoomConnection | null>(null);
   const [meetings, setMeetings] = useState<ZoomMeeting[]>([]);
   const [scanResult, setScanResult] = useState<ZoomScanResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     loadZoomConnection();
@@ -36,28 +37,46 @@ export function useZoomState() {
 
   const loadZoomConnection = async () => {
     setIsLoading(true);
+    setError(null);
+    
     try {
+      console.log('Loading Zoom connection...');
       const response = await getZoomConnection();
+      
       if (response.success && response.data) {
+        console.log('Zoom connection loaded successfully:', response.data);
         setConnection(response.data);
         
         if (response.data.connected) {
           // If connected, load meetings
+          console.log('Loading Zoom meetings...');
           const meetingsResponse = await getZoomMeetings();
+          
           if (meetingsResponse.success && meetingsResponse.data) {
+            console.log('Zoom meetings loaded successfully:', meetingsResponse.data.length, 'meetings');
             setMeetings(meetingsResponse.data);
+          } else if (meetingsResponse.error) {
+            console.error('Error loading Zoom meetings:', meetingsResponse.error);
+            setError(meetingsResponse.error);
+            toast.error(`Failed to load Zoom meetings: ${meetingsResponse.error}`);
           }
         }
+      } else if (response.error) {
+        console.error('Error loading Zoom connection:', response.error);
+        setError(response.error);
+        toast.error(`Failed to load Zoom connection: ${response.error}`);
       }
     } catch (error) {
-      console.error('Error loading Zoom connection:', error);
-      toast.error('Failed to load Zoom connection status');
+      console.error('Exception loading Zoom connection:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setError(errorMessage);
+      toast.error(`Failed to load Zoom connection: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const simulateNewMeeting = () => {
+  const simulateNewMeeting = useCallback(() => {
     const now = new Date();
     const newMeeting: ZoomMeeting = {
       id: `meeting-${Math.random().toString(36).substring(2, 9)}`,
@@ -71,26 +90,42 @@ export function useZoomState() {
 
     setMeetings(prev => [newMeeting, ...prev]);
     toast.info(`New Zoom meeting detected: ${newMeeting.topic}`);
-  };
+  }, []);
 
   const handleConnectZoom = async () => {
     setIsConnecting(true);
+    setError(null);
+    
     try {
+      console.log('Connecting to Zoom...');
       const response = await connectZoom();
+      
       if (response.success && response.data) {
+        console.log('Successfully connected to Zoom:', response.data);
         setConnection(response.data);
         toast.success('Successfully connected to Zoom');
         
+        console.log('Loading Zoom meetings after connection...');
         const meetingsResponse = await getZoomMeetings();
+        
         if (meetingsResponse.success && meetingsResponse.data) {
+          console.log('Zoom meetings loaded successfully:', meetingsResponse.data.length, 'meetings');
           setMeetings(meetingsResponse.data);
+        } else if (meetingsResponse.error) {
+          console.error('Error loading Zoom meetings after connection:', meetingsResponse.error);
+          // Still connected, but couldn't load meetings
+          toast.error(`Connected to Zoom, but failed to load meetings: ${meetingsResponse.error}`);
         }
       } else {
+        console.error('Failed to connect to Zoom:', response.error);
+        setError(response.error || 'Unknown connection error');
         toast.error(response.error || 'Failed to connect to Zoom');
       }
     } catch (error) {
-      console.error('Error connecting to Zoom:', error);
-      toast.error('An error occurred while connecting to Zoom');
+      console.error('Exception connecting to Zoom:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setError(errorMessage);
+      toast.error(`An error occurred while connecting to Zoom: ${errorMessage}`);
     } finally {
       setIsConnecting(false);
     }
@@ -98,19 +133,28 @@ export function useZoomState() {
   
   const handleDisconnectZoom = async () => {
     setIsDisconnecting(true);
+    setError(null);
+    
     try {
+      console.log('Disconnecting from Zoom...');
       const response = await disconnectZoom();
+      
       if (response.success) {
+        console.log('Successfully disconnected from Zoom');
         setConnection(response.data || null);
         setMeetings([]);
         setScanResult(null);
         toast.success('Successfully disconnected from Zoom');
       } else {
+        console.error('Failed to disconnect from Zoom:', response.error);
+        setError(response.error || 'Unknown disconnection error');
         toast.error(response.error || 'Failed to disconnect from Zoom');
       }
     } catch (error) {
-      console.error('Error disconnecting from Zoom:', error);
-      toast.error('An error occurred while disconnecting from Zoom');
+      console.error('Exception disconnecting from Zoom:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setError(errorMessage);
+      toast.error(`An error occurred while disconnecting from Zoom: ${errorMessage}`);
     } finally {
       setIsDisconnecting(false);
     }
@@ -118,9 +162,14 @@ export function useZoomState() {
   
   const handleScanZoomMeetings = async () => {
     setIsScanning(true);
+    setError(null);
+    
     try {
+      console.log('Scanning Zoom meetings...');
       const response = await scanZoomMeetings();
+      
       if (response.success && response.data) {
+        console.log('Scan completed successfully:', response.data);
         setScanResult(response.data);
         toast.success('Scan completed successfully');
         
@@ -128,14 +177,24 @@ export function useZoomState() {
           toast.error(`${response.data.violationsFound} compliance violations found!`);
         }
       } else {
+        console.error('Failed to scan Zoom meetings:', response.error);
+        setError(response.error || 'Unknown scanning error');
         toast.error(response.error || 'Failed to scan Zoom meetings');
       }
     } catch (error) {
-      console.error('Error scanning Zoom meetings:', error);
-      toast.error('An error occurred while scanning Zoom meetings');
+      console.error('Exception scanning Zoom meetings:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setError(errorMessage);
+      toast.error(`An error occurred while scanning Zoom meetings: ${errorMessage}`);
     } finally {
       setIsScanning(false);
     }
+  };
+
+  const retryConnection = () => {
+    toast.info('Retrying Zoom connection...');
+    setError(null);
+    loadZoomConnection();
   };
 
   return {
@@ -146,8 +205,10 @@ export function useZoomState() {
     connection,
     meetings,
     scanResult,
+    error,
     handleConnectZoom,
     handleDisconnectZoom,
-    handleScanZoomMeetings
+    handleScanZoomMeetings,
+    retryConnection
   };
 }
