@@ -13,12 +13,19 @@ export interface MicrosoftServiceConnection {
   itemCount?: number;
 }
 
+// Define the report structure to match what's used in the UI
+export interface MicrosoftReportItem {
+  documentName: string;
+  riskLevel: 'high' | 'medium' | 'low';
+  issues: { description: string }[];
+}
+
 export interface MicrosoftServiceScanResult {
   serviceType: 'sharepoint' | 'outlook' | 'teams';
   itemsScanned: number;
   violationsFound: number;
   scanDate: string;
-  reports: ComplianceReport[];
+  reports: MicrosoftReportItem[];
 }
 
 // Mock data for Microsoft service connections
@@ -173,7 +180,7 @@ export const scanMicrosoftService = async (
     const violationsCount = Math.floor(Math.random() * (itemCount / 4)) + 1;
     
     // Generate mock compliance reports for violations
-    const reports: ComplianceReport[] = [];
+    const complianceReports: ComplianceReport[] = [];
     
     for (let i = 0; i < violationsCount; i++) {
       // Create random document names based on service type
@@ -196,9 +203,28 @@ export const scanMicrosoftService = async (
       );
       
       if (reportResponse.data) {
-        reports.push(reportResponse.data);
+        complianceReports.push(reportResponse.data);
       }
     }
+    
+    // Convert ComplianceReport[] to MicrosoftReportItem[]
+    const reports: MicrosoftReportItem[] = complianceReports.map(report => {
+      // Determine risk level based on overall score
+      let riskLevel: 'high' | 'medium' | 'low' = 'low';
+      if (report.overallScore < 60) riskLevel = 'high';
+      else if (report.overallScore < 80) riskLevel = 'medium';
+      
+      // Convert compliance risks to issues format
+      const issues = report.risks.map(risk => ({
+        description: risk.description
+      }));
+      
+      return {
+        documentName: report.documentName,
+        riskLevel,
+        issues
+      };
+    });
     
     // Update service with last scanned time
     const serviceIndex = mockMicrosoftConnections.findIndex(s => s.id === serviceId);

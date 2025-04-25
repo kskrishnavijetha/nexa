@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,7 +11,8 @@ import {
   disconnectMicrosoftService,
   scanMicrosoftService,
   MicrosoftServiceConnection,
-  MicrosoftServiceScanResult
+  MicrosoftServiceScanResult,
+  MicrosoftReportItem
 } from '@/utils/microsoft/microsoftServices';
 
 const Microsoft365: React.FC = () => {
