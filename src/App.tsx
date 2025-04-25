@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
@@ -21,6 +22,7 @@ import Jira from './pages/Jira';
 import Integrations from './pages/Integrations';
 import Zoom from './pages/Zoom';
 import RealTimeCompliancePage from './pages/RealTimeCompliancePage';
+import Microsoft365 from './pages/Microsoft365';
 
 export default function App() {
   return (
@@ -46,6 +48,7 @@ export default function App() {
             <Route path="/jira" element={<Jira />} />
             <Route path="/integrations" element={<Integrations />} />
             <Route path="/zoom" element={<Zoom />} />
+            <Route path="/microsoft-365" element={<Microsoft365 />} />
             <Route path="/real-time-compliance" element={<RealTimeCompliancePage />} />
           </Route>
           <Route path="*" element={<NotFound />} />
