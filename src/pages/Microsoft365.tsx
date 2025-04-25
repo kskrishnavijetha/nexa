@@ -14,6 +14,7 @@ import {
   MicrosoftServiceScanResult,
   MicrosoftReportItem
 } from '@/utils/microsoft/microsoftServices';
+import MicrosoftAuthDialog from '@/components/microsoft/MicrosoftAuthDialog';
 
 const Microsoft365: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>('services');
@@ -22,6 +23,8 @@ const Microsoft365: React.FC = () => {
   const [isConnecting, setIsConnecting] = useState<Record<string, boolean>>({});
   const [scanResults, setScanResults] = useState<MicrosoftServiceScanResult | null>(null);
   const [isScanning, setIsScanning] = useState<boolean>(false);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [selectedService, setSelectedService] = useState<MicrosoftServiceConnection | null>(null);
 
   useEffect(() => {
     fetchServices();
@@ -44,48 +47,9 @@ const Microsoft365: React.FC = () => {
     }
   };
 
-  const handleConnect = async (serviceId: string) => {
-    setIsConnecting(prev => ({ ...prev, [serviceId]: true }));
-    try {
-      const response = await connectMicrosoftService(serviceId);
-      if (response.success && response.data) {
-        setServices(prev => 
-          prev.map(service => 
-            service.id === serviceId ? response.data : service
-          )
-        );
-        toast.success(`Connected to ${response.data.name} successfully`);
-      } else {
-        toast.error(`Failed to connect to service: ${response.error}`);
-      }
-    } catch (error) {
-      console.error('Error connecting to service:', error);
-      toast.error('Failed to connect to service');
-    } finally {
-      setIsConnecting(prev => ({ ...prev, [serviceId]: false }));
-    }
-  };
-
-  const handleDisconnect = async (serviceId: string) => {
-    setIsConnecting(prev => ({ ...prev, [serviceId]: true }));
-    try {
-      const response = await disconnectMicrosoftService(serviceId);
-      if (response.success && response.data) {
-        setServices(prev => 
-          prev.map(service => 
-            service.id === serviceId ? response.data : service
-          )
-        );
-        toast.success(`Disconnected from ${response.data.name} successfully`);
-      } else {
-        toast.error(`Failed to disconnect from service: ${response.error}`);
-      }
-    } catch (error) {
-      console.error('Error disconnecting from service:', error);
-      toast.error('Failed to disconnect from service');
-    } finally {
-      setIsConnecting(prev => ({ ...prev, [serviceId]: false }));
-    }
+  const handleConnect = async (service: MicrosoftServiceConnection) => {
+    setSelectedService(service);
+    setShowAuthDialog(true);
   };
 
   const handleScan = async (serviceId: string) => {
@@ -182,7 +146,7 @@ const Microsoft365: React.FC = () => {
                         </>
                       ) : (
                         <Button
-                          onClick={() => handleConnect(service.id)}
+                          onClick={() => handleConnect(service)}
                           disabled={isConnecting[service.id]}
                           className="w-full"
                         >
@@ -250,6 +214,12 @@ const Microsoft365: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      <MicrosoftAuthDialog 
+        isOpen={showAuthDialog}
+        onClose={() => setShowAuthDialog(false)}
+        serviceName={selectedService?.name || ''}
+      />
     </Layout>
   );
 };

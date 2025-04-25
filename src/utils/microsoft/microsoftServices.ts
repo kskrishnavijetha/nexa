@@ -1,4 +1,3 @@
-
 import { SupportedLanguage } from '@/utils/language';
 import { ApiResponse, ComplianceReport, Industry, Region } from '@/utils/types';
 import { requestComplianceCheck } from '@/utils/complianceService';
@@ -53,12 +52,8 @@ const mockMicrosoftConnections: MicrosoftServiceConnection[] = [
 // Connect to a Microsoft service
 export const connectMicrosoftService = async (
   serviceId: string,
-  authToken?: string
 ): Promise<ApiResponse<MicrosoftServiceConnection>> => {
   try {
-    // Simulate API latency
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
     // Find the service to connect
     const updatedConnections = [...mockMicrosoftConnections];
     const serviceIndex = updatedConnections.findIndex(s => s.id === serviceId);
@@ -71,15 +66,15 @@ export const connectMicrosoftService = async (
       };
     }
     
-    // Update the connection status
+    // For now, we'll still update the mock data
+    // In production, this would be handled by the OAuth callback
     updatedConnections[serviceIndex] = {
       ...updatedConnections[serviceIndex],
       connected: true,
       lastScanned: new Date().toISOString(),
-      itemCount: Math.floor(Math.random() * 100) + 5 // Random number of items
+      itemCount: Math.floor(Math.random() * 100) + 5
     };
     
-    // Update the mock data
     mockMicrosoftConnections[serviceIndex] = updatedConnections[serviceIndex];
     
     return {
