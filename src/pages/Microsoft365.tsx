@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,6 +51,27 @@ const Microsoft365: React.FC = () => {
   const handleConnect = async (service: MicrosoftServiceConnection) => {
     setSelectedService(service);
     setShowAuthDialog(true);
+  };
+
+  const handleDisconnect = async (serviceId: string) => {
+    try {
+      setIsConnecting({ ...isConnecting, [serviceId]: true });
+      const response = await disconnectMicrosoftService(serviceId);
+      if (response.success && response.data) {
+        // Update the services list with the updated service
+        setServices(services.map(service => 
+          service.id === serviceId ? response.data : service
+        ));
+        toast.success(`Disconnected from ${response.data.name}`);
+      } else {
+        toast.error(`Failed to disconnect: ${response.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error disconnecting service:', error);
+      toast.error('Failed to disconnect service');
+    } finally {
+      setIsConnecting({ ...isConnecting, [serviceId]: false });
+    }
   };
 
   const handleScan = async (serviceId: string) => {

@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Microsoft } from 'lucide-react';
+import { Cloud } from 'lucide-react';
 
 interface MicrosoftAuthDialogProps {
   isOpen: boolean;
@@ -48,7 +48,7 @@ const MicrosoftAuthDialog: React.FC<MicrosoftAuthDialogProps> = ({
             className="w-full" 
             onClick={handleMicrosoftLogin}
           >
-            <Microsoft className="mr-2 h-4 w-4" />
+            <Cloud className="mr-2 h-4 w-4" />
             Sign in with Microsoft
           </Button>
         </div>
