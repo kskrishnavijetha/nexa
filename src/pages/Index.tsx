@@ -3,8 +3,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Features from '@/components/Features';
 import Hero from '@/components/home/Hero';
-import HowItWorks from '@/components/home/HowItWorks';
-import Integrations from '@/components/home/Integrations';
 import WhyChooseSection from '@/components/home/WhyChooseSection';
 import ComplianceFeaturesSection from '@/components/home/ComplianceFeaturesSection';
 import IndustriesSection from '@/components/home/IndustriesSection';
@@ -92,9 +90,7 @@ const Index = () => {
         
         <Hero />
         <LifetimeOfferBanner />
-        <HowItWorks />
         <TrustedBySection />
-        <Integrations />
         <ComplianceFeaturesSection />
         <Separator className="max-w-5xl mx-auto" />
         <WhyChooseSection />
