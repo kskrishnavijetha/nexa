@@ -13,6 +13,8 @@ import { useJiraAuth } from '@/hooks/useJiraAuth';
 const JiraIntegration = () => {
   const { isAuthenticated, isLoading, cloudId } = useJiraAuth();
 
+  console.log("JiraIntegration rendering with:", { isAuthenticated, isLoading, cloudId });
+
   // Show loading state while checking authentication
   if (isLoading) {
     return (
@@ -27,10 +29,12 @@ const JiraIntegration = () => {
   
   // Show authentication screen if not connected
   if (!isAuthenticated) {
+    console.log("Not authenticated, showing JiraConnect component");
     return <JiraConnect />;
   }
 
   // If we get here, we should be authenticated
+  console.log("Authenticated with cloudId:", cloudId);
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

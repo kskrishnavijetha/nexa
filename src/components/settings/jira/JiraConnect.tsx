@@ -16,6 +16,7 @@ const JiraConnect: React.FC = () => {
 
   const handleConnect = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Connect button clicked");
     
     if (!cloudId || !apiToken) {
       toast.error("Please provide both Cloud ID and API Token");
@@ -23,6 +24,7 @@ const JiraConnect: React.FC = () => {
     }
     
     try {
+      console.log("Attempting to login with:", { cloudId, apiToken: '***' });
       const success = await login(cloudId, apiToken);
       
       if (success) {
@@ -103,6 +105,7 @@ const JiraConnect: React.FC = () => {
             disabled={isLoading || !cloudId || !apiToken} 
             className="w-full"
             type="submit"
+            onClick={handleConnect}
           >
             {isLoading ? (
               <>

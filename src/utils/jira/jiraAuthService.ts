@@ -16,7 +16,6 @@ const authenticate = async (cloudId: string, apiToken: string): Promise<{ token:
     // which would then handle the OAuth flow with Jira
     console.log('Authenticating with Jira', { cloudId, apiToken: '***' });
     
-    // For demo purposes, we'll simulate a successful authentication
     // Simulate a short delay for the API call
     await new Promise(resolve => setTimeout(resolve, 800));
     

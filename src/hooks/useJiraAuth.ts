@@ -14,7 +14,7 @@ interface JiraAuthState {
 export const useJiraAuth = () => {
   const [state, setState] = useState<JiraAuthState>({
     isAuthenticated: false,
-    isLoading: false, // Start with not loading to properly show connect form
+    isLoading: true, // Start with loading to properly check auth state
     token: null,
     cloudId: null,
     error: null,
@@ -26,10 +26,12 @@ export const useJiraAuth = () => {
       setState(prev => ({ ...prev, isLoading: true }));
       
       try {
+        console.log("Checking Jira auth status");
         const token = localStorage.getItem('jira_token');
         const cloudId = localStorage.getItem('jira_cloud_id');
         
         if (!token || !cloudId) {
+          console.log("No Jira credentials found in localStorage");
           setState({
             isAuthenticated: false,
             isLoading: false,
@@ -42,6 +44,7 @@ export const useJiraAuth = () => {
 
         // Validate the token with Jira
         const isValid = await jiraAuthService.validateToken(token);
+        console.log("Token validation result:", isValid);
         
         if (isValid) {
           setState({
@@ -53,6 +56,7 @@ export const useJiraAuth = () => {
           });
         } else {
           // Token is invalid, clear it
+          console.log("Invalid token, logging out");
           logout();
         }
       } catch (error) {
@@ -75,6 +79,7 @@ export const useJiraAuth = () => {
     setState(prev => ({ ...prev, isLoading: true, error: null }));
     
     try {
+      console.log("Attempting to authenticate with Jira");
       const { token, error } = await jiraAuthService.authenticate(cloudId, apiToken);
       
       if (token) {
