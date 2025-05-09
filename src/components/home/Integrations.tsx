@@ -1,21 +1,21 @@
 
 import React from 'react';
-import { BrandGoogle, BrandSlack, BrandMicrosoft, Video } from 'lucide-react';
+import { Chrome, MessageSquare, Microsoft, Video } from 'lucide-react';
 
 const Integrations: React.FC = () => {
   const integrations = [
     {
-      icon: <BrandGoogle className="h-10 w-10" />,
+      icon: <Chrome className="h-10 w-10" />,
       title: 'Google Workspace',
       description: 'Connect to Google Docs, Drive, and other Google services to automatically scan documents for compliance issues.'
     },
     {
-      icon: <BrandSlack className="h-10 w-10" />,
+      icon: <MessageSquare className="h-10 w-10" />,
       title: 'Slack',
       description: 'Monitor your Slack communications and ensure they remain compliant with regulations and internal policies.'
     },
     {
-      icon: <BrandMicrosoft className="h-10 w-10" />,
+      icon: <Microsoft className="h-10 w-10" />,
       title: 'Microsoft 365',
       description: 'Integrate with Microsoft services to scan documents, emails, and other content for compliance risks.'
     },
