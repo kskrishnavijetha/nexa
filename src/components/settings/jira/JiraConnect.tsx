@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useJiraAuth } from '@/hooks/useJiraAuth';
 import { Loader } from 'lucide-react';
+import { toast } from 'sonner';
 
 const JiraConnect: React.FC = () => {
   const [cloudId, setCloudId] = useState('');
@@ -17,10 +18,20 @@ const JiraConnect: React.FC = () => {
     e.preventDefault();
     
     if (!cloudId || !apiToken) {
+      toast.error("Please provide both Cloud ID and API Token");
       return;
     }
     
-    await login(cloudId, apiToken);
+    try {
+      const success = await login(cloudId, apiToken);
+      
+      if (success) {
+        console.log("Jira connection successful");
+      }
+    } catch (err) {
+      console.error("Error connecting to Jira:", err);
+      toast.error("Failed to connect to Jira. Please check your credentials.");
+    }
   };
 
   return (

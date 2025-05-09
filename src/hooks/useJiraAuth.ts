@@ -1,6 +1,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import { jiraAuthService } from '@/utils/jira/jiraAuthService';
 
 interface JiraAuthState {
@@ -14,16 +14,17 @@ interface JiraAuthState {
 export const useJiraAuth = () => {
   const [state, setState] = useState<JiraAuthState>({
     isAuthenticated: false,
-    isLoading: true, // Start with loading to prevent flashing of connect form
+    isLoading: false, // Start with not loading to properly show connect form
     token: null,
     cloudId: null,
     error: null,
   });
-  const { toast } = useToast();
 
   // Check if the user is authenticated with Jira
   useEffect(() => {
     const checkAuthStatus = async () => {
+      setState(prev => ({ ...prev, isLoading: true }));
+      
       try {
         const token = localStorage.getItem('jira_token');
         const cloudId = localStorage.getItem('jira_cloud_id');
@@ -55,6 +56,7 @@ export const useJiraAuth = () => {
           logout();
         }
       } catch (error) {
+        console.error('Failed to validate Jira authentication:', error);
         setState({
           isAuthenticated: false,
           isLoading: false,
@@ -91,11 +93,7 @@ export const useJiraAuth = () => {
           error: null,
         });
         
-        toast({
-          title: 'Connected to Jira',
-          description: `Successfully connected to Jira workspace: ${cloudId}`,
-        });
-        
+        toast.success(`Successfully connected to Jira workspace: ${cloudId}`);
         return true;
       } else {
         setState({
@@ -106,12 +104,7 @@ export const useJiraAuth = () => {
           error: error || 'Authentication failed. Please check your credentials.',
         });
         
-        toast({
-          title: 'Connection failed',
-          description: error || 'Failed to connect to Jira. Please check your credentials.',
-          variant: 'destructive',
-        });
-        
+        toast.error(error || 'Failed to connect to Jira. Please check your credentials.');
         return false;
       }
     } catch (error) {
@@ -125,15 +118,10 @@ export const useJiraAuth = () => {
         error: errorMessage,
       });
       
-      toast({
-        title: 'Connection error',
-        description: errorMessage,
-        variant: 'destructive',
-      });
-      
+      toast.error(errorMessage);
       return false;
     }
-  }, [toast]);
+  }, []);
 
   // Logout from Jira
   const logout = useCallback(() => {
@@ -154,14 +142,11 @@ export const useJiraAuth = () => {
       error: null,
     });
     
-    toast({
-      title: 'Disconnected from Jira',
-      description: 'Successfully disconnected from Jira',
-    });
+    toast.success('Successfully disconnected from Jira');
     
     // Force a page reload to ensure all Jira components are properly reset
     window.location.href = '/settings';
-  }, [toast]);
+  }, []);
 
   // Get connection date in a more readable format
   const getConnectionDate = useCallback(() => {

@@ -1,7 +1,6 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from '@/components/ui/use-toast';
 import { Badge } from '@/components/ui/badge';
 import JiraConnect from './JiraConnect';
 import JiraProjects from './JiraProjects';
@@ -12,13 +11,7 @@ import JiraReports from './JiraReports';
 import { useJiraAuth } from '@/hooks/useJiraAuth';
 
 const JiraIntegration = () => {
-  const { toast } = useToast();
   const { isAuthenticated, isLoading, cloudId } = useJiraAuth();
-
-  // Show authentication screen if not connected
-  if (!isAuthenticated && !isLoading) {
-    return <JiraConnect />;
-  }
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -30,6 +23,11 @@ const JiraIntegration = () => {
         </div>
       </div>
     );
+  }
+  
+  // Show authentication screen if not connected
+  if (!isAuthenticated) {
+    return <JiraConnect />;
   }
 
   // If we get here, we should be authenticated
