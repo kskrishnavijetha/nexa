@@ -14,7 +14,7 @@ interface JiraAuthState {
 export const useJiraAuth = () => {
   const [state, setState] = useState<JiraAuthState>({
     isAuthenticated: false,
-    isLoading: true, // Start with loading to properly check auth state
+    isLoading: false, // Change initial loading state to false
     token: null,
     cloudId: null,
     error: null,
@@ -147,9 +147,6 @@ export const useJiraAuth = () => {
     });
     
     toast.success('Successfully disconnected from Jira');
-    
-    // Force a page reload to ensure all Jira components are properly reset
-    window.location.href = '/settings';
   }, []);
 
   // Get connection date in a more readable format
