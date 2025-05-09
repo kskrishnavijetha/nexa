@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { User as UserIcon, LogOut, CreditCard } from 'lucide-react';
+import { User as UserIcon, LogOut, CreditCard, Info, Link as LinkIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
@@ -56,7 +56,9 @@ const Header: React.FC = () => {
   
   const publicNavItems = [
     { name: 'Home', path: '/' },
-    { name: 'Pricing', path: '/pricing' },
+    { name: 'How It Works', path: '/#how-it-works', icon: <Info className="h-4 w-4 mr-1" /> },
+    { name: 'Integrations', path: '/#integrations', icon: <LinkIcon className="h-4 w-4 mr-1" /> },
+    { name: 'Pricing', path: '/pricing', icon: <CreditCard className="h-4 w-4 mr-1" /> },
   ];
 
   return (
@@ -73,27 +75,26 @@ const Header: React.FC = () => {
           </Link>
         </div>
         
-        {!user && (
-          <nav className="flex-1">
-            <ul className="hidden md:flex space-x-4">
-              {publicNavItems.map((item) => (
-                <li key={item.path}>
-                  <Link 
-                    to={item.path}
-                    className={cn(
-                      "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
-                      location.pathname === item.path 
-                        ? "bg-primary text-primary-foreground" 
-                        : "text-foreground/60 hover:text-foreground hover:bg-muted"
-                    )}
-                  >
-                    {item.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        )}
+        <nav className="flex-1">
+          <ul className="hidden md:flex space-x-4">
+            {publicNavItems.map((item) => (
+              <li key={item.path}>
+                <Link 
+                  to={item.path}
+                  className={cn(
+                    "flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
+                    location.pathname === item.path 
+                      ? "bg-primary text-primary-foreground" 
+                      : "text-foreground/60 hover:text-foreground hover:bg-muted"
+                  )}
+                >
+                  {item.icon}
+                  {item.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
         
         <div className="ml-auto flex space-x-3">
           {user ? (
