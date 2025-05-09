@@ -98,7 +98,6 @@ export const useJiraAuth = () => {
           error: null,
         });
         
-        toast.success(`Successfully connected to Jira workspace: ${cloudId}`);
         return true;
       } else {
         setState({

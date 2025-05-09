@@ -29,6 +29,7 @@ const JiraConnect: React.FC = () => {
       
       if (success) {
         console.log("Jira connection successful");
+        toast.success(`Successfully connected to Jira workspace: ${cloudId}`);
       }
     } catch (err) {
       console.error("Error connecting to Jira:", err);
@@ -105,7 +106,6 @@ const JiraConnect: React.FC = () => {
             disabled={isLoading || !cloudId || !apiToken} 
             className="w-full"
             type="submit"
-            onClick={handleConnect}
           >
             {isLoading ? (
               <>
