@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Chrome, MessageSquare, Microsoft, Video } from 'lucide-react';
+import { Chrome, MessageSquare, Box, Video } from 'lucide-react';
 
 const Integrations: React.FC = () => {
   const integrations = [
@@ -15,7 +15,7 @@ const Integrations: React.FC = () => {
       description: 'Monitor your Slack communications and ensure they remain compliant with regulations and internal policies.'
     },
     {
-      icon: <Microsoft className="h-10 w-10" />,
+      icon: <Box className="h-10 w-10" />,
       title: 'Microsoft 365',
       description: 'Integrate with Microsoft services to scan documents, emails, and other content for compliance risks.'
     },
