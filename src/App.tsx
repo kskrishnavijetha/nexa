@@ -18,15 +18,6 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toaster } from '@/components/ui/toaster';
 import Settings from './pages/Settings';
 import Jira from './pages/Jira';
-import Integrations from './pages/Integrations';
-import Zoom from './pages/Zoom';
-import RealTimeCompliancePage from './pages/RealTimeCompliancePage';
-import Microsoft365 from './pages/Microsoft365';
-import GoogleCallback from './components/oauth/GoogleCallback';
-import SlackCallback from './components/oauth/SlackCallback';
-import JiraCallback from './components/oauth/JiraCallback';
-import ZoomCallback from './components/oauth/ZoomCallback';
-import MicrosoftCallback from './components/oauth/MicrosoftCallback';
 
 export default function App() {
   return (
@@ -50,16 +41,7 @@ export default function App() {
             <Route path="/verify" element={<HashVerification />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/jira" element={<Jira />} />
-            <Route path="/integrations" element={<Integrations />} />
-            <Route path="/zoom" element={<Zoom />} />
-            <Route path="/microsoft-365" element={<Microsoft365 />} />
-            <Route path="/real-time-compliance" element={<RealTimeCompliancePage />} />
           </Route>
-          <Route path="/google-callback" element={<GoogleCallback />} />
-          <Route path="/slack-callback" element={<SlackCallback />} />
-          <Route path="/jira-callback" element={<JiraCallback />} />
-          <Route path="/zoom-callback" element={<ZoomCallback />} />
-          <Route path="/microsoft-callback" element={<MicrosoftCallback />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>

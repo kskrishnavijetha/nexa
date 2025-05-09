@@ -10,7 +10,6 @@ export function useAuthState() {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [authError, setAuthError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,7 +40,6 @@ export function useAuthState() {
           setSession(newSession);
           setUser(newSession?.user ?? null);
           setLoading(false);
-          setAuthError(null);
           
           toast.success('Signed in successfully!');
           
@@ -50,7 +48,6 @@ export function useAuthState() {
           setSession(null);
           setUser(null);
           setLoading(false);
-          setAuthError(null);
           
           // Clear any user-specific data from localStorage on sign out
           clearUserData();
@@ -84,61 +81,36 @@ export function useAuthState() {
   }, [navigate]);
 
   const signUp = async (email: string, password: string) => {
-    setAuthError(null);
-    try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
-      if (error) {
-        console.error("Error during sign up:", error.message);
-        setAuthError(error.message);
-        toast.error(`Sign up failed: ${error.message}`);
-        return { error };
-      }
-
-      if (data) {
-        toast.success('Verification email sent! Please check your inbox.');
-      }
-
-      return { error: null };
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error during sign up';
-      console.error("Exception during sign up:", errorMessage);
-      setAuthError(errorMessage);
-      toast.error(`Sign up failed: ${errorMessage}`);
-      return { error: err };
+    if (!error) {
+      toast.success('Verification email sent! Please check your inbox.');
     }
+
+    return { error };
   };
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);
-    setAuthError(null);
     
     try {
-      console.log(`Attempting to sign in with email: ${email.substring(0, 3)}...`);
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
-        console.error("Error during sign in:", error.message);
-        setAuthError(error.message);
-        toast.error(`Sign in failed: ${error.message}`);
+        // Make sure to stop loading on error
         setLoading(false);
-        return { error };
       }
 
-      console.log("Sign in successful, session established");
-      return { error: null };
+      return { error };
     } catch (err) {
       setLoading(false);
-      const errorMessage = err instanceof Error ? err.message : 'Unknown error during sign in';
-      console.error("Exception during sign in:", errorMessage);
-      setAuthError(errorMessage);
-      toast.error(`Sign in failed: ${errorMessage}`);
+      console.error('Error during sign in:', err);
       return { error: err };
     }
   };
@@ -146,7 +118,6 @@ export function useAuthState() {
   const signOut = useCallback(async () => {
     console.log('Signing out...');
     setLoading(true);
-    setAuthError(null);
     
     try {
       // First manually clear all user data to ensure clean state
@@ -159,8 +130,7 @@ export function useAuthState() {
       
       if (error) {
         console.error('Error from Supabase during sign out:', error);
-        setAuthError(error.message);
-        toast.error(`Failed to sign out: ${error.message}`);
+        toast.error('Failed to sign out. Please try again.');
         setLoading(false);
         return { error };
       }
@@ -179,10 +149,8 @@ export function useAuthState() {
       return { error: null };
       
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error during sign out';
-      console.error('Exception during sign out:', errorMessage);
-      setAuthError(errorMessage);
-      toast.error(`Failed to sign out: ${errorMessage}`);
+      console.error('Exception during sign out:', error);
+      toast.error('Failed to sign out. Please try again.');
       setLoading(false);
       
       // Still clear local state even if there's an error
@@ -198,7 +166,6 @@ export function useAuthState() {
     session,
     user,
     loading,
-    authError,
     signUp,
     signIn,
     signOut

@@ -1,6 +1,5 @@
 
 import { ApiResponse } from '@/utils/types';
-import { updateWebhooksCache, addWebhookToCache, updateWebhookInCache, removeWebhookFromCache } from './webhookRealtime';
 
 // Types for webhook integrations
 export interface Webhook {
@@ -54,9 +53,6 @@ export const getWebhooks = async (): Promise<ApiResponse<Webhook[]>> => {
   try {
     // Simulate API latency
     await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Update the real-time cache
-    updateWebhooksCache([...mockWebhooks]);
     
     return {
       success: true,
@@ -118,9 +114,6 @@ export const createWebhook = async (webhook: Omit<Webhook, 'id' | 'createdAt' | 
     
     mockWebhooks.push(newWebhook);
     
-    // Update real-time cache with the new webhook
-    addWebhookToCache(newWebhook);
-    
     return {
       success: true,
       data: newWebhook,
@@ -157,9 +150,6 @@ export const updateWebhook = async (webhookId: string, updates: Partial<Omit<Web
       ...updates
     };
     
-    // Update real-time cache with the updated webhook
-    updateWebhookInCache(mockWebhooks[webhookIndex]);
-    
     return {
       success: true,
       data: mockWebhooks[webhookIndex],
@@ -193,9 +183,6 @@ export const deleteWebhook = async (webhookId: string): Promise<ApiResponse<void
     
     mockWebhooks.splice(webhookIndex, 1);
     
-    // Update real-time cache by removing the webhook
-    removeWebhookFromCache(webhookId);
-    
     return {
       success: true,
       status: 204
@@ -225,9 +212,6 @@ export const triggerWebhook = async (url: string, payload: WebhookTriggerPayload
     const webhook = mockWebhooks.find(w => w.url === url);
     if (webhook) {
       webhook.lastTriggered = new Date().toISOString();
-      
-      // Update real-time cache with the updated webhook
-      updateWebhookInCache(webhook);
     }
     
     return {
@@ -264,15 +248,6 @@ export const testWebhook = async (url: string): Promise<ApiResponse<boolean>> =>
     // In a real implementation, this would make an HTTP request to the webhook URL
     console.log(`Testing webhook to ${url} with test payload:`, testPayload);
     
-    // Update lastTriggered time for the webhook if it exists in our mock data
-    const webhook = mockWebhooks.find(w => w.url === url);
-    if (webhook) {
-      webhook.lastTriggered = new Date().toISOString();
-      
-      // Update real-time cache with the updated webhook
-      updateWebhookInCache(webhook);
-    }
-    
     return {
       success: true,
       data: true, // Successfully tested
@@ -287,6 +262,3 @@ export const testWebhook = async (url: string): Promise<ApiResponse<boolean>> =>
     };
   }
 };
-
-// Initialize the real-time cache with the mock webhooks
-updateWebhooksCache([...mockWebhooks]);

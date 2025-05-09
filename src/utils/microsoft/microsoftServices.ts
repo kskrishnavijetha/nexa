@@ -1,3 +1,4 @@
+
 import { SupportedLanguage } from '@/utils/language';
 import { ApiResponse, ComplianceReport, Industry, Region } from '@/utils/types';
 import { requestComplianceCheck } from '@/utils/complianceService';
@@ -12,19 +13,12 @@ export interface MicrosoftServiceConnection {
   itemCount?: number;
 }
 
-// Define the report structure to match what's used in the UI
-export interface MicrosoftReportItem {
-  documentName: string;
-  riskLevel: 'high' | 'medium' | 'low';
-  issues: { description: string }[];
-}
-
 export interface MicrosoftServiceScanResult {
   serviceType: 'sharepoint' | 'outlook' | 'teams';
   itemsScanned: number;
   violationsFound: number;
   scanDate: string;
-  reports: MicrosoftReportItem[];
+  reports: ComplianceReport[];
 }
 
 // Mock data for Microsoft service connections
@@ -52,8 +46,12 @@ const mockMicrosoftConnections: MicrosoftServiceConnection[] = [
 // Connect to a Microsoft service
 export const connectMicrosoftService = async (
   serviceId: string,
+  authToken?: string
 ): Promise<ApiResponse<MicrosoftServiceConnection>> => {
   try {
+    // Simulate API latency
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
     // Find the service to connect
     const updatedConnections = [...mockMicrosoftConnections];
     const serviceIndex = updatedConnections.findIndex(s => s.id === serviceId);
@@ -66,15 +64,15 @@ export const connectMicrosoftService = async (
       };
     }
     
-    // For now, we'll still update the mock data
-    // In production, this would be handled by the OAuth callback
+    // Update the connection status
     updatedConnections[serviceIndex] = {
       ...updatedConnections[serviceIndex],
       connected: true,
       lastScanned: new Date().toISOString(),
-      itemCount: Math.floor(Math.random() * 100) + 5
+      itemCount: Math.floor(Math.random() * 100) + 5 // Random number of items
     };
     
+    // Update the mock data
     mockMicrosoftConnections[serviceIndex] = updatedConnections[serviceIndex];
     
     return {
@@ -175,7 +173,7 @@ export const scanMicrosoftService = async (
     const violationsCount = Math.floor(Math.random() * (itemCount / 4)) + 1;
     
     // Generate mock compliance reports for violations
-    const complianceReports: ComplianceReport[] = [];
+    const reports: ComplianceReport[] = [];
     
     for (let i = 0; i < violationsCount; i++) {
       // Create random document names based on service type
@@ -198,28 +196,9 @@ export const scanMicrosoftService = async (
       );
       
       if (reportResponse.data) {
-        complianceReports.push(reportResponse.data);
+        reports.push(reportResponse.data);
       }
     }
-    
-    // Convert ComplianceReport[] to MicrosoftReportItem[]
-    const reports: MicrosoftReportItem[] = complianceReports.map(report => {
-      // Determine risk level based on overall score
-      let riskLevel: 'high' | 'medium' | 'low' = 'low';
-      if (report.overallScore < 60) riskLevel = 'high';
-      else if (report.overallScore < 80) riskLevel = 'medium';
-      
-      // Convert compliance risks to issues format
-      const issues = report.risks.map(risk => ({
-        description: risk.description
-      }));
-      
-      return {
-        documentName: report.documentName,
-        riskLevel,
-        issues
-      };
-    });
     
     // Update service with last scanned time
     const serviceIndex = mockMicrosoftConnections.findIndex(s => s.id === serviceId);
