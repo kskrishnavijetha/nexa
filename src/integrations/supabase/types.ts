@@ -89,6 +89,192 @@ export type Database = {
           },
         ]
       }
+      compliance_violations: {
+        Row: {
+          created_at: string
+          dataset_id: string
+          description: string
+          field_name: string | null
+          id: string
+          recommendation: string | null
+          row_index: number | null
+          rule_type: string
+          severity: string
+          status: string | null
+          violation_type: string
+        }
+        Insert: {
+          created_at?: string
+          dataset_id: string
+          description: string
+          field_name?: string | null
+          id?: string
+          recommendation?: string | null
+          row_index?: number | null
+          rule_type: string
+          severity: string
+          status?: string | null
+          violation_type: string
+        }
+        Update: {
+          created_at?: string
+          dataset_id?: string
+          description?: string
+          field_name?: string | null
+          id?: string
+          recommendation?: string | null
+          row_index?: number | null
+          rule_type?: string
+          severity?: string
+          status?: string | null
+          violation_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_violations_dataset_id_fkey"
+            columns: ["dataset_id"]
+            isOneToOne: false
+            referencedRelation: "datasets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      data_classifications: {
+        Row: {
+          classification_type: string
+          confidence_score: number | null
+          created_at: string
+          data_category: string | null
+          dataset_id: string
+          field_name: string
+          id: string
+          sensitive_data_detected: boolean | null
+          tags: Json | null
+        }
+        Insert: {
+          classification_type: string
+          confidence_score?: number | null
+          created_at?: string
+          data_category?: string | null
+          dataset_id: string
+          field_name: string
+          id?: string
+          sensitive_data_detected?: boolean | null
+          tags?: Json | null
+        }
+        Update: {
+          classification_type?: string
+          confidence_score?: number | null
+          created_at?: string
+          data_category?: string | null
+          dataset_id?: string
+          field_name?: string
+          id?: string
+          sensitive_data_detected?: boolean | null
+          tags?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "data_classifications_dataset_id_fkey"
+            columns: ["dataset_id"]
+            isOneToOne: false
+            referencedRelation: "datasets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      data_processing_jobs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          dataset_id: string
+          error_message: string | null
+          id: string
+          job_type: string
+          progress: number | null
+          result: Json | null
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          dataset_id: string
+          error_message?: string | null
+          id?: string
+          job_type: string
+          progress?: number | null
+          result?: Json | null
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          dataset_id?: string
+          error_message?: string | null
+          id?: string
+          job_type?: string
+          progress?: number | null
+          result?: Json | null
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "data_processing_jobs_dataset_id_fkey"
+            columns: ["dataset_id"]
+            isOneToOne: false
+            referencedRelation: "datasets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      datasets: {
+        Row: {
+          compliance_status: string | null
+          created_at: string
+          file_size: number
+          file_type: string
+          id: string
+          metadata: Json | null
+          name: string
+          original_filename: string
+          status: string
+          updated_at: string
+          upload_date: string
+          user_id: string
+        }
+        Insert: {
+          compliance_status?: string | null
+          created_at?: string
+          file_size: number
+          file_type: string
+          id?: string
+          metadata?: Json | null
+          name: string
+          original_filename: string
+          status?: string
+          updated_at?: string
+          upload_date?: string
+          user_id: string
+        }
+        Update: {
+          compliance_status?: string | null
+          created_at?: string
+          file_size?: number
+          file_type?: string
+          id?: string
+          metadata?: Json | null
+          name?: string
+          original_filename?: string
+          status?: string
+          updated_at?: string
+          upload_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       nexabloom: {
         Row: {
           created_at: string
