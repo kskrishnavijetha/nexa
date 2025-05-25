@@ -38,9 +38,9 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <BrowserRouter>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <BrowserRouter>
           <div className="min-h-screen bg-background">
             <Routes>
               {/* Home Page - Public Route */}
@@ -163,9 +163,9 @@ function App() {
               />
             </Routes>
           </div>
-        </AuthProvider>
-      </QueryClientProvider>
-    </BrowserRouter>
+        </BrowserRouter>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
 
