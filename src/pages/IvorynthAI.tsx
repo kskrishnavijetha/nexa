@@ -80,7 +80,16 @@ const IvorynthAI = () => {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setMessages(data || []);
+      
+      // Transform the data to match our Message interface
+      const transformedMessages: Message[] = (data || []).map(msg => ({
+        id: msg.id,
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+        created_at: msg.created_at,
+      }));
+      
+      setMessages(transformedMessages);
     } catch (error) {
       console.error('Error loading messages:', error);
       toast.error('Failed to load messages');
