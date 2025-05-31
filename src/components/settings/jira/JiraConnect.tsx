@@ -76,6 +76,9 @@ const JiraConnect: React.FC = () => {
                       Just enter "yourcompany" (without the domain)
                     </span>
                   </div>
+                  <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
+                    <strong>Important:</strong> Make sure your API token has permissions to access Jira projects and issues.
+                  </div>
                 </div>
               </AlertDescription>
             </Alert>
@@ -114,7 +117,19 @@ const JiraConnect: React.FC = () => {
             {error && (
               <Alert variant="destructive">
                 <AlertTitle>Connection Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>
+                  {error}
+                  {error.includes('Network error') && (
+                    <div className="mt-2 text-sm">
+                      <strong>Troubleshooting tips:</strong>
+                      <ul className="list-disc list-inside mt-1 space-y-1">
+                        <li>Check if your Jira domain is correct</li>
+                        <li>Ensure your API token has proper permissions</li>
+                        <li>Try refreshing the page and connecting again</li>
+                      </ul>
+                    </div>
+                  )}
+                </AlertDescription>
               </Alert>
             )}
           </form>

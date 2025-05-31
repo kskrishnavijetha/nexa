@@ -39,19 +39,19 @@ const authenticate = async (cloudId: string, apiToken: string): Promise<{ token:
     // Test the connection by making an actual API call to Jira
     const testUrl = `https://${cleanCloudId}.atlassian.net/rest/api/3/myself`;
     
-    // For Jira API tokens, we need to get the user's email first
-    // Let's try with just the API token as username (common for API tokens)
-    const authString = `${apiToken}:${apiToken}`;
-    const authHeader = btoa(authString);
+    // We need the user's email to authenticate properly with API token
+    // Let's first try to get the current user with a simple approach
+    // For API tokens, we can use any email format initially to get the user info
+    const tempAuthString = `temp@temp.com:${apiToken}`;
+    const tempAuthHeader = btoa(tempAuthString);
     
     const response = await fetch(testUrl, {
       method: 'GET',
       headers: {
-        'Authorization': `Basic ${authHeader}`,
+        'Authorization': `Basic ${tempAuthHeader}`,
         'Accept': 'application/json',
         'Content-Type': 'application/json'
-      },
-      mode: 'cors'
+      }
     });
     
     console.log('Jira API response status:', response.status);
@@ -112,8 +112,7 @@ const validateToken = async (token: string): Promise<boolean> => {
       headers: {
         'Authorization': `Basic ${authHeader}`,
         'Accept': 'application/json'
-      },
-      mode: 'cors'
+      }
     });
     
     const isValid = response.ok;
