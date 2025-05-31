@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useJiraAuth } from '@/hooks/useJiraAuth';
-import { Loader } from 'lucide-react';
+import { Loader, ExternalLink, Info } from 'lucide-react';
 import { toast } from 'sonner';
 
 const JiraConnect: React.FC = () => {
@@ -43,20 +43,40 @@ const JiraConnect: React.FC = () => {
         <CardHeader>
           <CardTitle className="text-2xl">Connect to Jira</CardTitle>
           <CardDescription>
-            Link your Jira workspace to enable compliance monitoring and risk assessment.
+            Link your Jira workspace to enable StandUp Genie and compliance monitoring.
           </CardDescription>
         </CardHeader>
         
         <CardContent>
           <form id="jira-connect-form" onSubmit={handleConnect} className="space-y-6">
-            <Alert className="bg-muted">
-              <AlertTitle>Getting your Jira Cloud ID and API Token</AlertTitle>
+            <Alert className="bg-blue-50 border-blue-200">
+              <Info className="h-4 w-4" />
+              <AlertTitle>Getting your Jira credentials</AlertTitle>
               <AlertDescription className="text-sm">
-                <ol className="list-decimal list-inside space-y-2 mt-2">
-                  <li>Go to <a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Atlassian API tokens page</a></li>
-                  <li>Create an API token and copy it</li>
-                  <li>Find your Cloud ID from your Jira URL: yourcompany.atlassian.net</li>
-                </ol>
+                <div className="space-y-3 mt-2">
+                  <div>
+                    <strong>1. Get your API Token:</strong>
+                    <br />
+                    <a 
+                      href="https://id.atlassian.com/manage-profile/security/api-tokens" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-blue-600 hover:underline inline-flex items-center gap-1"
+                    >
+                      Visit Atlassian API tokens page <ExternalLink className="h-3 w-3" />
+                    </a>
+                    <br />
+                    <span className="text-xs text-muted-foreground">Create a new token and copy it</span>
+                  </div>
+                  <div>
+                    <strong>2. Find your Cloud ID:</strong>
+                    <br />
+                    <span className="text-xs text-muted-foreground">
+                      From your Jira URL: https://<strong>yourcompany</strong>.atlassian.net<br />
+                      Just enter "yourcompany" (without the domain)
+                    </span>
+                  </div>
+                </div>
               </AlertDescription>
             </Alert>
             
@@ -65,13 +85,13 @@ const JiraConnect: React.FC = () => {
                 <Label htmlFor="cloudId">Jira Cloud ID</Label>
                 <Input
                   id="cloudId"
-                  placeholder="yourcompany.atlassian.net"
+                  placeholder="yourcompany (from yourcompany.atlassian.net)"
                   value={cloudId}
                   onChange={(e) => setCloudId(e.target.value)}
                   required
                 />
                 <p className="text-xs text-muted-foreground">
-                  Your Jira domain, e.g. yourcompany.atlassian.net
+                  Enter only the subdomain part (e.g., "acme" from acme.atlassian.net)
                 </p>
               </div>
               
@@ -80,13 +100,13 @@ const JiraConnect: React.FC = () => {
                 <Input
                   id="apiToken"
                   type="password"
-                  placeholder="Your Jira API token"
+                  placeholder="Your Atlassian API token"
                   value={apiToken}
                   onChange={(e) => setApiToken(e.target.value)}
                   required
                 />
                 <p className="text-xs text-muted-foreground">
-                  API token from your Atlassian account
+                  API token from your Atlassian account security settings
                 </p>
               </div>
             </div>
