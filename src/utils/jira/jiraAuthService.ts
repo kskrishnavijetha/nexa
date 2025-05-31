@@ -1,9 +1,16 @@
 
-// Service for handling Jira authentication
+// Enhanced Jira authentication service with better error handling and token validation
 
 interface JiraAuthResponse {
   token: string;
   expiresIn: number;
+  cloudId: string;
+}
+
+interface JiraUserInfo {
+  accountId: string;
+  emailAddress: string;
+  displayName: string;
 }
 
 const authenticate = async (cloudId: string, apiToken: string): Promise<{ token: string | null; error: string | null }> => {
@@ -12,49 +19,99 @@ const authenticate = async (cloudId: string, apiToken: string): Promise<{ token:
   }
   
   try {
-    // In a real implementation, this would communicate with your backend
-    // which would then handle the OAuth flow with Jira
-    console.log('Authenticating with Jira', { cloudId, apiToken: '***' });
+    // Clean the cloudId to ensure it's in the right format
+    const cleanCloudId = cloudId.replace(/^https?:\/\//, '').replace(/\.atlassian\.net\/?$/, '');
+    console.log('Authenticating with Jira', { cloudId: cleanCloudId, apiToken: '***' });
     
-    // Simulate a short delay for the API call
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Test the connection by making an actual API call to Jira
+    const testUrl = `https://${cleanCloudId}.atlassian.net/rest/api/3/myself`;
+    const authHeader = btoa(`${apiToken}:${apiToken}`); // For API tokens, use token:token format
     
-    // In a real app, this should come from your backend service
-    const mockResponse: JiraAuthResponse = {
-      token: `mock_token_${Date.now()}`,
-      expiresIn: 3600
-    };
+    const response = await fetch(testUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Basic ${authHeader}`,
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      }
+    });
     
-    return { token: mockResponse.token, error: null };
+    if (!response.ok) {
+      if (response.status === 401) {
+        return { token: null, error: 'Invalid API token or insufficient permissions.' };
+      }
+      if (response.status === 404) {
+        return { token: null, error: 'Invalid Cloud ID. Please check your Jira domain.' };
+      }
+      return { token: null, error: `Authentication failed: ${response.status} ${response.statusText}` };
+    }
+    
+    const userInfo: JiraUserInfo = await response.json();
+    console.log('Jira authentication successful:', { user: userInfo.displayName });
+    
+    // Create a token that includes the necessary info
+    const authToken = `${cleanCloudId}:${apiToken}`;
+    
+    return { token: authToken, error: null };
   } catch (error) {
     console.error('Jira authentication error:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Failed to connect to Jira';
+    const errorMessage = error instanceof Error ? error.message : 'Network error connecting to Jira';
     return { token: null, error: errorMessage };
   }
 };
 
 const validateToken = async (token: string): Promise<boolean> => {
-  if (!token) {
+  if (!token || !token.includes(':')) {
     return false;
   }
   
   try {
-    // In a real implementation, this would verify the token with Jira API
-    console.log('Validating Jira token', { token: token.substring(0, 5) + '***' });
+    const [cloudId, apiToken] = token.split(':');
+    const testUrl = `https://${cloudId}.atlassian.net/rest/api/3/myself`;
+    const authHeader = btoa(`${apiToken}:${apiToken}`);
     
-    // Simulate a short delay for the API call
-    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log('Validating Jira token for:', cloudId);
     
-    // For demo purposes, we'll consider any token valid
-    // In a real app, this should actually validate with Jira
-    return true;
+    const response = await fetch(testUrl, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Basic ${authHeader}`,
+        'Accept': 'application/json'
+      }
+    });
+    
+    return response.ok;
   } catch (error) {
     console.error('Jira token validation error:', error);
     return false;
   }
 };
 
+const getAuthHeaders = (token: string) => {
+  if (!token || !token.includes(':')) {
+    throw new Error('Invalid token format');
+  }
+  
+  const [cloudId, apiToken] = token.split(':');
+  const authHeader = btoa(`${apiToken}:${apiToken}`);
+  
+  return {
+    'Authorization': `Basic ${authHeader}`,
+    'Accept': 'application/json',
+    'Content-Type': 'application/json'
+  };
+};
+
+const getCloudIdFromToken = (token: string): string => {
+  if (!token || !token.includes(':')) {
+    throw new Error('Invalid token format');
+  }
+  return token.split(':')[0];
+};
+
 export const jiraAuthService = {
   authenticate,
-  validateToken
+  validateToken,
+  getAuthHeaders,
+  getCloudIdFromToken
 };
