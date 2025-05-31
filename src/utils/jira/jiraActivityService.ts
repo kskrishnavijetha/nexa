@@ -59,7 +59,8 @@ const getDailyActivity = async (token: string, userEmail?: string): Promise<Jira
     
     // Fetch issues with their changes
     const issuesResponse = await fetch(`${baseUrl}/search?jql=${encodeURIComponent(jql)}&expand=changelog&maxResults=50`, {
-      headers
+      headers,
+      mode: 'cors'
     });
     
     if (!issuesResponse.ok) {
@@ -91,12 +92,18 @@ const getDailyActivity = async (token: string, userEmail?: string): Promise<Jira
     let sprintInfo: JiraSprintInfo | null = null;
     try {
       // This is a simplified sprint fetch - in real implementation, you'd need to know the board ID
-      const boardsResponse = await fetch(`${baseUrl}/agile/1.0/board?maxResults=1`, { headers });
+      const boardsResponse = await fetch(`${baseUrl}/agile/1.0/board?maxResults=1`, { 
+        headers,
+        mode: 'cors'
+      });
       if (boardsResponse.ok) {
         const boardsData = await boardsResponse.json();
         if (boardsData.values.length > 0) {
           const boardId = boardsData.values[0].id;
-          const sprintResponse = await fetch(`${baseUrl}/agile/1.0/board/${boardId}/sprint?state=active`, { headers });
+          const sprintResponse = await fetch(`${baseUrl}/agile/1.0/board/${boardId}/sprint?state=active`, { 
+            headers,
+            mode: 'cors'
+          });
           if (sprintResponse.ok) {
             const sprintData = await sprintResponse.json();
             if (sprintData.values.length > 0) {

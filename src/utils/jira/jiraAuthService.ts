@@ -39,7 +39,8 @@ const authenticate = async (cloudId: string, apiToken: string): Promise<{ token:
     // Test the connection by making an actual API call to Jira
     const testUrl = `https://${cleanCloudId}.atlassian.net/rest/api/3/myself`;
     
-    // For Jira API tokens, the format is email:token
+    // For Jira API tokens, we need to get the user's email first
+    // Let's try with just the API token as username (common for API tokens)
     const authString = `${apiToken}:${apiToken}`;
     const authHeader = btoa(authString);
     
@@ -49,7 +50,8 @@ const authenticate = async (cloudId: string, apiToken: string): Promise<{ token:
         'Authorization': `Basic ${authHeader}`,
         'Accept': 'application/json',
         'Content-Type': 'application/json'
-      }
+      },
+      mode: 'cors'
     });
     
     console.log('Jira API response status:', response.status);
@@ -71,15 +73,15 @@ const authenticate = async (cloudId: string, apiToken: string): Promise<{ token:
     const userInfo: JiraUserInfo = await response.json();
     console.log('Jira authentication successful:', { user: userInfo.displayName, email: userInfo.emailAddress });
     
-    // Create a token that includes the necessary info
-    const authToken = `${cleanCloudId}:${apiToken}`;
+    // Create a token that includes the necessary info with the user's email
+    const authToken = `${cleanCloudId}:${userInfo.emailAddress}:${apiToken}`;
     
     return { token: authToken, error: null };
   } catch (error) {
     console.error('Jira authentication error:', error);
     
     if (error instanceof TypeError && error.message.includes('fetch')) {
-      return { token: null, error: 'Network error: Unable to connect to Jira. Please check your internet connection and try again.' };
+      return { token: null, error: 'Network error: Unable to connect to Jira. Please check your internet connection and Jira domain.' };
     }
     
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred while connecting to Jira';
@@ -93,9 +95,14 @@ const validateToken = async (token: string): Promise<boolean> => {
   }
   
   try {
-    const [cloudId, apiToken] = token.split(':');
+    const parts = token.split(':');
+    if (parts.length !== 3) {
+      return false;
+    }
+    
+    const [cloudId, email, apiToken] = parts;
     const testUrl = `https://${cloudId}.atlassian.net/rest/api/3/myself`;
-    const authString = `${apiToken}:${apiToken}`;
+    const authString = `${email}:${apiToken}`;
     const authHeader = btoa(authString);
     
     console.log('Validating Jira token for:', cloudId);
@@ -105,7 +112,8 @@ const validateToken = async (token: string): Promise<boolean> => {
       headers: {
         'Authorization': `Basic ${authHeader}`,
         'Accept': 'application/json'
-      }
+      },
+      mode: 'cors'
     });
     
     const isValid = response.ok;
@@ -122,8 +130,13 @@ const getAuthHeaders = (token: string) => {
     throw new Error('Invalid token format');
   }
   
-  const [cloudId, apiToken] = token.split(':');
-  const authString = `${apiToken}:${apiToken}`;
+  const parts = token.split(':');
+  if (parts.length !== 3) {
+    throw new Error('Invalid token format');
+  }
+  
+  const [cloudId, email, apiToken] = parts;
+  const authString = `${email}:${apiToken}`;
   const authHeader = btoa(authString);
   
   return {
