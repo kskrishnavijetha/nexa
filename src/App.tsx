@@ -6,6 +6,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import Index from './pages/Index';
 import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
+import OnboardingPage from './pages/Onboarding';
 import PricingPlans from './pages/PricingPlans';
 import Payment from './pages/Payment';
 import Dashboard from './pages/Dashboard';
