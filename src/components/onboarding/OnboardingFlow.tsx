@@ -37,6 +37,10 @@ const OnboardingFlow = () => {
 
   const isStepCompleted = (stepId: number) => completedSteps.includes(stepId);
 
+  // Get the current step data
+  const currentStepData = steps[currentStep - 1];
+  const CurrentStepIcon = currentStepData.icon;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-600 via-blue-600 to-indigo-700 p-4">
       <div className="max-w-4xl mx-auto">
@@ -56,28 +60,31 @@ const OnboardingFlow = () => {
             <Progress value={progress} className="h-3" indicatorClassName="bg-gradient-to-r from-purple-400 to-blue-400" />
             
             <div className="flex justify-between mt-6">
-              {steps.map((step) => (
-                <div key={step.id} className="flex flex-col items-center">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 transition-all ${
-                    isStepCompleted(step.id) 
-                      ? 'bg-green-500 text-white' 
-                      : currentStep === step.id 
-                        ? 'bg-white text-purple-600 ring-4 ring-purple-300' 
-                        : 'bg-white/20 text-white'
-                  }`}>
-                    {isStepCompleted(step.id) ? (
-                      <CheckCircle className="h-6 w-6" />
-                    ) : (
-                      <step.icon className="h-6 w-6" />
-                    )}
+              {steps.map((step) => {
+                const StepIcon = step.icon;
+                return (
+                  <div key={step.id} className="flex flex-col items-center">
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 transition-all ${
+                      isStepCompleted(step.id) 
+                        ? 'bg-green-500 text-white' 
+                        : currentStep === step.id 
+                          ? 'bg-white text-purple-600 ring-4 ring-purple-300' 
+                          : 'bg-white/20 text-white'
+                    }`}>
+                      {isStepCompleted(step.id) ? (
+                        <CheckCircle className="h-6 w-6" />
+                      ) : (
+                        <StepIcon className="h-6 w-6" />
+                      )}
+                    </div>
+                    <span className={`text-sm text-center ${
+                      currentStep === step.id ? 'text-white font-medium' : 'text-purple-100'
+                    }`}>
+                      {step.title}
+                    </span>
                   </div>
-                  <span className={`text-sm text-center ${
-                    currentStep === step.id ? 'text-white font-medium' : 'text-purple-100'
-                  }`}>
-                    {step.title}
-                  </span>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>
@@ -86,10 +93,10 @@ const OnboardingFlow = () => {
         <Card className="bg-white/95 backdrop-blur-sm border-white/20 shadow-2xl">
           <CardHeader>
             <CardTitle className="flex items-center gap-3 text-2xl">
-              <steps[currentStep - 1].icon className="h-8 w-8 text-purple-600" />
-              {steps[currentStep - 1].title}
+              <CurrentStepIcon className="h-8 w-8 text-purple-600" />
+              {currentStepData.title}
             </CardTitle>
-            <p className="text-gray-600">{steps[currentStep - 1].description}</p>
+            <p className="text-gray-600">{currentStepData.description}</p>
           </CardHeader>
           
           <CardContent className="p-6">
