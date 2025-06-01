@@ -32,6 +32,7 @@ export default function App() {
           <Toaster />
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/onboarding" element={<OnboardingPage />} />
             <Route path="/sign-in" element={<SignIn />} />
             <Route path="/sign-up" element={<SignUp />} />
             <Route path="/pricing" element={<PricingPlans />} />
