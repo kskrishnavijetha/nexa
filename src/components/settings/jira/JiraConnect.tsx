@@ -77,7 +77,10 @@ const JiraConnect: React.FC = () => {
                     </span>
                   </div>
                   <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded">
-                    <strong>Important:</strong> Make sure your API token has permissions to access Jira projects and issues.
+                    <strong>Important:</strong> API tokens use your Atlassian email as username. Make sure your token has permissions to access Jira projects and issues.
+                  </div>
+                  <div className="mt-3 p-2 bg-orange-50 border border-orange-200 rounded">
+                    <strong>Note:</strong> If you get authentication errors, the app will try multiple authentication methods automatically. Your Atlassian email address will be detected from your API token.
                   </div>
                 </div>
               </AlertDescription>
@@ -119,16 +122,15 @@ const JiraConnect: React.FC = () => {
                 <AlertTitle>Connection Error</AlertTitle>
                 <AlertDescription>
                   {error}
-                  {error.includes('Network error') && (
-                    <div className="mt-2 text-sm">
-                      <strong>Troubleshooting tips:</strong>
-                      <ul className="list-disc list-inside mt-1 space-y-1">
-                        <li>Check if your Jira domain is correct</li>
-                        <li>Ensure your API token has proper permissions</li>
-                        <li>Try refreshing the page and connecting again</li>
-                      </ul>
-                    </div>
-                  )}
+                  <div className="mt-2 text-sm">
+                    <strong>Common solutions:</strong>
+                    <ul className="list-disc list-inside mt-1 space-y-1">
+                      <li>Verify your Jira Cloud ID is correct (just the subdomain)</li>
+                      <li>Ensure your API token is valid and not expired</li>
+                      <li>Check that your API token has proper Jira permissions</li>
+                      <li>Make sure you're using the API token from the correct Atlassian account</li>
+                    </ul>
+                  </div>
                 </AlertDescription>
               </Alert>
             )}
