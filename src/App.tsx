@@ -21,6 +21,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import { Toaster } from '@/components/ui/toaster';
 import Settings from './pages/Settings';
 import Jira from './pages/Jira';
+import JiraLogin from './pages/JiraLogin';
 import StandUpGeniePage from './pages/StandUpGenie';
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ export default function App() {
             <Route path="/sign-up" element={<SignUp />} />
             <Route path="/pricing" element={<PricingPlans />} />
             <Route path="/payment" element={<Payment />} />
+            <Route path="/jira-login" element={<JiraLogin />} />
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/document-analysis" element={<DocumentAnalysis />} />
