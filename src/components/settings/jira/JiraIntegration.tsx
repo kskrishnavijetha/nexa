@@ -11,9 +11,9 @@ import JiraReports from './JiraReports';
 import { useJiraAuth } from '@/hooks/useJiraAuth';
 
 const JiraIntegration = () => {
-  const { isAuthenticated, isLoading, cloudId } = useJiraAuth();
+  const { isAuthenticated, isLoading, cloudId, isDemoMode } = useJiraAuth();
 
-  console.log("JiraIntegration rendering with:", { isAuthenticated, isLoading, cloudId });
+  console.log("JiraIntegration rendering with:", { isAuthenticated, isLoading, cloudId, isDemoMode });
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -34,7 +34,7 @@ const JiraIntegration = () => {
   }
 
   // If we get here, we should be authenticated
-  console.log("Authenticated with cloudId:", cloudId);
+  console.log("Authenticated with cloudId:", cloudId, "Demo mode:", isDemoMode);
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -44,8 +44,8 @@ const JiraIntegration = () => {
             <p className="text-muted-foreground">
               Connected to workspace:
             </p>
-            <Badge variant="outline" className="bg-green-50 text-green-700 hover:bg-green-100 hover:text-green-800">
-              {cloudId || 'Unknown'}
+            <Badge variant="outline" className={`${isDemoMode ? 'bg-blue-50 text-blue-700 hover:bg-blue-100' : 'bg-green-50 text-green-700 hover:bg-green-100'} hover:text-green-800`}>
+              {cloudId || 'Unknown'} {isDemoMode && '(Demo)'}
             </Badge>
           </div>
         </div>
