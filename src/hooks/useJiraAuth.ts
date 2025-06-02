@@ -9,7 +9,6 @@ interface JiraAuthState {
   token: string | null;
   cloudId: string | null;
   error: string | null;
-  isDemoMode: boolean;
 }
 
 export const useJiraAuth = () => {
@@ -19,7 +18,6 @@ export const useJiraAuth = () => {
     token: null,
     cloudId: null,
     error: null,
-    isDemoMode: false,
   });
 
   // Check if the user is authenticated with Jira
@@ -31,7 +29,6 @@ export const useJiraAuth = () => {
         console.log("Checking Jira auth status");
         const token = localStorage.getItem('jira_token');
         const cloudId = localStorage.getItem('jira_cloud_id');
-        const isDemoMode = localStorage.getItem('jira_demo_mode') === 'true';
         
         if (!token || !cloudId) {
           console.log("No Jira credentials found in localStorage");
@@ -41,21 +38,6 @@ export const useJiraAuth = () => {
             token: null,
             cloudId: null,
             error: null,
-            isDemoMode: false,
-          });
-          return;
-        }
-
-        // If in demo mode, skip validation
-        if (isDemoMode) {
-          console.log("Demo mode detected, skipping validation");
-          setState({
-            isAuthenticated: true,
-            isLoading: false,
-            token,
-            cloudId,
-            error: null,
-            isDemoMode: true,
           });
           return;
         }
@@ -71,7 +53,6 @@ export const useJiraAuth = () => {
             token,
             cloudId,
             error: null,
-            isDemoMode: false,
           });
         } else {
           // Token is invalid, clear it
@@ -86,7 +67,6 @@ export const useJiraAuth = () => {
           token: null,
           cloudId: null,
           error: 'Failed to validate authentication',
-          isDemoMode: false,
         });
       }
     };
@@ -116,7 +96,6 @@ export const useJiraAuth = () => {
           token,
           cloudId,
           error: null,
-          isDemoMode: false,
         });
         
         return true;
@@ -127,7 +106,6 @@ export const useJiraAuth = () => {
           token: null,
           cloudId: null,
           error: error || 'Authentication failed. Please check your credentials.',
-          isDemoMode: false,
         });
         
         toast.error(error || 'Failed to connect to Jira. Please check your credentials.');
@@ -142,7 +120,6 @@ export const useJiraAuth = () => {
         token: null,
         cloudId: null,
         error: errorMessage,
-        isDemoMode: false,
       });
       
       toast.error(errorMessage);
@@ -155,7 +132,6 @@ export const useJiraAuth = () => {
     localStorage.removeItem('jira_token');
     localStorage.removeItem('jira_cloud_id');
     localStorage.removeItem('jira_connected_date');
-    localStorage.removeItem('jira_demo_mode');
     localStorage.removeItem('jira_auto_sync');
     localStorage.removeItem('jira_scan_frequency');
     localStorage.removeItem('jira_compliance_keywords');
@@ -168,7 +144,6 @@ export const useJiraAuth = () => {
       token: null,
       cloudId: null,
       error: null,
-      isDemoMode: false,
     });
     
     toast.success('Successfully disconnected from Jira');
