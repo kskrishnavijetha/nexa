@@ -14,7 +14,7 @@ interface JiraAuthState {
 export const useJiraAuth = () => {
   const [state, setState] = useState<JiraAuthState>({
     isAuthenticated: false,
-    isLoading: false,
+    isLoading: false, // Change initial loading state to false
     token: null,
     cloudId: null,
     error: null,

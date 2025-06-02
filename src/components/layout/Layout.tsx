@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Footer from './Footer';
 import { useAuth } from '@/contexts/AuthContext';
 import { SidebarProvider, Sidebar, SidebarContent, SidebarHeader, SidebarGroup, SidebarGroupLabel, SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { BarChart, FileText, History, Settings, ClipboardList, MessageSquare, Palette, ShieldCheck, Bug, Users } from 'lucide-react';
+import { BarChart, FileText, History, Settings, ClipboardList, MessageSquare, Palette, ShieldCheck, Bug } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 interface LayoutProps {
@@ -36,20 +35,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </div>
             </SidebarHeader>
             <SidebarContent>
-              <SidebarGroup>
-                <SidebarGroupLabel>StandUp Tools</SidebarGroupLabel>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={location.pathname === '/standup-genie'}>
-                      <Link to="/standup-genie" draggable="false">
-                        <Users className="h-4 w-4 mr-2" />
-                        StandUpGenie
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroup>
-              
               <SidebarGroup>
                 <SidebarGroupLabel>Navigation</SidebarGroupLabel>
                 <SidebarMenu>

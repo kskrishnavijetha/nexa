@@ -102,10 +102,10 @@ const JiraConnect: React.FC = () => {
         
         <CardFooter>
           <Button 
+            form="jira-connect-form"
             disabled={isLoading || !cloudId || !apiToken} 
             className="w-full"
-            onClick={handleConnect}
-            type="button"
+            type="submit"
           >
             {isLoading ? (
               <>
