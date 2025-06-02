@@ -21,6 +21,7 @@ import IndustryBenchmarkingPage from '@/pages/IndustryBenchmarkingPage';
 import IvorynthAI from './pages/IvorynthAI';
 import IvoryCoreDataPage from '@/pages/IvoryCoreDataPage';
 import Index from '@/pages/Index';
+import StandUpGenie from '@/pages/StandUpGenie';
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,16 @@ function App() {
                   <ProtectedRoute>
                     <DashboardLayout>
                       <DashboardOverview />
+                    </DashboardLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/standup-genie"
+                element={
+                  <ProtectedRoute>
+                    <DashboardLayout>
+                      <StandUpGenie />
                     </DashboardLayout>
                   </ProtectedRoute>
                 }
