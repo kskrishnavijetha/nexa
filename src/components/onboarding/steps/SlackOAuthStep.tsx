@@ -1,97 +1,102 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ExternalLink, Loader, MessageSquare } from 'lucide-react';
+import { ExternalLink, Loader, CheckCircle, Slack } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface SlackOAuthStepProps {
-  onComplete: (data: { slackConnected: boolean; slackTeamId: string }) => void;
+  onComplete: (data: { slackConnected: boolean }) => void;
 }
 
 const SlackOAuthStep = ({ onComplete }: SlackOAuthStepProps) => {
   const [isConnecting, setIsConnecting] = useState(false);
-  const [error, setError] = useState('');
+  const [isConnected, setIsConnected] = useState(false);
 
-  const handleSlackOAuth = async () => {
+  const handleSlackConnect = async () => {
     setIsConnecting(true);
-    setError('');
     
     try {
-      // In a real implementation, this would redirect to Slack OAuth
-      // For now, we'll simulate the connection
+      // Simulate OAuth flow
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Simulate successful connection
-      const mockTeamId = 'T1234567890';
+      // Store mock Slack connection
       localStorage.setItem('slack_connected', 'true');
-      localStorage.setItem('slack_team_id', mockTeamId);
+      localStorage.setItem('slack_workspace', 'Demo Workspace');
       
-      toast.success('Successfully connected to Slack workspace!');
-      onComplete({ slackConnected: true, slackTeamId: mockTeamId });
-    } catch (err) {
-      setError('Failed to connect to Slack. Please try again.');
+      setIsConnected(true);
+      toast.success('Slack workspace connected successfully!');
+      
+      setTimeout(() => {
+        onComplete({ slackConnected: true });
+      }, 1000);
+    } catch (error) {
+      console.error('Slack connection error:', error);
       toast.error('Failed to connect to Slack');
     } finally {
       setIsConnecting(false);
     }
   };
 
+  if (isConnected) {
+    return (
+      <div className="text-center py-8">
+        <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
+        <h3 className="text-xl font-semibold text-gray-800 mb-2">Slack Connected!</h3>
+        <p className="text-gray-600 mb-6">Your Slack workspace is successfully connected.</p>
+        <Button 
+          onClick={() => onComplete({ slackConnected: true })}
+          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+        >
+          Continue to Team Setup
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <Alert className="bg-green-50 border-green-200">
-        <MessageSquare className="h-4 w-4" />
-        <AlertDescription className="text-sm">
-          <div className="space-y-3">
+      <Alert className="bg-blue-50 border-blue-200">
+        <Slack className="h-4 w-4" />
+        <AlertDescription>
+          <div className="space-y-2">
             <div>
               <strong>Connect your Slack workspace to:</strong>
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>Automatically post stand-up summaries</li>
-                <li>Receive notifications and reminders</li>
+              <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
+                <li>Automatically post daily stand-ups</li>
+                <li>Send notifications to team channels</li>
                 <li>Enable team collaboration features</li>
               </ul>
-            </div>
-            <div className="mt-3 p-2 bg-blue-50 border border-blue-200 rounded">
-              <strong>Note:</strong> You'll need admin permissions in your Slack workspace to complete this setup.
             </div>
           </div>
         </AlertDescription>
       </Alert>
       
-      <div className="text-center py-8">
-        <MessageSquare className="h-16 w-16 text-green-500 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold mb-2">Connect to Slack</h3>
-        <p className="text-gray-600 mb-6">
-          Authorize StandUp Genie to access your Slack workspace for automated stand-up posting.
-        </p>
-        
-        {error && (
-          <Alert variant="destructive" className="mb-4">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-        
+      <div className="text-center">
         <Button 
-          onClick={handleSlackOAuth}
+          onClick={handleSlackConnect}
           disabled={isConnecting}
-          className="bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700"
           size="lg"
+          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
         >
           {isConnecting ? (
             <>
-              <Loader className="h-4 w-4 mr-2 animate-spin" />
+              <Loader className="h-5 w-5 mr-2 animate-spin" />
               Connecting to Slack...
             </>
           ) : (
             <>
-              <MessageSquare className="h-4 w-4 mr-2" />
+              <Slack className="h-5 w-5 mr-2" />
               Connect Slack Workspace
             </>
           )}
         </Button>
-        
-        <p className="text-xs text-gray-500 mt-4">
-          By connecting, you agree to allow StandUp Genie to post messages and access user information in your Slack workspace.
+      </div>
+      
+      <div className="text-center">
+        <p className="text-sm text-gray-500">
+          You'll be redirected to Slack to authorize the connection
         </p>
       </div>
     </div>
