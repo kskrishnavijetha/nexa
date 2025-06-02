@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import ChartsSection from './ChartsSection';
 import BottomSection from './BottomSection';
@@ -5,6 +6,7 @@ import StatisticsCards from './StatisticsCards';
 import { useAuth } from '@/contexts/AuthContext';
 import { loadDashboardData, DashboardData } from '@/services/dashboardService';
 import IvorynthAICard from './IvorynthAICard';
+import StandUpGenieCard from './StandUpGenieCard';
 
 const DashboardOverview: React.FC = () => {
   const { user } = useAuth();
@@ -42,10 +44,13 @@ const DashboardOverview: React.FC = () => {
         <h1 className="text-2xl font-bold">Welcome to the Dashboard</h1>
       </div>
       <StatisticsCards dashboardData={dashboardData} hasData={hasData} />
+      
       {/* Action Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <StandUpGenieCard />
         <IvorynthAICard />
       </div>
+      
       <ChartsSection />
       <div id="dashboard-bottom-section">
         <BottomSection />
