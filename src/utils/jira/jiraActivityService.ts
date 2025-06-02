@@ -1,5 +1,5 @@
 
-// New service for fetching daily Jira activity for StandUpGenie
+// Service for fetching daily Jira activity for StandUpGenie
 import { jiraAuthService } from './jiraAuthService';
 
 interface JiraIssueActivity {
@@ -49,6 +49,7 @@ const getDailyActivity = async (token: string, userEmail?: string): Promise<Jira
     const yesterdayStr = yesterday.toISOString().split('T')[0];
     
     console.log('Fetching Jira activity for date:', yesterdayStr);
+    console.log('Using base URL:', baseUrl);
     
     // Build JQL query for issues updated in the last 24 hours
     let jql = `updated >= "${yesterdayStr}"`;
@@ -57,6 +58,8 @@ const getDailyActivity = async (token: string, userEmail?: string): Promise<Jira
     }
     jql += ' ORDER BY updated DESC';
     
+    console.log('JQL Query:', jql);
+    
     // Fetch issues with their changes
     const issuesResponse = await fetch(`${baseUrl}/search?jql=${encodeURIComponent(jql)}&expand=changelog&maxResults=50`, {
       headers,
@@ -64,6 +67,7 @@ const getDailyActivity = async (token: string, userEmail?: string): Promise<Jira
     });
     
     if (!issuesResponse.ok) {
+      console.error('Failed to fetch issues:', issuesResponse.status, await issuesResponse.text());
       throw new Error(`Failed to fetch issues: ${issuesResponse.status}`);
     }
     
@@ -88,25 +92,29 @@ const getDailyActivity = async (token: string, userEmail?: string): Promise<Jira
       ) || []
     }));
     
-    // Get current sprint information (simplified - would need project key for real implementation)
+    // Try to get current sprint information
     let sprintInfo: JiraSprintInfo | null = null;
     try {
-      // This is a simplified sprint fetch - in real implementation, you'd need to know the board ID
+      // First try to get boards
       const boardsResponse = await fetch(`${baseUrl}/agile/1.0/board?maxResults=1`, { 
         headers,
         mode: 'cors'
       });
+      
       if (boardsResponse.ok) {
         const boardsData = await boardsResponse.json();
-        if (boardsData.values.length > 0) {
+        if (boardsData.values && boardsData.values.length > 0) {
           const boardId = boardsData.values[0].id;
+          
+          // Then try to get active sprint
           const sprintResponse = await fetch(`${baseUrl}/agile/1.0/board/${boardId}/sprint?state=active`, { 
             headers,
             mode: 'cors'
           });
+          
           if (sprintResponse.ok) {
             const sprintData = await sprintResponse.json();
-            if (sprintData.values.length > 0) {
+            if (sprintData.values && sprintData.values.length > 0) {
               const sprint = sprintData.values[0];
               sprintInfo = {
                 id: sprint.id,
@@ -128,14 +136,17 @@ const getDailyActivity = async (token: string, userEmail?: string): Promise<Jira
     const completedIssues = issueUpdates
       .filter(issue => issue.changes.some(change => 
         change.field === 'status' && 
-        (change.toString?.toLowerCase().includes('done') || change.toString?.toLowerCase().includes('completed'))
+        (change.toString?.toLowerCase().includes('done') || 
+         change.toString?.toLowerCase().includes('completed') ||
+         change.toString?.toLowerCase().includes('resolved'))
       ))
       .map(issue => issue.key);
     
     const inProgressIssues = issueUpdates
       .filter(issue => issue.changes.some(change => 
         change.field === 'status' && 
-        change.toString?.toLowerCase().includes('progress')
+        (change.toString?.toLowerCase().includes('progress') ||
+         change.toString?.toLowerCase().includes('review'))
       ))
       .map(issue => issue.key);
     
