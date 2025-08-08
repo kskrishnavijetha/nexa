@@ -13,13 +13,13 @@ export function useAuthState() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log('Auth provider initializing...');
+    console.log('useAuthState - Auth provider initializing...');
     
     // If we've been loading for more than 5 seconds, reset the loading state
     if (loading) {
       const timeoutId = setTimeout(() => {
         if (loading) {
-          console.log('Auth loading timeout reached, resetting loading state');
+          console.log('useAuthState - Auth loading timeout reached, resetting loading state');
           setLoading(false);
         }
       }, 5000);
@@ -30,10 +30,12 @@ export function useAuthState() {
 
   // Separate useEffect for auth state to avoid dependency issues
   useEffect(() => {
+    console.log('useAuthState - Setting up auth state listener...');
+    
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, newSession) => {
-        console.log('Auth state changed:', event);
+        console.log('useAuthState - Auth state changed:', event, { hasSession: !!newSession, userId: newSession?.user?.id });
         
         if (event === 'SIGNED_IN') {
           // Update session and user immediately
@@ -41,6 +43,7 @@ export function useAuthState() {
           setUser(newSession?.user ?? null);
           setLoading(false);
           
+          console.log('useAuthState - User signed in successfully');
           toast.success('Signed in successfully!');
           
         } else if (event === 'SIGNED_OUT') {
@@ -52,76 +55,107 @@ export function useAuthState() {
           // Clear any user-specific data from localStorage on sign out
           clearUserData();
           
-          console.log('User signed out, state cleared');
+          console.log('useAuthState - User signed out, state cleared');
           toast.success('Signed out successfully');
         } else if (event === 'TOKEN_REFRESHED') {
           // Update session with refreshed token
           setSession(newSession);
           setLoading(false);
+          console.log('useAuthState - Token refreshed');
         } else {
           // For all other events, update session and user state
           setSession(newSession);
           setUser(newSession?.user ?? null);
           setLoading(false);
+          console.log('useAuthState - Auth state updated for event:', event);
         }
       }
     );
 
     // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
-      console.log('Initial session check:', initialSession ? 'User is logged in' : 'No session found');
+    console.log('useAuthState - Checking for existing session...');
+    supabase.auth.getSession().then(({ data: { session: initialSession }, error }) => {
+      console.log('useAuthState - Initial session check:', { 
+        hasSession: !!initialSession, 
+        userId: initialSession?.user?.id, 
+        error 
+      });
+      
+      if (error) {
+        console.error('useAuthState - Error getting initial session:', error);
+      }
+      
       setSession(initialSession);
       setUser(initialSession?.user ?? null);
       setLoading(false);
     });
 
     return () => {
+      console.log('useAuthState - Cleaning up auth subscription');
       subscription.unsubscribe();
     };
   }, [navigate]);
 
   const signUp = async (email: string, password: string) => {
+    console.log('useAuthState - Starting sign up for:', email);
     const redirectUrl = `${window.location.origin}/`;
     
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl
+    try {
+      const { error, data } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl
+        }
+      });
+
+      console.log('useAuthState - Sign up result:', { error, hasUser: !!data?.user });
+
+      if (!error) {
+        toast.success('Verification email sent! Please check your inbox.');
       }
-    });
 
-    if (!error) {
-      toast.success('Verification email sent! Please check your inbox.');
+      return { error };
+    } catch (err) {
+      console.error('useAuthState - Exception during sign up:', err);
+      return { error: err };
     }
-
-    return { error };
   };
 
   const signIn = async (email: string, password: string) => {
+    console.log('useAuthState - Starting sign in for:', email);
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
+      console.log('useAuthState - Sign in result:', { 
+        error, 
+        hasUser: !!data?.user, 
+        hasSession: !!data?.session 
+      });
+
       if (error) {
+        console.error('useAuthState - Sign in error:', error);
         // Make sure to stop loading on error
         setLoading(false);
+      } else {
+        console.log('useAuthState - Sign in successful, user:', data?.user?.email);
       }
 
       return { error };
     } catch (err) {
       setLoading(false);
-      console.error('Error during sign in:', err);
+      console.error('useAuthState - Exception during sign in:', err);
       return { error: err };
     }
   };
 
   const signOut = useCallback(async () => {
-    console.log('Signing out...');
+    console.log('useAuthState - Signing out...');
     setLoading(true);
     
     try {
@@ -134,7 +168,7 @@ export function useAuthState() {
       });
       
       if (error) {
-        console.error('Error from Supabase during sign out:', error);
+        console.error('useAuthState - Error from Supabase during sign out:', error);
         toast.error('Failed to sign out. Please try again.');
         setLoading(false);
         return { error };
@@ -144,7 +178,7 @@ export function useAuthState() {
       setSession(null);
       setUser(null);
       
-      console.log('Signout completed successfully');
+      console.log('useAuthState - Signout completed successfully');
       toast.success('Signed out successfully');
       setLoading(false);
       
@@ -154,7 +188,7 @@ export function useAuthState() {
       return { error: null };
       
     } catch (error) {
-      console.error('Exception during sign out:', error);
+      console.error('useAuthState - Exception during sign out:', error);
       toast.error('Failed to sign out. Please try again.');
       setLoading(false);
       

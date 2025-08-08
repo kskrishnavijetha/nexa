@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -23,12 +24,15 @@ export default function SignIn() {
   const navigate = useNavigate();
   const location = useLocation();
   
+  console.log('SignIn component - Current user:', user);
+  
   // Always redirect to pricing page after login
   const redirectAfterLogin = location.state?.redirectAfterLogin;
   
   // Redirect authenticated users
   useEffect(() => {
     if (user) {
+      console.log('User is authenticated, redirecting...', { user, redirectAfterLogin });
       // Special handling for lifetime payment redirect
       if (redirectAfterLogin === 'lifetime-payment') {
         window.location.href = 'https://www.paypal.com/ncp/payment/YF2GNLBJ2YCEE';
@@ -48,15 +52,20 @@ export default function SignIn() {
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    console.log('SignIn - Starting sign in process with:', { email: values.email });
     setLoading(true);
     
     try {
+      console.log('SignIn - Calling signIn function...');
       const { error } = await signIn(values.email, values.password);
+      
+      console.log('SignIn - Sign in result:', { error });
       
       if (error) {
         console.error("Error signing in:", error);
-        toast.error("Failed to sign in. Please check your credentials.");
+        toast.error(`Failed to sign in: ${error.message || 'Please check your credentials.'}`);
       } else {
+        console.log('SignIn - Sign in successful!');
         toast.success("Signed in successfully!");
         // Redirect will happen in useEffect
       }
