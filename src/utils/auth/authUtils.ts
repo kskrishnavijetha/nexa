@@ -1,30 +1,14 @@
 
-/**
- * Authentication utility functions
- */
-
-// Helper function to clear user data from localStorage
 export const clearUserData = () => {
+  // Clear any user-specific data from localStorage
   console.log('Clearing user data from localStorage');
   
-  // Clear auth tokens
-  localStorage.removeItem('sb-sbsnnlhjhlifoqrvoixb-auth-token');
+  // Clear any keys that might store user-specific data
+  const keysToRemove = ['subscription', 'user_preferences', 'audit_data'];
   
-  // Don't clear subscription data as we want to keep it across sessions
-  // Just clear other user-specific non-subscription data
-  
-  // Clear redirect paths
-  sessionStorage.removeItem('redirectAfterLogin');
-  sessionStorage.removeItem('redirectAfterSuccessfulPayment');
-  
-  // Clear any other user-specific data with the compliZen_ prefix
-  const keys = Object.keys(localStorage);
-  const userDataKeys = keys.filter(key => 
-    key.startsWith('compliZen_') && 
-    !key.includes('subscription_') // Don't clear subscription data
-  );
-  
-  userDataKeys.forEach(key => {
+  keysToRemove.forEach(key => {
     localStorage.removeItem(key);
   });
+  
+  // You can add more specific cleanup logic here if needed
 };
