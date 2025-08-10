@@ -22,8 +22,8 @@ import Jira from './pages/Jira';
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
+    <AuthProvider>
+      <BrowserRouter>
         <Toaster />
         <Routes>
           <Route path="/" element={<Index />} />
@@ -45,7 +45,7 @@ export default function App() {
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
