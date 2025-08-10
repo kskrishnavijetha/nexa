@@ -21,6 +21,7 @@ const PricingPlans: React.FC = () => {
   const [subscription, setSubscription] = useState<any>(null);
   const [needsUpgrade, setNeedsUpgrade] = useState(false);
   const [checkingSubscription, setCheckingSubscription] = useState(true);
+  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
 
   useEffect(() => {
     setCheckingSubscription(true);
@@ -106,6 +107,10 @@ const PricingPlans: React.FC = () => {
     const features: string[] = [];
     const tierFeatures = tierData.features;
     
+    // Add scan limit info first
+    const scanText = tierData.scans === 999 ? 'Unlimited document scans' : `${tierData.scans} document scans per month`;
+    features.push(scanText);
+    
     if (tierFeatures.aiRiskAnalysis) features.push('AI Risk Analysis');
     if (tierFeatures.extendedAuditReports) features.push('Extended Audit Reports');
     if (tierFeatures.predictiveAnalytics) features.push('Predictive Analytics');
@@ -123,11 +128,13 @@ const PricingPlans: React.FC = () => {
     if (tierFeatures.customBranding) features.push('Custom Branding');
     if (tierFeatures.prioritySupport) features.push('Priority Support & SLA');
     
-    // Add scan limit info
-    const scanText = tierData.scans === 999 ? 'Unlimited document scans' : `${tierData.scans} document scans per month`;
-    features.unshift(scanText);
-    
     return features;
+  };
+
+  const getPriceString = (tier: string): string => {
+    if (tier === 'free') return 'Free';
+    const price = getPrice(tier, billingCycle);
+    return `$${price}/${billingCycle === 'monthly' ? 'month' : 'year'}`;
   };
 
   // Show free plan for all users, but handle activation differently
@@ -181,7 +188,7 @@ const PricingPlans: React.FC = () => {
             <PricingCard
               title="Free"
               description="Perfect for getting started"
-              price="Free"
+              price={getPriceString('free')}
               features={getFeatureList('free')}
               isRecommended={false}
               onSelectPlan={() => handlePlanSelect('free')}
@@ -195,7 +202,7 @@ const PricingPlans: React.FC = () => {
           <PricingCard
             title="Starter"
             description="Ideal for small teams"
-            price={`$${getPrice('starter', 'monthly')}/month`}
+            price={getPriceString('starter')}
             features={getFeatureList('starter')}
             isRecommended={false}
             onSelectPlan={() => handlePlanSelect('starter')}
@@ -208,7 +215,7 @@ const PricingPlans: React.FC = () => {
           <PricingCard
             title="Pro"
             description="Best for growing businesses"
-            price={`$${getPrice('pro', 'monthly')}/month`}
+            price={getPriceString('pro')}
             features={getFeatureList('pro')}
             isRecommended={true}
             onSelectPlan={() => handlePlanSelect('pro')}
@@ -221,12 +228,12 @@ const PricingPlans: React.FC = () => {
           <PricingCard
             title="Enterprise"
             description="For large organizations"
-            price={`$${getPrice('enterprise', 'monthly')}/month`}
+            price={getPriceString('enterprise')}
             features={getFeatureList('enterprise')}
             isRecommended={false}
             onSelectPlan={() => handlePlanSelect('enterprise')}
             buttonText={getButtonText('enterprise')}
-            buttonVariant={subscription?.plan === 'enterprise' ? 'outline' : 'default'}
+            buttonVariant={subscription?.plan === 'enterprise' ? 'outline' : 'daily'}
             disabled={false}
           />
         </div>
