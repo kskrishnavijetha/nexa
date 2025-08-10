@@ -8,7 +8,7 @@ import {
   shouldUpgrade,
   isFreePlanCompleted 
 } from '@/utils/paymentService';
-import { freeFeatures, starterFeatures, proFeatures, enterpriseFeatures, pricing, formatPrice } from '@/components/pricing/PricingData';
+import { pricingTiers, getPrice } from '@/utils/pricingData';
 import PricingCard from '@/components/pricing/PricingCard';
 import BillingToggle from '@/components/pricing/BillingToggle';
 import Layout from '@/components/layout/Layout';
@@ -83,7 +83,7 @@ const PricingPlans: React.FC = () => {
     if (tier === 'free') {
       if (!user) return 'Sign Up Free';
       if (subscription && subscription.plan === 'free') return 'Current Plan';
-      if (isFreePlanCompleted(user.id)) return 'Plan Completed';
+      if (isFreePlanCompleted(user?.id)) return 'Plan Completed';
       return 'Activate Free Plan';
     }
     return 'Subscribe';
@@ -96,6 +96,38 @@ const PricingPlans: React.FC = () => {
       console.log(`Selected ${tier} plan`);
       // Handle paid plan selection
     }
+  };
+
+  // Convert feature objects to feature arrays for display
+  const getFeatureList = (tier: string): string[] => {
+    const tierData = pricingTiers[tier as keyof typeof pricingTiers];
+    if (!tierData) return [];
+    
+    const features: string[] = [];
+    const tierFeatures = tierData.features;
+    
+    if (tierFeatures.aiRiskAnalysis) features.push('AI Risk Analysis');
+    if (tierFeatures.extendedAuditReports) features.push('Extended Audit Reports');
+    if (tierFeatures.predictiveAnalytics) features.push('Predictive Analytics');
+    if (tierFeatures.smartAuditTrail) {
+      if (typeof tierFeatures.smartAuditTrail === 'string') {
+        features.push(`${tierFeatures.smartAuditTrail} Smart Audit Trail`);
+      } else {
+        features.push('Smart Audit Trail');
+      }
+    }
+    if (tierFeatures.hashVerification) features.push('Hash Verification');
+    if (tierFeatures.exportToPdf) features.push('Export to PDF');
+    if (tierFeatures.frameworkCoverage) features.push(`Framework Coverage: ${tierFeatures.frameworkCoverage}`);
+    if (tierFeatures.slackAlerts) features.push('Slack Alerts & Logs');
+    if (tierFeatures.customBranding) features.push('Custom Branding');
+    if (tierFeatures.prioritySupport) features.push('Priority Support & SLA');
+    
+    // Add scan limit info
+    const scanText = tierData.scans === 999 ? 'Unlimited document scans' : `${tierData.scans} document scans per month`;
+    features.unshift(scanText);
+    
+    return features;
   };
 
   // Show free plan for all users, but handle activation differently
@@ -149,8 +181,8 @@ const PricingPlans: React.FC = () => {
             <PricingCard
               title="Free"
               description="Perfect for getting started"
-              price={formatPrice(pricing.free.monthly, 'monthly')}
-              features={freeFeatures}
+              price="Free"
+              features={getFeatureList('free')}
               isRecommended={false}
               onSelectPlan={() => handlePlanSelect('free')}
               buttonText={getButtonText('free')}
@@ -163,8 +195,8 @@ const PricingPlans: React.FC = () => {
           <PricingCard
             title="Starter"
             description="Ideal for small teams"
-            price={formatPrice(pricing.starter.monthly, 'monthly')}
-            features={starterFeatures}
+            price={`$${getPrice('starter', 'monthly')}/month`}
+            features={getFeatureList('starter')}
             isRecommended={false}
             onSelectPlan={() => handlePlanSelect('starter')}
             buttonText={getButtonText('starter')}
@@ -176,8 +208,8 @@ const PricingPlans: React.FC = () => {
           <PricingCard
             title="Pro"
             description="Best for growing businesses"
-            price={formatPrice(pricing.pro.monthly, 'monthly')}
-            features={proFeatures}
+            price={`$${getPrice('pro', 'monthly')}/month`}
+            features={getFeatureList('pro')}
             isRecommended={true}
             onSelectPlan={() => handlePlanSelect('pro')}
             buttonText={getButtonText('pro')}
@@ -189,8 +221,8 @@ const PricingPlans: React.FC = () => {
           <PricingCard
             title="Enterprise"
             description="For large organizations"
-            price={formatPrice(pricing.enterprise.monthly, 'monthly')}
-            features={enterpriseFeatures}
+            price={`$${getPrice('enterprise', 'monthly')}/month`}
+            features={getFeatureList('enterprise')}
             isRecommended={false}
             onSelectPlan={() => handlePlanSelect('enterprise')}
             buttonText={getButtonText('enterprise')}
