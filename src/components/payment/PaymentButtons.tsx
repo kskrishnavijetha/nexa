@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { shouldUpgrade, saveSubscription } from '@/utils/paymentService';
+import { shouldUpgrade, saveSubscription, isFreePlanCompleted } from '@/utils/paymentService';
 import { useAuth } from '@/contexts/AuthContext';
 import FreeButton from './buttons/FreeButton';
 import PaidTierHandler from './buttons/PaidTierHandler';
@@ -26,6 +27,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   currentPlan
 }) => {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const needsUpgrade = tier !== 'free' || (user && shouldUpgrade(user.id));
   const isChangingPlan = changePlan && tier !== currentPlan;
@@ -42,6 +44,14 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
     
     try {
       console.log('PaymentButtons - Activating free plan for user:', user?.id);
+      
+      // Check if user has already completed free plan
+      if (user && isFreePlanCompleted(user.id)) {
+        console.log('PaymentButtons - Free plan already completed, redirecting to paid plans');
+        toast.info('Your free plan has been completed. Please choose a paid plan to continue.');
+        navigate('/pricing');
+        return;
+      }
       
       // Generate a subscription ID for the free plan
       const subscriptionId = 'free_' + Math.random().toString(36).substring(2, 15);

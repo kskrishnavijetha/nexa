@@ -203,6 +203,21 @@ export const shouldUpgradeTier = (userId?: string): boolean => {
   return needsUpgradeTier;
 };
 
+// Check if free plan is completed (expired or scans exhausted)
+export const isFreePlanCompleted = (userId?: string): boolean => {
+  const subscription = getSubscription(userId);
+  
+  if (!subscription || subscription.plan !== 'free') {
+    return false;
+  }
+  
+  // Check if free plan is expired or scans are exhausted
+  const isExpired = subscription.expirationDate < new Date();
+  const scansExhausted = subscription.scansUsed >= subscription.scansLimit;
+  
+  return isExpired || scansExhausted;
+};
+
 // DO NOT clear user-specific subscription data when user logs out
 // This is important to maintain subscription data across sessions
 export const clearUserSubscription = (userId: string): void => {
