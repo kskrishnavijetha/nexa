@@ -10,6 +10,7 @@ import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 const SignUp: React.FC = () => {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -20,7 +21,7 @@ const SignUp: React.FC = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword) {
       toast.error('Please fill in all fields');
       return;
     }
@@ -38,21 +39,13 @@ const SignUp: React.FC = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await signUp(email, password);
+      const { error } = await signUp(email, password, name);
       
       if (error) {
         toast.error(error.message);
       } else {
-        // Show welcome toast message
-        toast.success(
-          <div className="flex flex-col gap-1">
-            <p className="font-semibold">Welcome to NexaBloom — your AI compliance copilot!</p>
-            <p className="text-sm">Ready to help you analyze, simulate, and generate audit-ready compliance reports.</p>
-          </div>,
-          {
-            duration: 6000,
-          }
-        );
+        // Show success message
+        toast.success('Account created successfully! Please check your email to verify your account.');
         
         // Send welcome email
         try {
@@ -60,7 +53,7 @@ const SignUp: React.FC = () => {
             body: {
               type: "welcome",
               email: email,
-              name: email.split('@')[0], // Simple name extraction from email
+              name: name,
             }
           });
         } catch (emailError) {
@@ -68,8 +61,8 @@ const SignUp: React.FC = () => {
           // Don't show error to user, just log it
         }
 
-        // Redirect to pricing page after successful signup
-        navigate('/pricing');
+        // Redirect to sign-in page immediately
+        navigate('/sign-in');
       }
     } catch (error: any) {
       toast.error(error.message || 'An error occurred during sign up');
@@ -90,6 +83,20 @@ const SignUp: React.FC = () => {
         
         <form onSubmit={handleSignUp} className="mt-8 space-y-6">
           <div className="space-y-4">
+            <div>
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                type="text"
+                placeholder="John Doe"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mt-1"
+                autoComplete="name"
+                required
+              />
+            </div>
+            
             <div>
               <Label htmlFor="email">Email</Label>
               <Input
