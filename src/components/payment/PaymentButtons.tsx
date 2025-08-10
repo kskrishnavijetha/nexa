@@ -33,7 +33,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   const buttonText = isChangingPlan
     ? `Change to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`
     : tier === 'free' 
-      ? (needsUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan')
+      ? 'Activate Free Plan'
       : `Subscribe to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`;
 
   const handleFreePlanActivation = async () => {
@@ -41,20 +41,20 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
     setLoading(true);
     
     try {
-      if (tier === 'free' && needsUpgrade) {
-        toast.info('Please select a paid plan to continue');
-        setLoading(false);
-        return;
-      }
+      console.log('PaymentButtons - Activating free plan for user:', user?.id);
       
-      const subscriptionId = tier + '_' + Math.random().toString(36).substring(2, 15);
+      // Generate a subscription ID for the free plan
+      const subscriptionId = 'free_' + Math.random().toString(36).substring(2, 15);
       
-      saveSubscription(tier, subscriptionId, 'monthly', user?.id);
+      // Save the subscription
+      const subscription = saveSubscription(tier, subscriptionId, 'monthly', user?.id);
+      console.log('PaymentButtons - Free subscription saved:', subscription);
       
-      toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
+      toast.success('Free plan activated successfully!');
       onSuccess(subscriptionId);
     } catch (error) {
-      toast.error(`Failed to activate ${tier} plan. Please try again.`);
+      console.error('PaymentButtons - Error activating free plan:', error);
+      toast.error('Failed to activate free plan. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -77,7 +77,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   return (
     <FreeButton
       loading={loading}
-      needsUpgrade={needsUpgrade}
+      needsUpgrade={false} // Always allow free plan activation
       onActivate={handleFreePlanActivation}
       buttonText={buttonText}
     />

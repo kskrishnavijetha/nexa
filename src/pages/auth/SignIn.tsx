@@ -26,8 +26,17 @@ export default function SignIn() {
   
   console.log('SignIn component - Current user:', user);
   
-  // Always redirect to pricing page after login
+  // Get redirect info and message from location state
   const redirectAfterLogin = location.state?.redirectAfterLogin;
+  const signupMessage = location.state?.message;
+  const prefilledEmail = location.state?.email;
+  
+  // Show signup success message if present
+  useEffect(() => {
+    if (signupMessage) {
+      toast.success(signupMessage);
+    }
+  }, [signupMessage]);
   
   // Redirect authenticated users
   useEffect(() => {
@@ -46,7 +55,7 @@ export default function SignIn() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: "",
+      email: prefilledEmail || "",
       password: "",
     },
   });
