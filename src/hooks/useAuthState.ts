@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
 import { clearUserData } from '@/utils/auth/authUtils';
 import { saveSubscription, getSubscription } from '@/utils/paymentService';
 
@@ -11,7 +10,6 @@ export function useAuthState() {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     console.log('Auth provider initializing...');
@@ -98,7 +96,7 @@ export function useAuthState() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate]);
+  }, []);
 
   const signUp = async (email: string, password: string, name?: string) => {
     const redirectUrl = `${window.location.origin}/`;
@@ -172,8 +170,7 @@ export function useAuthState() {
       toast.success('Signed out successfully');
       setLoading(false);
       
-      // Navigate to home page
-      navigate('/', { replace: true });
+      // Navigation will be handled by the component that calls signOut
       
       return { error: null };
       
@@ -189,7 +186,7 @@ export function useAuthState() {
       
       return { error };
     }
-  }, [navigate]);
+  }, []);
 
   return {
     session,
