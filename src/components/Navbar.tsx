@@ -20,7 +20,8 @@ import {
   Activity,
   User,
   LogOut,
-  Briefcase
+  Briefcase,
+  Building2
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -42,7 +43,11 @@ const Navbar = () => {
     { name: 'Analytics', href: '/analytics', icon: TrendingUp },
     { name: 'Simulation', href: '/simulation', icon: Activity },
     { name: 'Audit Trail', href: '/audit', icon: Shield },
-    { name: 'Workday', href: '/workday', icon: Briefcase },
+  ];
+
+  const integrationItems = [
+    { name: 'Jira Integration', href: '/jira', icon: Briefcase },
+    { name: 'Workday Integration', href: '/workday', icon: Building2 },
   ];
 
   const isActivePath = (path: string) => {
@@ -69,6 +74,31 @@ const Navbar = () => {
           </Link>
         );
       })}
+      
+      {/* Integration Section */}
+      <div className={`${mobile ? 'w-full' : ''} mt-4`}>
+        <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+          Integrations
+        </div>
+        {integrationItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.name}
+              to={item.href}
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActivePath(item.href)
+                  ? 'bg-blue-100 text-blue-900'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+              } ${mobile ? 'w-full' : ''}`}
+              onClick={() => mobile && setIsOpen(false)}
+            >
+              <Icon className="h-4 w-4" />
+              {item.name}
+            </Link>
+          );
+        })}
+      </div>
     </>
   );
 

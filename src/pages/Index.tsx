@@ -1,23 +1,11 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import Features from '@/components/Features';
 import Hero from '@/components/home/Hero';
-import WhyChooseSection from '@/components/home/WhyChooseSection';
-import ComplianceFeaturesSection from '@/components/home/ComplianceFeaturesSection';
-import IndustriesSection from '@/components/home/IndustriesSection';
-import ResultsSection from '@/components/home/ResultsSection';
-import FaqSection from '@/components/home/FaqSection';
-import TrustedBySection from '@/components/home/TrustedBySection';
-import UserGuide from '@/components/home/UserGuide';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { shouldUpgrade, getSubscription } from '@/utils/paymentService';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import LifetimeOfferBanner from '@/components/home/LifetimeOfferBanner';
-import FeedbackColumn from '@/components/home/FeedbackColumn';
-import ComparisonTable from '@/components/home/ComparisonTable';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -89,17 +77,6 @@ const Index = () => {
         )}
         
         <Hero />
-        <LifetimeOfferBanner />
-        <TrustedBySection />
-        <ComplianceFeaturesSection />
-        <Separator className="max-w-5xl mx-auto" />
-        <WhyChooseSection />
-        <ComparisonTable />
-        <ResultsSection />
-        <IndustriesSection />
-        <FaqSection />
-        <FeedbackColumn />
-        <UserGuide />
       </div>
     </Layout>
   );
