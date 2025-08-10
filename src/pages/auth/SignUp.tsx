@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,7 +15,6 @@ const SignUp: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { signUp } = useAuth();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,10 +70,10 @@ const SignUp: React.FC = () => {
           console.error("SignUp - Error sending welcome email:", emailError);
         });
 
-        // Show success message and immediately redirect
+        // Show success message and redirect to sign-in page
         toast.success('Account created successfully! Please sign in with your credentials.');
         
-        // Immediate redirect to sign-in page
+        // Always redirect to sign-in page after successful signup
         navigate('/sign-in', { 
           state: { 
             message: 'Account created successfully! You can now sign in.',
