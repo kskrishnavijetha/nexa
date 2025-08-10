@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { hasActiveSubscription, getSubscription, shouldUpgrade } from '@/utils/paymentService';
+import { hasActiveSubscription, getSubscription, shouldUpgrade, isFreePlanCompleted } from '@/utils/paymentService';
 import BillingToggle from '@/components/pricing/BillingToggle';
 import PricingCard from '@/components/pricing/PricingCard';
 import { toast } from 'sonner';
@@ -67,9 +67,12 @@ const PricingPlans = () => {
     return 'Subscribe';
   };
 
-  // Show free plan for new users (no subscription) or users who haven't completed free plan
-  // Only hide free plan if user has completed their free plan (used all scans or expired)
-  const shouldShowFreePlan = !subscription || (subscription && subscription.plan !== 'free') || !needsUpgrade;
+  // Only show free plan if:
+  // 1. User is not logged in (guest users)
+  // 2. User has no subscription yet (new users should get free plan automatically on sign-in)
+  // 3. User has completed free plan and needs to upgrade (show it as unavailable)
+  const shouldShowFreePlan = !user || !subscription || (subscription && isFreePlanCompleted(user.id));
+  const isFreePlanDisabled = user && subscription && isFreePlanCompleted(user.id);
 
   if (loading || checkingSubscription) {
     return (
@@ -113,16 +116,17 @@ const PricingPlans = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-        {/* Show Free Plan for new users and users who haven't completed free plan */}
+        {/* Show Free Plan for guests or completed free plan users (as unavailable) */}
         {shouldShowFreePlan && (
           <PricingCard
             title="Free"
-            description="Get started with basic compliance checks"
+            description={isFreePlanDisabled ? "Free plan completed - upgrade to continue" : "Get started with basic compliance checks"}
             price={formatPrice(pricing.free[billingCycle], billingCycle)}
             features={freeFeatures}
-            buttonText={getButtonText()}
+            buttonText={isFreePlanDisabled ? "Plan Completed" : getButtonText()}
             buttonVariant="outline"
             onSelectPlan={() => handleSelectPlan('free')}
+            disabled={isFreePlanDisabled}
           />
         )}
 

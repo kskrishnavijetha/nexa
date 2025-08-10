@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -12,6 +11,7 @@ import * as z from "zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Layout from '@/components/layout/Layout';
+import { getSubscription, saveSubscription } from '@/utils/paymentService';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -38,16 +38,42 @@ export default function SignIn() {
     }
   }, [signupMessage]);
   
-  // Redirect authenticated users
+  // Redirect authenticated users and handle free plan activation
   useEffect(() => {
     if (user) {
-      console.log('User is authenticated, redirecting...', { user, redirectAfterLogin });
+      console.log('User is authenticated, checking subscription status...', { user, redirectAfterLogin });
+      
       // Special handling for lifetime payment redirect
       if (redirectAfterLogin === 'lifetime-payment') {
         window.location.href = 'https://www.paypal.com/ncp/payment/YF2GNLBJ2YCEE';
+        return;
+      }
+      
+      // Check if user has any subscription
+      const existingSubscription = getSubscription(user.id);
+      
+      if (!existingSubscription) {
+        // New user - automatically activate free plan
+        console.log('New user detected, activating free plan...');
+        
+        try {
+          const subscriptionId = 'free_' + Math.random().toString(36).substring(2, 15);
+          const subscription = saveSubscription('free', subscriptionId, 'monthly', user.id);
+          
+          console.log('Free plan activated for new user:', subscription);
+          toast.success('Welcome! Your free plan has been activated.');
+          
+          // Redirect to dashboard or main page
+          navigate('/dashboard', { replace: true });
+        } catch (error) {
+          console.error('Error activating free plan for new user:', error);
+          toast.error('Failed to activate free plan. Please try again.');
+          navigate('/pricing', { replace: true });
+        }
       } else {
-        // Redirect to pricing page instead of dashboard
-        navigate('/pricing', { replace: true });
+        // Existing user - redirect to dashboard
+        console.log('Existing user with subscription, redirecting to dashboard');
+        navigate('/dashboard', { replace: true });
       }
     }
   }, [user, navigate, redirectAfterLogin]);
