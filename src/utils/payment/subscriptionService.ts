@@ -203,11 +203,19 @@ export const shouldUpgradeTier = (userId?: string): boolean => {
   return needsUpgradeTier;
 };
 
-// Check if free plan is completed (expired or scans exhausted)
+// Check if free plan is completed (expired or scans exhausted) - FIXED for new users
 export const isFreePlanCompleted = (userId?: string): boolean => {
   const subscription = getSubscription(userId);
   
-  if (!subscription || subscription.plan !== 'free') {
+  // If no subscription exists, free plan is not completed (new user)
+  if (!subscription) {
+    console.log('No subscription found - free plan not completed');
+    return false;
+  }
+  
+  // Only check completion for free plans
+  if (subscription.plan !== 'free') {
+    console.log('Not a free plan - completion check not applicable');
     return false;
   }
   
@@ -215,7 +223,18 @@ export const isFreePlanCompleted = (userId?: string): boolean => {
   const isExpired = subscription.expirationDate < new Date();
   const scansExhausted = subscription.scansUsed >= subscription.scansLimit;
   
-  return isExpired || scansExhausted;
+  const isCompleted = isExpired || scansExhausted;
+  
+  console.log('Free plan completion check:', {
+    isExpired,
+    scansExhausted,
+    isCompleted,
+    scansUsed: subscription.scansUsed,
+    scansLimit: subscription.scansLimit,
+    expirationDate: subscription.expirationDate
+  });
+  
+  return isCompleted;
 };
 
 // DO NOT clear user-specific subscription data when user logs out

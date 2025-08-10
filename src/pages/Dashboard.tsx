@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,12 +18,19 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (user) {
+      console.log('Dashboard - Checking subscription for user:', user.id);
       const userSubscription = getSubscription(user.id);
+      console.log('Dashboard - User subscription:', userSubscription);
+      
       setSubscription(userSubscription);
       
-      // Check if free plan is completed
-      if (userSubscription?.plan === 'free' && isFreePlanCompleted(user.id)) {
-        setShowFreePlanNotice(true);
+      // Only show free plan notice if user has a free plan AND it's actually completed
+      if (userSubscription?.plan === 'free') {
+        const isCompleted = isFreePlanCompleted(user.id);
+        console.log('Dashboard - Free plan completed check:', isCompleted);
+        setShowFreePlanNotice(isCompleted);
+      } else {
+        setShowFreePlanNotice(false);
       }
     }
   }, [user]);
@@ -59,8 +67,8 @@ const Dashboard = () => {
     { title: 'Plan Status', value: subscription?.plan || 'None', icon: Crown },
   ];
 
-  // Show free plan completion notice if applicable
-  if (showFreePlanNotice && subscription) {
+  // Show free plan completion notice only if it's actually completed
+  if (showFreePlanNotice && subscription && subscription.plan === 'free') {
     return (
       <Layout>
         <div className="container mx-auto py-8">
