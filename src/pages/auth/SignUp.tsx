@@ -50,16 +50,11 @@ export default function SignUp() {
         console.error("Error signing up:", error);
         toast.error(`Failed to sign up: ${error.message || 'Please try again.'}`);
       } else {
-        console.log('SignUp - Sign up successful, redirecting to sign-in');
-        toast.success("Account created! Please check your email to verify your account, then sign in.");
-        // Redirect to sign-in page after successful signup
-        navigate('/sign-in', { 
-          replace: true,
-          state: { 
-            email: values.email,
-            message: "Account created! Please sign in to activate your free plan."
-          }
-        });
+        console.log('SignUp - Sign up successful, showing success message');
+        toast.success("Account created! Please check your email to verify your account before signing in.");
+        // Clear the form
+        form.reset();
+        // Stay on signup page with success message, don't redirect
       }
     } catch (err) {
       console.error("Exception during sign up:", err);

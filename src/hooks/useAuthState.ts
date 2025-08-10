@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,13 +37,21 @@ export function useAuthState() {
         console.log('useAuthState - Auth state changed:', event, { hasSession: !!newSession, userId: newSession?.user?.id });
         
         if (event === 'SIGNED_IN') {
-          // Update session and user immediately
-          setSession(newSession);
-          setUser(newSession?.user ?? null);
-          setLoading(false);
-          
-          console.log('useAuthState - User signed in successfully');
-          toast.success('Signed in successfully!');
+          // Only process sign in if the user has been email confirmed
+          if (newSession?.user?.email_confirmed_at) {
+            setSession(newSession);
+            setUser(newSession?.user ?? null);
+            setLoading(false);
+            
+            console.log('useAuthState - User signed in successfully with confirmed email');
+            toast.success('Signed in successfully!');
+          } else {
+            // User signed up but hasn't confirmed email - don't set them as signed in
+            console.log('useAuthState - User registered but email not confirmed, staying signed out');
+            setSession(null);
+            setUser(null);
+            setLoading(false);
+          }
           
         } else if (event === 'SIGNED_OUT') {
           // Clear all state
@@ -78,6 +85,7 @@ export function useAuthState() {
       console.log('useAuthState - Initial session check:', { 
         hasSession: !!initialSession, 
         userId: initialSession?.user?.id, 
+        emailConfirmed: !!initialSession?.user?.email_confirmed_at,
         error 
       });
       
@@ -85,8 +93,14 @@ export function useAuthState() {
         console.error('useAuthState - Error getting initial session:', error);
       }
       
-      setSession(initialSession);
-      setUser(initialSession?.user ?? null);
+      // Only set session if email is confirmed
+      if (initialSession?.user?.email_confirmed_at) {
+        setSession(initialSession);
+        setUser(initialSession?.user ?? null);
+      } else {
+        setSession(null);
+        setUser(null);
+      }
       setLoading(false);
     });
 
@@ -98,22 +112,17 @@ export function useAuthState() {
 
   const signUp = async (email: string, password: string) => {
     console.log('useAuthState - Starting sign up for:', email);
-    const redirectUrl = `${window.location.origin}/`;
     
     try {
       const { error, data } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: redirectUrl
+          emailRedirectTo: `${window.location.origin}/sign-in`
         }
       });
 
       console.log('useAuthState - Sign up result:', { error, hasUser: !!data?.user });
-
-      if (!error) {
-        toast.success('Verification email sent! Please check your inbox.');
-      }
 
       return { error };
     } catch (err) {
