@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
@@ -54,7 +55,6 @@ const PricingPlans: React.FC = () => {
       return;
     }
 
-    // Check if user already has a subscription
     const existingSubscription = getSubscription(user.id);
     if (existingSubscription) {
       toast.info('You already have an active subscription');
@@ -62,7 +62,6 @@ const PricingPlans: React.FC = () => {
       return;
     }
 
-    // Activate free plan
     try {
       const subscriptionId = 'free_' + Math.random().toString(36).substring(2, 15);
       const newSubscription = saveSubscription('free', subscriptionId, 'monthly', user.id);
@@ -70,7 +69,6 @@ const PricingPlans: React.FC = () => {
       console.log('Free plan activated for user:', newSubscription);
       toast.success('Free plan activated! You now have 5 free document scans.');
       
-      // Update local state and redirect to dashboard
       setSubscription(newSubscription);
       navigate('/dashboard', { replace: true });
     } catch (error) {
@@ -94,7 +92,6 @@ const PricingPlans: React.FC = () => {
       handleFreePlanActivation();
     } else {
       console.log(`Selected ${tier} plan`);
-      // Handle paid plan selection
     }
   };
 
@@ -105,7 +102,6 @@ const PricingPlans: React.FC = () => {
     const features: string[] = [];
     const tierFeatures = tierData.features;
     
-    // Add scan limit info first
     const scanText = tierData.scans === 999 ? 'Unlimited document scans' : `${tierData.scans} document scans per month`;
     features.push(scanText);
     
@@ -161,7 +157,12 @@ const PricingPlans: React.FC = () => {
           </p>
         </div>
         
-        <BillingToggle />
+        <div className="flex justify-center mb-8">
+          <BillingToggle 
+            billingCycle={billingCycle} 
+            setBillingCycle={setBillingCycle} 
+          />
+        </div>
         
         {user && !subscription && (
           <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
@@ -180,7 +181,6 @@ const PricingPlans: React.FC = () => {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {/* Free Plan */}
           {shouldShowFreePlan && (
             <PricingCard
               title="Free"
@@ -195,7 +195,6 @@ const PricingPlans: React.FC = () => {
             />
           )}
 
-          {/* Starter Plan */}
           <PricingCard
             title="Starter"
             description="Ideal for small teams"
@@ -208,7 +207,6 @@ const PricingPlans: React.FC = () => {
             disabled={false}
           />
 
-          {/* Pro Plan */}
           <PricingCard
             title="Pro"
             description="Best for growing businesses"
@@ -221,7 +219,6 @@ const PricingPlans: React.FC = () => {
             disabled={false}
           />
 
-          {/* Enterprise Plan */}
           <PricingCard
             title="Enterprise"
             description="For large organizations"
