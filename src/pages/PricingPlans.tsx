@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
@@ -7,7 +8,7 @@ import {
   shouldUpgrade,
   isFreePlanCompleted 
 } from '@/utils/paymentService';
-import { pricingTiers, getPrice } from '@/utils/pricingData';
+import { freeFeatures, starterFeatures, proFeatures, enterpriseFeatures, pricing, formatPrice } from '@/components/pricing/PricingData';
 import PricingCard from '@/components/pricing/PricingCard';
 import BillingToggle from '@/components/pricing/BillingToggle';
 import Layout from '@/components/layout/Layout';
@@ -88,6 +89,15 @@ const PricingPlans: React.FC = () => {
     return 'Subscribe';
   };
 
+  const handlePlanSelect = (tier: string) => {
+    if (tier === 'free') {
+      handleFreePlanActivation();
+    } else {
+      console.log(`Selected ${tier} plan`);
+      // Handle paid plan selection
+    }
+  };
+
   // Show free plan for all users, but handle activation differently
   const shouldShowFreePlan = true;
   const isFreePlanDisabled = user && subscription && isFreePlanCompleted(user.id);
@@ -132,43 +142,62 @@ const PricingPlans: React.FC = () => {
             </p>
           </div>
         )}
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-        {/* Show Free Plan for all users */}
-        {shouldShowFreePlan && (
-          <PricingCard
-            title="Free"
-            price={0}
-            billingCycle="monthly"
-            features={pricingTiers.free.features}
-            scans={pricingTiers.free.scans}
-            buttonText={getButtonText('free')}
-            onSelect={handleFreePlanActivation}
-            isPopular={false}
-            isCurrentPlan={subscription?.plan === 'free'}
-            disabled={isFreePlanDisabled}
-          />
-        )}
-
-        {/* Other paid plans */}
-        {Object.entries(pricingTiers)
-          .filter(([key]) => key !== 'free')
-          .map(([key, tier]) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+          {/* Free Plan */}
+          {shouldShowFreePlan && (
             <PricingCard
-              key={key}
-              title={tier.name}
-              price={getPrice(key, 'monthly')}
-              billingCycle="monthly"
-              features={tier.features}
-              scans={tier.scans}
-              buttonText={getButtonText(key)}
-              onSelect={() => console.log(`Selected ${key} plan`)}
-              isPopular={key === 'pro'}
-              isCurrentPlan={subscription?.plan === key}
-              disabled={false}
+              title="Free"
+              description="Perfect for getting started"
+              price={formatPrice(pricing.free.monthly, 'monthly')}
+              features={freeFeatures}
+              isRecommended={false}
+              onSelectPlan={() => handlePlanSelect('free')}
+              buttonText={getButtonText('free')}
+              buttonVariant={subscription?.plan === 'free' ? 'outline' : 'default'}
+              disabled={isFreePlanDisabled}
             />
-          ))}
+          )}
+
+          {/* Starter Plan */}
+          <PricingCard
+            title="Starter"
+            description="Ideal for small teams"
+            price={formatPrice(pricing.starter.monthly, 'monthly')}
+            features={starterFeatures}
+            isRecommended={false}
+            onSelectPlan={() => handlePlanSelect('starter')}
+            buttonText={getButtonText('starter')}
+            buttonVariant={subscription?.plan === 'starter' ? 'outline' : 'default'}
+            disabled={false}
+          />
+
+          {/* Pro Plan */}
+          <PricingCard
+            title="Pro"
+            description="Best for growing businesses"
+            price={formatPrice(pricing.pro.monthly, 'monthly')}
+            features={proFeatures}
+            isRecommended={true}
+            onSelectPlan={() => handlePlanSelect('pro')}
+            buttonText={getButtonText('pro')}
+            buttonVariant={subscription?.plan === 'pro' ? 'outline' : 'default'}
+            disabled={false}
+          />
+
+          {/* Enterprise Plan */}
+          <PricingCard
+            title="Enterprise"
+            description="For large organizations"
+            price={formatPrice(pricing.enterprise.monthly, 'monthly')}
+            features={enterpriseFeatures}
+            isRecommended={false}
+            onSelectPlan={() => handlePlanSelect('enterprise')}
+            buttonText={getButtonText('enterprise')}
+            buttonVariant={subscription?.plan === 'enterprise' ? 'outline' : 'default'}
+            disabled={false}
+          />
+        </div>
       </div>
     </Layout>
   );
