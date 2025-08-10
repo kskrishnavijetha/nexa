@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
@@ -99,7 +98,6 @@ const PricingPlans: React.FC = () => {
     }
   };
 
-  // Convert feature objects to feature arrays for display
   const getFeatureList = (tier: string): string[] => {
     const tierData = pricingTiers[tier as keyof typeof pricingTiers];
     if (!tierData) return [];
@@ -137,7 +135,6 @@ const PricingPlans: React.FC = () => {
     return `$${price}/${billingCycle === 'monthly' ? 'month' : 'year'}`;
   };
 
-  // Show free plan for all users, but handle activation differently
   const shouldShowFreePlan = true;
   const isFreePlanDisabled = user && subscription && isFreePlanCompleted(user.id);
 
@@ -233,7 +230,7 @@ const PricingPlans: React.FC = () => {
             isRecommended={false}
             onSelectPlan={() => handlePlanSelect('enterprise')}
             buttonText={getButtonText('enterprise')}
-            buttonVariant={subscription?.plan === 'enterprise' ? 'outline' : 'daily'}
+            buttonVariant={subscription?.plan === 'enterprise' ? 'outline' : 'default'}
             disabled={false}
           />
         </div>
