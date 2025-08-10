@@ -61,38 +61,27 @@ const SignUp: React.FC = () => {
       } else {
         console.log('SignUp - Signup successful for user:', data?.user?.email);
         
-        // Show success message
-        toast.success(
-          <div className="flex flex-col gap-1">
-            <p className="font-semibold">Welcome to NexaBloom — your AI compliance copilot!</p>
-            <p className="text-sm">Account created successfully! You can now sign in.</p>
-          </div>,
-          {
-            duration: 6000,
+        // Send welcome email first (don't wait for it)
+        supabase.functions.invoke("send-email", {
+          body: {
+            type: "welcome",
+            email: email,
+            name: name,
           }
-        );
-        
-        // Send welcome email
-        try {
-          await supabase.functions.invoke("send-email", {
-            body: {
-              type: "welcome",
-              email: email,
-              name: name,
-            }
-          });
-          console.log('SignUp - Welcome email sent successfully');
-        } catch (emailError) {
+        }).catch(emailError => {
           console.error("SignUp - Error sending welcome email:", emailError);
-          // Don't show error to user, just log it
-        }
+        });
 
-        // Navigate to sign-in page instead of pricing
+        // Show success message and immediately redirect
+        toast.success('Account created successfully! Please sign in with your credentials.');
+        
+        // Immediate redirect to sign-in page
         navigate('/sign-in', { 
           state: { 
-            message: 'Account created successfully! Please sign in with your credentials.',
+            message: 'Account created successfully! You can now sign in.',
             email: email 
-          } 
+          },
+          replace: true
         });
       }
     } catch (error: any) {
