@@ -34,6 +34,12 @@ const PricingPlans = () => {
       const currentSubscription = getSubscription(user.id);
       const upgradeNeeded = shouldUpgrade(user.id);
       
+      console.log('PricingPlans - User subscription check:', {
+        currentSubscription,
+        upgradeNeeded,
+        userId: user.id
+      });
+      
       setSubscription(currentSubscription);
       setNeedsUpgrade(upgradeNeeded);
     } else if (!loading && !user) {
@@ -67,11 +73,11 @@ const PricingPlans = () => {
     return 'Subscribe';
   };
 
-  // Only show free plan if:
+  // Show free plan if:
   // 1. User is not logged in (guest users)
-  // 2. User has no subscription yet (new users should get free plan automatically on sign-in)
-  // 3. User has completed free plan and needs to upgrade (show it as unavailable)
-  const shouldShowFreePlan = !user || !subscription || (subscription && isFreePlanCompleted(user.id));
+  // 2. User is logged in but has no subscription (new users)
+  // 3. User has completed free plan (show as disabled/completed)
+  const shouldShowFreePlan = !user || !subscription || (subscription && subscription.plan === 'free');
   const isFreePlanDisabled = user && subscription && isFreePlanCompleted(user.id);
 
   if (loading || checkingSubscription) {
@@ -93,10 +99,10 @@ const PricingPlans = () => {
         
         <BillingToggle />
         
-        {user && !hasActiveSubscription(user.id) && (
-          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-            <p className="text-amber-700">
-              Please select a subscription plan to access all features
+        {user && !subscription && (
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+            <p className="text-blue-700 font-medium">
+              Welcome! Please activate your free plan to get started with 5 free document scans.
             </p>
           </div>
         )}
@@ -116,7 +122,7 @@ const PricingPlans = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-        {/* Show Free Plan for guests or completed free plan users (as unavailable) */}
+        {/* Show Free Plan for guests, new users, or completed free plan users */}
         {shouldShowFreePlan && (
           <PricingCard
             title="Free"
