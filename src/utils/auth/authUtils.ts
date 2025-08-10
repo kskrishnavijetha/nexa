@@ -3,26 +3,28 @@
  * Authentication utility functions
  */
 
-/**
- * Clear all user-specific data from localStorage
- */
+// Helper function to clear user data from localStorage
 export const clearUserData = () => {
-  console.log('clearUserData - Clearing user data from localStorage');
+  console.log('Clearing user data from localStorage');
   
-  // Remove standard auth tokens
-  localStorage.removeItem('supabase.auth.token');
+  // Clear auth tokens
+  localStorage.removeItem('sb-sbsnnlhjhlifoqrvoixb-auth-token');
   
-  // Remove all Supabase auth keys from localStorage
-  Object.keys(localStorage).forEach((key) => {
-    if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
-      console.log('clearUserData - Removing key:', key);
-      localStorage.removeItem(key);
-    }
+  // Don't clear subscription data as we want to keep it across sessions
+  // Just clear other user-specific non-subscription data
+  
+  // Clear redirect paths
+  sessionStorage.removeItem('redirectAfterLogin');
+  sessionStorage.removeItem('redirectAfterSuccessfulPayment');
+  
+  // Clear any other user-specific data with the compliZen_ prefix
+  const keys = Object.keys(localStorage);
+  const userDataKeys = keys.filter(key => 
+    key.startsWith('compliZen_') && 
+    !key.includes('subscription_') // Don't clear subscription data
+  );
+  
+  userDataKeys.forEach(key => {
+    localStorage.removeItem(key);
   });
-  
-  // Clear any other user-specific data
-  localStorage.removeItem('user_subscription');
-  localStorage.removeItem('slack_token');
-  
-  console.log('clearUserData - User data cleared');
 };

@@ -1,238 +1,163 @@
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { 
-  getSubscription, 
-  saveSubscription, 
-  hasActiveSubscription, 
-  shouldUpgrade,
-  isFreePlanCompleted 
-} from '@/utils/paymentService';
-import { pricingTiers, getPrice } from '@/utils/pricingData';
-import PricingCard from '@/components/pricing/PricingCard';
-import BillingToggle from '@/components/pricing/BillingToggle';
-import Layout from '@/components/layout/Layout';
-import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { hasActiveSubscription, getSubscription, shouldUpgrade } from '@/utils/paymentService';
+import BillingToggle from '@/components/pricing/BillingToggle';
+import PricingCard from '@/components/pricing/PricingCard';
+import { toast } from 'sonner';
+import { 
+  freeFeatures, 
+  starterFeatures, 
+  proFeatures, 
+  enterpriseFeatures,
+  pricing,
+  formatPrice
+} from '@/components/pricing/PricingData';
+import { Loader2 } from 'lucide-react';
 
-const PricingPlans: React.FC = () => {
-  const { user, loading } = useAuth();
+const PricingPlans = () => {
   const navigate = useNavigate();
-  const [subscription, setSubscription] = useState<any>(null);
-  const [needsUpgrade, setNeedsUpgrade] = useState(false);
+  const { user, loading } = useAuth();
+  // Always use monthly billing now
+  const billingCycle = 'monthly';
   const [checkingSubscription, setCheckingSubscription] = useState(true);
-  const [billingCycle, setBillingCycle] = useState<'monthly' | 'annually'>('monthly');
+  const [needsUpgrade, setNeedsUpgrade] = useState(false);
+  const [subscription, setSubscription] = useState<any>(null);
 
   useEffect(() => {
-    setCheckingSubscription(true);
-    
-    if (user) {
-      console.log('PricingPlans - Checking user subscription...');
+    // Check subscription status when component mounts
+    if (user && !loading) {
+      setCheckingSubscription(false);
+      
+      // Check if user needs to upgrade using their user ID
       const currentSubscription = getSubscription(user.id);
       const upgradeNeeded = shouldUpgrade(user.id);
-      
-      console.log('PricingPlans - User subscription check:', {
-        currentSubscription,
-        upgradeNeeded,
-        userId: user.id
-      });
       
       setSubscription(currentSubscription);
       setNeedsUpgrade(upgradeNeeded);
     } else if (!loading && !user) {
-      console.log('PricingPlans - No user, showing guest pricing');
-      setSubscription(null);
-      setNeedsUpgrade(false);
+      setCheckingSubscription(false);
     }
-    
-    setCheckingSubscription(false);
   }, [user, loading]);
 
-  const handleFreePlanActivation = () => {
+  const handleSelectPlan = (plan: string) => {
     if (!user) {
-      toast.error('Please sign in to activate the free plan');
-      navigate('/sign-in');
-      return;
-    }
-
-    const existingSubscription = getSubscription(user.id);
-    if (existingSubscription) {
-      toast.info('You already have an active subscription');
-      navigate('/dashboard');
-      return;
-    }
-
-    try {
-      const subscriptionId = 'free_' + Math.random().toString(36).substring(2, 15);
-      const newSubscription = saveSubscription('free', subscriptionId, 'monthly', user.id);
-      
-      console.log('Free plan activated for user:', newSubscription);
-      toast.success('Free plan activated! You now have 5 free document scans.');
-      
-      setSubscription(newSubscription);
-      navigate('/dashboard', { replace: true });
-    } catch (error) {
-      console.error('Error activating free plan:', error);
-      toast.error('Failed to activate free plan. Please try again.');
+      // Redirect non-logged in users to sign up
+      navigate('/sign-up');
+      toast.info('Please sign up to subscribe to a plan');
+    } else {
+      // For logged in users, redirect to payment with plan details
+      navigate('/payment', { 
+        state: { 
+          selectedPlan: plan,
+          billingCycle: billingCycle 
+        }
+      });
     }
   };
 
-  const getButtonText = (tier: string) => {
-    if (tier === 'free') {
-      if (!user) return 'Sign Up Free';
-      if (subscription && subscription.plan === 'free') return 'Current Plan';
-      if (isFreePlanCompleted(user?.id)) return 'Plan Completed';
-      return 'Activate Free Plan';
+  const getButtonText = () => {
+    if (!user) return 'Sign Up & Subscribe';
+    
+    if (hasActiveSubscription(user.id)) {
+      return needsUpgrade ? 'Upgrade Plan' : 'Change Plan';
     }
+    
     return 'Subscribe';
   };
 
-  const handlePlanSelect = (tier: string) => {
-    if (tier === 'free') {
-      handleFreePlanActivation();
-    } else {
-      console.log(`Selected ${tier} plan`);
-    }
-  };
-
-  const getFeatureList = (tier: string): string[] => {
-    const tierData = pricingTiers[tier as keyof typeof pricingTiers];
-    if (!tierData) return [];
-    
-    const features: string[] = [];
-    const tierFeatures = tierData.features;
-    
-    const scanText = tierData.scans === 999 ? 'Unlimited document scans' : `${tierData.scans} document scans per month`;
-    features.push(scanText);
-    
-    if (tierFeatures.aiRiskAnalysis) features.push('AI Risk Analysis');
-    if (tierFeatures.extendedAuditReports) features.push('Extended Audit Reports');
-    if (tierFeatures.predictiveAnalytics) features.push('Predictive Analytics');
-    if (tierFeatures.smartAuditTrail) {
-      if (typeof tierFeatures.smartAuditTrail === 'string') {
-        features.push(`${tierFeatures.smartAuditTrail} Smart Audit Trail`);
-      } else {
-        features.push('Smart Audit Trail');
-      }
-    }
-    if (tierFeatures.hashVerification) features.push('Hash Verification');
-    if (tierFeatures.exportToPdf) features.push('Export to PDF');
-    if (tierFeatures.frameworkCoverage) features.push(`Framework Coverage: ${tierFeatures.frameworkCoverage}`);
-    if (tierFeatures.slackAlerts) features.push('Slack Alerts & Logs');
-    if (tierFeatures.customBranding) features.push('Custom Branding');
-    if (tierFeatures.prioritySupport) features.push('Priority Support & SLA');
-    
-    return features;
-  };
-
-  const getPriceString = (tier: string): string => {
-    if (tier === 'free') return 'Free';
-    const price = getPrice(tier, billingCycle);
-    return `$${price}/${billingCycle === 'monthly' ? 'month' : 'year'}`;
-  };
-
-  const shouldShowFreePlan = true;
-  const isFreePlanDisabled = user && subscription && isFreePlanCompleted(user.id);
+  // Check if the free plan should be displayed
+  const shouldShowFreePlan = !needsUpgrade || !subscription;
 
   if (loading || checkingSubscription) {
     return (
-      <Layout>
-        <div className="flex justify-center items-center min-h-screen">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-4 text-gray-600">Loading pricing plans...</p>
-          </div>
-        </div>
-      </Layout>
+      <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <span className="ml-2">Loading pricing plans...</span>
+      </div>
     );
   }
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold mb-4">Choose Your Plan</h1>
-          <p className="text-xl text-gray-600 mb-8">
-            Select the perfect plan for your compliance needs
-          </p>
-        </div>
+    <div className="container mx-auto py-12">
+      <div className="text-center mb-12">
+        <h1 className="text-3xl font-bold mb-4">Choose the Right Plan for Your Compliance Needs</h1>
+        <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
+          Get started with our free plan or upgrade to premium features for comprehensive compliance coverage.
+        </p>
         
-        <div className="flex justify-center mb-8">
-          <BillingToggle 
-            billingCycle={billingCycle} 
-            setBillingCycle={setBillingCycle} 
-          />
-        </div>
+        <BillingToggle />
         
-        {user && !subscription && (
-          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
-            <p className="text-blue-700 font-medium">
-              Welcome! Please activate your free plan to get started with 5 free document scans.
-            </p>
-          </div>
-        )}
-
-        {needsUpgrade && (
-          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-md">
+        {user && !hasActiveSubscription(user.id) && (
+          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-md">
             <p className="text-amber-700">
-              You've reached your plan limits. Please upgrade to continue using all features.
+              Please select a subscription plan to access all features
             </p>
           </div>
         )}
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          {shouldShowFreePlan && (
-            <PricingCard
-              title="Free"
-              description="Perfect for getting started"
-              price={getPriceString('free')}
-              features={getFeatureList('free')}
-              isRecommended={false}
-              onSelectPlan={() => handlePlanSelect('free')}
-              buttonText={getButtonText('free')}
-              buttonVariant={subscription?.plan === 'free' ? 'outline' : 'default'}
-              disabled={isFreePlanDisabled}
-            />
-          )}
-
-          <PricingCard
-            title="Starter"
-            description="Ideal for small teams"
-            price={getPriceString('starter')}
-            features={getFeatureList('starter')}
-            isRecommended={false}
-            onSelectPlan={() => handlePlanSelect('starter')}
-            buttonText={getButtonText('starter')}
-            buttonVariant={subscription?.plan === 'starter' ? 'outline' : 'default'}
-            disabled={false}
-          />
-
-          <PricingCard
-            title="Pro"
-            description="Best for growing businesses"
-            price={getPriceString('pro')}
-            features={getFeatureList('pro')}
-            isRecommended={true}
-            onSelectPlan={() => handlePlanSelect('pro')}
-            buttonText={getButtonText('pro')}
-            buttonVariant={subscription?.plan === 'pro' ? 'outline' : 'default'}
-            disabled={false}
-          />
-
-          <PricingCard
-            title="Enterprise"
-            description="For large organizations"
-            price={getPriceString('enterprise')}
-            features={getFeatureList('enterprise')}
-            isRecommended={false}
-            onSelectPlan={() => handlePlanSelect('enterprise')}
-            buttonText={getButtonText('enterprise')}
-            buttonVariant={subscription?.plan === 'enterprise' ? 'outline' : 'default'}
-            disabled={false}
-          />
-        </div>
+        
+        {user && subscription && needsUpgrade && (
+          <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-md">
+            <p className="text-amber-700 font-medium">
+              {subscription.scansUsed >= subscription.scansLimit 
+                ? `You've used all ${subscription.scansLimit} scans in your ${subscription.plan} plan.` 
+                : `Your ${subscription.plan} plan has expired.`}
+            </p>
+            <p className="text-amber-700">
+              Please select a new plan to continue using Nexabloom.
+            </p>
+          </div>
+        )}
       </div>
-    </Layout>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
+        {/* Only show Free Plan if not upgrading from an existing plan that's expired or depleted */}
+        {shouldShowFreePlan && (
+          <PricingCard
+            title="Free"
+            description="Get started with basic compliance checks"
+            price={formatPrice(pricing.free[billingCycle], billingCycle)}
+            features={freeFeatures}
+            buttonText={getButtonText()}
+            buttonVariant="outline"
+            onSelectPlan={() => handleSelectPlan('free')}
+            disabled={needsUpgrade}
+          />
+        )}
+
+        {/* Starter Plan */}
+        <PricingCard
+          title="Starter"
+          description="Essential compliance tools for small businesses"
+          price={formatPrice(pricing.starter[billingCycle], billingCycle)}
+          features={starterFeatures}
+          buttonText={getButtonText()}
+          onSelectPlan={() => handleSelectPlan('starter')}
+        />
+
+        {/* Pro Plan - Highlighted as recommended */}
+        <PricingCard
+          title="Pro"
+          description="Advanced compliance for growing organizations"
+          price={formatPrice(pricing.pro[billingCycle], billingCycle)}
+          features={proFeatures}
+          isRecommended={true}
+          buttonText={getButtonText()}
+          onSelectPlan={() => handleSelectPlan('pro')}
+        />
+
+        {/* Enterprise Plan */}
+        <PricingCard
+          title="Enterprise"
+          description="Complete compliance solution for large enterprises"
+          price={formatPrice(pricing.enterprise[billingCycle], billingCycle)}
+          features={enterpriseFeatures}
+          buttonText={getButtonText()}
+          onSelectPlan={() => handleSelectPlan('enterprise')}
+        />
+      </div>
+    </div>
   );
 };
 

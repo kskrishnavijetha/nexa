@@ -1,131 +1,164 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Loader2 } from "lucide-react";
-import { toast } from "sonner";
-import Layout from '@/components/layout/Layout';
+import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
-const formSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters long" }),
-});
-
-export default function SignUp() {
-  const { signUp, user } = useAuth();
-  const [loading, setLoading] = useState(false);
+const SignUp: React.FC = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  
-  // Redirect authenticated users
-  useEffect(() => {
-    if (user) {
-      console.log('User already authenticated, redirecting to dashboard');
-      navigate('/dashboard', { replace: true });
+  const { signUp } = useAuth();
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!email || !password || !confirmPassword) {
+      toast.error('Please fill in all fields');
+      return;
     }
-  }, [user, navigate]);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log('SignUp - Starting sign up process with:', { email: values.email });
-    setLoading(true);
+    
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+    
+    setIsLoading(true);
     
     try {
-      const { error } = await signUp(values.email, values.password);
+      const { error } = await signUp(email, password);
       
       if (error) {
-        console.error("Error signing up:", error);
-        toast.error(`Failed to sign up: ${error.message || 'Please try again.'}`);
+        toast.error(error.message);
       } else {
-        console.log('SignUp - Sign up successful, showing success message');
-        toast.success("Account created! Please check your email to verify your account before signing in.");
-        // Clear the form
-        form.reset();
-        // Stay on signup page with success message, don't redirect
+        // Show welcome toast message
+        toast.success(
+          <div className="flex flex-col gap-1">
+            <p className="font-semibold">Welcome to NexaBloom — your AI compliance copilot!</p>
+            <p className="text-sm">Ready to help you analyze, simulate, and generate audit-ready compliance reports.</p>
+          </div>,
+          {
+            duration: 6000,
+          }
+        );
+        
+        // Send welcome email
+        try {
+          await supabase.functions.invoke("send-email", {
+            body: {
+              type: "welcome",
+              email: email,
+              name: email.split('@')[0], // Simple name extraction from email
+            }
+          });
+        } catch (emailError) {
+          console.error("Error sending welcome email:", emailError);
+          // Don't show error to user, just log it
+        }
+
+        // Redirect to pricing page after successful signup
+        navigate('/pricing');
       }
-    } catch (err) {
-      console.error("Exception during sign up:", err);
-      toast.error("An unexpected error occurred. Please try again.");
+    } catch (error: any) {
+      toast.error(error.message || 'An error occurred during sign up');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <Layout>
-      <div className="flex min-h-[calc(100vh-180px)] items-center justify-center px-4">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-2xl">Sign Up</CardTitle>
-            <CardDescription>
-              Create your account to get started with 5 free document scans
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input placeholder="your.email@example.com" {...field} type="email" disabled={loading} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input {...field} type="password" disabled={loading} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating account...
-                    </>
-                  ) : (
-                    "Create Account"
-                  )}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-          <CardFooter className="flex-col space-y-4">
-            <div className="text-sm text-muted-foreground text-center">
-              Already have an account?{" "}
-              <Button variant="link" className="p-0" onClick={() => navigate("/sign-in")}>
-                Sign in
-              </Button>
+    <div className="flex items-center justify-center min-h-[calc(100vh-200px)]">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Create Your Account</h1>
+          <p className="mt-2 text-sm text-gray-600">
+            Join Nexabloom and streamline your compliance processes
+          </p>
+        </div>
+        
+        <form onSubmit={handleSignUp} className="mt-8 space-y-6">
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1"
+                autoComplete="email"
+                required
+              />
             </div>
-          </CardFooter>
-        </Card>
+            
+            <div>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1"
+                autoComplete="new-password"
+                required
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Must be at least 6 characters
+              </p>
+            </div>
+            
+            <div>
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Input
+                id="confirmPassword"
+                type="password"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="mt-1"
+                autoComplete="new-password"
+                required
+              />
+            </div>
+          </div>
+          
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating account...
+              </>
+            ) : (
+              'Sign Up'
+            )}
+          </Button>
+          
+          <div className="text-center mt-4">
+            <p className="text-sm text-gray-600">
+              Already have an account?{' '}
+              <Link to="/sign-in" className="text-primary hover:underline">
+                Sign in
+              </Link>
+            </p>
+          </div>
+        </form>
       </div>
-    </Layout>
+    </div>
   );
-}
+};
+
+export default SignUp;

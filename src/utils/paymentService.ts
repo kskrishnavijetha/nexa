@@ -12,7 +12,6 @@ export {
   recordScanUsage,
   shouldUpgrade,
   shouldUpgradeTier,
-  isFreePlanCompleted,
   clearUserSubscription
 } from './payment/subscriptionService';
 

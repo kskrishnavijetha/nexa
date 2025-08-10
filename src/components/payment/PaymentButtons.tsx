@@ -1,8 +1,7 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { shouldUpgrade, saveSubscription, isFreePlanCompleted } from '@/utils/paymentService';
+import { shouldUpgrade, saveSubscription } from '@/utils/paymentService';
 import { useAuth } from '@/contexts/AuthContext';
 import FreeButton from './buttons/FreeButton';
 import PaidTierHandler from './buttons/PaidTierHandler';
@@ -27,7 +26,6 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   currentPlan
 }) => {
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   const needsUpgrade = tier !== 'free' || (user && shouldUpgrade(user.id));
   const isChangingPlan = changePlan && tier !== currentPlan;
@@ -35,7 +33,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   const buttonText = isChangingPlan
     ? `Change to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`
     : tier === 'free' 
-      ? 'Activate Free Plan'
+      ? (needsUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan')
       : `Subscribe to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`;
 
   const handleFreePlanActivation = async () => {
@@ -43,28 +41,20 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
     setLoading(true);
     
     try {
-      console.log('PaymentButtons - Activating free plan for user:', user?.id);
-      
-      // Check if user has already completed free plan
-      if (user && isFreePlanCompleted(user.id)) {
-        console.log('PaymentButtons - Free plan already completed, redirecting to paid plans');
-        toast.info('Your free plan has been completed. Please choose a paid plan to continue.');
-        navigate('/pricing');
+      if (tier === 'free' && needsUpgrade) {
+        toast.info('Please select a paid plan to continue');
+        setLoading(false);
         return;
       }
       
-      // Generate a subscription ID for the free plan
-      const subscriptionId = 'free_' + Math.random().toString(36).substring(2, 15);
+      const subscriptionId = tier + '_' + Math.random().toString(36).substring(2, 15);
       
-      // Save the subscription
-      const subscription = saveSubscription(tier, subscriptionId, 'monthly', user?.id);
-      console.log('PaymentButtons - Free subscription saved:', subscription);
+      saveSubscription(tier, subscriptionId, 'monthly', user?.id);
       
-      toast.success('Free plan activated successfully!');
+      toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
       onSuccess(subscriptionId);
     } catch (error) {
-      console.error('PaymentButtons - Error activating free plan:', error);
-      toast.error('Failed to activate free plan. Please try again.');
+      toast.error(`Failed to activate ${tier} plan. Please try again.`);
     } finally {
       setLoading(false);
     }
@@ -87,7 +77,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   return (
     <FreeButton
       loading={loading}
-      needsUpgrade={false} // Always allow free plan activation
+      needsUpgrade={needsUpgrade}
       onActivate={handleFreePlanActivation}
       buttonText={buttonText}
     />

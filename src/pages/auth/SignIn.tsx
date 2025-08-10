@@ -11,7 +11,6 @@ import * as z from "zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Layout from '@/components/layout/Layout';
-import { getSubscription } from '@/utils/paymentService';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -24,44 +23,18 @@ export default function SignIn() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  console.log('SignIn component - Current user:', user);
-  
-  // Get redirect info and message from location state
+  // Always redirect to pricing page after login
   const redirectAfterLogin = location.state?.redirectAfterLogin;
-  const signupMessage = location.state?.message;
-  const prefilledEmail = location.state?.email;
   
-  // Show signup success message if present
-  useEffect(() => {
-    if (signupMessage) {
-      toast.success(signupMessage);
-    }
-  }, [signupMessage]);
-  
-  // Redirect authenticated users based on their subscription status
+  // Redirect authenticated users
   useEffect(() => {
     if (user) {
-      console.log('User is authenticated, checking subscription status...', { user, redirectAfterLogin });
-      
       // Special handling for lifetime payment redirect
       if (redirectAfterLogin === 'lifetime-payment') {
         window.location.href = 'https://www.paypal.com/ncp/payment/YF2GNLBJ2YCEE';
-        return;
-      }
-      
-      // Check if user has any subscription
-      const existingSubscription = getSubscription(user.id);
-      console.log('SignIn - Existing subscription:', existingSubscription);
-      
-      if (!existingSubscription) {
-        // New user without subscription - redirect to pricing to activate free plan
-        console.log('New user detected, redirecting to pricing page to activate free plan');
-        toast.success('Welcome! Please activate your free plan to get started.');
-        navigate('/pricing', { replace: true });
       } else {
-        // Existing user with subscription - redirect to dashboard
-        console.log('Existing user with subscription, redirecting to dashboard');
-        navigate('/dashboard', { replace: true });
+        // Redirect to pricing page instead of dashboard
+        navigate('/pricing', { replace: true });
       }
     }
   }, [user, navigate, redirectAfterLogin]);
@@ -69,26 +42,21 @@ export default function SignIn() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      email: prefilledEmail || "",
+      email: "",
       password: "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log('SignIn - Starting sign in process with:', { email: values.email });
     setLoading(true);
     
     try {
-      console.log('SignIn - Calling signIn function...');
       const { error } = await signIn(values.email, values.password);
-      
-      console.log('SignIn - Sign in result:', { error });
       
       if (error) {
         console.error("Error signing in:", error);
-        toast.error(`Failed to sign in: ${error.message || 'Please check your credentials.'}`);
+        toast.error("Failed to sign in. Please check your credentials.");
       } else {
-        console.log('SignIn - Sign in successful!');
         toast.success("Signed in successfully!");
         // Redirect will happen in useEffect
       }

@@ -1,217 +1,132 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { FileText, Upload, BarChart3, Settings, Crown, AlertTriangle } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
-import { getSubscription, hasActiveSubscription, isFreePlanCompleted } from '@/utils/paymentService';
-import Layout from '@/components/layout/Layout';
+import { shouldUpgrade, getSubscription } from '@/utils/paymentService';
 import { toast } from 'sonner';
-import FreePlanCompletionNotice from '@/components/payment/FreePlanCompletionNotice';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import DashboardOverview from '@/components/dashboard/DashboardOverview';
+import DashboardTabContent from '@/components/dashboard/DashboardTabContent';
+import WelcomeMessage from '@/components/dashboard/WelcomeMessage';
+import { useAuth } from '@/contexts/AuthContext';
+import { getUserHistoricalReports } from '@/utils/historyService';
+import { SelectedReportProvider } from '@/components/dashboard/context/SelectedReportContext';
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [subscription, setSubscription] = useState(user ? getSubscription(user.id) : null);
-  const [showFreePlanNotice, setShowFreePlanNotice] = useState(false);
+  const [hasData, setHasData] = useState<boolean>(false);
+  const subscription = user ? getSubscription(user.id) : null;
+  
+  // Calculate the actual remaining scans
+  const scansRemaining = subscription ? 
+    Math.max(0, subscription.scansLimit - subscription.scansUsed) : 0;
 
   useEffect(() => {
-    if (user) {
-      console.log('Dashboard - Checking subscription for user:', user.id);
-      const userSubscription = getSubscription(user.id);
-      console.log('Dashboard - User subscription:', userSubscription);
-      
-      setSubscription(userSubscription);
-      
-      // Only show free plan notice if user has a free plan AND it's actually completed
-      if (userSubscription?.plan === 'free') {
-        const isCompleted = isFreePlanCompleted(user.id);
-        console.log('Dashboard - Free plan completed check:', isCompleted);
-        setShowFreePlanNotice(isCompleted);
-      } else {
-        setShowFreePlanNotice(false);
+    const needsUpgrade = user ? shouldUpgrade(user.id) : false;
+    if (needsUpgrade) {
+      toast.info('Your free plan usage is complete. Please upgrade to continue.', {
+        action: {
+          label: 'Upgrade',
+          onClick: () => navigate('/pricing'),
+        },
+      });
+    }
+  }, [navigate, user]);
+
+  useEffect(() => {
+    const checkUserData = async () => {
+      if (user?.id) {
+        const userReports = getUserHistoricalReports(user.id);
+        setHasData(userReports.length > 0);
+        
+        if (userReports.length === 0) {
+          toast.info('Welcome to your dashboard! Start by running a document scan.', {
+            action: {
+              label: 'Scan Document',
+              onClick: () => navigate('/document-analysis'),
+            },
+            duration: 5000,
+          });
+        }
       }
-    }
-  }, [user]);
-
-  const handleStartAnalysis = () => {
-    // Check if user has an active subscription or scans remaining
-    if (user && !hasActiveSubscription(user.id)) {
-      toast.error('Please activate a subscription plan to start analysis');
-      navigate('/pricing');
-      return;
-    }
+    };
     
-    if (user && isFreePlanCompleted(user.id)) {
-      toast.info('Your free plan has been completed. Please upgrade to continue.');
-      navigate('/pricing');
-      return;
-    }
-    
-    navigate('/upload');
-  };
-
-  const handleViewReports = () => {
-    navigate('/audit-reports');
-  };
-
-  const handleManageSubscription = () => {
-    navigate('/payment');
-  };
-
-  const stats = [
-    { title: 'Documents Analyzed', value: '12', icon: FileText },
-    { title: 'Compliance Score', value: '94%', icon: BarChart3 },
-    { title: 'Active Scans', value: subscription?.scansUsed || '0', icon: Upload },
-    { title: 'Plan Status', value: subscription?.plan || 'None', icon: Crown },
-  ];
-
-  // Show free plan completion notice only if it's actually completed
-  if (showFreePlanNotice && subscription && subscription.plan === 'free') {
-    return (
-      <Layout>
-        <div className="container mx-auto py-8">
-          <div className="max-w-2xl mx-auto">
-            <FreePlanCompletionNotice
-              scansUsed={subscription.scansUsed}
-              scansLimit={subscription.scansLimit}
-              isExpired={subscription.expirationDate < new Date()}
-            />
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+    checkUserData();
+  }, [user, navigate]);
 
   return (
-    <Layout>
-      <div className="container mx-auto py-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back! Here's an overview of your compliance analysis.</p>
-        </div>
-
-        {/* Subscription Warning */}
-        {user && !hasActiveSubscription(user.id) && (
-          <Card className="mb-6 border-yellow-200 bg-yellow-50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-yellow-800">
-                <AlertTriangle className="h-5 w-5" />
-                Subscription Required
-              </CardTitle>
-              <CardDescription className="text-yellow-700">
-                Please activate a subscription plan to access all features and start analyzing documents.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={() => navigate('/pricing')}>
-                View Subscription Plans
-              </Button>
-            </CardContent>
-          </Card>
+    <SelectedReportProvider>
+      <div className="container mx-auto px-4 py-8">
+        <DashboardHeader />
+        
+        <WelcomeMessage />
+        
+        {subscription && (
+          <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-lg">
+            <div className="flex flex-wrap items-center justify-between">
+              <div>
+                <h3 className="text-base font-medium text-slate-700">Your {subscription.plan} Plan Usage</h3>
+                <p className="text-sm text-slate-600">
+                  {subscription.scansLimit === 999 ? 
+                    'Unlimited scans available' : 
+                    `${scansRemaining} of ${subscription.scansLimit} scans remaining this month`
+                  }
+                </p>
+              </div>
+              
+              {subscription.plan !== 'enterprise' && (
+                <button 
+                  onClick={() => navigate('/pricing')}
+                  className="text-primary hover:underline text-sm"
+                >
+                  Upgrade Plan →
+                </button>
+              )}
+            </div>
+          </div>
         )}
 
-        {/* Stats Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-          {stats.map((stat, index) => (
-            <Card key={index}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                <stat.icon className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Action Cards */}
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Upload className="h-5 w-5" />
-                Start New Analysis
-              </CardTitle>
-              <CardDescription>
-                Upload a document to begin compliance analysis
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={handleStartAnalysis} className="w-full">
-                Upload Document
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
-                View Reports
-              </CardTitle>
-              <CardDescription>
-                Access your compliance analysis reports
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={handleViewReports} variant="outline" className="w-full">
-                View Reports
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                Manage Subscription
-              </CardTitle>
-              <CardDescription>
-                Update your subscription plan and billing
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={handleManageSubscription} variant="outline" className="w-full">
-                Manage Plan
-              </Button>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Subscription Details */}
-        {subscription && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Current Subscription</CardTitle>
-              <CardDescription>Your current plan details</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 md:grid-cols-3">
-                <div>
-                  <div className="text-sm font-medium text-muted-foreground">Plan</div>
-                  <div className="text-lg font-semibold capitalize">{subscription.plan}</div>
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-muted-foreground">Scans Used</div>
-                  <div className="text-lg font-semibold">
-                    {subscription.scansUsed} / {subscription.scansLimit === 999 ? '∞' : subscription.scansLimit}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-sm font-medium text-muted-foreground">Status</div>
-                  <div className={`text-lg font-semibold ${subscription.active ? 'text-green-600' : 'text-red-600'}`}>
-                    {subscription.active ? 'Active' : 'Inactive'}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="compliance">Compliance</TabsTrigger>
+            <TabsTrigger value="risks">Risks</TabsTrigger>
+            <TabsTrigger value="actions">Actions</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="overview">
+            <DashboardOverview />
+          </TabsContent>
+          
+          <TabsContent value="compliance">
+            <DashboardTabContent activeTab="compliance" />
+          </TabsContent>
+          
+          <TabsContent value="risks">
+            <DashboardTabContent activeTab="risks" />
+          </TabsContent>
+          
+          <TabsContent value="actions">
+            <DashboardTabContent activeTab="actions" />
+          </TabsContent>
+        </Tabs>
+        
+        {!hasData && (
+          <div className="mt-8 p-4 border border-dashed rounded-md text-center">
+            <p className="text-muted-foreground">
+              Your dashboard will display real-time compliance data once you've performed document scans.
+            </p>
+            <button 
+              onClick={() => navigate('/document-analysis')}
+              className="mt-2 text-primary hover:underline"
+            >
+              Start your first document scan →
+            </button>
+          </div>
         )}
       </div>
-    </Layout>
+    </SelectedReportProvider>
   );
 };
 
