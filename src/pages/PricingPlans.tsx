@@ -67,8 +67,9 @@ const PricingPlans = () => {
     return 'Subscribe';
   };
 
-  // Check if the free plan should be displayed
-  const shouldShowFreePlan = !needsUpgrade || !subscription;
+  // Show free plan for new users (no subscription) or users who haven't completed free plan
+  // Only hide free plan if user has completed their free plan (used all scans or expired)
+  const shouldShowFreePlan = !subscription || (subscription && subscription.plan !== 'free') || !needsUpgrade;
 
   if (loading || checkingSubscription) {
     return (
@@ -112,7 +113,7 @@ const PricingPlans = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-        {/* Only show Free Plan if not upgrading from an existing plan that's expired or depleted */}
+        {/* Show Free Plan for new users and users who haven't completed free plan */}
         {shouldShowFreePlan && (
           <PricingCard
             title="Free"
@@ -122,7 +123,6 @@ const PricingPlans = () => {
             buttonText={getButtonText()}
             buttonVariant="outline"
             onSelectPlan={() => handleSelectPlan('free')}
-            disabled={needsUpgrade}
           />
         )}
 
