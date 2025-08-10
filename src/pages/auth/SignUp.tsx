@@ -42,6 +42,7 @@ const SignUp: React.FC = () => {
       const { error } = await signUp(email, password, name);
       
       if (error) {
+        console.error('Signup error:', error);
         toast.error(error.message);
       } else {
         // Show success message
@@ -56,15 +57,18 @@ const SignUp: React.FC = () => {
               name: name,
             }
           });
+          console.log('Welcome email sent successfully');
         } catch (emailError) {
           console.error("Error sending welcome email:", emailError);
           // Don't show error to user, just log it
         }
 
-        // Redirect to sign-in page immediately
-        navigate('/sign-in');
+        // Always redirect to sign-in page after successful signup
+        console.log('Redirecting to sign-in page...');
+        navigate('/sign-in', { replace: true });
       }
     } catch (error: any) {
+      console.error('Exception during signup:', error);
       toast.error(error.message || 'An error occurred during sign up');
     } finally {
       setIsLoading(false);
