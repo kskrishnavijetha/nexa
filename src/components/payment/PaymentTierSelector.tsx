@@ -35,8 +35,8 @@ const PaymentTierSelector: React.FC<PaymentTierSelectorProps> = ({
       className="grid gap-3"
     >
       {tiers.map((tier) => {
-        // Only skip free tier if the user is specifically upgrading from a paid plan
-        if (tier.id === 'free' && changePlan && currentPlan && currentPlan !== 'free') {
+        // Skip free tier if initialTier is set (user is upgrading) or when changing plans
+        if (tier.id === 'free' && ((initialTier && initialTier !== 'free') || changePlan)) {
           return null;
         }
         

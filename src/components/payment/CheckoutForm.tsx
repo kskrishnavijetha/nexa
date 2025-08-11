@@ -22,22 +22,25 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
   changePlan = false,
   currentPlan
 }) => {
-  // Always respect the initialPlan if provided, otherwise default to free for new users
   const [selectedTier, setSelectedTier] = useState<string>(initialPlan || 'free');
   // Always use monthly billing now
   const billingCycle = 'monthly';
   const [loading, setLoading] = useState(false);
   const currentSubscription = getSubscription();
   
-  // If initialPlan is provided, always use it and don't override
+  // If initialPlan is provided or user has an existing subscription, preselect that tier
   useEffect(() => {
     if (initialPlan) {
       setSelectedTier(initialPlan);
-    } else if (currentSubscription?.plan && changePlan) {
-      // Only override for plan changes if no initial plan is specified
-      setSelectedTier(currentSubscription.plan);
+    } else if (currentSubscription?.plan) {
+      // If changing plan, preselect current plan
+      if (changePlan) {
+        setSelectedTier(currentSubscription.plan);
+      } else if (currentSubscription.plan === 'free' && !currentSubscription.active) {
+        // If free plan has expired, suggest the starter plan as the next step
+        setSelectedTier('starter');
+      }
     }
-    // Don't auto-suggest starter plan for new users - let them choose
   }, [initialPlan, currentSubscription, changePlan]);
 
   const handleSuccess = (paymentId: string) => {

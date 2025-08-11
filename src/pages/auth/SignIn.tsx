@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -12,7 +11,6 @@ import * as z from "zod";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Layout from '@/components/layout/Layout';
-import CompactPricingSection from '@/components/pricing/CompactPricingSection';
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -22,7 +20,6 @@ const formSchema = z.object({
 export default function SignIn() {
   const { signIn, user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [showPricing, setShowPricing] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -61,12 +58,7 @@ export default function SignIn() {
         toast.error("Failed to sign in. Please check your credentials.");
       } else {
         toast.success("Signed in successfully!");
-        // Show pricing section for new users
-        setShowPricing(true);
-        // Redirect will happen in useEffect after a short delay
-        setTimeout(() => {
-          navigate('/pricing', { replace: true });
-        }, 2000);
+        // Redirect will happen in useEffect
       }
     } catch (err) {
       console.error("Exception during sign in:", err);
@@ -79,70 +71,64 @@ export default function SignIn() {
   return (
     <Layout>
       <div className="flex min-h-[calc(100vh-180px)] items-center justify-center px-4">
-        <div className="w-full max-w-4xl">
-          <Card className="w-full max-w-md mx-auto">
-            <CardHeader>
-              <CardTitle className="text-2xl">Sign In</CardTitle>
-              <CardDescription>
-                Enter your credentials to access your account
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input placeholder="your.email@example.com" {...field} type="email" disabled={loading} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input {...field} type="password" disabled={loading} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Signing in...
-                      </>
-                    ) : (
-                      "Sign In"
-                    )}
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-            <CardFooter className="flex-col space-y-4">
-              <div className="text-sm text-muted-foreground text-center">
-                Don't have an account?{" "}
-                <Button variant="link" className="p-0" onClick={() => navigate("/sign-up")}>
-                  Sign up
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-2xl">Sign In</CardTitle>
+            <CardDescription>
+              Enter your credentials to access your account
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input placeholder="your.email@example.com" {...field} type="email" disabled={loading} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="password"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Password</FormLabel>
+                      <FormControl>
+                        <Input {...field} type="password" disabled={loading} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
                 </Button>
-              </div>
-            </CardFooter>
-          </Card>
-          
-          {showPricing && (
-            <CompactPricingSection />
-          )}
-        </div>
+              </form>
+            </Form>
+          </CardContent>
+          <CardFooter className="flex-col space-y-4">
+            <div className="text-sm text-muted-foreground text-center">
+              Don't have an account?{" "}
+              <Button variant="link" className="p-0" onClick={() => navigate("/sign-up")}>
+                Sign up
+              </Button>
+            </div>
+          </CardFooter>
+        </Card>
       </div>
     </Layout>
   );
