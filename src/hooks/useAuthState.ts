@@ -1,14 +1,16 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 import { clearUserData } from '@/utils/auth/authUtils';
-import { saveSubscription, getSubscription } from '@/utils/paymentService';
 
 export function useAuthState() {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log('Auth provider initializing...');
@@ -38,15 +40,6 @@ export function useAuthState() {
           setSession(newSession);
           setUser(newSession?.user ?? null);
           setLoading(false);
-          
-          // Automatically assign free plan if user doesn't have a subscription
-          if (newSession?.user) {
-            const existingSubscription = getSubscription(newSession.user.id);
-            if (!existingSubscription) {
-              console.log('Assigning free plan to new user');
-              saveSubscription('free', 'free_' + Date.now(), 'monthly', newSession.user.id);
-            }
-          }
           
           toast.success('Signed in successfully!');
           
@@ -79,41 +72,22 @@ export function useAuthState() {
       console.log('Initial session check:', initialSession ? 'User is logged in' : 'No session found');
       setSession(initialSession);
       setUser(initialSession?.user ?? null);
-      
-      // Assign free plan if user is logged in but has no subscription
-      if (initialSession?.user) {
-        const existingSubscription = getSubscription(initialSession.user.id);
-        if (!existingSubscription) {
-          console.log('Assigning free plan to existing user without subscription');
-          saveSubscription('free', 'free_' + Date.now(), 'monthly', initialSession.user.id);
-        }
-      }
-      
       setLoading(false);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [navigate]);
 
-  const signUp = async (email: string, password: string, name?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
+  const signUp = async (email: string, password: string) => {
     const { error } = await supabase.auth.signUp({
       email,
       password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: name || '',
-          name: name || ''
-        }
-      }
     });
 
-    if (!error && !error) {
-      // Don't show verification email message here as we handle it in the component
+    if (!error) {
+      toast.success('Verification email sent! Please check your inbox.');
     }
 
     return { error };
@@ -169,7 +143,8 @@ export function useAuthState() {
       toast.success('Signed out successfully');
       setLoading(false);
       
-      // Navigation will be handled by the component that calls signOut
+      // Navigate to home page
+      navigate('/', { replace: true });
       
       return { error: null };
       
@@ -185,7 +160,7 @@ export function useAuthState() {
       
       return { error };
     }
-  }, []);
+  }, [navigate]);
 
   return {
     session,

@@ -1,40 +1,63 @@
 
-export const pricing = {
-  free: { monthly: 0, annually: 0 },
-  starter: { monthly: 29, annually: 290 },
-  pro: { monthly: 99, annually: 990 },
-  enterprise: { monthly: 299, annually: 2990 }
-};
-
-export const formatPrice = (price: number): string => {
-  return price === 0 ? 'Free' : `$${price}`;
-};
-
 export const freeFeatures = [
-  '3 document scans per month',
-  'Basic compliance analysis',
-  'Standard reports'
+  "5 document scans per month",
+  "AI Risk Analysis",
+  "GDPR compliance only"
 ];
 
 export const starterFeatures = [
-  '20 document scans per month',
-  'Enhanced compliance analysis',
-  'PDF report generation',
-  'Email support'
+  "20 document scans per month",
+  "AI Risk Analysis",
+  "GDPR & HIPAA compliance",
+  "Predictive Analytics",
+  "Smart Audit Trail",
+  "Export to PDF"
 ];
 
 export const proFeatures = [
-  'Unlimited document scans',
-  'Advanced AI analysis',
-  'Custom report templates',
-  'Priority support',
-  'API access'
+  "Unlimited document scans",
+  "AI Risk Analysis",
+  "GDPR, HIPAA, & SOC 2 compliance",
+  "Extended Audit Reports",
+  "Predictive Analytics",
+  "Smart Audit Trail",
+  "Hash Verification",
+  "Export to PDF",
+  "Slack Alerts & Logs"
 ];
 
 export const enterpriseFeatures = [
-  'Everything in Pro',
-  'Multi-user support',
-  'Custom branding',
-  'Dedicated support',
-  'Advanced integrations'
+  "Unlimited document scans",
+  "AI Risk Analysis", 
+  "Full framework coverage (SOC 2, ISO, GLBA, PCI-DSS...)",
+  "Extended Audit Reports",
+  "Predictive Analytics",
+  "Multi-user Smart Audit Trail",
+  "Hash Verification",
+  "Export to PDF",
+  "Slack Alerts & Logs",
+  "Custom Branding",
+  "Priority Support & SLA"
 ];
+
+// Pricing data
+export const pricing = {
+  free: {
+    monthly: 0,
+  },
+  starter: {
+    monthly: 59,
+  },
+  pro: {
+    monthly: 149,
+  },
+  enterprise: {
+    monthly: 599,
+  }
+};
+
+// Format price helper
+export const formatPrice = (price: number, cycle: 'monthly' | 'annually') => {
+  if (price === 0) return "Free";
+  return `$${price}/month`;
+};
