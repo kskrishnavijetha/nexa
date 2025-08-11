@@ -17,14 +17,22 @@ const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({
   onRenew,
   onChangePlan 
 }) => {
-  const isActive = subscription.active;
   const isLifetime = subscription.isLifetime || subscription.billingCycle === 'lifetime';
+  
+  // Fix: Check if subscription is actually active by checking expiration date properly
+  const now = new Date();
+  const expirationDate = new Date(subscription.expirationDate);
+  const isExpired = !isLifetime && expirationDate < now;
+  
+  // Use the subscription.active flag first, but also check expiration
+  const isActive = subscription.active && !isExpired;
+  
   const isPaidPlan = subscription.plan !== 'free';
   
   // Handle expiry display differently for lifetime subscriptions
   const formattedExpiry = isLifetime 
     ? 'Never expires' 
-    : formatDistance(new Date(subscription.expirationDate), new Date(), { addSuffix: true });
+    : formatDistance(expirationDate, now, { addSuffix: true });
   
   const getPlanName = () => {
     if (isLifetime) {
@@ -32,7 +40,7 @@ const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({
     }
     
     const planName = subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1);
-    return `${planName} ${subscription.billingCycle || 'Monthly'} Plan`;
+    return `${planName} Monthly Plan`;
   };
   
   // Calculate remaining scans correctly
@@ -42,6 +50,15 @@ const SubscriptionStatus: React.FC<SubscriptionStatusProps> = ({
   
   // Fixed: Only check isLimitReached when scansRemaining is a number, not when it's "Unlimited"
   const isLimitReached = !isLifetime && typeof scansRemaining === 'number' && scansRemaining <= 0;
+  
+  console.log('SubscriptionStatus debug:', {
+    subscription,
+    isActive,
+    isExpired,
+    expirationDate,
+    now,
+    formattedExpiry
+  });
   
   return (
     <Card className={`mb-8 ${!isActive ? 'border-amber-200 bg-amber-50' : (isLifetime ? 'border-emerald-200 bg-emerald-50' : '')}`}>

@@ -1,4 +1,3 @@
-
 /**
  * Service for managing user subscriptions
  */
@@ -27,12 +26,8 @@ export const saveSubscription = (plan: string, paymentId: string, billingCycle: 
   const selectedTier = pricingTiers[plan as keyof typeof pricingTiers] || pricingTiers.starter;
   const expirationDate = new Date();
   
-  // For free plan, set expiration to 30 days from now and ensure it's active
-  if (plan === 'free') {
-    expirationDate.setDate(expirationDate.getDate() + 30);
-  } else {
-    expirationDate.setDate(expirationDate.getDate() + selectedTier.days);
-  }
+  // Set expiration date based on plan
+  expirationDate.setDate(expirationDate.getDate() + selectedTier.days);
   
   const subscription: SubscriptionInfo = {
     active: true, // Always start as active for new subscriptions
@@ -49,7 +44,10 @@ export const saveSubscription = (plan: string, paymentId: string, billingCycle: 
   const storageKey = userId ? `subscription_${userId}` : 'subscription';
   localStorage.setItem(storageKey, JSON.stringify(subscription));
   
-  console.log('Subscription saved:', subscription);
+  console.log('Subscription saved:', {
+    ...subscription,
+    expirationDate: subscription.expirationDate.toISOString()
+  });
   return subscription;
 };
 
@@ -62,10 +60,11 @@ export const getSubscription = (userId?: string): SubscriptionInfo | null => {
       const parsedSubscription = JSON.parse(userSubscription);
       parsedSubscription.expirationDate = new Date(parsedSubscription.expirationDate);
       
-      // Check if subscription is expired (but not for lifetime subscriptions)
-      if (!parsedSubscription.isLifetime && parsedSubscription.expirationDate < new Date()) {
-        parsedSubscription.active = false;
-      }
+      console.log('Retrieved user subscription:', {
+        ...parsedSubscription,
+        expirationDate: parsedSubscription.expirationDate.toISOString(),
+        isExpired: !parsedSubscription.isLifetime && parsedSubscription.expirationDate < new Date()
+      });
       
       return parsedSubscription;
     }
@@ -80,17 +79,18 @@ export const getSubscription = (userId?: string): SubscriptionInfo | null => {
   const parsedSubscription = JSON.parse(subscription);
   parsedSubscription.expirationDate = new Date(parsedSubscription.expirationDate);
   
-  // Check if subscription is expired (but not for lifetime subscriptions)
-  if (!parsedSubscription.isLifetime && parsedSubscription.expirationDate < new Date()) {
-    parsedSubscription.active = false;
-  }
-  
   // If we have a userId but no user-specific subscription,
   // migrate this subscription to be user-specific
   if (userId && !parsedSubscription.userId) {
     parsedSubscription.userId = userId;
     localStorage.setItem(`subscription_${userId}`, JSON.stringify(parsedSubscription));
   }
+  
+  console.log('Retrieved generic subscription:', {
+    ...parsedSubscription,
+    expirationDate: parsedSubscription.expirationDate.toISOString(),
+    isExpired: !parsedSubscription.isLifetime && parsedSubscription.expirationDate < new Date()
+  });
   
   return parsedSubscription;
 };
