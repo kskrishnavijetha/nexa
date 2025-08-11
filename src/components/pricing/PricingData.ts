@@ -6,6 +6,10 @@ export const pricing = {
   enterprise: { monthly: 299, annually: 2990 }
 };
 
+export const formatPrice = (price: number): string => {
+  return price === 0 ? 'Free' : `$${price}`;
+};
+
 export const freeFeatures = [
   '3 document scans per month',
   'Basic compliance analysis',

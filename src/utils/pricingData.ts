@@ -9,3 +9,16 @@ export const getPrice = (tier: string, cycle: 'monthly' | 'annually'): number =>
   
   return prices[tier as keyof typeof prices]?.[cycle] || 0;
 };
+
+export const isFeatureAvailable = (feature: string, plan: string): boolean => {
+  const featureAvailability: Record<string, string[]> = {
+    extendedAuditReports: ['pro', 'enterprise'],
+    hashVerification: ['starter', 'pro', 'enterprise'],
+    apiAccess: ['pro', 'enterprise'],
+    customBranding: ['enterprise'],
+    prioritySupport: ['pro', 'enterprise'],
+    unlimitedScans: ['pro', 'enterprise']
+  };
+  
+  return featureAvailability[feature]?.includes(plan) || false;
+};

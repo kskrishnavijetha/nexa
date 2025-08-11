@@ -8,6 +8,7 @@ export interface Subscription {
   isActive: boolean;
   active: boolean; // Legacy property for backward compatibility
   expiresAt?: Date;
+  expirationDate?: Date; // Add this property for backward compatibility
   isLifetime?: boolean;
   billingCycle?: string;
 }
@@ -16,7 +17,7 @@ export interface Subscription {
 export type SubscriptionInfo = Subscription;
 
 // Mock payment service functions for the current implementation
-export const saveSubscription = (plan: string, subscriptionId: string, interval: string, userId: string) => {
+export const saveSubscription = (plan: string, subscriptionId: string, interval: string, userId?: string) => {
   const subscription: Subscription = {
     plan,
     subscriptionId,
@@ -26,18 +27,19 @@ export const saveSubscription = (plan: string, subscriptionId: string, interval:
     isActive: true,
     active: true, // Legacy property
     expiresAt: plan === 'free' ? undefined : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+    expirationDate: plan === 'free' ? undefined : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // For backward compatibility
     isLifetime: false,
     billingCycle: interval
   };
   
-  localStorage.setItem(`subscription_${userId}`, JSON.stringify(subscription));
+  const storageKey = userId ? `subscription_${userId}` : 'subscription';
+  localStorage.setItem(storageKey, JSON.stringify(subscription));
   console.log('Subscription saved:', subscription);
 };
 
 export const getSubscription = (userId?: string): Subscription | null => {
-  if (!userId) return null;
-  
-  const stored = localStorage.getItem(`subscription_${userId}`);
+  const storageKey = userId ? `subscription_${userId}` : 'subscription';
+  const stored = localStorage.getItem(storageKey);
   if (!stored) return null;
   
   try {
@@ -46,13 +48,16 @@ export const getSubscription = (userId?: string): Subscription | null => {
     if (subscription && typeof subscription.active === 'undefined') {
       subscription.active = subscription.isActive;
     }
+    if (subscription && !subscription.expirationDate && subscription.expiresAt) {
+      subscription.expirationDate = subscription.expiresAt;
+    }
     return subscription;
   } catch {
     return null;
   }
 };
 
-export const shouldUpgrade = (userId: string): boolean => {
+export const shouldUpgrade = (userId?: string): boolean => {
   const subscription = getSubscription(userId);
   if (!subscription) return true;
   
@@ -66,7 +71,7 @@ export const shouldUpgrade = (userId: string): boolean => {
 // Alias for shouldUpgrade for backward compatibility
 export const shouldUpgradeTier = shouldUpgrade;
 
-export const hasActiveSubscription = (userId: string): boolean => {
+export const hasActiveSubscription = (userId?: string): boolean => {
   const subscription = getSubscription(userId);
   if (!subscription) return false;
   
@@ -74,14 +79,14 @@ export const hasActiveSubscription = (userId: string): boolean => {
   return subscription.isActive && !isExpired;
 };
 
-export const hasScansRemaining = (userId: string): boolean => {
+export const hasScansRemaining = (userId?: string): boolean => {
   const subscription = getSubscription(userId);
   if (!subscription) return false;
   
   return subscription.scansUsed < subscription.scansLimit;
 };
 
-export const recordScanUsage = (userId: string): boolean => {
+export const recordScanUsage = (userId?: string): boolean => {
   const subscription = getSubscription(userId);
   if (!subscription) return false;
   
@@ -90,13 +95,15 @@ export const recordScanUsage = (userId: string): boolean => {
   }
   
   subscription.scansUsed += 1;
-  localStorage.setItem(`subscription_${userId}`, JSON.stringify(subscription));
+  const storageKey = userId ? `subscription_${userId}` : 'subscription';
+  localStorage.setItem(storageKey, JSON.stringify(subscription));
   console.log('Scan usage recorded. Used:', subscription.scansUsed, 'Limit:', subscription.scansLimit);
   
   return true;
 };
 
-export const clearUserSubscription = (userId: string): void => {
-  localStorage.removeItem(`subscription_${userId}`);
+export const clearUserSubscription = (userId?: string): void => {
+  const storageKey = userId ? `subscription_${userId}` : 'subscription';
+  localStorage.removeItem(storageKey);
   console.log('User subscription cleared');
 };
