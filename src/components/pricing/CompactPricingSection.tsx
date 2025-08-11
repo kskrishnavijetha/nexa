@@ -14,30 +14,44 @@ const CompactPricingSection: React.FC = () => {
       price: '$0',
       description: 'Basic compliance checks',
       features: ['5 document scans/month', 'Basic compliance analysis', 'Email support'],
-      buttonText: 'Get Started',
-      variant: 'outline' as const
+      buttonText: 'Start Free',
+      variant: 'outline' as const,
+      planId: 'free'
     },
     {
       name: 'Starter',
-      price: '$29',
+      price: '$59',
       description: 'Essential compliance tools',
       features: ['20 document scans/month', 'PDF reports', 'Priority support'],
       buttonText: 'Choose Starter',
       variant: 'default' as const,
-      popular: true
+      popular: true,
+      planId: 'starter'
     },
     {
       name: 'Pro',
-      price: '$79',
+      price: '$149',
       description: 'Advanced compliance features',
       features: ['Unlimited scans', 'Advanced analysis', 'API access'],
       buttonText: 'Choose Pro',
-      variant: 'default' as const
+      variant: 'default' as const,
+      planId: 'pro'
     }
   ];
 
-  const handleSelectPlan = (planName: string) => {
-    navigate('/pricing');
+  const handleSelectPlan = (planId: string) => {
+    if (planId === 'free') {
+      // For free plan, redirect to payment page with free plan selected
+      navigate('/payment', { 
+        state: { 
+          selectedPlan: 'free',
+          billingCycle: 'monthly' 
+        }
+      });
+    } else {
+      // For paid plans, go to full pricing page
+      navigate('/pricing');
+    }
   };
 
   return (
@@ -74,7 +88,7 @@ const CompactPricingSection: React.FC = () => {
               <Button 
                 variant={plan.variant} 
                 className="w-full" 
-                onClick={() => handleSelectPlan(plan.name)}
+                onClick={() => handleSelectPlan(plan.planId)}
               >
                 {plan.buttonText}
               </Button>
