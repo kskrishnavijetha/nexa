@@ -1,63 +1,36 @@
 
+export const pricing = {
+  free: { monthly: 0, annually: 0 },
+  starter: { monthly: 29, annually: 290 },
+  pro: { monthly: 99, annually: 990 },
+  enterprise: { monthly: 299, annually: 2990 }
+};
+
 export const freeFeatures = [
-  "5 document scans per month",
-  "AI Risk Analysis",
-  "GDPR compliance only"
+  '3 document scans per month',
+  'Basic compliance analysis',
+  'Standard reports'
 ];
 
 export const starterFeatures = [
-  "20 document scans per month",
-  "AI Risk Analysis",
-  "GDPR & HIPAA compliance",
-  "Predictive Analytics",
-  "Smart Audit Trail",
-  "Export to PDF"
+  '20 document scans per month',
+  'Enhanced compliance analysis',
+  'PDF report generation',
+  'Email support'
 ];
 
 export const proFeatures = [
-  "Unlimited document scans",
-  "AI Risk Analysis",
-  "GDPR, HIPAA, & SOC 2 compliance",
-  "Extended Audit Reports",
-  "Predictive Analytics",
-  "Smart Audit Trail",
-  "Hash Verification",
-  "Export to PDF",
-  "Slack Alerts & Logs"
+  'Unlimited document scans',
+  'Advanced AI analysis',
+  'Custom report templates',
+  'Priority support',
+  'API access'
 ];
 
 export const enterpriseFeatures = [
-  "Unlimited document scans",
-  "AI Risk Analysis", 
-  "Full framework coverage (SOC 2, ISO, GLBA, PCI-DSS...)",
-  "Extended Audit Reports",
-  "Predictive Analytics",
-  "Multi-user Smart Audit Trail",
-  "Hash Verification",
-  "Export to PDF",
-  "Slack Alerts & Logs",
-  "Custom Branding",
-  "Priority Support & SLA"
+  'Everything in Pro',
+  'Multi-user support',
+  'Custom branding',
+  'Dedicated support',
+  'Advanced integrations'
 ];
-
-// Pricing data
-export const pricing = {
-  free: {
-    monthly: 0,
-  },
-  starter: {
-    monthly: 59,
-  },
-  pro: {
-    monthly: 149,
-  },
-  enterprise: {
-    monthly: 599,
-  }
-};
-
-// Format price helper
-export const formatPrice = (price: number, cycle: 'monthly' | 'annually') => {
-  if (price === 0) return "Free";
-  return `$${price}/month`;
-};
