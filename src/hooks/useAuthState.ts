@@ -46,10 +46,11 @@ export function useAuthState() {
             if (!existingSubscription) {
               console.log('Assigning free plan to new user');
               saveSubscription('free', 'free_' + Date.now(), 'monthly', newSession.user.id);
+              toast.success('Welcome! Your free plan is now active.');
+            } else {
+              toast.success('Signed in successfully!');
             }
           }
-          
-          toast.success('Signed in successfully!');
           
         } else if (event === 'SIGNED_OUT') {
           // Clear all state

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -23,7 +24,7 @@ export default function SignIn() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Always redirect to pricing page after login
+  // Always redirect to dashboard after login for returning users
   const redirectAfterLogin = location.state?.redirectAfterLogin;
   
   // Redirect authenticated users
@@ -33,8 +34,8 @@ export default function SignIn() {
       if (redirectAfterLogin === 'lifetime-payment') {
         window.location.href = 'https://www.paypal.com/ncp/payment/YF2GNLBJ2YCEE';
       } else {
-        // Redirect to pricing page instead of dashboard
-        navigate('/pricing', { replace: true });
+        // Redirect to dashboard - user already has free plan activated
+        navigate('/', { replace: true });
       }
     }
   }, [user, navigate, redirectAfterLogin]);
@@ -56,10 +57,8 @@ export default function SignIn() {
       if (error) {
         console.error("Error signing in:", error);
         toast.error("Failed to sign in. Please check your credentials.");
-      } else {
-        toast.success("Signed in successfully!");
-        // Redirect will happen in useEffect
       }
+      // Success message will be handled in useAuthState hook
     } catch (err) {
       console.error("Exception during sign in:", err);
       toast.error("An unexpected error occurred. Please try again.");
