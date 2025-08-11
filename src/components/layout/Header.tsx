@@ -5,7 +5,6 @@ import { User as UserIcon, LogOut, CreditCard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
-import DemoModeToggle from '@/components/demo/DemoModeToggle';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -96,10 +95,7 @@ const Header: React.FC = () => {
           </nav>
         )}
         
-        <div className="ml-auto flex space-x-3 items-center">
-          {/* Demo Mode Toggle - always visible for non-authenticated users */}
-          {!user && <DemoModeToggle />}
-          
+        <div className="ml-auto flex space-x-3">
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
