@@ -45,10 +45,16 @@ export function useAuthState() {
             const existingSubscription = getSubscription(newSession.user.id);
             if (!existingSubscription) {
               console.log('Assigning free plan to new user');
+              // Create a fresh free subscription for new users
               saveSubscription('free', 'free_' + Date.now(), 'monthly', newSession.user.id);
-              toast.success('Welcome! Your free plan is now active.');
+              toast.success('Welcome! Your free plan is now active with 5 scans per month.');
             } else {
-              toast.success('Signed in successfully!');
+              // For existing users, check if their subscription is valid
+              if (existingSubscription.active) {
+                toast.success('Welcome back! Your subscription is active.');
+              } else {
+                toast.success('Signed in successfully!');
+              }
             }
           }
           

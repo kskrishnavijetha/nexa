@@ -26,12 +26,18 @@ export const saveSubscription = (plan: string, paymentId: string, billingCycle: 
   
   const selectedTier = pricingTiers[plan as keyof typeof pricingTiers] || pricingTiers.starter;
   const expirationDate = new Date();
-  expirationDate.setDate(expirationDate.getDate() + selectedTier.days);
+  
+  // For free plan, set expiration to 30 days from now and ensure it's active
+  if (plan === 'free') {
+    expirationDate.setDate(expirationDate.getDate() + 30);
+  } else {
+    expirationDate.setDate(expirationDate.getDate() + selectedTier.days);
+  }
   
   const subscription: SubscriptionInfo = {
-    active: true,
+    active: true, // Always start as active for new subscriptions
     plan: plan,
-    scansUsed: 0,
+    scansUsed: 0, // Always start with 0 scans used
     scansLimit: selectedTier.scans,
     expirationDate: expirationDate,
     billingCycle: billingCycle,
@@ -43,6 +49,7 @@ export const saveSubscription = (plan: string, paymentId: string, billingCycle: 
   const storageKey = userId ? `subscription_${userId}` : 'subscription';
   localStorage.setItem(storageKey, JSON.stringify(subscription));
   
+  console.log('Subscription saved:', subscription);
   return subscription;
 };
 
