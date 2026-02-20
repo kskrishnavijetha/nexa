@@ -111,10 +111,13 @@ const Header: React.FC = () => {
                   <Link to="/dashboard" className="w-full cursor-pointer">Dashboard</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
+                  <Link to="/settings" className="w-full cursor-pointer">Profile & Settings</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
                   <Link to="/pricing" className="w-full cursor-pointer">Subscription</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleSignOut} className="text-red-500 cursor-pointer">
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign out
                 </DropdownMenuItem>
