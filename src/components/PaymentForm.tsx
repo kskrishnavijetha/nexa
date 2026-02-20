@@ -1,8 +1,7 @@
-
 import React from 'react';
-import { getSubscription, hasActiveSubscription } from '@/utils/paymentService';
 import CheckoutForm from './payment/CheckoutForm';
 import PaymentPageHeader from './payment/PaymentPageHeader';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface PaymentFormProps {
   onSuccess?: (paymentId: string) => void;
@@ -11,22 +10,22 @@ interface PaymentFormProps {
 }
 
 const PaymentForm: React.FC<PaymentFormProps> = (props) => {
-  const subscription = getSubscription();
+  const { subscription } = useSubscription();
   const isRenewal = subscription && !subscription.active;
   const isNewSignup = !subscription;
   const isChangingPlan = props.changePlan || (subscription && subscription.active);
-  
+
   return (
     <div className="max-w-md w-full mx-auto">
-      <PaymentPageHeader 
-        isRenewal={isRenewal} 
-        isNewSignup={isNewSignup} 
-        isChangingPlan={isChangingPlan} 
+      <PaymentPageHeader
+        isRenewal={isRenewal}
+        isNewSignup={isNewSignup}
+        isChangingPlan={isChangingPlan}
       />
-      <CheckoutForm 
-        {...props} 
+      <CheckoutForm
+        {...props}
         changePlan={isChangingPlan}
-        currentPlan={subscription?.plan} 
+        currentPlan={subscription?.plan}
       />
     </div>
   );

@@ -1,22 +1,20 @@
-
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { getSubscription } from '@/utils/paymentService';
+import { useSubscription } from '@/hooks/useSubscription';
 import { useAuth } from '@/contexts/AuthContext';
 
 const WelcomeMessage: React.FC = () => {
   const [dismissed, setDismissed] = useState(false);
   const [isFirstVisit, setIsFirstVisit] = useState(false);
   const { user } = useAuth();
-  
-  const subscription = user ? getSubscription(user.id) : null;
+  const { subscription } = useSubscription();
+
   const isPro = subscription && subscription.plan !== 'free';
   const isLifetime = subscription?.isLifetime || false;
 
   useEffect(() => {
-    // Check if this is the user's first visit
     const hasVisitedBefore = localStorage.getItem('nexabloom_visited');
     if (!hasVisitedBefore && user) {
       setIsFirstVisit(true);
@@ -24,27 +22,25 @@ const WelcomeMessage: React.FC = () => {
     }
   }, [user]);
 
-  if (dismissed || !isFirstVisit) {
-    return null;
-  }
+  if (dismissed || !isFirstVisit) return null;
 
   return (
     <Card className="mb-6 relative overflow-hidden border-l-4 border-l-primary">
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        className="absolute top-2 right-2 h-8 w-8 p-0" 
+      <Button
+        variant="ghost"
+        size="sm"
+        className="absolute top-2 right-2 h-8 w-8 p-0"
         onClick={() => setDismissed(true)}
       >
         <X className="h-4 w-4" />
       </Button>
-      
+
       <CardHeader className="pb-2">
         <CardTitle className="text-xl">
           {isPro ? `Thanks for joining NexaBloom ${isLifetime ? 'Lifetime' : 'Pro'}!` : 'Welcome to NexaBloom!'}
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent>
         {isPro ? (
           <div className="space-y-2">

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +9,7 @@ import { addReportToHistory } from '@/utils/historyService';
 import { useAuth } from '@/contexts/AuthContext';
 import { useServiceHistoryStore } from '@/hooks/useServiceHistoryStore';
 import { shouldUpgradeTier, recordScanUsage, getSubscription, hasScansRemaining } from '@/utils/paymentService';
+import { useSubscription } from '@/hooks/useSubscription';
 
 const DocumentAnalysis = () => {
   const [report, setReport] = useState<ComplianceReport | null>(null);
@@ -18,48 +18,40 @@ const DocumentAnalysis = () => {
   const { addScanHistory } = useServiceHistoryStore();
   const chartsContainerRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
+  const { refresh } = useSubscription();
 
   useEffect(() => {
-    // Check if user needs to upgrade before allowing more scans using their user ID
-    if (user) {
-      const needsUpgrade = shouldUpgradeTier(user.id);
-      const hasScans = hasScansRemaining(user.id);
-      
+    const checkAccess = async () => {
+      if (!user) return;
+      const [needsUpgrade, hasScans] = await Promise.all([
+        shouldUpgradeTier(user.id),
+        hasScansRemaining(user.id),
+      ]);
       if (needsUpgrade || !hasScans) {
         toast.error('You have used all available scans for your current plan');
         navigate('/pricing');
       }
-    }
+    };
+    checkAccess();
   }, [navigate, user]);
 
-  const handleReportGenerated = (reportData: ComplianceReport) => {
-    // Record scan usage when a report is generated with user ID
-    recordScanUsage(user?.id);
-    
-    // Display remaining scans notification
-    const subscription = getSubscription(user?.id);
+  const handleReportGenerated = async (reportData: ComplianceReport) => {
+    await recordScanUsage(user?.id);
+    await refresh();
+
+    const subscription = await getSubscription(user?.id);
     if (subscription) {
       const scansRemaining = Math.max(0, subscription.scansLimit - subscription.scansUsed);
       toast.info(`Scan complete. You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);
-      
-      // Only show warning without redirecting after the last scan
       if (scansRemaining === 0) {
-        toast.warning('You have used all your available scans. Please upgrade your plan for more scans.');
+        toast.warning('You have used all your available scans. Please upgrade your plan.');
       }
     }
-    
-    // Add user ID to the report if available
-    const reportWithUser = user?.id 
-      ? { ...reportData, userId: user.id }
-      : reportData;
-    
+
+    const reportWithUser = user?.id ? { ...reportData, userId: user.id } : reportData;
     setReport(reportWithUser);
-    
-    // Save the report to history for viewing in the history page
     addReportToHistory(reportWithUser);
-    console.log('Report saved to history in DocumentAnalysis:', reportWithUser.documentName);
-    
-    // Also add to the scan history store - ensure all the same data is available in both places
+
     if (user) {
       addScanHistory({
         serviceId: reportWithUser.documentId,
@@ -75,73 +67,42 @@ const DocumentAnalysis = () => {
         regulations: reportWithUser.regulations
       });
     }
-    
     toast.success('Report added to history');
   };
 
   const captureChartAsImage = async (): Promise<string | undefined> => {
-    // Look for the compliance-charts-container class
     const chartsContainer = document.querySelector('.compliance-charts-container');
-    
-    if (!chartsContainer) {
-      console.warn('Charts container not found for capture');
-      return undefined;
-    }
-    
+    if (!chartsContainer) return undefined;
     try {
-      // Use html2canvas to capture the chart
       const html2canvas = (await import('html2canvas')).default;
       const canvas = await html2canvas(chartsContainer as HTMLElement, {
-        scale: 2, // Higher resolution
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff'
+        scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff'
       });
-      
       return canvas.toDataURL('image/png');
-    } catch (error) {
-      console.error('Failed to capture chart:', error);
+    } catch {
       return undefined;
     }
   };
 
   const handleDownloadReport = async () => {
     if (!report) return;
-    
     try {
       setIsGeneratingPDF(true);
-      
-      // Get chart image before generating the PDF
       const chartImage = await captureChartAsImage();
-      if (chartImage) {
-        console.log('Chart image captured successfully');
-      } else {
-        console.warn('No chart image could be captured');
-      }
-      
       const response = await generateReportPDF(report, 'en', chartImage);
-      
-      if (response.error) {
-        toast.error(response.error);
-        return;
-      }
-      
+      if (response.error) { toast.error(response.error); return; }
       if (response.data) {
         const blobUrl = URL.createObjectURL(response.data);
-        
         const link = document.createElement('a');
         link.href = blobUrl;
         link.download = `compliance-report-${report.documentId}.pdf`;
         document.body.appendChild(link);
         link.click();
-        
         document.body.removeChild(link);
         setTimeout(() => URL.revokeObjectURL(blobUrl), 100);
-        
         toast.success('PDF report downloaded successfully');
       }
-    } catch (error) {
-      console.error('PDF generation error:', error);
+    } catch {
       toast.error('Failed to generate PDF report');
     } finally {
       setIsGeneratingPDF(false);
@@ -152,7 +113,6 @@ const DocumentAnalysis = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto py-8">
         <DocumentHeader />
-        
         {!report ? (
           <DocumentUploader onReportGenerated={handleReportGenerated} />
         ) : (

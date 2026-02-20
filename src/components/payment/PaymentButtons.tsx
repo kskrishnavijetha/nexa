@@ -1,10 +1,10 @@
-
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { shouldUpgrade, saveSubscription } from '@/utils/paymentService';
 import { useAuth } from '@/contexts/AuthContext';
 import FreeButton from './buttons/FreeButton';
 import PaidTierHandler from './buttons/PaidTierHandler';
+import { useSubscription } from '@/hooks/useSubscription';
 
 interface PaymentButtonsProps {
   onSuccess?: (paymentId: string) => void;
@@ -26,31 +26,28 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
   currentPlan
 }) => {
   const { user } = useAuth();
+  const { needsUpgrade } = useSubscription();
 
-  const needsUpgrade = tier !== 'free' || (user && shouldUpgrade(user.id));
+  const requiresUpgrade = tier !== 'free' || needsUpgrade;
   const isChangingPlan = changePlan && tier !== currentPlan;
-  
+
   const buttonText = isChangingPlan
     ? `Change to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`
-    : tier === 'free' 
-      ? (needsUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan')
-      : `Subscribe to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`;
+    : tier === 'free'
+    ? (requiresUpgrade ? 'Select a Paid Plan' : 'Activate Free Plan')
+    : `Subscribe to ${tier.charAt(0).toUpperCase() + tier.slice(1)} Plan`;
 
   const handleFreePlanActivation = async () => {
     if (loading) return;
     setLoading(true);
-    
     try {
-      if (tier === 'free' && needsUpgrade) {
+      if (tier === 'free' && requiresUpgrade) {
         toast.info('Please select a paid plan to continue');
         setLoading(false);
         return;
       }
-      
       const subscriptionId = tier + '_' + Math.random().toString(36).substring(2, 15);
-      
-      saveSubscription(tier, subscriptionId, 'monthly', user?.id);
-      
+      await saveSubscription(tier, subscriptionId, 'monthly', user?.id);
       toast.success(`${tier.charAt(0).toUpperCase() + tier.slice(1)} plan activated!`);
       onSuccess(subscriptionId);
     } catch (error) {
@@ -59,7 +56,7 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
       setLoading(false);
     }
   };
-  
+
   if (tier === 'starter' || tier === 'pro' || tier === 'enterprise') {
     return (
       <PaidTierHandler
@@ -73,11 +70,11 @@ const PaymentButtons: React.FC<PaymentButtonsProps> = ({
       />
     );
   }
-  
+
   return (
     <FreeButton
       loading={loading}
-      needsUpgrade={needsUpgrade}
+      needsUpgrade={requiresUpgrade}
       onActivate={handleFreePlanActivation}
       buttonText={buttonText}
     />

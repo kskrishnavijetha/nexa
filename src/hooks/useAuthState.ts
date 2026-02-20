@@ -1,10 +1,9 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { clearUserData } from '@/utils/auth/authUtils';
-import { saveSubscription, getSubscription } from '@/utils/paymentService';
+import { ensureFreePlan } from '@/utils/payment/subscriptionService';
 
 export function useAuthState() {
   const [session, setSession] = useState<Session | null>(null);
@@ -12,69 +11,40 @@ export function useAuthState() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log('Auth provider initializing...');
-    
-    // If we've been loading for more than 5 seconds, reset the loading state
-    if (loading) {
-      const timeoutId = setTimeout(() => {
-        if (loading) {
-          console.log('Auth loading timeout reached, resetting loading state');
-          setLoading(false);
-        }
-      }, 5000);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [loading]);
+    // Safety timeout: if loading hangs, unblock UI after 5s
+    const timeoutId = setTimeout(() => setLoading(false), 5000);
+    return () => clearTimeout(timeoutId);
+  }, []);
 
-  // Separate useEffect for auth state to avoid dependency issues
   useEffect(() => {
-    // Set up auth state listener FIRST
+    // Listen for auth state changes FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, newSession) => {
+      async (event, newSession) => {
         console.log('Auth state changed:', event);
-        
+
         if (event === 'SIGNED_IN') {
-          // Update session and user immediately
           setSession(newSession);
           setUser(newSession?.user ?? null);
           setLoading(false);
-          
-          // Automatically assign free plan if user doesn't have a subscription
+
+          // Ensure the user has a free plan in the DB
           if (newSession?.user) {
-            const existingSubscription = getSubscription(newSession.user.id);
-            if (!existingSubscription) {
-              console.log('Assigning free plan to new user');
-              // Create a fresh free subscription for new users
-              saveSubscription('free', 'free_' + Date.now(), 'monthly', newSession.user.id);
-              toast.success('Welcome! Your free plan is now active with 5 scans per month.');
-            } else {
-              // For existing users, check if their subscription is valid
-              if (existingSubscription.active) {
-                toast.success('Welcome back! Your subscription is active.');
-              } else {
-                toast.success('Signed in successfully!');
-              }
-            }
+            await ensureFreePlan(newSession.user.id);
+            toast.success('Welcome! Your free plan is active with 5 scans per month.');
           }
-          
+
         } else if (event === 'SIGNED_OUT') {
-          // Clear all state
           setSession(null);
           setUser(null);
           setLoading(false);
-          
-          // Clear any user-specific data from localStorage on sign out
           clearUserData();
-          
           console.log('User signed out, state cleared');
-          toast.success('Signed out successfully');
+
         } else if (event === 'TOKEN_REFRESHED') {
-          // Update session with refreshed token
           setSession(newSession);
           setLoading(false);
+
         } else {
-          // For all other events, update session and user state
           setSession(newSession);
           setUser(newSession?.user ?? null);
           setLoading(false);
@@ -82,69 +52,42 @@ export function useAuthState() {
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session: initialSession } }) => {
-      console.log('Initial session check:', initialSession ? 'User is logged in' : 'No session found');
+    // THEN check for an existing session
+    supabase.auth.getSession().then(async ({ data: { session: initialSession } }) => {
+      console.log('Initial session check:', initialSession ? 'logged in' : 'no session');
       setSession(initialSession);
       setUser(initialSession?.user ?? null);
-      
-      // Assign free plan if user is logged in but has no subscription
+
       if (initialSession?.user) {
-        const existingSubscription = getSubscription(initialSession.user.id);
-        if (!existingSubscription) {
-          console.log('Assigning free plan to existing user without subscription');
-          saveSubscription('free', 'free_' + Date.now(), 'monthly', initialSession.user.id);
-        }
+        await ensureFreePlan(initialSession.user.id);
       }
-      
+
       setLoading(false);
     });
 
-    return () => {
-      subscription.unsubscribe();
-    };
+    return () => subscription.unsubscribe();
   }, []);
 
   const signUp = async (email: string, password: string, name?: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: name || '',
-          name: name || ''
-        }
-      }
+        emailRedirectTo: `${window.location.origin}/`,
+        data: { full_name: name || '', name: name || '' },
+      },
     });
-
-    if (!error && !error) {
-      // Don't show verification email message here as we handle it in the component
-    }
-
     return { error };
   };
 
   const signIn = async (email: string, password: string) => {
     setLoading(true);
-    
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        // Make sure to stop loading on error
-        setLoading(false);
-      }
-
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) setLoading(false);
       return { error };
     } catch (err) {
       setLoading(false);
-      console.error('Error during sign in:', err);
       return { error: err };
     }
   };
@@ -152,55 +95,27 @@ export function useAuthState() {
   const signOut = useCallback(async () => {
     console.log('Signing out...');
     setLoading(true);
-    
     try {
-      // First manually clear all user data to ensure clean state
       clearUserData();
-      
-      // Execute the signOut call to Supabase
-      const { error } = await supabase.auth.signOut({
-        scope: 'local' // Only sign out from this device
-      });
-      
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
       if (error) {
-        console.error('Error from Supabase during sign out:', error);
         toast.error('Failed to sign out. Please try again.');
         setLoading(false);
         return { error };
       }
-      
-      // Force update local state regardless of response
       setSession(null);
       setUser(null);
-      
-      console.log('Signout completed successfully');
-      toast.success('Signed out successfully');
       setLoading(false);
-      
-      // Navigation will be handled by the component that calls signOut
-      
       return { error: null };
-      
     } catch (error) {
-      console.error('Exception during sign out:', error);
       toast.error('Failed to sign out. Please try again.');
-      setLoading(false);
-      
-      // Still clear local state even if there's an error
       setSession(null);
       setUser(null);
       clearUserData();
-      
+      setLoading(false);
       return { error };
     }
   }, []);
 
-  return {
-    session,
-    user,
-    loading,
-    signUp,
-    signIn,
-    signOut
-  };
+  return { session, user, loading, signUp, signIn, signOut };
 }

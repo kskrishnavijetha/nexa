@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import Features from '@/components/Features';
@@ -12,23 +11,18 @@ import TrustedBySection from '@/components/home/TrustedBySection';
 import UserGuide from '@/components/home/UserGuide';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
-import { shouldUpgrade, getSubscription } from '@/utils/paymentService';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import LifetimeOfferBanner from '@/components/home/LifetimeOfferBanner';
 import FeedbackColumn from '@/components/home/FeedbackColumn';
 import ComparisonTable from '@/components/home/ComparisonTable';
+import { useSubscription } from '@/hooks/useSubscription';
 
 const Index = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const needsUpgrade = user ? shouldUpgrade(user.id) : false;
-  const subscription = user ? getSubscription(user.id) : null;
-  
-  // Calculate the actual remaining scans correctly
-  const scansRemaining = subscription ? 
-    Math.max(0, subscription.scansLimit - subscription.scansUsed) : 0;
-  
+  const { subscription, needsUpgrade, scansRemaining } = useSubscription();
+
   return (
     <Layout>
       <div className="min-h-screen">
@@ -37,21 +31,15 @@ const Index = () => {
             <div className="container mx-auto px-4 py-3">
               <div className="flex flex-col md:flex-row items-center justify-between">
                 <div className="mb-3 md:mb-0">
-                  <h3 className="text-lg font-semibold">
-                    Your {subscription.plan} plan
-                  </h3>
+                  <h3 className="text-lg font-semibold">Your {subscription.plan} plan</h3>
                   <p className="text-sm text-muted-foreground">
-                    {subscription.scansLimit === 999 ? 
-                      'Unlimited scans available' : 
-                      `${scansRemaining} of ${subscription.scansLimit} scans remaining this month`
-                    }
+                    {subscription.scansLimit === 999
+                      ? 'Unlimited scans available'
+                      : `${scansRemaining} of ${subscription.scansLimit} scans remaining this month`}
                   </p>
                 </div>
                 {needsUpgrade && (
-                  <Button 
-                    onClick={() => navigate('/pricing')}
-                    className="bg-amber-600 hover:bg-amber-700"
-                  >
+                  <Button onClick={() => navigate('/pricing')} className="bg-amber-600 hover:bg-amber-700">
                     {subscription?.plan === 'free' ? 'Upgrade Plan' : 'Renew Subscription'}
                   </Button>
                 )}
@@ -59,15 +47,15 @@ const Index = () => {
             </div>
           </div>
         )}
-        
+
         {needsUpgrade && (
           <div className="bg-amber-50 border-b border-amber-200">
             <div className="container mx-auto px-4 py-3">
               <div className="flex flex-col md:flex-row items-center justify-between">
                 <div className="mb-3 md:mb-0">
                   <h3 className="text-lg font-semibold text-amber-800">
-                    {subscription?.plan === 'free' 
-                      ? 'Your free plan is complete' 
+                    {subscription?.plan === 'free'
+                      ? 'Your free plan is complete'
                       : `Your ${subscription?.plan} plan limit reached`}
                   </h3>
                   <p className="text-amber-700">
@@ -77,17 +65,14 @@ const Index = () => {
                     {' '}Please upgrade to continue using Nexabloom.
                   </p>
                 </div>
-                <Button 
-                  onClick={() => navigate('/pricing')}
-                  className="bg-amber-600 hover:bg-amber-700"
-                >
+                <Button onClick={() => navigate('/pricing')} className="bg-amber-600 hover:bg-amber-700">
                   View Pricing Plans
                 </Button>
               </div>
             </div>
           </div>
         )}
-        
+
         <Hero />
         <LifetimeOfferBanner />
         <TrustedBySection />
