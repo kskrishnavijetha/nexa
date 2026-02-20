@@ -1,6 +1,8 @@
 /**
- * Service for managing user subscriptions
+ * Service for managing user subscriptions via Lovable Cloud database
  */
+
+import { supabase } from '@/integrations/supabase/client';
 
 export interface SubscriptionInfo {
   active: boolean;
@@ -9,210 +11,179 @@ export interface SubscriptionInfo {
   scansLimit: number;
   expirationDate: Date;
   billingCycle?: 'monthly' | 'annually' | 'lifetime';
-  userId?: string; // Add userId to track which user the subscription belongs to
-  isLifetime?: boolean; // Flag to identify lifetime subscriptions
+  userId?: string;
+  isLifetime?: boolean;
 }
 
-// Store the user's current subscription in localStorage with userId
-export const saveSubscription = (plan: string, paymentId: string, billingCycle: 'monthly' | 'annually' | 'lifetime' = 'monthly', userId?: string) => {
-  const pricingTiers = {
-    free: { scans: 5, days: 30 }, // 5 scans per month
-    starter: { scans: 20, days: 30 },
-    pro: { scans: 999, days: 30 }, // Using 999 to represent unlimited
-    enterprise: { scans: 999, days: 30 }, // Using 999 to represent unlimited
-    lifetime: { scans: 9999, days: 3650 } // 10 years (effectively lifetime)
-  };
-  
-  const selectedTier = pricingTiers[plan as keyof typeof pricingTiers] || pricingTiers.starter;
-  const expirationDate = new Date();
-  
-  // Set expiration date based on plan
-  expirationDate.setDate(expirationDate.getDate() + selectedTier.days);
-  
-  const subscription: SubscriptionInfo = {
-    active: true, // Always start as active for new subscriptions
-    plan: plan,
-    scansUsed: 0, // Always start with 0 scans used
-    scansLimit: selectedTier.scans,
-    expirationDate: expirationDate,
-    billingCycle: billingCycle,
-    userId: userId, // Store the user ID with the subscription
-    isLifetime: billingCycle === 'lifetime'
-  };
-  
-  // Store subscription with user ID in the key if available
-  const storageKey = userId ? `subscription_${userId}` : 'subscription';
-  localStorage.setItem(storageKey, JSON.stringify(subscription));
-  
-  console.log('Subscription saved:', {
-    ...subscription,
-    expirationDate: subscription.expirationDate.toISOString()
-  });
-  return subscription;
+const PLAN_TIERS = {
+  free:       { scans: 5,    days: 30   },
+  starter:    { scans: 20,   days: 30   },
+  pro:        { scans: 999,  days: 30   },
+  enterprise: { scans: 999,  days: 30   },
+  lifetime:   { scans: 9999, days: 3650 },
 };
 
-// Get the current subscription from localStorage for the current user
-export const getSubscription = (userId?: string): SubscriptionInfo | null => {
-  // Try to get user-specific subscription first if userId provided
-  if (userId) {
-    const userSubscription = localStorage.getItem(`subscription_${userId}`);
-    if (userSubscription) {
-      const parsedSubscription = JSON.parse(userSubscription);
-      parsedSubscription.expirationDate = new Date(parsedSubscription.expirationDate);
-      
-      console.log('Retrieved user subscription:', {
-        ...parsedSubscription,
-        expirationDate: parsedSubscription.expirationDate.toISOString(),
-        isExpired: !parsedSubscription.isLifetime && parsedSubscription.expirationDate < new Date()
-      });
-      
-      return parsedSubscription;
-    }
-  }
-  
-  // Fall back to the generic subscription if no user-specific one found
-  const subscription = localStorage.getItem('subscription');
-  if (!subscription) {
+function mapRow(row: any): SubscriptionInfo {
+  return {
+    active:         row.active,
+    plan:           row.plan,
+    scansUsed:      row.scans_used,
+    scansLimit:     row.scans_limit,
+    expirationDate: new Date(row.expiration_date),
+    billingCycle:   row.billing_cycle as SubscriptionInfo['billingCycle'],
+    userId:         row.user_id,
+    isLifetime:     row.is_lifetime,
+  };
+}
+
+// ─── Save / upsert subscription ────────────────────────────────────────────
+
+export const saveSubscription = async (
+  plan: string,
+  paymentId: string,
+  billingCycle: 'monthly' | 'annually' | 'lifetime' = 'monthly',
+  userId?: string
+): Promise<SubscriptionInfo | null> => {
+  if (!userId) {
+    console.error('saveSubscription: userId is required');
     return null;
   }
-  
-  const parsedSubscription = JSON.parse(subscription);
-  parsedSubscription.expirationDate = new Date(parsedSubscription.expirationDate);
-  
-  // If we have a userId but no user-specific subscription,
-  // migrate this subscription to be user-specific
-  if (userId && !parsedSubscription.userId) {
-    parsedSubscription.userId = userId;
-    localStorage.setItem(`subscription_${userId}`, JSON.stringify(parsedSubscription));
+
+  const tier = PLAN_TIERS[plan as keyof typeof PLAN_TIERS] || PLAN_TIERS.starter;
+  const expirationDate = new Date();
+  expirationDate.setDate(expirationDate.getDate() + tier.days);
+
+  const { data, error } = await supabase
+    .from('subscriptions')
+    .upsert(
+      {
+        user_id:         userId,
+        plan,
+        active:          true,
+        scans_used:      0,
+        scans_limit:     tier.scans,
+        billing_cycle:   billingCycle,
+        is_lifetime:     billingCycle === 'lifetime',
+        expiration_date: expirationDate.toISOString(),
+        payment_id:      paymentId,
+      },
+      { onConflict: 'user_id' }
+    )
+    .select()
+    .single();
+
+  if (error) {
+    console.error('saveSubscription error:', error);
+    return null;
   }
-  
-  console.log('Retrieved generic subscription:', {
-    ...parsedSubscription,
-    expirationDate: parsedSubscription.expirationDate.toISOString(),
-    isExpired: !parsedSubscription.isLifetime && parsedSubscription.expirationDate < new Date()
-  });
-  
-  return parsedSubscription;
+
+  return mapRow(data);
 };
 
-// Check if user has an active subscription
-export const hasActiveSubscription = (userId?: string): boolean => {
-  const subscription = getSubscription(userId);
-  return !!subscription && subscription.active;
+// ─── Get subscription ───────────────────────────────────────────────────────
+
+export const getSubscription = async (userId?: string): Promise<SubscriptionInfo | null> => {
+  if (!userId) return null;
+
+  const { data, error } = await supabase
+    .from('subscriptions')
+    .select('*')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (error) {
+    console.error('getSubscription error:', error);
+    return null;
+  }
+
+  if (!data) return null;
+
+  const sub = mapRow(data);
+
+  // Mark as inactive if expired (non-lifetime)
+  if (!sub.isLifetime && sub.expirationDate < new Date()) {
+    sub.active = false;
+  }
+
+  return sub;
 };
 
-// Check if user has scans remaining
-export const hasScansRemaining = (userId?: string): boolean => {
-  const subscription = getSubscription(userId);
-  return !!subscription && subscription.active && 
-    (subscription.isLifetime || subscription.scansUsed < subscription.scansLimit);
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+export const hasActiveSubscription = async (userId?: string): Promise<boolean> => {
+  const sub = await getSubscription(userId);
+  return !!sub && sub.active;
 };
 
-// Record a scan usage - MODIFIED to properly increment usage count
-export const recordScanUsage = (userId?: string): void => {
-  const subscription = getSubscription(userId);
-  if (subscription && subscription.active) {
-    // Don't count usage for lifetime subscriptions
-    if (subscription.isLifetime) {
-      console.log('Lifetime plan: scan usage not counted');
-      return;
-    }
-    
-    // Increment usage count
-    subscription.scansUsed += 1;
-    console.log(`Recording scan: now used ${subscription.scansUsed} of ${subscription.scansLimit} scans`);
-    
-    // Check if scans limit reached
-    if (subscription.scansUsed >= subscription.scansLimit) {
-      // Mark as inactive if scans are exhausted
-      if (subscription.plan === 'free') {
-        subscription.active = false;
-        console.log('Free plan scans exhausted, marking as inactive');
-      } else {
-        console.log('Paid plan scans exhausted, keeping active but should show upgrade message');
-      }
-    }
-    
-    // Store with user ID if available
-    const storageKey = userId || subscription.userId 
-      ? `subscription_${userId || subscription.userId}` 
-      : 'subscription';
-    
-    localStorage.setItem(storageKey, JSON.stringify(subscription));
-  } else {
-    console.log('No active subscription found to record scan usage');
-  }
+export const hasScansRemaining = async (userId?: string): Promise<boolean> => {
+  const sub = await getSubscription(userId);
+  if (!sub || !sub.active) return false;
+  return sub.isLifetime || sub.scansUsed < sub.scansLimit;
 };
 
-// Check if user needs to upgrade (free plan with no scans left or expired)
-export const shouldUpgrade = (userId?: string): boolean => {
-  const subscription = getSubscription(userId);
-  
-  if (!subscription) {
-    return false; // No subscription yet, they'll be directed to pricing anyway
-  }
-  
-  // Lifetime subscriptions never need to upgrade
-  if (subscription.isLifetime) {
-    return false;
-  }
-  
-  // If subscription has expired or no scans left
-  const needsUpgrade = (!subscription.active || 
-    subscription.scansUsed >= subscription.scansLimit);
-  
-  if (needsUpgrade) {
-    console.log('User needs to upgrade: active=', subscription.active, 
-      'scans used=', subscription.scansUsed, 
-      'scans limit=', subscription.scansLimit);
-  }
-  
-  return needsUpgrade;
+export const recordScanUsage = async (userId?: string): Promise<void> => {
+  if (!userId) return;
+
+  const sub = await getSubscription(userId);
+  if (!sub || !sub.active || sub.isLifetime) return;
+
+  const newUsed = sub.scansUsed + 1;
+  const nowInactive = sub.plan === 'free' && newUsed >= sub.scansLimit;
+
+  const { error } = await supabase
+    .from('subscriptions')
+    .update({
+      scans_used: newUsed,
+      ...(nowInactive ? { active: false } : {}),
+    })
+    .eq('user_id', userId);
+
+  if (error) console.error('recordScanUsage error:', error);
 };
 
-// Check if user needs to upgrade specifically to a higher tier than they currently have
-export const shouldUpgradeTier = (userId?: string): boolean => {
-  const subscription = getSubscription(userId);
-  
-  if (!subscription) {
-    // If no subscription exists, user doesn't need to upgrade yet - they need to select a plan first
-    return false;
-  }
-  
-  // Lifetime subscriptions never need to upgrade tier
-  if (subscription.isLifetime) {
-    return false;
-  }
-  
-  // Check if scans limit reached and not on enterprise plan
-  // For free plan, only return true if active is false (meaning they've used all scans)
-  if (subscription.plan === 'free') {
-    const needsUpgrade = subscription.scansUsed >= subscription.scansLimit;
-    if (needsUpgrade) {
-      console.log('Free user needs to upgrade: scans used=', subscription.scansUsed, 
-        'scans limit=', subscription.scansLimit);
-    }
-    return needsUpgrade;
-  }
-  
-  const needsUpgradeTier = (
-    subscription.scansUsed >= subscription.scansLimit && 
-    subscription.plan !== 'enterprise' && 
-    subscription.plan !== 'pro'
+export const shouldUpgrade = async (userId?: string): Promise<boolean> => {
+  const sub = await getSubscription(userId);
+  if (!sub || sub.isLifetime) return false;
+  return !sub.active || sub.scansUsed >= sub.scansLimit;
+};
+
+export const shouldUpgradeTier = async (userId?: string): Promise<boolean> => {
+  const sub = await getSubscription(userId);
+  if (!sub || sub.isLifetime) return false;
+  if (sub.plan === 'free') return sub.scansUsed >= sub.scansLimit;
+  return (
+    sub.scansUsed >= sub.scansLimit &&
+    sub.plan !== 'enterprise' &&
+    sub.plan !== 'pro'
   );
-  
-  if (needsUpgradeTier) {
-    console.log('Paid user needs to upgrade tier: plan=', subscription.plan,
-      'scans used=', subscription.scansUsed, 
-      'scans limit=', subscription.scansLimit);
-  }
-  
-  return needsUpgradeTier;
 };
 
-// DO NOT clear user-specific subscription data when user logs out
-// This is important to maintain subscription data across sessions
-export const clearUserSubscription = (userId: string): void => {
-  // Do nothing - we want to keep subscription data across sessions
-  console.log('Subscription data preserved across sessions for user', userId);
+export const clearUserSubscription = (_userId: string): void => {
+  // No-op: subscription data is preserved in the DB across sessions
+};
+
+// ─── Ensure free plan exists (called on sign-in) ────────────────────────────
+
+export const ensureFreePlan = async (userId: string): Promise<void> => {
+  const { data } = await supabase
+    .from('subscriptions')
+    .select('id')
+    .eq('user_id', userId)
+    .maybeSingle();
+
+  if (!data) {
+    const expiration = new Date();
+    expiration.setDate(expiration.getDate() + 30);
+
+    await supabase.from('subscriptions').insert({
+      user_id:         userId,
+      plan:            'free',
+      active:          true,
+      scans_used:      0,
+      scans_limit:     5,
+      billing_cycle:   'monthly',
+      is_lifetime:     false,
+      expiration_date: expiration.toISOString(),
+    });
+  }
 };

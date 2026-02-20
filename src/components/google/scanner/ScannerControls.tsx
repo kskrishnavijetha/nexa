@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
@@ -19,15 +18,12 @@ interface ScannerControlsProps {
   region?: Region;
   file?: File;
   onScan: (
-    services: GoogleService[], 
-    industry: Industry, 
-    language?: SupportedLanguage, 
+    services: GoogleService[],
+    industry: Industry,
+    language?: SupportedLanguage,
     region?: Region
   ) => Promise<void>;
-  onScanComplete: (
-    itemsScanned: number, 
-    violationsFound: number
-  ) => void;
+  onScanComplete: (itemsScanned: number, violationsFound: number) => void;
   isCompactView: boolean;
 }
 
@@ -37,7 +33,6 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
   industry,
   language,
   region,
-  file,
   onScan,
   onScanComplete,
   isCompactView
@@ -45,24 +40,18 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
   const navigate = useNavigate();
   const [needsUpgrade, setNeedsUpgrade] = useState(false);
   const { user } = useAuth();
-  
+
   useEffect(() => {
-    // Check if user needs to upgrade using their user ID
-    const checkSubscriptionStatus = () => {
+    const checkSubscriptionStatus = async () => {
       if (!user) return;
-      
-      const upgradeNeeded = shouldUpgradeTier(user.id);
-      const hasScans = hasScansRemaining(user.id);
-      
+      const [upgradeNeeded, hasScans] = await Promise.all([
+        shouldUpgradeTier(user.id),
+        hasScansRemaining(user.id),
+      ]);
       setNeedsUpgrade(upgradeNeeded || !hasScans);
-      
-      if (upgradeNeeded) {
-        toast.error('You have reached the scan limit for your current plan');
-      } else if (!hasScans) {
-        toast.error('You have no scans remaining in your plan');
-      }
+      if (upgradeNeeded) toast.error('You have reached the scan limit for your current plan');
+      else if (!hasScans) toast.error('You have no scans remaining in your plan');
     };
-    
     checkSubscriptionStatus();
   }, [user]);
 
@@ -72,42 +61,37 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
       navigate('/sign-in');
       return;
     }
-
     if (needsUpgrade) {
       toast.error('Please upgrade your plan to continue scanning');
       navigate('/pricing');
       return;
     }
-    
     if (!industry) {
       toast.error('Please select an industry before scanning');
       return;
     }
-    
     if (connectedServices.length === 0) {
       toast.error('Please connect at least one service before scanning');
       return;
     }
-    
+
     try {
-      // Record scan usage when starting a scan with user ID
-      recordScanUsage(user.id);
-      
-      // Display remaining scans notification
-      const subscription = getSubscription(user.id);
+      await recordScanUsage(user.id);
+
+      const subscription = await getSubscription(user.id);
       if (subscription) {
         const scansRemaining = Math.max(0, subscription.scansLimit - subscription.scansUsed);
         toast.info(`Scan started. You have ${scansRemaining} scan${scansRemaining !== 1 ? 's' : ''} remaining this month.`);
       }
-      
+
       await onScan(connectedServices, industry, language, region);
-      
-      // Check again after scan completes if user now needs to upgrade
-      const nowNeedsUpgrade = shouldUpgradeTier(user.id);
-      const hasScans = hasScansRemaining(user.id);
-      
+
+      const [nowNeedsUpgrade, hasScans] = await Promise.all([
+        shouldUpgradeTier(user.id),
+        hasScansRemaining(user.id),
+      ]);
       if (nowNeedsUpgrade || !hasScans) {
-        toast.warning('You have used all your available scans. Please upgrade your plan for more scans.');
+        toast.warning('You have used all your available scans. Please upgrade your plan.');
         setNeedsUpgrade(true);
       }
     } catch (error) {
@@ -117,7 +101,7 @@ const ScannerControls: React.FC<ScannerControlsProps> = ({
   };
 
   return (
-    <Button 
+    <Button
       disabled={isScanning || connectedServices.length === 0 || !industry || needsUpgrade}
       className="w-full"
       onClick={handleStartScan}
